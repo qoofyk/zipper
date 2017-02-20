@@ -10,8 +10,7 @@ void recv_ring_buffer_put(GV gv,LV lv,char * buffer){
       rb->buffer[rb->head] = buffer;
       rb->head = (rb->head + 1) % rb->bufsize;
       rb->num_avail_elements++;
-      // pthread_cond_signal(rb->empty);
-      pthread_cond_broadcast(rb->empty);
+      pthread_cond_signal(rb->empty);
       pthread_mutex_unlock(rb->lock_ringbuffer);
       return;
     } else {
@@ -20,7 +19,7 @@ void recv_ring_buffer_put(GV gv,LV lv,char * buffer){
   }
 }
 
-void copy_msg_double(double* temp1,double* temp2,int num_int){
+void copy_msg_int(int* temp1,int* temp2,int num_int){
   for(int i=0;i<num_int;i++)
     temp1[i]=temp2[i];
 }
@@ -95,13 +94,6 @@ void analysis_receiver_thread(GV gv,LV lv){
     t3 = get_cur_time();
     receive_time += t3-t2;
 
-    // if(gv->rank[0]==gv->compute_process_num && gv->mpi_recv_progress_counter%RECEIVER_COUNT==0){
-    //   printf("Ana Proc %d Receiver long_messageind=%d,gv->mpi_recv_progress_counter=%d\n",
-    //     gv->rank[0], long_msg_id,gv->mpi_recv_progress_counter);
-    //   fflush(stdout);
-    // }
-
-
     // #ifdef DEBUG_PRINT
     // printf("Already received!\n");
     // fflush(stdout);
@@ -120,6 +112,7 @@ void analysis_receiver_thread(GV gv,LV lv){
       // if(long_messageind%3000==0)
       //   printf("LONG!____Node %d Receive thread %d mpi_recv_progress_counter=%ld, long_messageind= %ld, short_messageind=%ld\n", gv->rank[0], lv->tid, gv->mpi_recv_progress_counter,long_messageind,short_messageind);
 
+      gv->mpi_recv_progress_counter++;
       long_msg_id++;
       #ifdef DEBUG_PRINT
       printf("Get a Long msg!long_messageind=%d,gv->mpi_recv_progress_counter=%d\n",
@@ -133,24 +126,11 @@ void analysis_receiver_thread(GV gv,LV lv){
       temp_int_pointer[0] = status.MPI_SOURCE;
       block_id =*((int *)(gv->org_recv_buffer));
       temp_int_pointer[1] = block_id;
+      // temp_int_pointer[2] = BLANK;
       new_buffer[8] = NOT_ON_DISK;
       new_buffer[9] = NOT_CALC;
-      temp_int_pointer[3] = *((int *)(gv->org_recv_buffer+sizeof(int))); //step
-      temp_int_pointer[4] = *((int *)(gv->org_recv_buffer+sizeof(int)*2)); //CI
-      temp_int_pointer[5] = *((int *)(gv->org_recv_buffer+sizeof(int)*3)); //CJ
-      temp_int_pointer[6] = *((int *)(gv->org_recv_buffer+sizeof(int)*4)); //CK
-
-      copy_msg_double((double*)(new_buffer+7*sizeof(int)),
-        (double*)(gv->org_recv_buffer+sizeof(int)*5),
-        gv->cubex*gv->cubey*gv->cubez*2);
-
+      copy_msg_int(temp_int_pointer+3,(int*)(gv->org_recv_buffer+sizeof(int)),gv->block_size/sizeof(int));
       recv_ring_buffer_put(gv,lv,new_buffer);
-
-      gv->mpi_recv_progress_counter++;
-
-      pthread_mutex_lock(&gv->lock_recv);
-      gv->ana_progress++;
-      pthread_mutex_unlock(&gv->lock_recv);
     }
 
     else if (status.MPI_TAG == MIX_MPI_DISK_TAG) {
@@ -163,7 +143,7 @@ void analysis_receiver_thread(GV gv,LV lv){
       recv_int=*(int *)(temp_int_pointer);
       disk_id += recv_int;
       mix_msg_id++;
-
+      gv->mpi_recv_progress_counter += recv_int+1;
       // #ifdef DEBUG_PRINT
       // printf("mix_msg_id:- recv_int=%d,gv->mpi_recv_progress_counter=%d,temp_int_pointer[1]=%d\n",
       //   recv_int,gv->mpi_recv_progress_counter,temp_int_pointer[1]);
@@ -184,13 +164,6 @@ void analysis_receiver_thread(GV gv,LV lv){
       check_malloc(new_buffer);
       temp_int_pointer[0] = status.MPI_SOURCE;
       block_id =*((int *)(gv->org_recv_buffer));
-      temp_int_pointer[1] = block_id;
-      new_buffer[8] = NOT_ON_DISK;
-      new_buffer[9] = NOT_CALC;
-      temp_int_pointer[3] = *((int *)(gv->org_recv_buffer+sizeof(int))); //step
-      temp_int_pointer[4] = *((int *)(gv->org_recv_buffer+sizeof(int)*2)); //CI
-      temp_int_pointer[5] = *((int *)(gv->org_recv_buffer+sizeof(int)*3)); //CJ
-      temp_int_pointer[6] = *((int *)(gv->org_recv_buffer+sizeof(int)*4)); //CK
 
       // #ifdef DEBUG_PRINT
       // printf("Analysis Process %d Receiver %d Get a MIX msg! long_messageind=%d,gv->mpi_recv_progress_counter=%d,block_id=%d\n",
@@ -198,17 +171,13 @@ void analysis_receiver_thread(GV gv,LV lv){
       // fflush(stdout);
       // #endif //DEBUG_PRINT
 
-      copy_msg_double((double*)(new_buffer+8*sizeof(int)),
-        (double*)(gv->org_recv_buffer+sizeof(int)*5),
-        gv->cubex*gv->cubey*gv->cubez*2);
+      temp_int_pointer[1] = block_id;
+      // temp_int_pointer[2] = BLANK;
+      new_buffer[8] = NOT_ON_DISK;
+      new_buffer[9] = NOT_CALC;
+      copy_msg_int(temp_int_pointer+3,(int*)(gv->org_recv_buffer+sizeof(int)),gv->block_size/sizeof(int));
 
       recv_ring_buffer_put(gv,lv,new_buffer);
-
-      gv->mpi_recv_progress_counter += recv_int+1;
-
-      pthread_mutex_lock(&gv->lock_recv);
-      gv->ana_progress++;
-      pthread_mutex_unlock(&gv->lock_recv);
       //printf("Node 2 RECEIVE thread %d using recv_progress_counter = %d\n", lv->tid, gv->recv_progress_counter);
 
     }
@@ -218,6 +187,7 @@ void analysis_receiver_thread(GV gv,LV lv){
       printf("pure_disk_msg:- recv_int=%d,gv->mpi_recv_progress_counter=%d\n",
         recv_int,gv->mpi_recv_progress_counter);
       fflush(stdout);
+
 
       temp_int_pointer=(int*)gv->org_recv_buffer;
       // for(int i=0;i<recv_int;i++){
@@ -238,7 +208,6 @@ void analysis_receiver_thread(GV gv,LV lv){
       t5 = get_cur_time();
       wait_lock += t5-t4;
 
-      disk_id += recv_int;
       gv->mpi_recv_progress_counter += recv_int;
     }
     else{
@@ -250,8 +219,8 @@ void analysis_receiver_thread(GV gv,LV lv){
   t1 = get_cur_time();
 
   printf("Analysis Process %d Receive thread %d total time is %f, mpi_recv_progress_counter=%d, \
-receive_time = %f, wait_lock = %f, mix_msg_id= %d, disk_id=%d, long_msg_id=%d\n",
+receive_time = %f, wait_lock = %f, long_msg_id=%d, mix_msg_id= %d,disk_id=%d\n",
     gv->rank[0], lv->tid, t1-t0, gv->mpi_recv_progress_counter,
-    receive_time, wait_lock, mix_msg_id, disk_id, long_msg_id);
+    receive_time, wait_lock, long_msg_id ,mix_msg_id,disk_id);
 
 }

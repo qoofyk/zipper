@@ -193,16 +193,13 @@ PRODUCER_Ringbuffer %.3fGB, size is %d member\n",
 
 		gv->written_id_array = (int *) malloc(sizeof(int)*gv->writer_blk_num);
 		gv->send_tail = 0;
-		gv->disk_id = 0;
-		gv->writer_done=0;
-	    gv->id_get=0;
-	    gv->writer_quit = 0;
 
 		//init lock
 		pthread_mutex_init(&gv->lock_block_id,NULL);
 	    pthread_mutex_init(&gv->lock_writer_progress, NULL);
 	    pthread_mutex_init(&gv->lock_writer_done, NULL);
-	    pthread_mutex_init(&gv->lock_writer_quit, NULL);
+
+	    gv->writer_done=0;
 
 		t0=get_cur_time();
 
@@ -1248,7 +1245,7 @@ CONSUMER_Ringbuffer %.3fGB, size is %d member\n",
 		    fflush(stdout);
 	    }
 
-	    gv->ana_progress = 0;
+
 		gv->mpi_recv_progress_counter = 0;
 	    gv->org_recv_buffer = (char *) malloc(gv->compute_data_len); //long message+
 	    check_malloc(gv->org_recv_buffer);

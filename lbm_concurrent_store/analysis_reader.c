@@ -13,8 +13,7 @@ void ring_buffer_put(GV gv,LV lv,char * buffer){
       rb->buffer[rb->head] = buffer;
       rb->head = (rb->head + 1) % rb->bufsize;
       rb->num_avail_elements++;
-      // pthread_cond_signal(rb->empty);
-      pthread_cond_broadcast(rb->empty);
+      pthread_cond_signal(rb->empty);
       pthread_mutex_unlock(rb->lock_ringbuffer);
       return;
     } else {
@@ -40,8 +39,8 @@ void read_blk(GV gv, LV lv,int last_gen_rank,int blk_id, char* buffer, int nbyte
           gv->rank[0], lv->tid, last_gen_rank, blk_id);
         fflush(stdout);
       }
+
       i++;
-      // usleep(500000);
       sleep(1);
     }
   }
@@ -81,13 +80,11 @@ void analysis_reader_thread(GV gv,LV lv) {
   while(1){
     flag = 0;
 
-    if(gv->reader_blk_num==0) break;
-
     pthread_mutex_lock(&gv->lock_recv);
-    if(gv->ana_progress>=gv->ana_total_blks){
-      pthread_mutex_unlock(&gv->lock_recv);
-      break;
-    }
+    // if(gv->prefetch_counter>=gv->ana_total_blks){
+    //   pthread_mutex_unlock(&gv->lock_recv);
+    //   break;
+    // }
 
     if(gv->recv_tail>0){
       flag = 1;
@@ -129,11 +126,10 @@ void analysis_reader_thread(GV gv,LV lv) {
       t1 = get_cur_time();
       lv->ring_buffer_put_time += t1 - t0;
 
-      pthread_mutex_lock(&gv->lock_recv);
-      gv->ana_progress++;
-      pthread_mutex_unlock(&gv->lock_recv);
     }
 
+    if(read_file_cnt>=gv->reader_blk_num)
+      break;
   }
 
   t3 = get_cur_time();

@@ -38,9 +38,8 @@ void write_blk(GV gv, LV lv,int blk_id, char* buffer, int nbytes){
 			        gv->rank[0], lv->tid, gv->rank[0], blk_id);
 			    fflush(stdout);
 	    	}
-	      	i++;
-	      	// usleep(500000);
-	      	sleep(1);
+	      i++;
+	      sleep(1);
 	    }
 	}
 
@@ -57,7 +56,6 @@ void compute_writer_thread(GV gv,LV lv) {
 	int block_id=0,my_count=0;
 	double t0=0,t1=0,t2=0,t3=0;
 	char* buffer=NULL;
-	ring_buffer *rb = gv->producer_rb_p;
 	// int dest = gv->rank[0]/gv->computer_group_size + gv->computer_group_size*gv->analysis_process_num;
 
 	// printf("Compute Process %d Writer thread %d is running!\n",gv->rank[0],lv->tid);
@@ -65,37 +63,14 @@ void compute_writer_thread(GV gv,LV lv) {
 	t2 = get_cur_time();
 
 	while(1){
-		if(my_count >= gv->writer_blk_num) {
+		if(gv->writer_blk_num==0) {
         	pthread_mutex_lock(&gv->lock_writer_done);
 			gv->writer_done=1;
 			pthread_mutex_unlock(&gv->lock_writer_done);
 			break;
 		}
 
-		//Robbing case: Writer send last disk msg
-    	pthread_mutex_lock(&gv->lock_writer_done);
-		if(gv->writer_done==1){
-			pthread_mutex_unlock(&gv->lock_writer_done);
-
-			pthread_mutex_lock(&gv->lock_writer_quit);
-			gv->writer_quit = 1;
-			pthread_mutex_unlock(&gv->lock_writer_quit);
-
-			pthread_cond_broadcast(rb->empty);
-
-			break;
-		}
-		pthread_mutex_unlock(&gv->lock_writer_done);
-
 		//get pointer from PRB
-		pthread_mutex_lock(&gv->lock_id_get);
-    	gv->id_get++;
-    	if(gv->id_get > gv->cpt_total_blks){
-			pthread_mutex_unlock(&gv->lock_id_get);
-			break;
-		}
-    	pthread_mutex_unlock(&gv->lock_id_get);
-
     	buffer = producer_ring_buffer_get(gv,lv);
 
 		block_id = *((int*)buffer);
@@ -115,6 +90,12 @@ void compute_writer_thread(GV gv,LV lv) {
 
 		free(buffer);
 
+		if(my_count >= gv->writer_blk_num) {
+        	pthread_mutex_lock(&gv->lock_writer_done);
+			gv->writer_done=1;
+			pthread_mutex_unlock(&gv->lock_writer_done);
+			break;
+		}
 	}
 
 

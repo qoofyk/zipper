@@ -15,8 +15,8 @@ Brief desc of the file: Header
 #include <sys/types.h>
 #include <errno.h>
 
-#define PRODUCER_RINGBUFFER_TOTAL_MEMORY 32*1024*1024L //1G Byte
-#define CONSUMER_RINGBUFFER_TOTAL_MEMORY 32*1024*1024L
+#define PRODUCER_RINGBUFFER_TOTAL_MEMORY 512*1024*1024L //1G Byte
+#define CONSUMER_RINGBUFFER_TOTAL_MEMORY 512*1024*1024L
 
 // #define DEBUG_PRINT
 // #define TOTAL_FILE2PRODUCE_1GB 1024*1024*1024L
@@ -33,6 +33,14 @@ Brief desc of the file: Header
 // #define CALC_ANALYSIS_WRITTEN_BOTH_DONE 3
 // #define BLANK_CALC_DONE 5
 
+#define NOT_ON_DISK 0
+#define ON_DISK 1
+
+#define NOT_CALC 0
+#define CALC_DONE 1
+
+#define CACHE 4
+
 #define TOTAL_FILE2PRODUCE_1GB 256
 
 #define nx TOTAL_FILE2PRODUCE_1GB/4
@@ -40,19 +48,10 @@ Brief desc of the file: Header
 #define nz TOTAL_FILE2PRODUCE_1GB
 
 #define NMOMENT 8
-#define TRYNUM 400
-#define CACHE 4
+#define TRYNUM 50
 
 #define WRITER_COUNT 5000
 #define ANALSIS_COUNT 5000
-#define SENDER_COUNT 50
-#define RECEIVER_COUNT 50
-
-#define NOT_ON_DISK 0
-#define ON_DISK 1
-
-#define NOT_CALC 0
-#define CALC_DONE 1
 
 typedef struct {
   char** buffer; //array of pointers
@@ -86,6 +85,7 @@ typedef struct gv_t {
   int step_stop;
   int cubex,cubey,cubez;
   int CI,CJ,CK,originx,originy,originz,gi,gj,gk,computeid;
+  int lp;
 
   int rank[2], size[2], namelen, color;
   char processor_name[128];
@@ -109,8 +109,7 @@ typedef struct gv_t {
   int analysis_writer_blk_num;
   int block_size;
   long total_file;
-  int lp;
-  // double msleep;
+  double msleep;
 
   int compute_data_len;
   int analysis_data_len;
@@ -118,14 +117,11 @@ typedef struct gv_t {
   //sender
   int sender_all_done;
   int mpi_send_progress_counter;  //currently how many file blocks have been sent
-  int id_get;
 
   //writer
   int* written_id_array;
   int send_tail;
   int writer_done;
-  int disk_id;
-  int writer_quit;
 
   // receiver_thread
   char * org_recv_buffer;
@@ -134,17 +130,12 @@ typedef struct gv_t {
   // int prefetch_counter;  //currently how many file blocks have been read
   int recv_tail;
   int * prefetch_id_array;
-  int ana_progress;
 
   int calc_counter;
 
-  // int utime;
-
   pthread_mutex_t lock_block_id;
-  pthread_mutex_t lock_id_get;
   pthread_mutex_t lock_writer_progress;
   pthread_mutex_t lock_writer_done;
-  pthread_mutex_t lock_writer_quit;
   pthread_mutex_t lock_recv;
   // pthread_mutex_t lock_prefetcher_progress;
 

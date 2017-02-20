@@ -11,9 +11,9 @@ LINK    =  ftn
 # CC      = mpicc
 # FC      =  mpifort  #ftn
 # LINK    =  mpifort  #ftn
-OPT     =  -g -craympich-mt
+OPT     =  -g
 
-ADDCFLAGS =
+ADDCFLAGS = -Wall
 CCFLAGS = $(OPT)
 LDFLAGS = $(OPT)
 

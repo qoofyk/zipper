@@ -7,14 +7,7 @@ char* analysis_writer_ring_buffer_read_tail(GV gv,LV lv, char* writer_state_p){
 
   pthread_mutex_lock(rb->lock_ringbuffer);
   while(1) {
-  	if(gv->calc_counter >= gv->ana_total_blks){
-  		pthread_mutex_unlock(rb->lock_ringbuffer);
-  		// printf("analysis_writer break here!\n");
-  		// fflush(stdout);
-  		return NULL;
-  	}
-
-    if(rb->num_avail_elements > 0) {
+    if (rb->num_avail_elements > 0) {
 		pointer = rb->buffer[rb->tail];
 		// temp_int_pointer = (int*) pointer;
 		*writer_state_p = pointer[8];
@@ -67,9 +60,9 @@ void analysis_write_blk(GV gv, LV lv, int source, int blk_id, char* buffer, int 
 				    gv->rank[0], lv->tid, source, blk_id);
 			  	fflush(stdout);
 			}
-		  	i++;
-		  	// usleep(500000);
-		  	sleep(1);
+
+		  i++;
+		  sleep(1);
 		}
 	}
 
@@ -80,7 +73,7 @@ void analysis_write_blk(GV gv, LV lv, int source, int blk_id, char* buffer, int 
 		lv->only_fwrite_time += t1 - t0;
 	}
 	else{
-		printf("!!!!! Missing Writing File: Analysis Process %d Writer %d write a Missing file last_gen_rank=%d, blk_id=%d !!!!!!!!!!!!!!!!!!!!!\n",
+		printf("!!!!! Missing Writing File: Analysis Process %d Writer %d write Missing a file last_gen_rank=%d, blk_id=%d !!!!!!!!!!!!!!!!!!!!!\n",
 				    gv->rank[0], lv->tid, source, blk_id);
 		fflush(stdout);
 	}
@@ -106,7 +99,9 @@ void analysis_writer_thread(GV gv,LV lv) {
 	t2 = get_cur_time();
 
 	while(1){
-		if(gv->calc_counter >= gv->ana_total_blks) break;
+		if(gv->analysis_writer_blk_num==0){
+			break;
+		}
 
 		//get pointer from PRB
 		// flag=0;
@@ -129,7 +124,7 @@ void analysis_writer_thread(GV gv,LV lv) {
 				pointer[8] = ON_DISK;
 				pthread_mutex_unlock(rb->lock_ringbuffer);
 
-				if(gv->rank[0]==gv->compute_process_num && my_count%WRITER_COUNT==0)
+				if(my_count%WRITER_COUNT==0)
 					printf("Analysis Process %d Writer %d my_count %d\n", gv->rank[0], lv->tid, my_count);
 
 				#ifdef DEBUG_PRINT
@@ -140,12 +135,18 @@ void analysis_writer_thread(GV gv,LV lv) {
 			}
 		}
 
+		if(my_count >= gv->analysis_writer_blk_num){
+			break;
+		}
 	}
 
 	t3 = get_cur_time();
 
+	if(my_count!=gv->analysis_writer_blk_num)
+		printf("Analysis Writer my_count error!\n");
+
 	printf("Analysis Process %d Writer %d write_time= %f, only_fwrite_time=%f, total time= %f, my_count=%d\n",
-		gv->rank[0], lv->tid, lv->write_time, lv->only_fwrite_time, t3-t2, my_count);
+	gv->rank[0], lv->tid, lv->write_time, lv->only_fwrite_time, t3-t2, my_count);
 	// printf("Node%d Producer %d Write_Time/Block= %f only_fwrite_time/Block= %f, SPEED= %fKB/s\n",
 	//   gv->rank[0], lv->tid,  lv->write_time/gv->total_blks, lv->only_fwrite_time/gv->total_blks, gv->total_file/(lv->write_time));
 

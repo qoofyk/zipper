@@ -67,13 +67,13 @@ void calc_n_moments(GV gv, LV lv, char* buffer, char* consumer_state_p){
   register double mean_v=0;
   register double u1,v1;
   int loop=0;
-  int base,block_id=0;
+  int base;
   double sum_u[NMOMENT];
   double sum_v[NMOMENT];
 
   gv->computeid=*(int *)(buffer);
   // int check_blkid = *(int *)(buffer+sizeof(int));
-  block_id=*(int *)(buffer+4);
+
   gv->step=*(int *)(buffer+12);
   gv->CI=*(int *)(buffer+16);
   gv->CJ=*(int *)(buffer+20);
@@ -86,7 +86,7 @@ step=%d, i=%d, j=%d, k=%d, gv->calc_counter=%d, *consumer_state_p=%d\n",
   #endif //DEBUG_PRINT
 
   //calc_mean
-  for(base=0;base<gv->cubex*gv->cubey*gv->cubez*2;base=base+4){
+  for(base=0;base<gv->cubex*gv->cubey*gv->cubez;base=base+4){
     u=*((double *)(buffer+28+base*8));
     v=*((double *)(buffer+28+base*8+8));
     u1=*((double *)(buffer+28+base*8+16));
@@ -100,7 +100,7 @@ step=%d, i=%d, j=%d, k=%d, gv->calc_counter=%d, *consumer_state_p=%d\n",
   // mean_v=10;
   //calc_n_momnents
 
-  for(base=0;base<gv->cubex*gv->cubey*gv->cubez*2;base=base+4){
+  for(base=0;base<gv->cubex*gv->cubey*gv->cubez;base=base+4){
       for(loop=1;loop<=gv->lp;loop++){
         u=*((double *)(buffer+28+base*8));
         v=*((double *)(buffer+28+base*8+8));
@@ -158,8 +158,7 @@ void consumer_ring_buffer_move_tail(GV gv,LV lv,int* flag_p, char* pointer){
         rb->tail = (rb->tail + 1) % rb->bufsize;
         rb->num_avail_elements--;
 
-        // pthread_cond_signal(rb->full);
-        pthread_cond_broadcast(rb->full);
+        pthread_cond_signal(rb->full);
         pthread_mutex_unlock(rb->lock_ringbuffer);
         // the one who last know the state == both_done will free the pointer, in case of the last error case
           *flag_p=1;
@@ -186,7 +185,6 @@ void analysis_consumer_thread(GV gv,LV lv){
   t2 = get_cur_time();
   while(1) {
     flag=0;
-
     t6 = get_cur_time();
     pointer = consumer_ring_buffer_read_tail(gv,lv,&consumer_state);
     t7 = get_cur_time();
@@ -206,14 +204,14 @@ void analysis_consumer_thread(GV gv,LV lv){
         lv->calc_time += t1 - t0;
         gv->calc_counter++;
 
-        if(gv->rank[0]==gv->compute_process_num && gv->calc_counter%ANALSIS_COUNT==0){
-          printf("Analysis Process %d Consumer %d calc_counter %d\n", gv->rank[0], lv->tid, gv->calc_counter);
-          fflush(stdout);
-        }
-
         pthread_mutex_lock(rb->lock_ringbuffer);
         pointer[9] = CALC_DONE;
         pthread_mutex_unlock(rb->lock_ringbuffer);
+
+        if(gv->calc_counter%ANALSIS_COUNT==0){
+          printf("Analysis Process %d Consumer %d calc_counter %d\n", gv->rank[0], lv->tid, gv->calc_counter);
+          fflush(stdout);
+        }
 
         #ifdef DEBUG_PRINT
         printf("NOT_CALC: Analysis %d Consumer %d finish calculating source=%d block_id=%d, flag=%d, calc_counter=%d\n",
@@ -237,15 +235,12 @@ void analysis_consumer_thread(GV gv,LV lv){
       free(pointer);
     }
 
-    if(gv->calc_counter >= gv->ana_total_blks) {
-      pthread_cond_broadcast(rb->empty);
-      break;
-    }
+    if(gv->calc_counter >= gv->ana_total_blks) break;
   }
   t3 = get_cur_time();
 
-  printf("Analysis Process %d consumer%d ###--LBM Keep--### total consumer time= %f, \
+  printf("Analysis Process %d consumer ####Exp2 consumer total ####total consumer time= %f, \
 calc_time= %f, wait_time= %f, move_tail_time=%f, my_count=%d, free_count=%d\n",
-   gv->rank[0], lv->tid, t3-t2, lv->calc_time, wait_time, move_tail_time, gv->calc_counter, free_count);
+   gv->rank[0], t3-t2, lv->calc_time, wait_time, move_tail_time, gv->calc_counter, free_count);
   fflush(stdout);
 }
