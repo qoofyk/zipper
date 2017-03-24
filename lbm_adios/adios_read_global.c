@@ -24,11 +24,16 @@
 #include "adios_read.h"
 #include "adios_error.h"
 #include "adios_read_global.h"
+#include "run_analysis.h"
 
 //#define DEBUG_Feng
 
 int main (int argc, char ** argv) 
 {
+    int lp = 4;
+
+    /******************** configuration stop ***********/
+
     int         rank, size, i, j, k;
     MPI_Comm    comm = MPI_COMM_WORLD;
     enum ADIOS_READ_METHOD method = ADIOS_READ_METHOD_DATASPACES;
@@ -110,6 +115,11 @@ int main (int argc, char ** argv)
         }
 #endif
         printf("rank %d: Step %d read\n", rank, timestep);
+
+        // analysis
+        run_analysis(data, slice_size, lp );
+
+        printf("rank %d: Step %d moments calculated\n", rank, timestep);
         timestep ++;
 
     }

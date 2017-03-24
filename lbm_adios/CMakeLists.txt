@@ -20,7 +20,7 @@ find_library(ADIOS adios ${ADIOS_DIR}/lib)
 #include_directories("${CMAKE_SOURCE_DIR}/src")     
 
 add_executable(run_lbm run_lbm.c)
-add_executable(adios_read_global adios_read_global.c)
+add_executable(adios_read_global adios_read_global.c run_analysis.c)
 # add_executable(adios_write_global adios_write_global.c)
 target_link_libraries(run_lbm ${ADIOS} ${DSPACES} ${DSCOMMON} ${DART})
 target_link_libraries(adios_read_global ${ADIOS} ${DSPACES} ${DSCOMMON} ${DART})
