@@ -37,6 +37,14 @@ void insert_into_Adios(int n, double * buf, MPI_Comm *pcomm){
     adios_open (&adios_handle, "atom", filename, "w", comm);
 #ifdef debug
     printf("lb = %d, n = %d, NX = %d, size = %d, rank = %d \n",lb, n, NX, size, rank);
+        for (i = 0; i < n ; i++) {
+            printf ("rank %d: [%d ,%d:%d]", rank, lb , 0, n);
+            for (j = 0; j < SIZE_ONE ; j++){
+                printf (" %6.6g", * ((double *)buf + i * SIZE_ONE  + j ));
+            }
+            printf("|");
+            printf ("\n");
+        }
 #endif
     #include "gwrite_atom.ch"
     adios_close (adios_handle);
@@ -1024,6 +1032,9 @@ void run_lbm(int step_stop, int dims_cube[3], MPI_Comm *pcomm)
                 for(gk = 0; gk < nz; gk++){
 		            *((double *)(buffer+count))=u_r*u[gi][gj][gk];
 		            *((double *)(buffer+count+1))=u_r*v[gi][gj][gk];
+#ifdef debug
+                    printf("(%d %d %d), u_r=_%lf u=%lf v= %lf\n", gi, gj, gk, u_r, u[gi][gj][gk],v[gi][gj][gk]);
+#endif
 		            count+=2;
                 }
             }
@@ -1081,7 +1092,7 @@ int main(int argc, char * argv[]){
   printf("rank %d: adios init complete\n", rank);
 #endif
 
-    run_lbm(100, dims_cube, &comm);
+  run_lbm(100, dims_cube, &comm);
 
 #ifdef USE_ADIOS
   adios_finalize (rank);
