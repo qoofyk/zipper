@@ -2,7 +2,7 @@
 #include "adios_write_global.h"
 #define SIZE_ONE (2)
 
-#define debug
+//#define debug
 
 #define USE_ADIOS
 void insert_into_Adios(int n, double * buf, MPI_Comm *pcomm){
@@ -1098,5 +1098,6 @@ int main(int argc, char * argv[]){
   adios_finalize (rank);
   printf("rank %d: adios finalize complete\n", rank); 
 #endif                                                      
+  MPI_Finalize();
     return 0;
 }

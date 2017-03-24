@@ -27,8 +27,8 @@ DS_SERVER=${PBS_O_HOME}/envs/Dataspacesroot/bin/dataspaces_server
 PBS_RESULTDIR=${PBS_O_WORKDIR}/results/${SLURM_JOBID}
 
 PROCS_SERVER=1
-PROCS_PRODUCER=4
-PROCS_CONSUMER=2
+PROCS_PRODUCER=1
+PROCS_CONSUMER=4
 
 DS_CLIENT_PROCS=$((${PROCS_PRODUCER} + ${PROCS_CONSUMER}))
 
@@ -50,14 +50,14 @@ rm -f dataspaces.conf
 # 64*64*256 will generate 1048576 lines
 echo "## Config file for DataSpaces
 ndim = 3
-dims = 500, 500, 500
+dims = 2, 1500000, 1
 max_versions = 5
 max_readers = 1
 lock_type = 2
 " > dataspaces.conf
 
 ## Run DataSpaces servers
-mpirun_rsh -np $PROCS_SERVER ${DS_SERVER} -s $PROCS_SERVER -c $DS_CLIENT_PROCS >& ${PBS_RESULTDIR}/server.log &
+ibrun -np $PROCS_SERVER ${DS_SERVER} -s $PROCS_SERVER -c $DS_CLIENT_PROCS >& ${PBS_RESULTDIR}/server.log &
 
 echo "server applciation lauched"
 ## Give some time for the servers to load and startup
@@ -71,10 +71,10 @@ sleep 5s  # wait server to fill up the conf file
 #Use ibrun to run the MPI job. It will detect the MPI, generate the hostfile
 # and doing the right binding. With no options ibrun will use all cores.
 #export OMP_NUM_THREADS=1
-mpirun_rsh  -np $PROCS_PRODUCER ${BIN_PRODUCER} &> ${PBS_RESULTDIR}/lammps.log &
+ibrun  -np $PROCS_PRODUCER ${BIN_PRODUCER} &> ${PBS_RESULTDIR}/lammps.log &
 echo "writer applciation lauched"
 
-mpirun_rsh  -np $PROCS_CONSUMER ${BIN_CONSUMER} &> ${PBS_RESULTDIR}/adios_read.log
+ibrun  -np $PROCS_CONSUMER ${BIN_CONSUMER} &> ${PBS_RESULTDIR}/adios_read.log
 echo "reader applciation lauched"
 
 ## Wait for the entire workflow to finish

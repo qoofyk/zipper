@@ -25,7 +25,7 @@
 #include "adios_error.h"
 #include "adios_read_global.h"
 
-#define DEBUG_Feng
+//#define DEBUG_Feng
 
 int main (int argc, char ** argv) 
 {
