@@ -1,5 +1,95 @@
-        
-void run_lbm(){
+#include "run_lbm.h"        
+#include "adios_write_global.h"
+#define SIZE_ONE (2)
+
+#define USE_ADIOS
+void insert_into_Adios(int n, double * buf, MPI_Comm *pcomm){
+    char        filename [256];
+    int         rank, size, i, j;
+    int         NX;
+    
+    int size_one = SIZE_ONE;
+    // prepare sending buffer
+    double * t =  buf;
+    //double      t[NX*SIZE_ONE];
+
+    /* ADIOS variables declarations for matching gwrite_temperature.ch */
+    uint64_t    adios_groupsize, adios_totalsize;
+    int64_t     adios_handle;
+
+    MPI_Comm    comm = *pcomm;
+    MPI_Comm_rank (comm, &rank);
+    MPI_Comm_size (comm, &size);
+
+    NX = size*n;
+    // save nlines in all processes
+    
+    // each process generate equal lines
+    int lb;
+    lb = rank*n;
+
+    strcpy (filename, "adios_global.bp");
+
+    //printf("rank %d: start to write\n", rank);
+    
+    adios_open (&adios_handle, "atom", filename, "w", comm);
+#ifdef degbug
+    printf("lb = %d, n = %d, NX = %d, size = %d, rank = %d \n",lb, n, NX, size, rank);
+#endif
+    #include "gwrite_atom.ch"
+    adios_close (adios_handle);
+    //printf("rank %d: write completed\n", rank);
+}
+
+
+double get_cur_time() {
+  struct timeval   tv;
+  struct timezone  tz;
+  double cur_time;
+
+  gettimeofday(&tv, &tz);
+  cur_time = tv.tv_sec + tv.tv_usec / 1000000.0;
+  //printf("%f\n",cur_time);
+
+  return cur_time;
+}
+
+void check_malloc(void * pointer){
+  if (pointer == NULL) {
+    perror("Malloc error!\n");
+    fprintf (stderr, "at %s, line %d.\n", __FILE__, __LINE__);
+    exit(1);
+  }
+}
+
+
+void run_lbm(int step_stop, int dims_cube[3], MPI_Comm *pcomm)
+{
+        int CI, CJ, CK;
+        int X,Y,Z, cubex, cubey, cubez;
+        int gi, gj, gk;
+        int originx, originy, originz;
+
+        int nprocs, rank;
+        int n;
+        MPI_Comm comm = *pcomm;
+		MPI_Comm_size(comm,&nprocs);
+		MPI_Comm_rank(comm,&rank);
+
+        cubex = dims_cube[0];
+        cubey = dims_cube[1];
+        cubez = dims_cube[2];
+
+        X=nx/cubex;
+		Y=ny/cubey;
+		Z=nz/cubez;
+
+        n = cubex*cubey*cubez;
+
+
+
+
+        // original code
         MPI_Status status;
 		double df1[nx][ny][nz][19],df2[nx][ny][nz][19],df_inout[2][ny][nz][19];
 		double rho[nx][ny][nz],u[nx][ny][nz],v[nx][ny][nz],w[nx][ny][nz];
@@ -24,10 +114,6 @@ void run_lbm(){
 		double t2=0, t3=0,t4=0,t5=0,t6=0,only_lbm_time=0,init_lbm_time=0;
 		int errorcode;
 
-		#ifdef DEBUG_PRINT
-		printf("Compute Node %d Generator setup LBM parameter!\n",gv->rank[0]);
-		fflush(stdout);
-		#endif //DEBUG_PRINT
 
 		n1=nx-1;/* n1,n2,n3 are the last indice in arrays*/
 		n2=ny-1;
@@ -35,7 +121,7 @@ void run_lbm(){
 
 		num_data=ny*nz;/* number of data to be passed from process to process */
 		//num_data1=num_data*19;
-		int nprocs=gv->size[1];
+		
 		np[0]=nprocs;period[0]=0;
 		fp_np=np;
 		fp_period=period;
@@ -50,11 +136,12 @@ void run_lbm(){
 		MPI_Type_commit(&newtype_fr);
 
 
-		errorcode=MPI_Cart_create(mycomm,1,fp_np,fp_period,1,&comm1d);
+		errorcode=MPI_Cart_create(comm,1,fp_np,fp_period,1,&comm1d);
 		if(errorcode!= MPI_SUCCESS){
 		  printf("Error cart create!\n");
 		  exit(1);
 		}
+
 
 		MPI_Comm_rank(comm1d,&myid);
 		errorcode=MPI_Cart_shift(comm1d,0,1,&nbleft,&nbright);
@@ -67,7 +154,7 @@ void run_lbm(){
 
 		//---------------------------------------------BEGIN LBM -----------------------------------------------
 		#ifdef DEBUG_PRINT
-		printf("Compute Node %d Generator begin LBM!\n",gv->rank[0]);
+		printf("Compute Node %d Generator begin LBM!\n",rank);
 		fflush(stdout);
 		#endif //DEBUG_PRINT
 
@@ -151,8 +238,6 @@ void run_lbm(){
 
 		//step_stop=(int)(time_stop/time_r) + 1;
 
-		// gv->step_stop = atoi(argv[4]);
-		// step_wr=gv->step_stop/2-1;
 
 		// time_restart=400000;
 
@@ -162,7 +247,7 @@ void run_lbm(){
 
 		time3=dt;
 
-		gv->step=1;
+		int step=1;
 
 		if (myid==middle) {
 
@@ -208,19 +293,12 @@ void run_lbm(){
 
 		fprintf(fp_out,"the total time run is %e sec\n", time_stop);
 
-		fprintf(fp_out,"the total step run is %d steps\n", gv->step_stop);
+		fprintf(fp_out,"the total step run is %d steps\n", step_stop);
 
 		fclose(fp_out);
 
 		}
 
-
-		// #ifdef DEBUG_PRINT
-		// printf("Compute Node %d Generator LBM Here 1 !\n",gv->rank[0]);
-		// fflush(stdout);
-		// #endif //DEBUG_PRINT
-
-		/* discrete particle velocity */
 
 		c[0][0]=0.0;c[0][1]=0.0;c[0][2]=0;
 
@@ -428,14 +506,14 @@ void run_lbm(){
 
 		//int blk_id=0;
 
-		while (gv->step <= gv->step_stop)
+		while (step <= step_stop)
 
 		{
 
 		t5=get_cur_time();
 
 		if (myid==0){
-			printf("step = %d   of   %d   \n", gv->step, gv->step_stop);
+			printf("step = %d   of   %d   \n", step, step_stop);
 
 			fflush(stdout);
 		}
@@ -576,7 +654,7 @@ void run_lbm(){
 
 
 		#ifdef DEBUG_PRINT
-		printf("Compute Node %d Generator start LBM data sending and receiving !\n",gv->rank[0]);
+		printf("Compute Node %d Generator start LBM data sending and receiving !\n", rank);
 		fflush(stdout);
 		#endif //DEBUG_PRINT
 
@@ -652,7 +730,7 @@ void run_lbm(){
 		// MPI_Barrier(comm1d);
 
 		#ifdef DEBUG_PRINT
-		printf("Compute Node %d Generator finish LBM data sending and receiving !\n",gv->rank[0]);
+		printf("Compute Node %d Generator finish LBM data sending and receiving !\n",rank);
 		fflush(stdout);
 		#endif //DEBUG_PRINT
 
@@ -938,71 +1016,67 @@ void run_lbm(){
 		only_lbm_time+=t6-t5;
 
 		#ifdef DEBUG_PRINT
-		printf("Compute Node %d Generator start create_prb_element!\n",gv->rank[0]);
+		printf("Compute Node %d Generator start create_prb_element!\n",rank);
 		fflush(stdout);
 		#endif //DEBUG_PRINT
 
 		/*create_prb_element*/
-		char * buffer;
+		double * buffer;
 		// FILE *fp;
 		// char file_name[64];
 		int count=0;
 
 
-		// cubex=4;
-		// cubey=4;
-		// cubez=4;
-
-		// X=nx/cubex;
-		// Y=ny/cubey;
-		// Z=nz/cubez;
-
+		
+		
 		// #ifdef DEBUG_PRINT
 		// printf("Compute Node %d Generator start create_prb_element!\n",gv->rank[0]);
 		// fflush(stdout);
 		// #endif //DEBUG_PRINT
 
-		for(gv->CI=0;gv->CI<gv->X;gv->CI++)
-		  for(gv->CJ=0;gv->CJ<gv->Y;gv->CJ++)
-		    for(gv->CK=0;gv->CK<gv->Z;gv->CK++){
-		      gv->originx=gv->CI*gv->cubex;
-		      gv->originy=gv->CJ*gv->cubey;
-		      gv->originz=gv->CK*gv->cubez;
+        // CI, CJ CK, Cube (block) iD(local)
+        // cube x, cube_y cube dimension
+		for(CI=0;CI<X;CI++)
+		  for(CJ=0;CJ<Y;CJ++)
+		    for(CK=0;CK<Z;CK++){
+		      originx=CI*cubex;
+		      originy=CJ*cubey;
+		      originz=CK*cubez;
 		      //
-		      //pthread_mutex_lock(&gv->lock_generator);
-		      last_gen = gv->data_id++;
-		      //pthread_mutex_unlock(&gv->lock_generator);
 
-		      // if(last_gen>=gv->cpt_total_blks) {
-		      //   gv->compute_all_done = 1;
-		      //   break;
-		      // }
-
-		      buffer = (char*) malloc(sizeof(char)*gv->compute_data_len);
+		      buffer = (double *) malloc(n*sizeof(double)*2);
 		      check_malloc(buffer);
 
+              /*
 		      *(int *)(buffer)= last_gen;
-		      *(int *)(buffer+4)=gv->step;
-		      *(int *)(buffer+8)=gv->CI;
-		      *(int *)(buffer+12)=gv->CJ;
-		      *(int *)(buffer+16)=gv->CK;
+		      *(int *)(buffer+4)=step;
+		      *(int *)(buffer+8)=CI;
+		      *(int *)(buffer+12)=CJ;
+		      *(int *)(buffer+16)=CK;
+              */
 		      //printf("Node %d put to pr_rb step%d i%d j%d k%d\n", gv->rank[0], *(int *)(buffer),*(int *)(buffer+4),*(int *)(buffer+8),*(int *)(buffer+12));
 		      count=0;
-		      for(i=0;i<gv->cubex;i++)
-		        for(j=0;j<gv->cubey;j++)
-		          for(k=0;k<gv->cubez;k++){
-		            gv->gi=gv->originx+i;
-		            gv->gj=gv->originy+j;
-		            gv->gk=gv->originz+k;
+		      for(i=0;i<cubex;i++){
+		        for(j=0;j<cubey;j++){
+		          for(k=0;k<cubez;k++){
+		            gi=originx+i;
+		            gj=originy+j;
+		            gk=originz+k;
 
-		            *((double *)(buffer+20+count))=u_r*u[gv->gi][gv->gj][gv->gk];
-		            *((double *)(buffer+20+count+8))=u_r*v[gv->gi][gv->gj][gv->gk];
+		            *((double *)(buffer+count))=u_r*u[gi][gj][gk];
+		            *((double *)(buffer+count+1))=u_r*v[gi][gj][gk];
 		            // *((double *)(buffer+count+2))=gi;
 		            // *((double *)(buffer+count+3))=gj;
 		            // *((double *)(buffer+count+4))=gk;
-		            count+=16;
+                    // two size of double 
+		            count+=2;
 		          }
+                }
+              }
 		      //total produce X*Y*Z blocks each step
+
+              insert_into_Adios(n,  buffer, &comm);
+              free(buffer);
 
 
 		      //producer_ring_buffer_put(gv,buffer);
@@ -1013,12 +1087,12 @@ void run_lbm(){
 		    }
 		//free(buffer);
 		#ifdef DEBUG_PRINT
-		if(gv->step%10==0)
-		  printf("Node %d gv->step = %d\n", gv->rank[0], gv->step);
+		if(step%10==0)
+		  printf("Node %d step = %d\n", rank, step);
 		#endif //DEBUG_PRINT
 		time1=0;
 
-		gv->step+=dt;
+		step+=dt;
 
 		time1+=dt;
 
@@ -1040,4 +1114,28 @@ void run_lbm(){
 		MPI_Type_free(&newtype);
 		MPI_Type_free(&newtype_bt);
 		MPI_Type_free(&newtype_fr);
+}
+
+int main(int argc, char * argv[]){
+    int dims_cube[3] = {4,4,4};
+
+	MPI_Init(&argc, &argv);
+
+  MPI_Comm comm = MPI_COMM_WORLD;
+  int         rank, size, i, j;
+  MPI_Comm_rank (comm, &rank);
+  MPI_Comm_size (comm, &size);
+
+#ifdef USE_ADIOS
+  adios_init ("adios_global.xml", comm);
+  printf("rank %d: adios init complete\n", rank);
+#endif
+
+    run_lbm(100, dims_cube, &comm);
+
+#ifdef USE_ADIOS
+  adios_finalize (rank);
+  printf("rank %d: adios finalize complete\n", rank); 
+#endif                                                      
+    return 0;
 }

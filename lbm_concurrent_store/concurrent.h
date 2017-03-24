@@ -41,6 +41,7 @@ Brief desc of the file: Header
 
 #define CACHE 4
 
+// this must be included
 #define TOTAL_FILE2PRODUCE_1GB 256
 
 #define nx TOTAL_FILE2PRODUCE_1GB/4
