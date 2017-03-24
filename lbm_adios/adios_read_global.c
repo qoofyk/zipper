@@ -109,7 +109,7 @@ int main (int argc, char ** argv)
             printf ("\n");
         }
 #endif
-        printf("rank %d: Step %d correctly read\n", rank, timestep);
+        printf("rank %d: Step %d read\n", rank, timestep);
         timestep ++;
 
     }

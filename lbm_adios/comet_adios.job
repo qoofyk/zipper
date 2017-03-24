@@ -43,9 +43,10 @@ rm -f dataspaces.conf
 # note that we now have 400 regions
 
 #dims = 5, 300000, 10
+# 64*64*256 will generate 1048576 lines
 echo "## Config file for DataSpaces
 ndim = 3
-dims = 5, 300000, 10
+dims = 2, 1500000, 1
 max_versions = 5
 max_readers = 1
 lock_type = 2

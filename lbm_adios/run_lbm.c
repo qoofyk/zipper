@@ -2,6 +2,8 @@
 #include "adios_write_global.h"
 #define SIZE_ONE (2)
 
+#define debug
+
 #define USE_ADIOS
 void insert_into_Adios(int n, double * buf, MPI_Comm *pcomm){
     char        filename [256];
@@ -21,10 +23,10 @@ void insert_into_Adios(int n, double * buf, MPI_Comm *pcomm){
     MPI_Comm_rank (comm, &rank);
     MPI_Comm_size (comm, &size);
 
+    // nlines of all processes
     NX = size*n;
-    // save nlines in all processes
     
-    // each process generate equal lines
+    // lower bound of my line index
     int lb;
     lb = rank*n;
 
@@ -33,7 +35,7 @@ void insert_into_Adios(int n, double * buf, MPI_Comm *pcomm){
     //printf("rank %d: start to write\n", rank);
     
     adios_open (&adios_handle, "atom", filename, "w", comm);
-#ifdef degbug
+#ifdef debug
     printf("lb = %d, n = %d, NX = %d, size = %d, rank = %d \n",lb, n, NX, size, rank);
 #endif
     #include "gwrite_atom.ch"
@@ -65,10 +67,7 @@ void check_malloc(void * pointer){
 
 void run_lbm(int step_stop, int dims_cube[3], MPI_Comm *pcomm)
 {
-        int CI, CJ, CK;
-        int X,Y,Z, cubex, cubey, cubez;
         int gi, gj, gk;
-        int originx, originy, originz;
 
         int nprocs, rank;
         int n;
@@ -76,18 +75,7 @@ void run_lbm(int step_stop, int dims_cube[3], MPI_Comm *pcomm)
 		MPI_Comm_size(comm,&nprocs);
 		MPI_Comm_rank(comm,&rank);
 
-        cubex = dims_cube[0];
-        cubey = dims_cube[1];
-        cubez = dims_cube[2];
-
-        X=nx/cubex;
-		Y=ny/cubey;
-		Z=nz/cubez;
-
-        n = cubex*cubey*cubez;
-
-
-
+        n = nx*ny*nz;
 
         // original code
         MPI_Status status;
@@ -1026,65 +1014,27 @@ void run_lbm(int step_stop, int dims_cube[3], MPI_Comm *pcomm)
 		// char file_name[64];
 		int count=0;
 
+        // if use adios, not partioning is required
+        buffer = (double *) malloc(n*sizeof(double)*2);
+        check_malloc(buffer);
 
-		
-		
-		// #ifdef DEBUG_PRINT
-		// printf("Compute Node %d Generator start create_prb_element!\n",gv->rank[0]);
-		// fflush(stdout);
-		// #endif //DEBUG_PRINT
-
-        // CI, CJ CK, Cube (block) iD(local)
-        // cube x, cube_y cube dimension
-		for(CI=0;CI<X;CI++)
-		  for(CJ=0;CJ<Y;CJ++)
-		    for(CK=0;CK<Z;CK++){
-		      originx=CI*cubex;
-		      originy=CJ*cubey;
-		      originz=CK*cubez;
-		      //
-
-		      buffer = (double *) malloc(n*sizeof(double)*2);
-		      check_malloc(buffer);
-
-              /*
-		      *(int *)(buffer)= last_gen;
-		      *(int *)(buffer+4)=step;
-		      *(int *)(buffer+8)=CI;
-		      *(int *)(buffer+12)=CJ;
-		      *(int *)(buffer+16)=CK;
-              */
-		      //printf("Node %d put to pr_rb step%d i%d j%d k%d\n", gv->rank[0], *(int *)(buffer),*(int *)(buffer+4),*(int *)(buffer+8),*(int *)(buffer+12));
-		      count=0;
-		      for(i=0;i<cubex;i++){
-		        for(j=0;j<cubey;j++){
-		          for(k=0;k<cubez;k++){
-		            gi=originx+i;
-		            gj=originy+j;
-		            gk=originz+k;
-
+        // fill the buffer, each line has two double data
+        for(gi = 0; gi < nx; gi++){
+            for(gj = 0; gj < ny; gj++){
+                for(gk = 0; gk < nz; gk++){
 		            *((double *)(buffer+count))=u_r*u[gi][gj][gk];
 		            *((double *)(buffer+count+1))=u_r*v[gi][gj][gk];
-		            // *((double *)(buffer+count+2))=gi;
-		            // *((double *)(buffer+count+3))=gj;
-		            // *((double *)(buffer+count+4))=gk;
-                    // two size of double 
 		            count+=2;
-		          }
                 }
-              }
-		      //total produce X*Y*Z blocks each step
-
-              insert_into_Adios(n,  buffer, &comm);
-              free(buffer);
-
-
-		      //producer_ring_buffer_put(gv,buffer);
-		      // sprintf(file_name,"/N/dc2/scratch/fuyuan/inter/id%d_v&u_step%03d_blk_k%04d_j%04d_i%04d.data",myid,step,CI,CJ,CK);
-		      // fp=fopen(file_name,"wb");
-		      // fwrite(buffer, count, 1, fp);
-		      // fclose(fp);
-		    }
+            }
+        }
+        
+        /*******************************
+         *          ADIOS              *
+         *******************************/
+        // n can be large (64*64*256)
+        insert_into_Adios(n, buffer, &comm);
+        free(buffer);
 		//free(buffer);
 		#ifdef DEBUG_PRINT
 		if(step%10==0)
