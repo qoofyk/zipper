@@ -14,11 +14,11 @@
                type="string"/>
   </adios-group>
 
-  <method group="atom" method="DATASPACES"/>
+  <method group="atom" method="MPI"/>
   <!--method group="temperature" method="MPI_AGGREGATE">stripe_count=1;stripe_size=10485760;num_aggregators=2;merging_pgs=0;num_ost=2</method-->
   <!--method group="temperature" method="PHDF5"/-->
  
-  <buffer max-size-MB="2"/>
+  <buffer max-size-MB="50"/>
 
 </adios-config>
 

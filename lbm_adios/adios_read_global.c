@@ -26,18 +26,26 @@
 #include "adios_read_global.h"
 #include "run_analysis.h"
 
-//#define DEBUG_Feng
+#define DEBUG_Feng
 
 int main (int argc, char ** argv) 
 {
+    if(argc !=2){
+        printf("need to specify scratch path for i/o\n");
+        exit(-1);
+    }
+    char filepath[256];
+    strcpy(filepath, argv[1]);
+
     int lp = 4;
 
     /******************** configuration stop ***********/
 
     int         rank, size, i, j, k;
     MPI_Comm    comm = MPI_COMM_WORLD;
-    enum ADIOS_READ_METHOD method = ADIOS_READ_METHOD_DATASPACES;
+    //enum ADIOS_READ_METHOD method = ADIOS_READ_METHOD_DATASPACES;
     //enum ADIOS_READ_METHOD method = ADIOS_READ_METHOD_DIMES;
+    enum ADIOS_READ_METHOD method = ADIOS_READ_METHOD_BP;
     ADIOS_SELECTION * sel;
     void * data = NULL;
     uint64_t start[2], count[2];
@@ -48,7 +56,9 @@ int main (int argc, char ** argv)
 
     adios_read_init_method (method, comm, "verbose=3");
     int timestep = 0;
-    ADIOS_FILE * f = adios_read_open ("adios_global.bp", method, comm, ADIOS_LOCKMODE_CURRENT, 0);
+
+    strcat(filepath, "/adios_global.bp");
+    ADIOS_FILE * f = adios_read_open (filepath, method, comm, ADIOS_LOCKMODE_CURRENT, 0);
 
      if (f == NULL)
     {
@@ -131,5 +141,6 @@ int main (int argc, char ** argv)
     MPI_Barrier (comm);
     adios_read_finalize_method (method);
     MPI_Finalize ();
+    printf("rank %d: exit\n", rank);
     return 0;
 }

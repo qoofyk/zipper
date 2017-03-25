@@ -2,10 +2,10 @@
 #include "adios_write_global.h"
 #define SIZE_ONE (2)
 
-//#define debug
+#define debug
 
 #define USE_ADIOS
-void insert_into_Adios(int n, double * buf, MPI_Comm *pcomm){
+void insert_into_Adios(char * filepath, int n, double * buf, MPI_Comm *pcomm){
     char        filename [256];
     int         rank, size, i, j;
     int         NX;
@@ -30,12 +30,17 @@ void insert_into_Adios(int n, double * buf, MPI_Comm *pcomm){
     int lb;
     lb = rank*n;
 
-    strcpy (filename, "adios_global.bp");
+    strcpy (filename, filepath);
+    strcat(filename, "/adios_global.bp");
 
     //printf("rank %d: start to write\n", rank);
     
     adios_open (&adios_handle, "atom", filename, "w", comm);
 #ifdef debug
+
+    printf("rank %d: file %s opened\n", rank, filename);
+#endif
+#ifdef debug_1
     printf("lb = %d, n = %d, NX = %d, size = %d, rank = %d \n",lb, n, NX, size, rank);
         for (i = 0; i < n ; i++) {
             printf ("rank %d: [%d ,%d:%d]", rank, lb , 0, n);
@@ -46,8 +51,11 @@ void insert_into_Adios(int n, double * buf, MPI_Comm *pcomm){
             printf ("\n");
         }
 #endif
+
     #include "gwrite_atom.ch"
+    printf("rank %d: try to close\n", rank);
     adios_close (adios_handle);
+    printf("rank %d: file %s closed\n", rank, filename);
     //printf("rank %d: write completed\n", rank);
 }
 
@@ -73,7 +81,7 @@ void check_malloc(void * pointer){
 }
 
 
-void run_lbm(int step_stop, int dims_cube[3], MPI_Comm *pcomm)
+void run_lbm(char * filepath, int step_stop, int dims_cube[3], MPI_Comm *pcomm)
 {
         int gi, gj, gk;
 
@@ -1032,7 +1040,7 @@ void run_lbm(int step_stop, int dims_cube[3], MPI_Comm *pcomm)
                 for(gk = 0; gk < nz; gk++){
 		            *((double *)(buffer+count))=u_r*u[gi][gj][gk];
 		            *((double *)(buffer+count+1))=u_r*v[gi][gj][gk];
-#ifdef debug
+#ifdef debug_1
                     printf("(%d %d %d), u_r=_%lf u=%lf v= %lf\n", gi, gj, gk, u_r, u[gi][gj][gk],v[gi][gj][gk]);
 #endif
 		            count+=2;
@@ -1044,7 +1052,7 @@ void run_lbm(int step_stop, int dims_cube[3], MPI_Comm *pcomm)
          *          ADIOS              *
          *******************************/
         // n can be large (64*64*256)
-        insert_into_Adios(n, buffer, &comm);
+        insert_into_Adios(filepath, n, buffer, &comm);
         free(buffer);
 		//free(buffer);
 		#ifdef DEBUG_PRINT
@@ -1078,6 +1086,12 @@ void run_lbm(int step_stop, int dims_cube[3], MPI_Comm *pcomm)
 }
 
 int main(int argc, char * argv[]){
+    if(argc !=2){
+        printf("need to specify scratch path for i/o\n");
+        exit(-1);
+    }
+    char filepath[256];
+    strcpy(filepath, argv[1]);
     int dims_cube[3] = {4,4,4};
 
 	MPI_Init(&argc, &argv);
@@ -1090,14 +1104,21 @@ int main(int argc, char * argv[]){
 #ifdef USE_ADIOS
   adios_init ("adios_global.xml", comm);
   printf("rank %d: adios init complete\n", rank);
+  if(rank == 0 ){
+      printf("output will be saved in %s\n", filepath);
+  }
 #endif
 
-  run_lbm(100, dims_cube, &comm);
+  run_lbm(filepath, 100, dims_cube, &comm);
 
 #ifdef USE_ADIOS
   adios_finalize (rank);
   printf("rank %d: adios finalize complete\n", rank); 
 #endif                                                      
   MPI_Finalize();
+
+  printf("rank %d: exit\n", rank);
+
     return 0;
 }
+

@@ -1,3 +1,17 @@
 8394708
     Mar 24
     1/1 proc correct, but most data is zero
+8426008
+    mar 25
+    4/8for dspaces transport
+
+8426034
+    Mar 25
+    4/8 for dimes transport
+8439991
+    Mar 25, 19:10
+    use scrach for .pb file, now mpiio is okay!
+8440002
+    Mar 25 19;16
+    if data size too large, need larger buffer to fit all data
+    

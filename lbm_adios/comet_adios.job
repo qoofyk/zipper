@@ -15,7 +15,7 @@
 #PROJECT_ROOT=/home/rlu/Workspaces/data_broker_lammps
 PBS_O_HOME=$HOME
 PBS_O_WORKDIR=$(pwd)
-SCRATCH_DIR=/oasis/scratch/comet/rlu/temp_project/data_broker_adios
+SCRATCH_DIR=/oasis/scratch/comet/rlu/temp_project/data_broker_adios/${SLURM_JOBID}
 
 BIN_PRODUCER=${PBS_O_WORKDIR}/build/bin/run_lbm;
 BIN_CONSUMER=${PBS_O_WORKDIR}/build/bin/adios_read_global;
@@ -71,10 +71,10 @@ sleep 5s  # wait server to fill up the conf file
 #Use ibrun to run the MPI job. It will detect the MPI, generate the hostfile
 # and doing the right binding. With no options ibrun will use all cores.
 #export OMP_NUM_THREADS=1
-ibrun  -np $PROCS_PRODUCER ${BIN_PRODUCER} &> ${PBS_RESULTDIR}/lammps.log &
+ibrun  -np $PROCS_PRODUCER ${BIN_PRODUCER} ${SCRATCH_DIR} &> ${PBS_RESULTDIR}/lammps.log &
 echo "writer applciation lauched"
 
-ibrun  -np $PROCS_CONSUMER ${BIN_CONSUMER} &> ${PBS_RESULTDIR}/adios_read.log
+ibrun  -np $PROCS_CONSUMER ${BIN_CONSUMER} ${SCRATCH_DIR} &> ${PBS_RESULTDIR}/adios_read.log
 echo "reader applciation lauched"
 
 ## Wait for the entire workflow to finish

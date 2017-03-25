@@ -31,7 +31,7 @@
  *      buf: address of buffer
  *      pcomm: group communicator
  */
-void insert_into_Adios(int n, double * buf, MPI_Comm *pcomm);
+void insert_into_Adios(char *filepath, int n, double * buf, MPI_Comm *pcomm);
 
 // run lbm 
 // input:
@@ -41,7 +41,7 @@ void insert_into_Adios(int n, double * buf, MPI_Comm *pcomm);
 //      there will be  X*Y*Z cubes each has cubex*cubey*cube z elememts,
 //      each cell will have two double values
 //      data is send once for each cube
-void run_lbm(int step_stop, int dims_cube[3], MPI_Comm * pcomm);
+void run_lbm(char *filepath, int step_stop, int dims_cube[3], MPI_Comm * pcomm);
 
 double get_cur_time();
 
