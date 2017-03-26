@@ -23,8 +23,12 @@
 #include <mpi.h>
 #include "adios_read.h"
 #include "adios_error.h"
-#include "adios_read_global.h"
+//#include "adios_read_global.h"
 #include "run_analysis.h"
+#include <sys/file.h>
+
+        
+        
 
 #define DEBUG_Feng
 
@@ -54,11 +58,29 @@ int main (int argc, char ** argv)
     MPI_Comm_rank (comm, &rank);
     MPI_Comm_size (comm, &size);
 
-    adios_read_init_method (method, comm, "verbose=3");
-    int timestep = 0;
+    int timestep = -1;
+    
+    /**** use index file to keep track of current step *****/
+    int fd; 
+    char step_index_file [256];
+    int time_stamp = -1;// flag read from producer
+    sprintf(step_index_file, "%s/stamp.file", filepath);
 
-    strcat(filepath, "/adios_global.bp");
-    ADIOS_FILE * f = adios_read_open (filepath, method, comm, ADIOS_LOCKMODE_CURRENT, 0);
+    if(rank == 0){
+        fd = open(step_index_file, O_WRONLY);
+        flock(fd, LOCK_EX);
+        write(fd,  &time_stamp,  sizeof(int));
+        close(fd);
+        flock(fd, LOCK_UN);
+    }
+
+    MPI_Barrier(comm);
+
+    adios_read_init_method (method, comm, "verbose=3");
+
+    char filename_atom[256];
+    sprintf(filename_atom, "%s/atom.bp", filepath);
+    ADIOS_FILE * f = adios_read_open (filename_atom, method, comm, ADIOS_LOCKMODE_CURRENT, 0);
 
      if (f == NULL)
     {
@@ -94,43 +116,35 @@ int main (int argc, char ** argv)
 
     printf("rank %d: adios init complete\n", rank);
     //for(timestep = 0; timestep < 10;){
-    while(adios_errno != err_end_of_stream){
-        printf("rank %d: Step %d start\n", rank, timestep);
-        //ADIOS_FILE * f = adios_read_open ("adios_global.bp", method, comm, ADIOS_LOCKMODE_NONE, 0);
-        //ADIOS_FILE * f = adios_read_open ("adios_global.bp", method, comm, ADIOS_LOCKMODE_ALL, 0);
-           /* Read a subset of the temperature array */
-        adios_schedule_read (f, sel, "atom", 0, 1, data);
-        adios_perform_reads (f, 1);
+    //
+    // write will send -2 to mark end
+    while(time_stamp != -2){
+        fd = open(step_index_file, O_RDONLY);
+        flock(fd, LOCK_SH);
+        read(fd,  &time_stamp,  sizeof(int));
+        flock(fd, LOCK_UN);
+        close(fd);
+        
+        // new step avaible from producer
+        if(time_stamp > timestep){
+            timestep = time_stamp;
+            printf("rank %d: Step %d start\n", rank, timestep);
+            //ADIOS_FILE * f = adios_read_open ("adios_global.bp", method, comm, ADIOS_LOCKMODE_NONE, 0);
+            //ADIOS_FILE * f = adios_read_open ("adios_global.bp", method, comm, ADIOS_LOCKMODE_ALL, 0);
+               /* Read a subset of the temperature array */
+            adios_schedule_read (f, sel, "atom", 0, 1, data);
+            adios_perform_reads (f, 1);
 
-        adios_release_step(f);
-        adios_advance_step(f, 0, -1);
+            adios_release_step(f);
+            // newest available step
+            adios_advance_step(f, 1, -1);
 
-        /*
-        for (i = 0; i < slice_size; i++) {
-            if(* ((double *)data + i * v->dims[1])  -0 < 0.001){
-                printf("ERROR: rank %d get zero lines in slice %d \n", rank, i);
-                exit(-1);
-            }
+            printf("rank %d: Step %d read\n", rank, timestep);
+
+            // analysis
+            run_analysis(data, slice_size, lp );
+            printf("rank %d: Step %d moments calculated\n", rank, timestep);
         }
-        */
-
-#ifdef DEBUG_Feng
-        for (i = 0; i < slice_size; i++) {
-            printf ("rank %d: [%" PRIu64 ",%d:%" PRIu64 "]", rank, start[0]+i, 0, slice_size);
-            for (j = 0; j < v->dims[1]; j++){
-                printf (" %6.6g", * ((double *)data + i * v->dims[1]  + j ));
-            }
-            printf("|");
-            printf ("\n");
-        }
-#endif
-        printf("rank %d: Step %d read\n", rank, timestep);
-
-        // analysis
-        run_analysis(data, slice_size, lp );
-
-        printf("rank %d: Step %d moments calculated\n", rank, timestep);
-        timestep ++;
 
     }
     free (data);

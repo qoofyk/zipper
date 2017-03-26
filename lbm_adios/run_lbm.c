@@ -2,10 +2,17 @@
 #include "adios_write_global.h"
 #include "adios_adaptor.h"
 #define SIZE_ONE (2)
+#include <sys/file.h>
 
 #define debug
 
+#define USE_MPIIO
+
+#if defined(USE_MPIIO) || defined(USE_DATASPACES) || defined(USE_DIMES)
 #define USE_ADIOS
+#endif
+    
+
 
 double get_cur_time() {
   struct timeval   tv;
@@ -198,7 +205,7 @@ void run_lbm(char * filepath, int step_stop, int dims_cube[3], MPI_Comm *pcomm)
 
 		time3=dt;
 
-		int step=1;
+		int step=0;
 
 		if (myid==middle) {
 
@@ -457,7 +464,7 @@ void run_lbm(char * filepath, int step_stop, int dims_cube[3], MPI_Comm *pcomm)
 
 		//int blk_id=0;
 
-		while (step <= step_stop)
+		while (step < step_stop)
 
 		{
 
@@ -1001,6 +1008,29 @@ void run_lbm(char * filepath, int step_stop, int dims_cube[3], MPI_Comm *pcomm)
         // n can be large (64*64*256)
         insert_into_adios(filepath, "atom", n,SIZE_ONE , buffer,"w", &comm);
         free(buffer);
+#ifdef USE_MPIIO
+        /**** use index file to keep track of current step *****/
+        int fd; 
+        char step_index_file[256];
+        int time_stamp;
+        
+        if(rank == 0){
+            if(step == step_stop - 1){
+               time_stamp = -2;
+            }else{
+               time_stamp == step;
+            }// flag read from producer
+
+            sprintf(step_index_file, "%s/stamp.file", filepath);
+
+            fd = open(step_index_file, O_WRONLY);
+            flock(fd, LOCK_EX);
+            write(fd,  &time_stamp,  sizeof(int));
+            close(fd);
+            flock(fd, LOCK_UN);
+        }
+        MPI_Barrier(comm);
+#endif
 		//free(buffer);
 		#ifdef DEBUG_PRINT
 		if(step%10==0)
@@ -1048,13 +1078,19 @@ int main(int argc, char * argv[]){
   MPI_Comm_rank (comm, &rank);
   MPI_Comm_size (comm, &size);
 
-#ifdef USE_ADIOS
-  adios_init ("adios_global.xml", comm);
-  printf("rank %d: adios init complete\n", rank);
+#ifdef USE_MPIIO
+  adios_init ("adios_xmls/dbroker_mpiio.xml", comm);
+  printf("rank %d: adios init complete with mpiio\n", rank);
+#elif USE_DATASPACES
+  adios_init ("adios_xml/dbbroker_dataspaces.xml", comm);
+  printf("rank %d: adios init complete with dataspaces\n", rank);
+#elif USE_DIMES
+  adios_init ("adios_xml/dbroker_dimes.xml", comm);
+  printf("rank %d: adios init complete with dimes\n", rank);
+#endif
   if(rank == 0 ){
       printf("output will be saved in %s\n", filepath);
   }
-#endif
 
   run_lbm(filepath, 10, dims_cube, &comm);
 

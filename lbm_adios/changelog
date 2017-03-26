@@ -10,6 +10,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 be used(first iteration use "w" to creat the file)
 be used
 
+#### added
+- xml files are splited for different transport methods in xmls dir
+- run_lbm will select different xml based on preprocessor
+
 ## [0.1.2] 2017 mar 25
 #### fixed
 mpiio need to use scratch path explicitly
@@ -33,7 +37,4 @@ add kep using mpiio, now new ads_adaptor.c/h is created
 - removed blocks, now each process need to prepare contiguous buffer for adios
 #### To do
 - use small size, verify the correctness of data read
-
-
-
 

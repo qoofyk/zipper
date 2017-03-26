@@ -63,9 +63,9 @@ int main (int argc, char ** argv)
     printf("rank %d: adios init complete\n", rank);
 #endif
 
+    int timestep = 0;
 
-
-    int timestep = 1;
+    /****************** 
 
     char filename[256];
 
@@ -146,7 +146,7 @@ int main (int argc, char ** argv)
 
 // keep 
 #ifdef HAS_KEEP
-        if(timestep == 1)
+        if(timestep == 0)
             insert_into_adios(filepath, "restart", slice_size, v->dims[1], data,"w", &comm);
         else
             insert_into_adios(filepath, "restart", slice_size, v->dims[1], data,"a", &comm);

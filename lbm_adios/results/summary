@@ -19,8 +19,11 @@
     if adding  keeping,(additional init_read_method() in reader application) reader no actions
 8445202
     Mar 26 13:42
-    move adios_init_read before adios_init, reader cannot stop
+    move adios_init_read before adios_init, reader cannot stop(fixed by store errno of streaming read)
 8445616
     mar 26 15:08
     keep written into same file, (mode "w")
+8445921
+    Mar 26 15:46
+    keep only happens since second iteration
     
