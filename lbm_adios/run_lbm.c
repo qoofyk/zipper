@@ -1,64 +1,11 @@
 #include "run_lbm.h"        
 #include "adios_write_global.h"
+#include "adios_adaptor.h"
 #define SIZE_ONE (2)
 
 #define debug
 
 #define USE_ADIOS
-void insert_into_Adios(char * filepath, int n, double * buf, MPI_Comm *pcomm){
-    char        filename [256];
-    int         rank, size, i, j;
-    int         NX;
-    
-    int size_one = SIZE_ONE;
-    // prepare sending buffer
-    double * t =  buf;
-    //double      t[NX*SIZE_ONE];
-
-    /* ADIOS variables declarations for matching gwrite_temperature.ch */
-    uint64_t    adios_groupsize, adios_totalsize;
-    int64_t     adios_handle;
-
-    MPI_Comm    comm = *pcomm;
-    MPI_Comm_rank (comm, &rank);
-    MPI_Comm_size (comm, &size);
-
-    // nlines of all processes
-    NX = size*n;
-    
-    // lower bound of my line index
-    int lb;
-    lb = rank*n;
-
-    strcpy (filename, filepath);
-    strcat(filename, "/adios_global.bp");
-
-    //printf("rank %d: start to write\n", rank);
-    
-    adios_open (&adios_handle, "atom", filename, "w", comm);
-#ifdef debug
-
-    printf("rank %d: file %s opened\n", rank, filename);
-#endif
-#ifdef debug_1
-    printf("lb = %d, n = %d, NX = %d, size = %d, rank = %d \n",lb, n, NX, size, rank);
-        for (i = 0; i < n ; i++) {
-            printf ("rank %d: [%d ,%d:%d]", rank, lb , 0, n);
-            for (j = 0; j < SIZE_ONE ; j++){
-                printf (" %6.6g", * ((double *)buf + i * SIZE_ONE  + j ));
-            }
-            printf("|");
-            printf ("\n");
-        }
-#endif
-
-    #include "gwrite_atom.ch"
-    printf("rank %d: try to close\n", rank);
-    adios_close (adios_handle);
-    printf("rank %d: file %s closed\n", rank, filename);
-    //printf("rank %d: write completed\n", rank);
-}
-
 
 double get_cur_time() {
   struct timeval   tv;
@@ -1052,7 +999,7 @@ void run_lbm(char * filepath, int step_stop, int dims_cube[3], MPI_Comm *pcomm)
          *          ADIOS              *
          *******************************/
         // n can be large (64*64*256)
-        insert_into_Adios(filepath, n, buffer, &comm);
+        insert_into_adios(filepath, "atom", n,SIZE_ONE , buffer, &comm);
         free(buffer);
 		//free(buffer);
 		#ifdef DEBUG_PRINT
@@ -1116,9 +1063,7 @@ int main(int argc, char * argv[]){
   printf("rank %d: adios finalize complete\n", rank); 
 #endif                                                      
   MPI_Finalize();
-
   printf("rank %d: exit\n", rank);
-
-    return 0;
+  return 0;
 }
 
