@@ -25,9 +25,9 @@
 #include "run_analysis.h"
 #include "adios_adaptor.h"
 
-#define DEBUG_Feng
+//#define DEBUG_Feng
 
-//#define HAS_KEEP
+#define HAS_KEEP
 
 int main (int argc, char ** argv) 
 {
@@ -54,6 +54,10 @@ int main (int argc, char ** argv)
     MPI_Init (&argc, &argv);
     MPI_Comm_rank (comm, &rank);
     MPI_Comm_size (comm, &size);
+
+    adios_read_init_method (method, comm, "verbose=3");
+    printf("rank %d: adios read method init complete\n", rank);
+
 #ifdef HAS_KEEP
     adios_init ("adios_global.xml", comm);
     printf("rank %d: adios init complete\n", rank);
@@ -61,8 +65,7 @@ int main (int argc, char ** argv)
 
 
 
-    adios_read_init_method (method, comm, "verbose=3");
-    int timestep = 0;
+    int timestep = 1;
 
     char filename[256];
 
@@ -103,8 +106,11 @@ int main (int argc, char ** argv)
 
 
     printf("rank %d: adios init complete\n", rank);
+
+    // get read status, before perform mpiio!, so streaming steps are not affected
+    int errno_streaming_read = adios_errno;
     //for(timestep = 0; timestep < 10;){
-    while(adios_errno != err_end_of_stream){
+    while(errno_streaming_read != err_end_of_stream){
         printf("rank %d: Step %d start\n", rank, timestep);
         //ADIOS_FILE * f = adios_read_open ("adios_global.bp", method, comm, ADIOS_LOCKMODE_NONE, 0);
         //ADIOS_FILE * f = adios_read_open ("adios_global.bp", method, comm, ADIOS_LOCKMODE_ALL, 0);
@@ -135,9 +141,12 @@ int main (int argc, char ** argv)
         }
 #endif
         printf("rank %d: Step %d read\n", rank, timestep);
+
+        errno_streaming_read = adios_errno;
+
 // keep 
 #ifdef HAS_KEEP
-        insert_into_adios(filepath, "restart", slice_size, v->dims[1], data, &comm);
+        insert_into_adios(filepath, "restart", slice_size, v->dims[1], data,"w", &comm);
 #endif
 
         // analysis

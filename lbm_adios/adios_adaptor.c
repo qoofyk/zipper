@@ -1,6 +1,6 @@
 #include "adios_adaptor.h"
 
-void insert_into_adios(char * file_path, char *var_name, int n, int size_one, double * buf, MPI_Comm *pcomm){
+void insert_into_adios(char * file_path, char *var_name, int n, int size_one, double * buf, const char* mode,  MPI_Comm *pcomm){
     char        filename [256];
     int         rank, size, i, j;
     int         NX;
@@ -29,7 +29,7 @@ void insert_into_adios(char * file_path, char *var_name, int n, int size_one, do
 
     //printf("rank %d: start to write\n", rank);
     
-    adios_open (&adios_handle, var_name, filename, "w", comm);
+    adios_open (&adios_handle, var_name, filename, mode, comm);
 #ifdef debug
     printf("rank %d: file %s opened\n", rank, filename);
 #endif

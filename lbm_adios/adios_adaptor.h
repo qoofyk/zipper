@@ -12,7 +12,7 @@ extern "C"{
 #include <unistd.h>
 
 
-void insert_into_adios(char * file_path, char *var_name, int n, int size_one, double * buf, MPI_Comm *pcomm);
+void insert_into_adios(char * file_path, char *var_name, int n, int size_one, double * buf, const char * mode, MPI_Comm *pcomm);
 
 #ifdef __cplusplus
 }

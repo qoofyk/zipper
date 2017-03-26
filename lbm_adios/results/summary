@@ -16,5 +16,11 @@
     if data size too large, need larger buffer to fit all data
 8445129
     Mar 26 13:10
-    if adding  keeping, reader no actions
+    if adding  keeping,(additional init_read_method() in reader application) reader no actions
+8445202
+    Mar 26 13:42
+    move adios_init_read before adios_init, reader cannot stop
+8445616
+    mar 26 15:08
+    keep written into same file, (mode "w")
     

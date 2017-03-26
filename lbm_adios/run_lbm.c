@@ -999,7 +999,7 @@ void run_lbm(char * filepath, int step_stop, int dims_cube[3], MPI_Comm *pcomm)
          *          ADIOS              *
          *******************************/
         // n can be large (64*64*256)
-        insert_into_adios(filepath, "atom", n,SIZE_ONE , buffer, &comm);
+        insert_into_adios(filepath, "atom", n,SIZE_ONE , buffer,"w", &comm);
         free(buffer);
 		//free(buffer);
 		#ifdef DEBUG_PRINT
@@ -1056,7 +1056,7 @@ int main(int argc, char * argv[]){
   }
 #endif
 
-  run_lbm(filepath, 100, dims_cube, &comm);
+  run_lbm(filepath, 10, dims_cube, &comm);
 
 #ifdef USE_ADIOS
   adios_finalize (rank);
