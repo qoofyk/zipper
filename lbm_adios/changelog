@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 #### modified
 - save errno of streaming read, so receiver will stop correctly
 - add parameter 'mode' to insert_into_adios(), for keep, "a"(append) mode will
+be used(first iteration use "w" to creat the file)
 be used
 
 ## [0.1.2] 2017 mar 25

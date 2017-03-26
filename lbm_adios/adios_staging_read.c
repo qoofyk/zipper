@@ -146,7 +146,10 @@ int main (int argc, char ** argv)
 
 // keep 
 #ifdef HAS_KEEP
-        insert_into_adios(filepath, "restart", slice_size, v->dims[1], data,"w", &comm);
+        if(timestep == 1)
+            insert_into_adios(filepath, "restart", slice_size, v->dims[1], data,"w", &comm);
+        else
+            insert_into_adios(filepath, "restart", slice_size, v->dims[1], data,"a", &comm);
 #endif
 
         // analysis
