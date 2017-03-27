@@ -89,6 +89,8 @@ void analysis_writer_thread(GV gv,LV lv) {
 	int* temp_int_pointer;
 	// int flag=0;
 	char writer_state;
+	int num_exit_flag = 0;
+
 	ring_buffer *rb = gv->consumer_rb_p;
 	// int free_count=0;
 	// int dest = gv->rank[0]/gv->computer_group_size + gv->computer_group_size*gv->analysis_process_num;
@@ -114,39 +116,47 @@ void analysis_writer_thread(GV gv,LV lv) {
 				source = temp_int_pointer[0];
 				block_id = temp_int_pointer[1];
 
+#ifdef KEEP
 				t0 = get_cur_time();
 				analysis_write_blk(gv, lv, source, block_id, pointer+sizeof(int)*3, gv->block_size);
 				t1 = get_cur_time();
 				lv->write_time += t1 - t0;
 				my_count++;
+#endif //KEEP
 
 				pthread_mutex_lock(rb->lock_ringbuffer);
 				pointer[8] = ON_DISK;
 				pthread_mutex_unlock(rb->lock_ringbuffer);
 
 				if(my_count%WRITER_COUNT==0)
-					printf("Analysis Process %d Writer %d my_count %d\n", gv->rank[0], lv->tid, my_count);
+					printf("Ana_Proc%d: Writer%d my_count %d\n", gv->rank[0], lv->tid, my_count);
 
-				#ifdef DEBUG_PRINT
-				printf("NOT_ON_DISK: Analysis %d Writer %d finish write source=%d block_id=%d, my_count=%d\n",
+#ifdef DEBUG_PRINT
+				printf("Ana_Proc%d: --NOT_ON_DISK-- Writer%d finish write source=%d block_id=%d, my_count=%d\n",
 					gv->rank[0], lv->tid, source, block_id,my_count);
 				fflush(stdout);
-				#endif //DEBUG_PRINT
+#endif //DEBUG_PRINT
 			}
 		}
 
-		if(my_count >= gv->analysis_writer_blk_num){
+		else{
+			num_exit_flag++;
+		}
+
+
+		if (num_exit_flag >= gv->computer_group_size) {
 			break;
 		}
 	}
 
 	t3 = get_cur_time();
 
-	if(my_count!=gv->analysis_writer_blk_num)
-		printf("Analysis Writer my_count error!\n");
+	// if(my_count!=gv->analysis_writer_blk_num)
+	// 	printf("Analysis Writer my_count error!\n");
 
-	printf("Analysis Process %d Writer %d write_time= %f, only_fwrite_time=%f, total time= %f, my_count=%d\n",
-	gv->rank[0], lv->tid, lv->write_time, lv->only_fwrite_time, t3-t2, my_count);
+	printf("Ana_Proc%d: Writer%d T_write=%.3f, T_only_fwrite=%.3f, T_total=%.3f, my_count=%d\n",
+		gv->rank[0], lv->tid, lv->write_time, lv->only_fwrite_time, t3 - t2, my_count);
+	fflush(stdout);
 	// printf("Node%d Producer %d Write_Time/Block= %f only_fwrite_time/Block= %f, SPEED= %fKB/s\n",
 	//   gv->rank[0], lv->tid,  lv->write_time/gv->total_blks, lv->only_fwrite_time/gv->total_blks, gv->total_file/(lv->write_time));
 

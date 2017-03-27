@@ -5,16 +5,16 @@
 ########################################
 
 ## Compiler, tools and options
-CC      =  cc
-FC      =  ftn
-LINK    =  ftn
+CC      =  mpicc
+FC      =  mpif90
+LINK    =  mpicc
 # CC      = mpicc
 # FC      =  mpifort  #ftn
 # LINK    =  mpifort  #ftn
-OPT     =  -g
+OPT     =  -g -O3
 
 ADDCFLAGS = -Wall
-CCFLAGS = $(OPT)
+CCFLAGS = $(OPT) -DKEEP
 LDFLAGS = $(OPT)
 
 ## Libraries

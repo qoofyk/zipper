@@ -20,11 +20,12 @@ Brief desc of the file: Header
 
 // #define DEBUG_PRINT
 // #define TOTAL_FILE2PRODUCE_1GB 1024*1024*1024L
-#define ADDRESS "/N/dc2/scratch/fuyuan/LBMconcurrentstore/LBMcon%03dvs%03d/cid%03d/2lbm_cid%03dblk%d.d"
+#define ADDRESS "/oasis/scratch/comet/qoofyk/temp_project/LBMconcurrentstore/LBMcon%03dvs%03d/cid%03d/2lbm_cid%03dblk%d.d"
 
 #define MPI_MSG_TAG 49
 #define MIX_MPI_DISK_TAG 50
 #define DISK_TAG 51
+#define EXIT_MSG_TAG 99
 
 // #define BLANK 0
 // #define READ_DONE 4
@@ -52,6 +53,8 @@ Brief desc of the file: Header
 
 #define WRITER_COUNT 5000
 #define ANALSIS_COUNT 5000
+
+#define EXIT_BLK_ID -1
 
 typedef struct {
   char** buffer; //array of pointers
@@ -121,7 +124,8 @@ typedef struct gv_t {
   //writer
   int* written_id_array;
   int send_tail;
-  int writer_done;
+  int flag_sender_get_finalblk;
+  int flag_writer_get_finalblk;
 
   // receiver_thread
   char * org_recv_buffer;
@@ -130,6 +134,7 @@ typedef struct gv_t {
   // int prefetch_counter;  //currently how many file blocks have been read
   int recv_tail;
   int * prefetch_id_array;
+  int ana_reader_done;
 
   int calc_counter;
 

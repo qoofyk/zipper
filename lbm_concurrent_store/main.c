@@ -29,16 +29,17 @@ computer_group_size, num_analysis_nodes, cubex, cubez, step_stop, lp\n", argv[0]
 	gv    = (GV) malloc(sizeof(*gv));
 
 	//init lbm
-	gv->cubex=atoi(argv[8]);
-	gv->cubey=atoi(argv[8]);
-	gv->cubez=atoi(argv[9]);
+	gv->cubex	=	atoi(argv[8]);
+	gv->cubey	=	atoi(argv[8]);
+	gv->cubez	=	atoi(argv[9]);
 
-	gv->X=nx/gv->cubex;
-	gv->Y=ny/gv->cubey;
-	gv->Z=nz/gv->cubez;
+	gv->X 	=	nx/gv->cubex;
+	gv->Y 	=	ny/gv->cubey;
+	gv->Z 	= 	nz/gv->cubez;
 
 	gv->step_stop = atoi(argv[10]);
-	gv->lp = atoi(argv[11]);
+
+	gv->lp = atoi(argv[11]); //Loop times in Analysis calc_n_moments
 
 	//init IObox
 	gv->compute_generator_num = atoi(argv[1]);
@@ -56,8 +57,8 @@ computer_group_size, num_analysis_nodes, cubex, cubez, step_stop, lp\n", argv[0]
   	gv->writer_blk_num = gv->cpt_total_blks*gv->writer_thousandth/1000;
   	gv->sender_blk_num = gv->cpt_total_blks - gv->writer_blk_num;
   	gv->total_file = (long)gv->cpt_total_blks*(long)gv->block_size/1024; //KB
-  	gv->compute_data_len = sizeof(int)*1+sizeof(char)*gv->block_size+sizeof(int)*(gv->writer_blk_num+1);//blk_id,step,ci,cj,ck,data,written_id
-  	gv->analysis_data_len = sizeof(int)*(1+1+1)+sizeof(char)*gv->block_size; // src,blkid,writer_state,consumer_state,step,ci,cj,ck,data
+  	gv->compute_data_len = sizeof(int)+sizeof(char)*gv->block_size+sizeof(int)*(gv->writer_blk_num+1);//blk_id,step,ci,cj,ck,data,written_id
+  	gv->analysis_data_len = sizeof(int)*3+sizeof(char)*gv->block_size; // src,blkid,writer_state/consumer_state | step,ci,cj,ck,data
   	// printf("writer_blk_num=%d, sender_blk_num=%d\n", gv->writer_blk_num, gv->sender_blk_num);
   	// fflush(stdout);
 
@@ -97,7 +98,7 @@ computer_group_size, num_analysis_nodes, cubex, cubez, step_stop, lp\n", argv[0]
 	//debug_print(gv->rank[0]);
 
 	if (gv->color == 0){
-		int last_gen=0; //last generate blk_id
+		// int last_gen=0; //last generate blk_id
 		MPI_Status status;
 		double df1[nx][ny][nz][19],df2[nx][ny][nz][19],df_inout[2][ny][nz][19];
 		double rho[nx][ny][nz],u[nx][ny][nz],v[nx][ny][nz],w[nx][ny][nz];
@@ -122,8 +123,10 @@ computer_group_size, num_analysis_nodes, cubex, cubez, step_stop, lp\n", argv[0]
 		double t2=0, t3=0,t4=0,t5=0,t6=0,only_lbm_time=0,init_lbm_time=0;
 		int errorcode;
 
+		char * buffer; //to insert into databroker
+
 		#ifdef DEBUG_PRINT
-		printf("Compute Node %d Generator setup LBM parameter!\n",gv->rank[0]);
+		printf("Comp_Proc%d: Setup LBM parameter!\n",gv->rank[0]);
 		fflush(stdout);
 		#endif //DEBUG_PRINT
 
@@ -184,8 +187,8 @@ computer_group_size, num_analysis_nodes, cubex, cubez, step_stop, lp\n", argv[0]
 	    //gv->producer_rb_p = rb_init(gv,PRODUCER_RINGBUFFER_TOTAL_MEMORY,&producer_rb);
 	    //compute node
 	    if(gv->rank[0]==0 || gv->rank[0]==(gv->compute_process_num-1)){
-	    	printf("Compute Process %d of %d cpt_total_blks=%d, writer_blk_num=%d, sender_blk_num=%d, \
-PRODUCER_Ringbuffer %.3fGB, size is %d member\n",
+	    	printf("Comp_Proc%d of %d cpt_total_blks=%d, writer_blk_num=%d, sender_blk_num=%d, \
+PRODUCER_Ringbuffer %.3fGB, size=%d member\n",
 			gv->rank[0], gv->size[1], gv->cpt_total_blks, gv->writer_blk_num, gv->sender_blk_num,
 			PRODUCER_RINGBUFFER_TOTAL_MEMORY/(1024.0*1024.0*1024.0),gv->producer_rb_p->bufsize);
 		    fflush(stdout);
@@ -194,12 +197,13 @@ PRODUCER_Ringbuffer %.3fGB, size is %d member\n",
 		gv->written_id_array = (int *) malloc(sizeof(int)*gv->writer_blk_num);
 		gv->send_tail = 0;
 
+		gv->flag_sender_get_finalblk = 0;
+    	gv->flag_writer_get_finalblk = 0;
+
 		//init lock
 		pthread_mutex_init(&gv->lock_block_id,NULL);
 	    pthread_mutex_init(&gv->lock_writer_progress, NULL);
 	    pthread_mutex_init(&gv->lock_writer_done, NULL);
-
-	    gv->writer_done=0;
 
 		t0=get_cur_time();
 
@@ -216,7 +220,7 @@ PRODUCER_Ringbuffer %.3fGB, size is %d member\n",
 
 		//---------------------------------------------BEGIN LBM -----------------------------------------------
 		#ifdef DEBUG_PRINT
-		printf("Compute Node %d Generator begin LBM!\n",gv->rank[0]);
+		printf("Comp_Proc%d: Begin LBM!\n",gv->rank[0]);
 		fflush(stdout);
 		#endif //DEBUG_PRINT
 
@@ -311,7 +315,7 @@ PRODUCER_Ringbuffer %.3fGB, size is %d member\n",
 
 		time3=dt;
 
-		gv->step=1;
+		gv->step=0;
 
 		if (myid==middle) {
 
@@ -577,14 +581,14 @@ PRODUCER_Ringbuffer %.3fGB, size is %d member\n",
 
 		//int blk_id=0;
 
-		while (gv->step <= gv->step_stop)
+		while (gv->step < gv->step_stop)
 
 		{
 
 		t5=get_cur_time();
 
 		if (myid==0){
-			printf("step = %d   of   %d   \n", gv->step, gv->step_stop);
+			printf("step=%d of %d\n", gv->step, gv->step_stop);
 
 			fflush(stdout);
 		}
@@ -725,7 +729,7 @@ PRODUCER_Ringbuffer %.3fGB, size is %d member\n",
 
 
 		#ifdef DEBUG_PRINT
-		printf("Compute Node %d Generator start LBM data sending and receiving !\n",gv->rank[0]);
+		printf("Comp_Proc%d: Start LBM data MPI_Sendrecv!\n",gv->rank[0]);
 		fflush(stdout);
 		#endif //DEBUG_PRINT
 
@@ -801,7 +805,7 @@ PRODUCER_Ringbuffer %.3fGB, size is %d member\n",
 		// MPI_Barrier(comm1d);
 
 		#ifdef DEBUG_PRINT
-		printf("Compute Node %d Generator finish LBM data sending and receiving !\n",gv->rank[0]);
+		printf("Comp_Proc%d: LBM finish MPI_Sendrecv!\n",gv->rank[0]);
 		fflush(stdout);
 		#endif //DEBUG_PRINT
 
@@ -1087,12 +1091,12 @@ PRODUCER_Ringbuffer %.3fGB, size is %d member\n",
 		only_lbm_time+=t6-t5;
 
 		#ifdef DEBUG_PRINT
-		printf("Compute Node %d Generator start create_prb_element!\n",gv->rank[0]);
+		printf("Comp_Proc%d: Start create_prb_element!\n",gv->rank[0]);
 		fflush(stdout);
 		#endif //DEBUG_PRINT
 
 		/*create_prb_element*/
-		char * buffer;
+		// char * buffer;
 		// FILE *fp;
 		// char file_name[64];
 		int count=0;
@@ -1119,7 +1123,7 @@ PRODUCER_Ringbuffer %.3fGB, size is %d member\n",
 		      gv->originz=gv->CK*gv->cubez;
 		      //
 		      //pthread_mutex_lock(&gv->lock_generator);
-		      last_gen = gv->data_id++;
+		      //last_gen = gv->data_id++;
 		      //pthread_mutex_unlock(&gv->lock_generator);
 
 		      // if(last_gen>=gv->cpt_total_blks) {
@@ -1130,11 +1134,11 @@ PRODUCER_Ringbuffer %.3fGB, size is %d member\n",
 		      buffer = (char*) malloc(sizeof(char)*gv->compute_data_len);
 		      check_malloc(buffer);
 
-		      *(int *)(buffer)= last_gen;
-		      *(int *)(buffer+4)=gv->step;
-		      *(int *)(buffer+8)=gv->CI;
-		      *(int *)(buffer+12)=gv->CJ;
-		      *(int *)(buffer+16)=gv->CK;
+		      ((int *)buffer)[0] = gv->data_id++;
+		      ((int *)buffer)[1]=gv->step;
+		      ((int *)buffer)[2]=gv->CI;
+		      ((int *)buffer)[3]=gv->CJ;
+		      ((int *)buffer)[4]=gv->CK;
 		      //printf("Node %d put to pr_rb step%d i%d j%d k%d\n", gv->rank[0], *(int *)(buffer),*(int *)(buffer+4),*(int *)(buffer+8),*(int *)(buffer+12));
 		      count=0;
 		      for(i=0;i<gv->cubex;i++)
@@ -1144,12 +1148,12 @@ PRODUCER_Ringbuffer %.3fGB, size is %d member\n",
 		            gv->gj=gv->originy+j;
 		            gv->gk=gv->originz+k;
 
-		            *((double *)(buffer+20+count))=u_r*u[gv->gi][gv->gj][gv->gk];
-		            *((double *)(buffer+20+count+8))=u_r*v[gv->gi][gv->gj][gv->gk];
+		            ((double *)(buffer+sizeof(int)*5))[count]	=u_r*u[gv->gi][gv->gj][gv->gk];
+		            ((double *)(buffer+sizeof(int)*5))[count+1]	=u_r*v[gv->gi][gv->gj][gv->gk];
 		            // *((double *)(buffer+count+2))=gi;
 		            // *((double *)(buffer+count+3))=gj;
 		            // *((double *)(buffer+count+4))=gk;
-		            count+=16;
+		            count+=2;
 		          }
 		      //total produce X*Y*Z blocks each step
 
@@ -1162,7 +1166,7 @@ PRODUCER_Ringbuffer %.3fGB, size is %d member\n",
 		//free(buffer);
 		#ifdef DEBUG_PRINT
 		if(gv->step%10==0)
-		  printf("Node %d gv->step = %d\n", gv->rank[0], gv->step);
+		  printf("Comp_Proc%d: LBM gv->step = %d\n", gv->rank[0], gv->step);
 		#endif //DEBUG_PRINT
 		time1=0;
 
@@ -1181,6 +1185,21 @@ PRODUCER_Ringbuffer %.3fGB, size is %d member\n",
 
 		}  /* end of while loop */
 
+		// generate exit message
+		buffer = (char*) malloc(sizeof(char)*gv->compute_data_len);
+    	check_malloc(buffer);
+
+    	((int *)buffer)[0]= EXIT_BLK_ID;
+	    // ((int *)buffer)[1]= -1;
+	    // ((int *)buffer)[2]= -1;
+
+	    printf("Comp_Proc%d: LBM generate the EXIT block_id=%d in timestep=%d with total_blks %d\n",
+	      gv->rank[0], ((int *)buffer)[0], gv->step, gv->data_id);
+	    fflush(stdout);
+
+	    producer_ring_buffer_put(gv,buffer);
+
+
 		// MPI_Barrier(comm1d);
 		t3= get_cur_time();
 
@@ -1190,9 +1209,9 @@ PRODUCER_Ringbuffer %.3fGB, size is %d member\n",
 		MPI_Type_free(&newtype_fr);
 
 		// gv->compute_all_done = 1;
-		printf("$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$\n");
-		printf("Node %d on %s Compute Done! Only_LBM_Time=%f,Total_Compute_Time/Block=%fus, Total_Compute_Time=%f\n",
-		gv->rank[0], gv->processor_name, only_lbm_time, (t3-t2)*1000000/gv->cpt_total_blks,t3-t2);
+		// printf("$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$\n");
+		printf("Comp_Proc%d on %s: LBM computation Done! Only_LBM_Time=%.3f, T_total_compute_Time/Block=%.3fus, T_total_compute=%.3f\n",
+		gv->rank[0], gv->processor_name, only_lbm_time, (t3-t2)*1000000/gv->cpt_total_blks, t3-t2);
 		fflush(stdout);
 		//------------------------------------------------END OF LBM--------------------------------------------------------
 
@@ -1207,7 +1226,7 @@ PRODUCER_Ringbuffer %.3fGB, size is %d member\n",
 		free(attrs);
 		free(thrds);
 
-		printf("Compute Node %d compute job finish on %s, total_time=%f!\n", gv->rank[0], gv->processor_name,t1-t0);
+		printf("Comp_Proc%d: Job finish on %s, T_total=%.3f\n", gv->rank[0], gv->processor_name, t1-t0);
 		fflush(stdout);
 	}
 	else if (gv->color == 1){
@@ -1238,8 +1257,8 @@ PRODUCER_Ringbuffer %.3fGB, size is %d member\n",
 	    gv->consumer_rb_p = &consumer_rb;
 	    //gv->consumer_rb_p = rb_init(gv,CONSUMER_RINGBUFFER_TOTAL_MEMORY,&consumer_rb);
 	    if(gv->rank[0]==gv->compute_process_num || gv->rank[0]==(gv->compute_process_num+gv->analysis_process_num-1)){
-	    	printf("Ana Process %d of %d ana_total_blks = %d, reader_blk_num=%d, analysis_writer_blk_num=%d, \
-CONSUMER_Ringbuffer %.3fGB, size is %d member\n",
+	    	printf("Ana_Proc%d of %d ana_total_blks = %d, reader_blk_num=%d, analysis_writer_blk_num=%d, \
+CONSUMER_Ringbuffer %.3fGB, size=%d member\n",
 	    		gv->rank[0], gv->size[1], gv->ana_total_blks, gv->reader_blk_num, gv->analysis_writer_blk_num,
 	    		CONSUMER_RINGBUFFER_TOTAL_MEMORY/(1024.0*1024.0*1024.0),gv->consumer_rb_p->bufsize);
 		    fflush(stdout);
@@ -1251,6 +1270,7 @@ CONSUMER_Ringbuffer %.3fGB, size is %d member\n",
 	    check_malloc(gv->org_recv_buffer);
 
 	    // prfetch threads 1+1:cid+blkid
+	    gv->ana_reader_done=0;
 	    gv->prefetch_id_array = (int *) malloc(sizeof(int)*(1+1)*gv->reader_blk_num);
 	    gv->recv_tail = 0;
 	    check_malloc(gv->prefetch_id_array);
@@ -1282,7 +1302,7 @@ CONSUMER_Ringbuffer %.3fGB, size is %d member\n",
 		free(thrds);
 
 		t3=get_cur_time();
-		printf("Analysis Node %d on %s analysis job  total time = %f\n",gv->rank[0], gv->processor_name,t3-t2);
+		printf("Ana_Proc%d on %s: Analysis Job Done! T_total=%.3f\n",gv->rank[0], gv->processor_name,t3-t2);
 	}
 	else{
 		printf("Error!\n");

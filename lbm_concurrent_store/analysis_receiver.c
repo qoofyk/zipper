@@ -19,8 +19,9 @@ void recv_ring_buffer_put(GV gv,LV lv,char * buffer){
   }
 }
 
+int i;
 void copy_msg_int(int* temp1,int* temp2,int num_int){
-  for(int i=0;i<num_int;i++)
+  for(i=0;i<num_int;i++)
     temp1[i]=temp2[i];
 }
 
@@ -70,13 +71,15 @@ void analysis_receiver_thread(GV gv,LV lv){
   int errorcode,long_msg_id=0,mix_msg_id=0,disk_id=0;
   int* temp_int_pointer;
   char* new_buffer=NULL;
+  int num_exit_flag = 0;
 
   // printf("Ana Node %d Receiveing thread %d Start receive!\n",gv->rank[0], lv->tid);
 
   t0 = get_cur_time();
   while(1){
-    if(gv->mpi_recv_progress_counter>=gv->ana_total_blks) {
-        break;
+    if (num_exit_flag >= gv->computer_group_size) {
+      gv->ana_reader_done=1;
+      break;
     }
 
     // #ifdef DEBUG_PRINT
@@ -87,7 +90,7 @@ void analysis_receiver_thread(GV gv,LV lv){
     t2 = get_cur_time();
     errorcode = MPI_Recv(gv->org_recv_buffer, gv->compute_data_len, MPI_CHAR, MPI_ANY_SOURCE,MPI_ANY_TAG,MPI_COMM_WORLD, &status);
     if(errorcode!= MPI_SUCCESS){
-        printf("Ana Node %d Error MPI receive!\n",gv->rank[0]);
+        printf("Ana_Proc%d: Error MPI receive!\n",gv->rank[0]);
         fflush(stdout);
         exit(1);
     }
@@ -210,17 +213,33 @@ void analysis_receiver_thread(GV gv,LV lv){
 
       gv->mpi_recv_progress_counter += recv_int;
     }
+    else if (status.MPI_TAG == EXIT_MSG_TAG){
+
+      num_exit_flag++;
+
+      new_buffer = (char*)malloc(gv->analysis_data_len);
+      check_malloc(new_buffer);
+      ((int*)new_buffer)[0] = status.MPI_SOURCE;
+      ((int*)new_buffer)[1] = EXIT_BLK_ID;
+
+      printf("Ana_Proc%d: Receiver%d get a *EXIT_MSG_TAG* from src=%d with block_id=%d, num_exit_flag=%d\n",
+        gv->rank[0], lv->tid, ((int*)new_buffer)[0], ((int*)new_buffer)[1], num_exit_flag);
+      fflush(stdout);
+
+      recv_ring_buffer_put(gv, lv, new_buffer);
+
+    }
     else{
-      printf("Analysis Process %d receive error!!!!! Get a Tag=%d\n", gv->rank[0], status.MPI_TAG);
+      printf("Ana_Proc%d: receive error!!!!! Get a Tag=%d\n", gv->rank[0], status.MPI_TAG);
       fflush(stdout);
       // exit(1);
     }
   }
   t1 = get_cur_time();
 
-  printf("Analysis Process %d Receive thread %d total time is %f, mpi_recv_progress_counter=%d, \
-receive_time = %f, wait_lock = %f, long_msg_id=%d, mix_msg_id= %d,disk_id=%d\n",
-    gv->rank[0], lv->tid, t1-t0, gv->mpi_recv_progress_counter,
-    receive_time, wait_lock, long_msg_id ,mix_msg_id,disk_id);
-
+  printf("Ana_Proc%d: Receiver%d T_total=%.3f, mpi_recv_progress_counter=%d, \
+T_receive_wait=%.3f, T_wait_lock=%.3f, long_msg_id=%d, mix_msg_id= %d,disk_id=%d\n",
+     gv->rank[0], lv->tid, t1 - t0, gv->mpi_recv_progress_counter,
+     receive_time, wait_lock, long_msg_id, mix_msg_id, disk_id);
+  fflush(stdout);
 }
