@@ -66,91 +66,84 @@ int main (int argc, char ** argv)
     int time_stamp = -1;// flag read from producer
     sprintf(step_index_file, "%s/stamp.file", filepath);
 
-    if(rank == 0){
-        fd = open(step_index_file, O_WRONLY);
-        flock(fd, LOCK_EX);
-        write(fd,  &time_stamp,  sizeof(int));
-        close(fd);
-        flock(fd, LOCK_UN);
-    }
-
     MPI_Barrier(comm);
 
     adios_read_init_method (method, comm, "verbose=3");
+    printf("rank %d:reader init\n", rank);
 
     char filename_atom[256];
-    sprintf(filename_atom, "%s/atom.bp", filepath);
-    ADIOS_FILE * f = adios_read_open (filename_atom, method, comm, ADIOS_LOCKMODE_CURRENT, 0);
+    ADIOS_FILE * f;
 
-     if (f == NULL)
-    {
-        printf ("%s\n", adios_errmsg());
-        return -1;
-    }
-    
-    printf("reader opened the stream\n");
-
-    ADIOS_VARINFO * v = adios_inq_var (f, "atom");
+    ADIOS_VARINFO * v;
 
     /* Using less readers to read the global array back, i.e., non-uniform */
-    uint64_t slice_size = v->dims[0]/size;
-    start[0] = slice_size * rank;
-    if (rank == size-1) /* last rank may read more lines */
-        slice_size = slice_size + v->dims[0]%size;
-    count[0] = slice_size;
-
-    start[1] = 0;
-    count[1] = v->dims[1];
-    printf("rank %d: start: (%d, %d), count:( %d, %d)\n", rank, start[0], start[1], count[0], count[1]);
-       
-
-    data = malloc (slice_size * v->dims[1]* sizeof (double));
-    if (data == NULL)
-    {
-        fprintf (stderr, "malloc failed.\n");
-        return -1;
-    }
-
-    sel = adios_selection_boundingbox (v->ndim, start, count);
-
-
-    printf("rank %d: adios init complete\n", rank);
+    uint64_t slice_size;
+      
     //for(timestep = 0; timestep < 10;){
     //
     // write will send -2 to mark end
-    while(time_stamp != -2){
+    while(1){
         fd = open(step_index_file, O_RDONLY);
         flock(fd, LOCK_SH);
         read(fd,  &time_stamp,  sizeof(int));
         flock(fd, LOCK_UN);
         close(fd);
-        
+        if(time_stamp  == -2){
+            printf("rank %d: terminate\n");
+            break;
+        }
         // new step avaible from producer
-        if(time_stamp > timestep){
+        else if(time_stamp > timestep){
             timestep = time_stamp;
-            printf("rank %d: Step %d start\n", rank, timestep);
-            //ADIOS_FILE * f = adios_read_open ("adios_global.bp", method, comm, ADIOS_LOCKMODE_NONE, 0);
-            //ADIOS_FILE * f = adios_read_open ("adios_global.bp", method, comm, ADIOS_LOCKMODE_ALL, 0);
-               /* Read a subset of the temperature array */
+            printf("rank %d: reader opened step %d\n", timestep);
+            sprintf(filename_atom, "%s/atom.bp", filepath);
+            f = adios_read_open_file(filename_atom, method, comm);
+
+            // the first timestep will get variable metadata
+            if(timestep == 0){
+                 if (f == NULL)
+                {
+                    printf ("%s\n", adios_errmsg());
+                    return -1;
+                }
+                
+                v = adios_inq_var (f, "atom");
+                slice_size = v->dims[0]/size;
+
+                data = malloc (slice_size * v->dims[1]* sizeof (double));
+                if (data == NULL)
+                {
+                    fprintf (stderr, "malloc failed.\n");
+                    return -1;
+                }
+
+                start[0] = slice_size * rank;
+                if (rank == size-1) /* last rank may read more lines */
+                    slice_size = slice_size + v->dims[0]%size;
+                count[0] = slice_size;
+
+                start[1] = 0;
+                count[1] = v->dims[1];
+                printf("rank %d: start: (%d, %d), count:( %d, %d)\n", rank, start[0], start[1], count[0], count[1]);
+                sel = adios_selection_boundingbox (v->ndim, start, count);
+            }
+
+            /* Read a subset of the temperature array */
             adios_schedule_read (f, sel, "atom", 0, 1, data);
             adios_perform_reads (f, 1);
 
-            adios_release_step(f);
-            // newest available step
-            adios_advance_step(f, 1, -1);
+            adios_read_close (f);
 
             printf("rank %d: Step %d read\n", rank, timestep);
-
             // analysis
-            run_analysis(data, slice_size, lp );
+            run_analysis(data, slice_size, lp);
             printf("rank %d: Step %d moments calculated\n", rank, timestep);
         }
-
     }
     free (data);
     adios_selection_delete (sel);
     adios_free_varinfo (v);
-    adios_read_close (f);
+    
 
     MPI_Barrier (comm);
     adios_read_finalize_method (method);

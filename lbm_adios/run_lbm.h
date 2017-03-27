@@ -17,12 +17,13 @@
 
 
 // this must be included
-#define TOTAL_FILE2PRODUCE_1GB 256
-//#define TOTAL_FILE2PRODUCE_1GB 16
-
+/*
+ * this is moved to main function arguments
+#define TOTAL_FILE2PRODUCE_1GB 256 
 #define nx TOTAL_FILE2PRODUCE_1GB/4
 #define ny TOTAL_FILE2PRODUCE_1GB/4
 #define nz TOTAL_FILE2PRODUCE_1GB
+*/
 
 /*
  * insert buffer into adios

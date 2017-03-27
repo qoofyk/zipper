@@ -24,6 +24,7 @@
 #include "adios_error.h"
 #include "run_analysis.h"
 #include "adios_adaptor.h"
+#include "utility.h"
 
 //#define DEBUG_Feng
 
@@ -42,7 +43,7 @@ int main (int argc, char ** argv)
 
     /******************** configuration stop ***********/
 
-    int         rank, size, i, j, k;
+    int         rank, size;
     MPI_Comm    comm = MPI_COMM_WORLD;
     enum ADIOS_READ_METHOD method = ADIOS_READ_METHOD_DATASPACES;
     //enum ADIOS_READ_METHOD method = ADIOS_READ_METHOD_DIMES;
@@ -56,16 +57,24 @@ int main (int argc, char ** argv)
     MPI_Comm_size (comm, &size);
 
     adios_read_init_method (method, comm, "verbose=3");
-    printf("rank %d: adios read method init complete\n", rank);
+    if(rank == 0)
+        printf("rank %d: adios read method init complete\n", rank);
 
 #ifdef HAS_KEEP
-    adios_init ("adios_global.xml", comm);
-    printf("rank %d: adios init complete\n", rank);
+#if defined(USE_DATASPACES)
+  adios_init ("adios_xmls/dbroker_dataspaces.xml", comm);
+  if(rank ==0)
+    printf("rank %d: adios init complete with dataspaces\n", rank);
+#elif defined(USE_DIMES)
+  adios_init ("adios_xmls/dbroker_dimes.xml", comm);
+  if(rank ==0)
+    printf("rank %d: adios init complete with dimes\n", rank);
+#else 
+#error("define stating transport method");
+#endif
 #endif
 
     int timestep = 0;
-
-    /****************** 
 
     char filename[256];
 
@@ -75,11 +84,12 @@ int main (int argc, char ** argv)
 
      if (f == NULL)
     {
-        printf ("%s\n", adios_errmsg());
+        printf ("rank %d, %s\n",rank, adios_errmsg());
         return -1;
     }
     
-    printf("reader opened the stream\n");
+    if(rank ==0)
+        printf("reader opened the stream\n");
 
     ADIOS_VARINFO * v = adios_inq_var (f, "atom");
 
@@ -92,7 +102,7 @@ int main (int argc, char ** argv)
 
     start[1] = 0;
     count[1] = v->dims[1];
-    printf("rank %d: start: (%d, %d), count:( %d, %d)\n", rank, start[0], start[1], count[0], count[1]);
+    printf("rank %d: start: (%ld, %ld), count:( %ld, %ld)\n", rank, start[0], start[1], count[0], count[1]);
        
 
     data = malloc (slice_size * v->dims[1]* sizeof (double));
@@ -104,14 +114,14 @@ int main (int argc, char ** argv)
 
     sel = adios_selection_boundingbox (v->ndim, start, count);
 
-
-    printf("rank %d: adios init complete\n", rank);
+    //printf("rank %d: adios init complete\n", rank);
 
     // get read status, before perform mpiio!, so streaming steps are not affected
     int errno_streaming_read = adios_errno;
     //for(timestep = 0; timestep < 10;){
     while(errno_streaming_read != err_end_of_stream){
-        printf("rank %d: Step %d start\n", rank, timestep);
+        if(rank == 0)
+            printf("rank %d: Step %d start\n", rank, timestep);
         //ADIOS_FILE * f = adios_read_open ("adios_global.bp", method, comm, ADIOS_LOCKMODE_NONE, 0);
         //ADIOS_FILE * f = adios_read_open ("adios_global.bp", method, comm, ADIOS_LOCKMODE_ALL, 0);
            /* Read a subset of the temperature array */
@@ -140,7 +150,7 @@ int main (int argc, char ** argv)
             printf ("\n");
         }
 #endif
-        printf("rank %d: Step %d read\n", rank, timestep);
+        //printf("rank %d: Step %d read\n", rank, timestep);
 
         errno_streaming_read = adios_errno;
 
@@ -150,15 +160,26 @@ int main (int argc, char ** argv)
             insert_into_adios(filepath, "restart", slice_size, v->dims[1], data,"w", &comm);
         else
             insert_into_adios(filepath, "restart", slice_size, v->dims[1], data,"a", &comm);
+        if(rank ==0)
+            printf("rank %d: Step %d data kept\n", rank, timestep);
 #endif
 
         // analysis
         run_analysis(data, slice_size, lp );
 
-        printf("rank %d: Step %d moments calculated\n", rank, timestep);
+        if(rank ==0)
+            printf("rank %d: Step %d moments calculated\n", rank, timestep);
         timestep ++;
 
     }
+
+#ifdef ENABLE_TIMING
+  MPI_Barrier(comm);
+  double t_end = get_cur_time();
+  if(rank == 0){
+      printf("stat:Consumer end  at %lf \n", t_end);
+  }
+#endif 
     free (data);
     adios_selection_delete (sel);
     adios_free_varinfo (v);
@@ -168,6 +189,7 @@ int main (int argc, char ** argv)
     adios_read_finalize_method (method);
 #ifdef HAS_KEEP
   adios_finalize (rank);
+  if(rank == 0)
   printf("rank %d: adios finalize complete\n", rank); 
 #endif
 

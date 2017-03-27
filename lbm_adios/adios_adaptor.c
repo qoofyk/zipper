@@ -2,7 +2,7 @@
 
 void insert_into_adios(char * file_path, char *var_name, int n, int size_one, double * buf, const char* mode,  MPI_Comm *pcomm){
     char        filename [256];
-    int         rank, size, i, j;
+    int         rank, size;
     int         NX;
     
     //int size_one = SIZE_ONE;
@@ -46,9 +46,5 @@ void insert_into_adios(char * file_path, char *var_name, int n, int size_one, do
     adios_write (adios_handle, "n", &n);
     adios_write (adios_handle, "size_one", &size_one);
     adios_write (adios_handle, var_name, buf);
-
-    printf("rank %d: try to close\n", rank);
     adios_close (adios_handle);
-    printf("rank %d: file %s closed\n", rank, filename);
-    //printf("rank %d: write completed\n", rank);
 }

@@ -3,10 +3,9 @@
 #include "adios_adaptor.h"
 #define SIZE_ONE (2)
 #include <sys/file.h>
+#include "utility.h"
 
 #define debug
-
-#define USE_MPIIO
 
 #if defined(USE_MPIIO) || defined(USE_DATASPACES) || defined(USE_DIMES)
 #define USE_ADIOS
@@ -14,30 +13,11 @@
     
 
 
-double get_cur_time() {
-  struct timeval   tv;
-  struct timezone  tz;
-  double cur_time;
-
-  gettimeofday(&tv, &tz);
-  cur_time = tv.tv_sec + tv.tv_usec / 1000000.0;
-  //printf("%f\n",cur_time);
-
-  return cur_time;
-}
-
-void check_malloc(void * pointer){
-  if (pointer == NULL) {
-    perror("Malloc error!\n");
-    fprintf (stderr, "at %s, line %d.\n", __FILE__, __LINE__);
-    exit(1);
-  }
-}
 
 
 void run_lbm(char * filepath, int step_stop, int dims_cube[3], MPI_Comm *pcomm)
 {
-        int gi, gj, gk;
+        int gi, gj, gk, nx,ny,nz;
 
         int nprocs, rank;
         int n;
@@ -45,6 +25,9 @@ void run_lbm(char * filepath, int step_stop, int dims_cube[3], MPI_Comm *pcomm)
 		MPI_Comm_size(comm,&nprocs);
 		MPI_Comm_rank(comm,&rank);
 
+        nx = dims_cube[0];
+        ny = dims_cube[1];
+        nz = dims_cube[2];
         n = nx*ny*nz;
 
         // original code
@@ -1018,7 +1001,7 @@ void run_lbm(char * filepath, int step_stop, int dims_cube[3], MPI_Comm *pcomm)
             if(step == step_stop - 1){
                time_stamp = -2;
             }else{
-               time_stamp == step;
+               time_stamp = step;
             }// flag read from producer
 
             sprintf(step_index_file, "%s/stamp.file", filepath);
@@ -1063,36 +1046,50 @@ void run_lbm(char * filepath, int step_stop, int dims_cube[3], MPI_Comm *pcomm)
 }
 
 int main(int argc, char * argv[]){
-    if(argc !=2){
-        printf("need to specify scratch path for i/o\n");
+    if(argc !=4){
+        printf("run_lbm nstop total_file_size scratch_path\n");
         exit(-1);
     }
     char filepath[256];
-    strcpy(filepath, argv[1]);
-    int dims_cube[3] = {4,4,4};
+    int nstop; //run how many steps
+
+    nstop = atoi(argv[1]);
+    int filesize2produce = atoi(argv[2]);
+    int dims_cube[3] = {filesize2produce/4,filesize2produce/4,filesize2produce};
+    strcpy(filepath, argv[3]);
 
 	MPI_Init(&argc, &argv);
 
   MPI_Comm comm = MPI_COMM_WORLD;
-  int         rank, size, i, j;
+  int         rank, size;
   MPI_Comm_rank (comm, &rank);
   MPI_Comm_size (comm, &size);
 
 #ifdef USE_MPIIO
   adios_init ("adios_xmls/dbroker_mpiio.xml", comm);
   printf("rank %d: adios init complete with mpiio\n", rank);
-#elif USE_DATASPACES
-  adios_init ("adios_xml/dbbroker_dataspaces.xml", comm);
+#elif defined(USE_DATASPACES)
+  adios_init ("adios_xmls/dbroker_dataspaces.xml", comm);
   printf("rank %d: adios init complete with dataspaces\n", rank);
-#elif USE_DIMES
-  adios_init ("adios_xml/dbroker_dimes.xml", comm);
+#elif defined(USE_DIMES)
+  adios_init ("adios_xmls/dbroker_dimes.xml", comm);
   printf("rank %d: adios init complete with dimes\n", rank);
+#else 
+#error("define transport method");
 #endif
   if(rank == 0 ){
       printf("output will be saved in %s\n", filepath);
   }
 
-  run_lbm(filepath, 10, dims_cube, &comm);
+#ifdef ENABLE_TIMING
+  MPI_Barrier(comm);
+  double t_start = get_cur_time();
+  if(rank == 0){
+      printf("stat:Simulation start at %lf \n", t_start);
+      printf("stat:FILE2PRODUCE=%d, NSTOP= %d \n", filesize2produce, nstop);
+  }
+#endif 
+  run_lbm(filepath, nstop, dims_cube, &comm);
 
 #ifdef USE_ADIOS
   adios_finalize (rank);

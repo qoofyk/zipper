@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 2.8 FATAL_ERROR)
 
 project("lbm_adios")
-#add_definitions ("-Wall -Wextra")
+add_definitions ("-DUSE_DATASPACES -DENABLE_TIMING -Wall -Wextra")
 find_package(MPI REQUIRED)
 include_directories(${MPI_INCLUDE_PATH})
 
@@ -19,9 +19,9 @@ find_library(ADIOS adios ${ADIOS_DIR}/lib)
 
 #include_directories("${CMAKE_SOURCE_DIR}/src")     
 
-add_executable(run_lbm run_lbm.c adios_adaptor.c)
-#add_executable(adios_read_global adios_staging_read.c run_analysis.c adios_adaptor.c)
-add_executable(adios_read_global adios_mpiio_read.c run_analysis.c adios_adaptor.c)
+add_executable(run_lbm run_lbm.c adios_adaptor.c utility.c)
+add_executable(adios_read_global adios_staging_read.c run_analysis.c adios_adaptor.c utility.c)
+#add_executable(adios_read_global adios_mpiio_read.c run_analysis.c adios_adaptor.c)
 # add_executable(adios_write_global adios_write_global.c)
 target_link_libraries(run_lbm ${ADIOS} ${DSPACES} ${DSCOMMON} ${DART})
 target_link_libraries(adios_read_global ${ADIOS} ${DSPACES} ${DSCOMMON} ${DART})
