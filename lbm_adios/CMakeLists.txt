@@ -1,7 +1,12 @@
 cmake_minimum_required(VERSION 2.8 FATAL_ERROR)
+set(CMAKE_C_FLAGS "${ADD_FLAGS}" CACHE STRING "cflags")
 
 project("lbm_adios")
-add_definitions ("-DUSE_DATASPACES -DENABLE_TIMING -Wall -Wextra")
+add_definitions ("-DENABLE_TIMING -Wall -Wextra")
+#add_definitions ("-DUSE_DATASPACES -DENABLE_TIMING -Wall -Wextra")
+#add_definitions ("-DUSE_DATASPACES -DHAS_KEEP -DENABLE_TIMING -Wall -Wextra")
+#add_definitions ("-DUSE_DIMES -DENABLE_TIMING -Wall -Wextra")
+#add_definitions ("-DUSE_DIMES -DHAS_KEEP -DENABLE_TIMING -Wall -Wextra")
 find_package(MPI REQUIRED)
 include_directories(${MPI_INCLUDE_PATH})
 

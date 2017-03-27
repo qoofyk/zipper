@@ -28,7 +28,6 @@
 
 //#define DEBUG_Feng
 
-#define HAS_KEEP
 
 int main (int argc, char ** argv) 
 {
@@ -45,7 +44,14 @@ int main (int argc, char ** argv)
 
     int         rank, size;
     MPI_Comm    comm = MPI_COMM_WORLD;
+
+#if defined(USE_DATASPACES)
     enum ADIOS_READ_METHOD method = ADIOS_READ_METHOD_DATASPACES;
+#elif defined(USE_DIMES)
+    enum ADIOS_READ_METHOD method = ADIOS_READ_METHOD_DIMES;
+#else
+    enum ADIOS_READ_METHOD method = ADIOS_READ_METHOD_BP;
+#endif
     //enum ADIOS_READ_METHOD method = ADIOS_READ_METHOD_DIMES;
     //enum ADIOS_READ_METHOD method = ADIOS_READ_METHOD_BP;
     ADIOS_SELECTION * sel;

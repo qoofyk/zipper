@@ -1,0 +1,40 @@
+#!/bin/bash
+#SBATCH --job-name="dbroker_adios_comet"
+#SBATCH -A prd157
+#SBATCH --output="results/%j.out"
+#SBATCH --partition=compute
+#SBATCH --nodes=1
+#SBATCH --ntasks-per-node=16
+#SBATCH --export=ALL
+#SBATCH -t 00:5:00
+
+#This job runs with 2 nodes, 24 cores per node for a total of 48 cores.
+#ibrun in verbose mode will give binding detail
+
+##################parameter setting#################
+CASE_NAME=sim_only
+FILESIZE2PRODUCE=256 # 64*64*256*2*8 = 16MB per proc
+NSTOP=100 # how many steps
+PROCS_PRODUCER=8
+
+####################################################
+#PROJECT_ROOT=/home/rlu/Workspaces/data_broker_lammps
+echo "case=$CASE_NAME datasize=$FILESIZE2PRODUCE nstops=$NSTOP procs_producers=$PROCS_PRODUCER"
+
+PBS_O_HOME=$HOME
+PBS_O_WORKDIR=$(pwd)
+SCRATCH_DIR=/oasis/scratch/comet/rlu/temp_project/data_broker_adios/${SLURM_JOBID}
+BUILD_DIR=${PBS_O_WORKDIR}/build_${CASE_NAME}
+
+BIN_PRODUCER=${BUILD_DIR}/bin/run_lbm;
+PBS_RESULTDIR=${PBS_O_WORKDIR}/results/${SLURM_JOBID}
+
+mkdir -pv ${PBS_RESULTDIR}
+mkdir -pv ${SCRATCH_DIR}
+cd $PBS_O_WORKDIR
+
+ibrun  -np $PROCS_PRODUCER ${BIN_PRODUCER} ${NSTOP} ${FILESIZE2PRODUCE} ${SCRATCH_DIR} &> ${PBS_RESULTDIR}/producer.log
+echo "writer applciation lauched"
+
+## Wait for the entire workflow to finish
+wait

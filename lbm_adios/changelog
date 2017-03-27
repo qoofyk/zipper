@@ -8,6 +8,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 - timer added in the begining of first simulation and at the end of last step
 of analysis
 - starting experiment in comet of staging method
+- now different configurations are generated in different builds
+- now all scripts are in scripts/(simulation_only version added)
 
 
 ## [0.1.3] 2017 mar 26

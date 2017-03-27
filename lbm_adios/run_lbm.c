@@ -989,7 +989,9 @@ void run_lbm(char * filepath, int step_stop, int dims_cube[3], MPI_Comm *pcomm)
          *          ADIOS              *
          *******************************/
         // n can be large (64*64*256)
+#ifdef USE_ADIOS
         insert_into_adios(filepath, "atom", n,SIZE_ONE , buffer,"w", &comm);
+#endif
         free(buffer);
 #ifdef USE_MPIIO
         /**** use index file to keep track of current step *****/
@@ -1074,8 +1076,6 @@ int main(int argc, char * argv[]){
 #elif defined(USE_DIMES)
   adios_init ("adios_xmls/dbroker_dimes.xml", comm);
   printf("rank %d: adios init complete with dimes\n", rank);
-#else 
-#error("define transport method");
 #endif
   if(rank == 0 ){
       printf("output will be saved in %s\n", filepath);
@@ -1090,6 +1090,14 @@ int main(int argc, char * argv[]){
   }
 #endif 
   run_lbm(filepath, nstop, dims_cube, &comm);
+
+#ifdef ENABLE_TIMING
+  MPI_Barrier(comm);
+  double t_end = get_cur_time();
+  if(rank == 0){
+      printf("stat:Simulation stop at %lf \n", t_end);
+  }
+#endif 
 
 #ifdef USE_ADIOS
   adios_finalize (rank);

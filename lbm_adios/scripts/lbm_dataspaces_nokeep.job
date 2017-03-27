@@ -2,7 +2,7 @@
 #SBATCH --job-name="dbroker_adios_comet"
 #SBATCH -A prd157
 #SBATCH --output="results/%j.out"
-#SBATCH --partition=shared
+#SBATCH --partition=compute
 #SBATCH --nodes=1
 #SBATCH --ntasks-per-node=16
 #SBATCH --export=ALL
@@ -12,6 +12,7 @@
 #ibrun in verbose mode will give binding detail
 
 ##################parameter setting#################
+CASE_NAME=dataspaces_nokeep
 FILESIZE2PRODUCE=256 # 64*64*256*2*8 = 16MB per proc
 NSTOP=100 # how many steps
 PROCS_SERVER=1 # dspaces server
@@ -20,12 +21,15 @@ PROCS_CONSUMER=$((PROCS_PRODUCER/2))
 
 ####################################################
 #PROJECT_ROOT=/home/rlu/Workspaces/data_broker_lammps
+echo "case=$CASE_NAME datasize=$FILESIZE2PRODUCE nstops=$NSTOP procs_server=$PROCS_SERVER procs_producers=$PROCS_PRODUCER procs_consumer=$PROCS_CONSUMER"
+
 PBS_O_HOME=$HOME
 PBS_O_WORKDIR=$(pwd)
 SCRATCH_DIR=/oasis/scratch/comet/rlu/temp_project/data_broker_adios/${SLURM_JOBID}
+BUILD_DIR=${PBS_O_WORKDIR}/build_${CASE_NAME}
 
-BIN_PRODUCER=${PBS_O_WORKDIR}/build/bin/run_lbm;
-BIN_CONSUMER=${PBS_O_WORKDIR}/build/bin/adios_read_global;
+BIN_PRODUCER=${BUILD_DIR}/bin/run_lbm;
+BIN_CONSUMER=${BUILD_DIR}/bin/adios_read_global;
 
 #This job runs with 3 nodes  
 #ibrun in verbose mode will give binding detail  
@@ -53,9 +57,13 @@ rm -f dataspaces.conf
 #dims = 5, 300000, 10
 #dims = 2, 1500000, 1
 # 64*64*256 will generate 1048576 lines
+DS_LIMIT=$((${FILESIZE2PRODUCE}*${FILESIZE2PRODUCE}*${FILESIZE2PRODUCE}/16)) # make sure dspaces can hold all data
+
+echo "total number of lines is $DS_LIMIT"
+
 echo "## Config file for DataSpaces
 ndim = 3
-dims = 2, 1500000, 1
+dims = 2, $((DS_LIMIT*2)), 1
 max_versions = 5
 max_readers = 1
 lock_type = 2
@@ -76,10 +84,10 @@ sleep 5s  # wait server to fill up the conf file
 #Use ibrun to run the MPI job. It will detect the MPI, generate the hostfile
 # and doing the right binding. With no options ibrun will use all cores.
 #export OMP_NUM_THREADS=1
-ibrun  -np $PROCS_PRODUCER ${BIN_PRODUCER} ${NSTOP} ${FILESIZE2PRODUCE} ${SCRATCH_DIR} &> ${PBS_RESULTDIR}/lammps.log &
+ibrun  -np $PROCS_PRODUCER ${BIN_PRODUCER} ${NSTOP} ${FILESIZE2PRODUCE} ${SCRATCH_DIR} &> ${PBS_RESULTDIR}/producer.log &
 echo "writer applciation lauched"
 
-ibrun  -np $PROCS_CONSUMER ${BIN_CONSUMER} ${SCRATCH_DIR} &> ${PBS_RESULTDIR}/adios_read.log
+ibrun  -np $PROCS_CONSUMER ${BIN_CONSUMER} ${SCRATCH_DIR} &> ${PBS_RESULTDIR}/consumer.log
 echo "reader applciation lauched"
 
 ## Wait for the entire workflow to finish
