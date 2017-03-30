@@ -1071,16 +1071,26 @@ int main(int argc, char * argv[]){
     MPI_Get_processor_name(nodename, &nodename_length );
     printf("%s:I am rank %d of %d\n",nodename, rank, size);
 
+
+#ifdef USE_ADIOS
+  char xmlfile[256], trans_method[256];
 #ifdef USE_MPIIO
-  adios_init ("adios_xmls/dbroker_mpiio.xml", comm);
-  printf("rank %d: adios init complete with mpiio\n", rank);
+  strcpy(trans_method, "mpiio");
 #elif defined(USE_DATASPACES)
-  adios_init ("adios_xmls/dbroker_dataspaces.xml", comm);
-  printf("rank %d: adios init complete with dataspaces\n", rank);
+  strcpy(trans_method, "dataspaces");
 #elif defined(USE_DIMES)
-  adios_init ("adios_xmls/dbroker_dimes.xml", comm);
-  printf("rank %d: adios init complete with dimes\n", rank);
+  strcpy(trans_method, "dimes");
 #endif
+  sprintf(xmlfile,"adios_xmls/dbroker_%s.xml", trans_method);
+  if(adios_init (xmlfile, comm) < 0){
+    printf("ERROR: rank %d: adios init err with %s\n", rank, trans_method);
+    exit(-1);
+  }
+  else{
+    printf("rank %d: adios init complete with %s\n", rank, trans_method);
+  }
+#endif
+
   if(rank == 0 ){
       printf("output will be saved in %s\n", filepath);
   }

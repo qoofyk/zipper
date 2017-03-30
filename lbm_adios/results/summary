@@ -1,6 +1,19 @@
+965712
+    Mar 30 11:37
+    sim_only 121.81
+965450
+    Mar 30 11:06
+    dimes with keep 172.6
+964999
+    Mar 30 10:31
+    dimes with nokeep 171.40
+964902
+    Mar 30 10:07
+    dspaces with keep 8:4, 197.65
 964613
     Mar 30 00:30
-    correctly get node list in bridges. continuous 100 timesteps in bridges with correct process layout 
+    correctly get node list in bridges. continuous 100 timesteps in bridges with correct process layout
+    185.69
 8531205
     Mar 29
     node file fixed, now all application run in different nodes
