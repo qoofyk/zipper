@@ -1066,6 +1066,10 @@ int main(int argc, char * argv[]){
   int         rank, size;
   MPI_Comm_rank (comm, &rank);
   MPI_Comm_size (comm, &size);
+  char nodename[256];
+  int nodename_length;
+    MPI_Get_processor_name(nodename, &nodename_length );
+    printf("%s:I am rank %d of %d\n",nodename, rank, size);
 
 #ifdef USE_MPIIO
   adios_init ("adios_xmls/dbroker_mpiio.xml", comm);

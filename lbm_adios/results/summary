@@ -1,4 +1,6 @@
-
+964613
+    Mar 30 00:30
+    correctly get node list in bridges. continuous 100 timesteps in bridges with correct process layout 
 8531205
     Mar 29
     node file fixed, now all application run in different nodes
