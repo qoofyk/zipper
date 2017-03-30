@@ -1,3 +1,7 @@
+
+8531205
+    Mar 29
+    node file fixed, now all application run in different nodes
 8394708
     Mar 24
     1/1 proc correct, but most data is zero
@@ -26,4 +30,29 @@
 8445921
     Mar 26 15:46
     keep only happens since second iteration
+
+8522408
+    Mar 29 09:50
+    Use 
+        CMD_SERVER="mpirun_rsh -hostfile $SLURM_NODEFILE -n $PROCS_SERVER ${DS_SERVER} -s $PROCS_SERVER -c $DS_CLIENT_PROCS"
+        $CMD_SERVER  &> ${PBS_RESULTDIR}/server.log &
+        echo "server applciation lauched: $CMD_SERVER" 
+    server is launched, but doesn't generate conf file, so clinets cannot start
+
+8522493
+    Mar 29 09:57
+    Use 
+        # Run DataSpaces servers      
+        LAUNCHER=ibrun                 
+        CMD_SERVER="$LAUNCHER -hostfile $SLURM_NODEFILE -n $PROCS_SERVER ${DS_SERVER} -s $PROCS_SERVER -c $DS_CLIENT_PROCS"
+        $CMD_SERVER  &> ${PBS_RESULTDIR}/server.log &
+        echo "server applciation lauched: $CMD_SERVER"
+
+    Result
+        ibrun doesn't support hostfile option
+        Unkown option hostfile
+    To do 
+        looking into ibrun scripts in /opt/sdsc/bin/ibrun
+
+
     

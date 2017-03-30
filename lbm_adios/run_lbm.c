@@ -1,5 +1,5 @@
 #include "run_lbm.h"        
-#include "adios_write_global.h"
+//#include "adios_write_global.h"
 #include "adios_adaptor.h"
 #define SIZE_ONE (2)
 #include <sys/file.h>
