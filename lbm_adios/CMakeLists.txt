@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 2.8 FATAL_ERROR)
-set(CMAKE_C_FLAGS "${ADD_FLAGS}" CACHE STRING "cflags")
+set(CMAKE_C_FLAGS "-O3 ${ADD_FLAGS}" CACHE STRING "cflags")
 
 project("lbm_adios")
 add_definitions ("-DENABLE_TIMING -Wall -Wextra")

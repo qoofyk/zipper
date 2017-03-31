@@ -1,0 +1,89 @@
+#!/bin/bash
+#SBATCH --job-name="dbroker_adios_bridges"
+#SBATCH --output="results/%j.out"
+#SBATCH --partition=RM
+#SBATCH --nodes=2
+#SBATCH --ntasks-per-node=28
+#SBATCH --export=ALL
+#SBATCH -t 00:5:00
+
+#This job runs with 2 nodes, 24 cores per node for a total of 48 cores.
+#ibrun in verbose mode will give binding detail ##################parameter setting#################
+CASE_NAME=sim_only
+FILESIZE2PRODUCE=256 # 64*64*256*2*8 = 16MB per proc
+NSTOP=100 # how many steps
+PROCS_PRODUCER=48
+num_nodes_server=0
+num_nodes_app1=2
+num_nodes_app2=0
+
+####################################################
+#PROJECT_ROOT=/home/rlu/Workspaces/data_broker_lammps
+echo "case=$CASE_NAME datasize=$FILESIZE2PRODUCE nstops=$NSTOP procs_producers=$PROCS_PRODUCER"
+
+PBS_O_HOME=$HOME
+PBS_O_WORKDIR=$(pwd)
+SCRATCH_DIR=/pylon1/cc4s86p/fli5/data_broker_adios/${SLURM_JOBID}
+BUILD_DIR=${PBS_O_WORKDIR}/build_${CASE_NAME}
+
+BIN_PRODUCER=${BUILD_DIR}/bin/run_lbm;
+
+#This job runs with 3 nodes  
+#ibrun in verbose mode will give binding detail  
+#BUILD=${PBS_O_WORKDIR}/build_dspaces/bin
+PBS_RESULTDIR=${PBS_O_WORKDIR}/results/${SLURM_JOBID}
+
+
+mkdir -pv ${PBS_RESULTDIR}
+mkdir -pv ${SCRATCH_DIR}
+cd $PBS_O_WORKDIR
+
+#export SLURM_NODEFILE=`generate_pbs_nodefile`
+#nodes=(`cat $SLURM_NODEFILE | uniq`)
+
+
+HOST_DIR=$PBS_RESULTDIR/hosts
+mkdir -pv $HOST_DIR
+rm -f $HOST_DIR/hostfile*
+srun -o $HOST_DIR/hostfile-dup hostname
+nodes=(`cat $HOST_DIR/hostfile-dup | sort |uniq`)
+
+echo "${nodes[*]}" > $HOST_DIR/hostfile-all                                                                                                                                        
+idx=0
+# Put first $num_nodes_server to hostfile-server
+#for i in {1..$num_nodes_server}
+for ((i=0;i<$num_nodes_server;i++)) 
+do
+    echo "${nodes[$idx]}" >> $HOST_DIR/hostfile-server
+    echo "node in server +1"
+    let "idx=idx+1"
+done
+
+# Put the first $num_nodes_app1 nodes to hostfile-app1
+#for i in {1..$num_nodes_app1}
+for ((i=0;i<$num_nodes_app1;i++))
+do
+    echo "${nodes[$idx]}" >> $HOST_DIR/hostfile-app1
+    echo "node in app1 +1"
+    let "idx=idx+1"
+done
+
+# Put the next $num_nodes_app2 nodes to hostfile-app2
+#for i in {1..$num_nodes_app2}
+for ((i=0;i<$num_nodes_app2;i++))
+do
+    echo "node in app2 +1"
+    echo "${nodes[$idx]}" >> $HOST_DIR/hostfile-app2
+    let "idx=idx+1"
+done
+
+
+#LAUNCHER="ibrun -v"
+LAUNCHER="mpirun_rsh"
+
+CMD_PRODUCER="$LAUNCHER -hostfile $HOST_DIR/hostfile-app1 -n $PROCS_PRODUCER ${BIN_PRODUCER} ${NSTOP} ${FILESIZE2PRODUCE} ${SCRATCH_DIR}"
+$CMD_PRODUCER  &> ${PBS_RESULTDIR}/producer.log &
+echo "producer applciation lauched: $CMD_PRODUCER"
+
+## Wait for the entire workflow to finish
+wait

@@ -1082,12 +1082,13 @@ int main(int argc, char * argv[]){
   strcpy(trans_method, "dimes");
 #endif
   sprintf(xmlfile,"adios_xmls/dbroker_%s.xml", trans_method);
-  if(adios_init (xmlfile, comm) < 0){
+  if(adios_init (xmlfile, comm) != 0){
     printf("ERROR: rank %d: adios init err with %s\n", rank, trans_method);
     exit(-1);
   }
   else{
-    printf("rank %d: adios init complete with %s\n", rank, trans_method);
+      if(rank ==0)
+        printf("rank: adios init complete with %s\n", trans_method);
   }
 #endif
 

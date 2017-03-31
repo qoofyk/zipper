@@ -68,9 +68,14 @@ int main (int argc, char ** argv)
     printf("%s:I am rank %d of %d\n",nodename, rank, size);
 
 
-    adios_read_init_method (method, comm, "verbose=3");
-    if(rank == 0)
-        printf("rank %d: adios read method init complete\n", rank);
+    if(adios_read_init_method (method, comm, "verbose=3") !=0){
+        printf("ERROR: rank %d: adios init err with %d\n", rank, method);
+        exit(-1);
+    }
+    else{
+        if(rank == 0)
+            printf("rank %d: adios read method init complete\n", rank);
+    }
 
 #ifdef HAS_KEEP
 #if defined(USE_DATASPACES)

@@ -1,3 +1,28 @@
+970196
+    Mar 31 15:27
+    Use -O3 can reduce running time significantly
+966796
+    Mar 30 15:51
+    1 node for dspace servers, 48_24, max version 1
+966766
+    mar 30 14:44
+    192 simulation procs only in 100 timesteps, 144.42s
+965971
+    Mar 30 13:36
+    48 sim procs and 24 analysis procs with dspaces, 74 steps(increased from 41) in 5 min
+    
+965907
+    Mar 30 12:24
+    48 sim procs and 24 analysis procs with dimes, 87 steps in 5 min
+    Q: does increase dspace server node help?
+    
+965855
+    Mar 30 12:14
+    48 sim procs only, 141.18s  
+965780
+    Mar 30 11:59
+    48 sim procs and 24 analysis procs with dspaces, 41 steps in 5 min
+    
 965712
     Mar 30 11:37
     sim_only 121.81
