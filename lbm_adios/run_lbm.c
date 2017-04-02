@@ -2,7 +2,6 @@
 //#include "adios_write_global.h"
 #include "adios_adaptor.h"
 #define SIZE_ONE (2)
-#include <sys/file.h>
 #include "utility.h"
 
 #define debug
@@ -990,10 +989,13 @@ void run_lbm(char * filepath, int step_stop, int dims_cube[3], MPI_Comm *pcomm)
          *******************************/
         // n can be large (64*64*256)
 #ifdef USE_ADIOS
-        insert_into_adios(filepath, "atom", n,SIZE_ONE , buffer,"w", &comm);
-#endif
-        free(buffer);
-#ifdef USE_MPIIO
+
+#ifndef USE_MPIIO
+        // for staging, each time write to same file
+        insert_into_adios(filepath, "atom",-1, n, SIZE_ONE , buffer,"w", &comm);
+#else
+        // for mpiio, each time write different files
+        insert_into_adios(filepath, "atom", step, n, SIZE_ONE , buffer,"w", &comm);
         /**** use index file to keep track of current step *****/
         int fd; 
         char step_index_file[256];
@@ -1008,14 +1010,26 @@ void run_lbm(char * filepath, int step_stop, int dims_cube[3], MPI_Comm *pcomm)
 
             sprintf(step_index_file, "%s/stamp.file", filepath);
 
-            fd = open(step_index_file, O_WRONLY);
-            flock(fd, LOCK_EX);
-            write(fd,  &time_stamp,  sizeof(int));
-            close(fd);
-            flock(fd, LOCK_UN);
+            printf("step index file in %s \n", step_index_file);
+
+            fd = open(step_index_file, O_WRONLY|O_CREAT|O_SYNC, S_IRWXU);
+            if(fd < 0){
+                perror("indexfile not opened");
+                exit(-1);
+            }
+            else{
+                flock(fd, LOCK_EX);
+                write(fd,  &time_stamp,  sizeof(int));
+                flock(fd, LOCK_UN);
+                close(fd);
+            }
         }
         MPI_Barrier(comm);
 #endif
+#endif
+
+        free(buffer);
+
 		//free(buffer);
 		#ifdef DEBUG_PRINT
 		if(step%10==0)

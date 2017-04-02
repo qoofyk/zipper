@@ -6,6 +6,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 #### change
 - use -O3 now sim-only can finish 100 steps in 33.6s
 - add error checking for adios init
+- add has_more flag to indicate when producer finishes
 ## [0.1.7] 2017 Mar 30
 #### done
 - moved to bridges, correctly run with seprated nodes 

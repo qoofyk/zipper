@@ -25,27 +25,26 @@
 #include "adios_error.h"
 //#include "adios_read_global.h"
 #include "run_analysis.h"
-#include <sys/file.h>
-
-        
+#include "utility.h"
         
 
 #define DEBUG_Feng
 
 int main (int argc, char ** argv) 
 {
-    if(argc !=2){
-        printf("need to specify scratch path for i/o\n");
+    if(argc !=3){
+        printf("need to specify timstop scratch path for i/o\n");
         exit(-1);
     }
     char filepath[256];
-    strcpy(filepath, argv[1]);
+    int nstop = atoi(argv[1]);
+    strcpy(filepath, argv[2]);
 
     int lp = 4;
 
     /******************** configuration stop ***********/
 
-    int         rank, size, i, j, k;
+    int         rank, size;
     MPI_Comm    comm = MPI_COMM_WORLD;
     //enum ADIOS_READ_METHOD method = ADIOS_READ_METHOD_DATASPACES;
     //enum ADIOS_READ_METHOD method = ADIOS_READ_METHOD_DIMES;
@@ -82,21 +81,45 @@ int main (int argc, char ** argv)
     //for(timestep = 0; timestep < 10;){
     //
     // write will send -2 to mark end
-    while(1){
-        fd = open(step_index_file, O_RDONLY);
-        flock(fd, LOCK_SH);
-        read(fd,  &time_stamp,  sizeof(int));
-        flock(fd, LOCK_UN);
-        close(fd);
-        if(time_stamp  == -2){
-            printf("rank %d: terminate\n");
-            break;
+
+    // flag whether producer finishes all the steps
+    int has_more = 1;
+    while(has_more){
+        if(rank ==0){
+            fd = open(step_index_file, O_RDONLY);
+            if(fd == -1){
+                perror("indexfile not here wait for 1 s \n");
+       
+            }
+            else{
+                flock(fd, LOCK_SH);
+                read(fd,  &time_stamp,  sizeof(int));
+                flock(fd, LOCK_UN);
+                close(fd);
+            }
+            if(time_stamp  == -2){
+                printf("producer  terminate\n");
+                time_stamp = nstop-1;
+                // run this gap then exit
+            }
+
+        }
+        // broadcast stamp
+        MPI_Bcast(&time_stamp, 1, MPI_INT, 0, comm);
+
+        if(time_stamp ==-1){
+                sleep(1);
+                continue;
+        }
+
+        if(time_stamp == nstop -1){
+            has_more = 0;
         }
         // new step avaible from producer
-        else if(time_stamp > timestep){
-            timestep = time_stamp;
-            printf("rank %d: reader opened step %d\n", timestep);
-            sprintf(filename_atom, "%s/atom.bp", filepath);
+        while(timestep < time_stamp){
+            timestep++;
+            printf("rank %d: reader opened step %d\n",rank, timestep);
+            sprintf(filename_atom, "%s/atom_%d.bp", filepath, timestep);
             f = adios_read_open_file(filename_atom, method, comm);
 
             // the first timestep will get variable metadata
@@ -124,7 +147,7 @@ int main (int argc, char ** argv)
 
                 start[1] = 0;
                 count[1] = v->dims[1];
-                printf("rank %d: start: (%d, %d), count:( %d, %d)\n", rank, start[0], start[1], count[0], count[1]);
+                printf("rank %d: start: (%ld, %ld), count:( %ld, %ld)\n", rank, start[0], start[1], count[0], count[1]);
                 sel = adios_selection_boundingbox (v->ndim, start, count);
             }
 
@@ -140,6 +163,12 @@ int main (int argc, char ** argv)
             printf("rank %d: Step %d moments calculated\n", rank, timestep);
         }
     }
+    MPI_Barrier(comm);
+    double t_end = get_cur_time();
+    if(rank == 0){
+      printf("stat:Consumer end  at %lf \n", t_end);
+    }
+
     free (data);
     adios_selection_delete (sel);
     adios_free_varinfo (v);
