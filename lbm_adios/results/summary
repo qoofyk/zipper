@@ -1,6 +1,14 @@
+
+
+975029
+    April 2 17:46
+    8 vs MPIIO
+    98.8s
 970196
     Mar 31 15:27
     Use -O3 can reduce running time significantly
+-----------------------------------------------------------------
+didn't use O3
 966796
     Mar 30 15:51
     1 node for dspace servers, 48_24, max version 1

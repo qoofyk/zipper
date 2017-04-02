@@ -174,9 +174,9 @@ int main (int argc, char ** argv)
 // keep 
 #ifdef HAS_KEEP
         if(timestep == 0)
-            insert_into_adios(filepath, "restart", slice_size, v->dims[1], data,"w", &comm);
+            insert_into_adios(filepath, "restart",-1, slice_size, v->dims[1], data,"w", &comm);
         else
-            insert_into_adios(filepath, "restart", slice_size, v->dims[1], data,"a", &comm);
+            insert_into_adios(filepath, "restart", -1, slice_size, v->dims[1], data,"a", &comm);
         if(rank ==0)
             printf("rank %d: Step %d data kept\n", rank, timestep);
 #endif

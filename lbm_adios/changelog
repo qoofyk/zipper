@@ -2,6 +2,10 @@
 All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/) 
 and this project adheres to [Semantic Versioning](http://semver.org/).
+## [0.1.9] 2017 April 2
+#### change
+- mpiio version lock fixed
+- use scratch dir as working dir
 ## [0.1.8] 2017 Mar 31
 #### change
 - use -O3 now sim-only can finish 100 steps in 33.6s
