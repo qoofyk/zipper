@@ -32,8 +32,6 @@ void insert_into_adios(char * file_path, char *var_name,int timestep, int n, int
         sprintf(filename, "%s/%s_%d.bp", file_path, var_name, timestep);
     }
 
-
-
     //printf("rank %d: start to write\n", rank);
     
     adios_open (&adios_handle, var_name, filename, mode, comm);

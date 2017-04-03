@@ -2,6 +2,23 @@
 All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/) 
 and this project adheres to [Semantic Versioning](http://semver.org/).
+
+## [0.1.10] 2017 April 3
+#### change
+- extract the common part in job files
+- results of 8vs4 is completed 
+####
+#### issues
+- mpiio is faster then dspaces
+- reason: 
+	dspaces operation is strictly synchronized(cannot start next iteration if
+	previous data is not consumered)
+- analysis:
+	is each transport method blocking or unblocking?
+- break down the time
+	
+	
+
 ## [0.1.9] 2017 April 2
 #### change
 - mpiio version lock fixed

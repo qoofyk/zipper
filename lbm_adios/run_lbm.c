@@ -16,6 +16,12 @@
 
 void run_lbm(char * filepath, int step_stop, int dims_cube[3], MPI_Comm *pcomm)
 {
+
+// aditional timer for staging
+#ifdef ENABLE_TIMING
+    double t7=0 ;
+    double t_write=0;
+#endif
         int gi, gj, gk, nx,ny,nz;
 
         int nprocs, rank;
@@ -955,6 +961,7 @@ void run_lbm(char * filepath, int step_stop, int dims_cube[3], MPI_Comm *pcomm)
 		t6=get_cur_time();
 		only_lbm_time+=t6-t5;
 
+
 		#ifdef DEBUG_PRINT
 		printf("Compute Node %d Generator start create_prb_element!\n",rank);
 		fflush(stdout);
@@ -1030,6 +1037,11 @@ void run_lbm(char * filepath, int step_stop, int dims_cube[3], MPI_Comm *pcomm)
 
         free(buffer);
 
+#ifdef ENABLE_TIMING
+        t7 = get_cur_time();
+        t_write += t7-t6;
+#endif
+
 		//free(buffer);
 		#ifdef DEBUG_PRINT
 		if(step%10==0)
@@ -1051,6 +1063,7 @@ void run_lbm(char * filepath, int step_stop, int dims_cube[3], MPI_Comm *pcomm)
 
 
 		}  /* end of while loop */
+        printf("rank %d, t_prepare:%f s, t_cal %f s, t_write %f s\n", rank,init_lbm_time, only_lbm_time, t_write);
 
 		// MPI_Barrier(comm1d);
 		t3= get_cur_time();
@@ -1110,23 +1123,19 @@ int main(int argc, char * argv[]){
       printf("output will be saved in %s\n", filepath);
   }
 
-#ifdef ENABLE_TIMING
   MPI_Barrier(comm);
   double t_start = get_cur_time();
   if(rank == 0){
       printf("stat:Simulation start at %lf \n", t_start);
       printf("stat:FILE2PRODUCE=%d, NSTOP= %d \n", filesize2produce, nstop);
   }
-#endif 
   run_lbm(filepath, nstop, dims_cube, &comm);
 
-#ifdef ENABLE_TIMING
   MPI_Barrier(comm);
   double t_end = get_cur_time();
   if(rank == 0){
       printf("stat:Simulation stop at %lf \n", t_end);
   }
-#endif 
 
 #ifdef USE_ADIOS
   adios_finalize (rank);

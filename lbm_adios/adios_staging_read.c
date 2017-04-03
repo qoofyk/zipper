@@ -142,10 +142,14 @@ int main (int argc, char ** argv)
         //ADIOS_FILE * f = adios_read_open ("adios_global.bp", method, comm, ADIOS_LOCKMODE_NONE, 0);
         //ADIOS_FILE * f = adios_read_open ("adios_global.bp", method, comm, ADIOS_LOCKMODE_ALL, 0);
            /* Read a subset of the temperature array */
+        // 0:not used for strea; 1: must be set in stream
         adios_schedule_read (f, sel, "atom", 0, 1, data);
+        
+        // block until read complete
         adios_perform_reads (f, 1);
 
         adios_release_step(f);
+        // advance to (1)the next availibale step (2)blocked if not unavailble
         adios_advance_step(f, 0, -1);
 
         /*
