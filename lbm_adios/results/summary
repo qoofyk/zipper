@@ -1,3 +1,66 @@
+985605
+    2 server nodes with  8 processes
+    t_prepare:0.070657 s, t_cal 33.336477 s, t_write 123.082560 s
+    time for read 41.152115 s; time for advancing step 69.784354 s; time for analyst 38.104001 s
+    
+985462
+    2 nodes with 4 server processes
+    t_prepare:0.083320 s, t_cal 33.259625 s, t_write 114.416353 s(different with the experiment when run_analys is comment out!!)
+    stat:time for read 31.125366 s; time for advancing step 69.925751 s; time for analyst 38.699015 s
+
+985138
+    Using 1 node with 4 server processes
+    t_prepare:0.069294 s, t_cal 34.124658 s, t_write 121.832758 s
+    stat:time for read 35.299027 s; time for advancing step 75.014883 s; time for analyst 38.248347 s
+985141
+    1 server node with 1 server process
+    t_prepare:0.082188 s, t_cal 32.822827 s, t_write 147.587935 s
+    stat:time for read 53.557231 s; time for advancing step 76.971237 s; time for analyst 39.008861 s
+
+
+    
+-------------------------------------------------------------------
+run_analysis is commented since 982346()
+
+##983952
+##    use two nodes and 8 server procs
+##    t_prepare:0.070522 s, t_cal 32.412648 s, t_write 85.629872 
+##983941
+##    mpiio for 192:96
+##        correct
+##        t_prepare:0.102406 s, t_cal 52.585197 s, t_write 188.630988 s
+##983987
+##    mpiio for 48:24
+##    166s for 100 iterations
+##
+##----------------------------------------------------------------
+##Dspace without keep 
+##---------------------------------------------------------------
+##983916
+##    use two nodes and 4 server procs
+##
+##    t_prepare:0.072535 s, t_cal 33.617150 s, t_write 81.061058 s
+##
+##983887
+##    Use 4 server procs in 1 node(885 for 2 procs, 889 for 8 procs)
+##    producer
+##        rank 0, t_prepare:0.073306 s, t_cal 32.921603 s, t_write 85.992348 s
+##    consumer
+##        stat:time for read 36.048645 s; time for advancing step 74.303108 s; time for analyst 0.000015 s 
+##983861 
+##    increase xml buffer size to 100M
+##    producer
+##        rank 0, t_prepare:0.072356 s, t_cal 33.428042 s, t_write 120.205607 s
+##    consumer
+##        stat:time for read 57.506153 s; time for advancing step 83.994528 s; time for analyst 0.000015 s
+##982346
+##    Producer 
+##        rank 0, t_prepare:0.088599 s, t_cal 33.367076 s, t_write 119.299031 s
+##    Consumer
+##        stat:time for read 49.542193 s; time for advancing step 90.988737 s; time for analyst 0.000019 s
+        
+978592
+    rank 0, t_prepare:0.071245 s, t_cal 33.226557 s, t_write 149.790138 s 
 977946
     max_version =2;
     185s.

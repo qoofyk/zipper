@@ -42,6 +42,14 @@ int main (int argc, char ** argv)
 
     /******************** configuration stop ***********/
 
+#ifdef ENABLE_TIMING
+    double t1, t2, t3, t4;
+    double t_read_1, t_read_2, t_analy;
+    t_read_1 = 0;
+    t_read_2 = 0;
+    t_analy = 0;
+#endif
+
     int         rank, size;
     MPI_Comm    comm = MPI_COMM_WORLD;
 
@@ -144,13 +152,19 @@ int main (int argc, char ** argv)
            /* Read a subset of the temperature array */
         // 0:not used for strea; 1: must be set in stream
         adios_schedule_read (f, sel, "atom", 0, 1, data);
+        t1 = get_cur_time();
         
         // block until read complete
         adios_perform_reads (f, 1);
+        t2 = get_cur_time();
+        t_read_1 += t2-t1;
 
         adios_release_step(f);
         // advance to (1)the next availibale step (2)blocked if not unavailble
         adios_advance_step(f, 0, -1);
+        t3 = get_cur_time();
+
+        t_read_2 += t3-t2;
 
         /*
         for (i = 0; i < slice_size; i++) {
@@ -187,6 +201,8 @@ int main (int argc, char ** argv)
 
         // analysis
         run_analysis(data, slice_size, lp );
+        t4 = get_cur_time();
+        t_analy += t4-t3;
 
         if(rank ==0)
             printf("rank %d: Step %d moments calculated\n", rank, timestep);
@@ -199,6 +215,7 @@ int main (int argc, char ** argv)
   double t_end = get_cur_time();
   if(rank == 0){
       printf("stat:Consumer end  at %lf \n", t_end);
+      printf("stat:time for read %f s; time for advancing step %f s; time for analyst %f s\n", t_read_1, t_read_2, t_analy);
   }
 #endif 
     free (data);

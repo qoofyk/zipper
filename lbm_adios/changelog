@@ -2,12 +2,31 @@
 All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/) 
 and this project adheres to [Semantic Versioning](http://semver.org/).
+## [0.1.11] 2017 April 4
+#### upon submission
+- maxversion =5
+- analysis is commented
+#### try
+- use larger buffer size in adios
+	buffer size increased to 100M, no effect
+- get analysis time
+	stat:time for read 53.557231 s; time for advancing step 76.971237 s; time for analyst 39.008861 s
+
+- use more servers
+	same nodes, use 4 procs for server will reduce writting time from 150s to
+	120s
+	two nodes, with 4 procs, 114s
+- doubts
+	if disable analysis, why writting time is decreased?
+	
+
+#### MPIIO more tests
+
 
 ## [0.1.10] 2017 April 3
 #### change
 - extract the common part in job files
 - results of 8vs4 is completed 
-####
 #### issues
 - mpiio is faster then dspaces
 - reason: 
@@ -16,9 +35,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 - analysis:
 	is each transport method blocking or unblocking?
 - break down the time
+- blocking writes?
+	disable analysis
 	
-	
-
 ## [0.1.9] 2017 April 2
 #### change
 - mpiio version lock fixed
