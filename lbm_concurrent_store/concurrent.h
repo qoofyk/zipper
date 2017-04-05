@@ -42,11 +42,14 @@ Brief desc of the file: Header
 
 #define CACHE 4
 
+/*
+  * this is moved to main function arguments
 #define TOTAL_FILE2PRODUCE_1GB 256
 
 #define nx TOTAL_FILE2PRODUCE_1GB/4
 #define ny TOTAL_FILE2PRODUCE_1GB/4
 #define nz TOTAL_FILE2PRODUCE_1GB
+*/
 
 #define NMOMENT 8
 #define TRYNUM 50
@@ -65,6 +68,8 @@ typedef struct {
   pthread_mutex_t *lock_ringbuffer;
   pthread_cond_t *full;
   pthread_cond_t *empty;
+  pthread_cond_t *data_not_on_disk;
+  pthread_cond_t *final_blk;
 } ring_buffer;
 
 typedef struct lv_t {
@@ -128,13 +133,14 @@ typedef struct gv_t {
   int flag_writer_get_finalblk;
 
   // receiver_thread
-  char * org_recv_buffer;
+  void * org_recv_buffer;
   int mpi_recv_progress_counter; // how many blocks are received
   //prefetcher thread
   // int prefetch_counter;  //currently how many file blocks have been read
   int recv_tail;
   int * prefetch_id_array;
   int ana_reader_done;
+  int ana_writer_done;
 
   int calc_counter;
 

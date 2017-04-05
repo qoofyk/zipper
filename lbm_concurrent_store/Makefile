@@ -1,6 +1,6 @@
 ########################################
 #
-#  IUPUI CSCI 503 -- Operating Systems
+#  LBM_CONCURRENT_STORE MAKEFILE
 #
 ########################################
 
@@ -11,10 +11,10 @@ LINK    =  mpicc
 # CC      = mpicc
 # FC      =  mpifort  #ftn
 # LINK    =  mpifort  #ftn
-OPT     =  -g -O3
+OPT     =  -g
 
 ADDCFLAGS = -Wall
-CCFLAGS = $(OPT) -DKEEP
+CCFLAGS = $(OPT) -DKEEP -DDEBUG_PRINT
 LDFLAGS = $(OPT)
 
 ## Libraries

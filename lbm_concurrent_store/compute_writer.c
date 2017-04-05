@@ -18,7 +18,7 @@ char* producer_ring_buffer_get(GV gv,LV lv){
       pthread_cond_signal(rb->full);
       pthread_mutex_unlock(rb->lock_ringbuffer);
       return pointer;
-      }
+    }
     else {
       pthread_cond_wait(rb->empty, rb->lock_ringbuffer);
     }
@@ -89,7 +89,7 @@ void compute_writer_thread(GV gv,LV lv) {
 #endif //DEBUG_PRINT
 
 					t0 = get_cur_time();
-					write_blk(gv, lv, block_id, buffer + sizeof(int), gv->block_size);
+					write_blk(gv, lv, block_id, buffer+sizeof(int), gv->block_size);
 					t1 = get_cur_time();
 					lv->write_time += t1 - t0;
 					my_count++;
@@ -114,16 +114,14 @@ void compute_writer_thread(GV gv,LV lv) {
 						gv->rank[0], lv->tid);
 					fflush(stdout);
 
-					free(buffer);
-
-					// pthread_mutex_lock(&gv->lock_writer_done);
-
-					// pthread_mutex_unlock(&gv->lock_writer_done);
-
 					pthread_mutex_lock(rb->lock_ringbuffer);
 					gv->flag_writer_get_finalblk = 1;
+					rb->tail = (rb->tail + 1) % rb->bufsize;
+      				rb->num_avail_elements--;
 					pthread_cond_signal(rb->empty);
 					pthread_mutex_unlock(rb->lock_ringbuffer);
+
+					free(buffer);
 
 					my_exit_flag=1;
 				}
@@ -138,6 +136,7 @@ void compute_writer_thread(GV gv,LV lv) {
 				}
 			}
 			else{
+
 #ifdef DEBUG_PRINT
 			printf("Comp_Proc%d: Writer%d Know that Sender Get exit flag msg and let it quit\n",
 					gv->rank[0], lv->tid);
@@ -156,14 +155,12 @@ void compute_writer_thread(GV gv,LV lv) {
 
 	t3 = get_cur_time();
 
-	// if(my_count!=gv->writer_blk_num)
-	// 	printf("Writer my_count error!\n");
 
-	printf("Comp_Proc%d: Writer %d T_write=%.3f , T_only_fwrite=%.3f, T_total=%.3f with %d blocks\n",
+
+	printf("Comp_Proc%d: Writer%d T_write=%.3f, T_only_fwrite=%.3f, T_total=%.3f with %d blocks\n",
 		gv->rank[0], lv->tid, lv->write_time, lv->only_fwrite_time, t3-t2, my_count);
 	fflush(stdout);
 	// printf("Node%d Producer %d Write_Time/Block= %f only_fwrite_time/Block= %f, SPEED= %fKB/s\n",
 	//   gv->rank[0], lv->tid,  lv->write_time/gv->total_blks, lv->only_fwrite_time/gv->total_blks, gv->total_file/(lv->write_time));
 
-  // return NULL;
 }

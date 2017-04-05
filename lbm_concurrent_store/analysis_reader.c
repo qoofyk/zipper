@@ -114,8 +114,8 @@ void analysis_reader_thread(GV gv,LV lv) {
         ((int*)new_buffer)[0]=last_gen_rank;
         ((int*)new_buffer)[1]=block_id;
         // temp_int_pointer[2]=READ_DONE;
-        new_buffer[8] = ON_DISK;
-        new_buffer[9] = NOT_CALC;
+        ((int*)new_buffer)[2] = ON_DISK;
+        ((int*)new_buffer)[3] = NOT_CALC;
 
 #ifdef DEBUG_PRINT
         printf("Ana_Proc%d: Reader%d starts read src%d blk_id%d\n",

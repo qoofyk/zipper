@@ -18,7 +18,8 @@ char* sender_ring_buffer_get(GV gv,LV lv){
       pthread_cond_signal(rb->full);
       pthread_mutex_unlock(rb->lock_ringbuffer);
       return pointer;
-    } else {
+    }
+    else {
       pthread_cond_wait(rb->empty, rb->lock_ringbuffer);
     }
   }
@@ -78,7 +79,7 @@ void compute_sender_thread(GV gv,LV lv){
 					// fflush(stdout);
 
 					t0 = get_cur_time();
-					mix_cnt = sizeof(int)+sizeof(char)*gv->block_size + sizeof(int)*(send_counter + 1);
+					mix_cnt = sizeof(int) + gv->block_size + sizeof(int)*(send_counter + 1);
 					errorcode = MPI_Send(buffer, mix_cnt, MPI_CHAR, dest, MIX_MPI_DISK_TAG, MPI_COMM_WORLD);
 					check_MPI_success(gv, errorcode);
 					t1 = get_cur_time();
@@ -89,25 +90,25 @@ void compute_sender_thread(GV gv,LV lv){
 					gv->mpi_send_progress_counter += send_counter + 1;
 					send_counter = 0;
 					free(buffer);
-					// if(gv->mpi_send_progress_counter>=gv->cpt_total_blks)
-					// 	break;
+
 				}
 				// Long_msg
 				else{
+
+					// printf("Comp_Proc%d: Sender %d prepare to send *LONG_MSG* blkid%d\n", gv->rank[0], lv->tid, block_id);
+					// fflush(stdout);
+
 					t0 = get_cur_time();
-					errorcode = MPI_Send(buffer, gv->block_size + sizeof(int), MPI_CHAR, dest, MPI_MSG_TAG, MPI_COMM_WORLD);
+					errorcode = MPI_Send(buffer, gv->block_size+sizeof(int), MPI_CHAR, dest, MPI_MSG_TAG, MPI_COMM_WORLD);
 					check_MPI_success(gv, errorcode);
 					t1 = get_cur_time();
 					only_mpi_send_time += t1 - t0;
 
-					//    printf("Compute %d Sender %d finish sending %d\n", gv->rank[0], lv->tid, block_id);
-					// fflush(stdout);
 
 					gv->mpi_send_progress_counter++;
 					long_msg_id++;
 					free(buffer);
-					// if(gv->mpi_send_progress_counter>=gv->cpt_total_blks)
-					// 	break;
+
 				}
 			}
 			else{
@@ -116,12 +117,14 @@ void compute_sender_thread(GV gv,LV lv){
 					gv->rank[0], lv->tid);
 				fflush(stdout);
 
-				free(buffer);
-
 				pthread_mutex_lock(rb->lock_ringbuffer);
 				gv->flag_sender_get_finalblk = 1;
+				rb->tail = (rb->tail + 1) % rb->bufsize;
+      			rb->num_avail_elements--;
 				pthread_cond_signal(rb->empty);
 				pthread_mutex_unlock(rb->lock_ringbuffer);
+
+				free(buffer);
 
 				my_exit_flag=1;
 			}
