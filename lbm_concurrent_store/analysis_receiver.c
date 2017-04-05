@@ -10,7 +10,7 @@ void recv_ring_buffer_put(GV gv, LV lv, void* buffer){
       rb->buffer[rb->head] = buffer;
 
 #ifdef DEBUG_PRINT
-    printf("Ana_Proc%d: Receiver%d ****Put-a-pointer-in-CRB**** src=%d, block_id=%d, rb->num_avail_elements=%d, @ rb->head=%d, \n",
+    printf("Ana_Proc%d: Receiver%d ****Put-a-pointer-in-CRB**** src=%d, block_id=%d, rb->num_avail_elements=%d, @ rb->head=%d\n",
       gv->rank[0], lv->tid, ((int*)buffer)[0], ((int*)buffer)[1], rb->num_avail_elements, rb->head);
     fflush(stdout);
 #endif //DEBUG_PRINT
@@ -18,7 +18,7 @@ void recv_ring_buffer_put(GV gv, LV lv, void* buffer){
       rb->head = (rb->head + 1) % rb->bufsize;
       rb->num_avail_elements++;
 
-      pthread_cond_signal(rb->empty);
+      pthread_cond_broadcast(rb->empty);
       pthread_mutex_unlock(rb->lock_ringbuffer);
       return;
     } else {

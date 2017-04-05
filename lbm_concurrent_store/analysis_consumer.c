@@ -102,6 +102,7 @@ void* consumer_ring_buffer_read_tail(GV gv, LV lv, int* consumer_state_p){
 
   pthread_mutex_lock(rb->lock_ringbuffer);
   while(1) {
+
     if (rb->num_avail_elements > 0) {
       pointer = rb->buffer[rb->tail];
       *consumer_state_p = ((int*)pointer)[3];
@@ -262,11 +263,18 @@ step=%d, i=%d, j=%d, k=%d, gv->calc_counter=%d, consumer_state=%d\n",
             free_count++;
 
 #ifdef DEBUG_PRINT
-            printf("Ana_Proc%d: *****#####-----Analysis consumer free! num_blk_free=%d\n", gv->rank[0], free_count);
+            printf("Ana_Proc%d: *****#####-----Analysis consumer Prepare to free! num_blk_free=%d\n", gv->rank[0], free_count);
             fflush(stdout);
 #endif //DEBUG_PRINT
 
             free(pointer);
+
+#ifdef DEBUG_PRINT
+            printf("Ana_Proc%d: *****#####-----Analysis consumer Successfully free! num_blk_free=%d\n", gv->rank[0], free_count);
+            fflush(stdout);
+#endif //DEBUG_PRINT
+
+
           }
 
         }

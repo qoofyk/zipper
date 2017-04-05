@@ -62,9 +62,9 @@ Brief desc of the file: Header
 typedef struct {
   char** buffer; //array of pointers
   int bufsize; //num of buffer in ringbuffer
-  int head;
-  int tail;
-  int num_avail_elements;
+  volatile int head;
+  volatile int tail;
+  volatile int num_avail_elements;
   pthread_mutex_t *lock_ringbuffer;
   pthread_cond_t *full;
   pthread_cond_t *empty;

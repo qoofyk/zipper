@@ -1,26 +1,36 @@
 #include "concurrent.h"
 
 void* analysis_writer_ring_buffer_read_tail(GV gv,LV lv, int* writer_state_p){
+
   void* pointer;
 
   ring_buffer *rb = gv->consumer_rb_p;
 
   pthread_mutex_lock(rb->lock_ringbuffer);
+
   while(1) {
+
   	if(gv->ana_writer_done==1){
 		pthread_mutex_unlock(rb->lock_ringbuffer);
 		return NULL;
 	}
+
     if (rb->num_avail_elements > 0) {
 		pointer = rb->buffer[rb->tail];
 		*writer_state_p = ((int*)pointer)[2];
+
+// #ifdef DEBUG_PRINT
+// 		printf("Ana_Proc%d: Writer%d ****GET a TAIL**** rb->num_avail_elements=%d, rb->tail=%d\n", gv->rank[0], lv->tid, rb->num_avail_elements, rb->tail);
+// 		fflush(stdout);
+// #endif //DEBUG_PRINT
+
 		pthread_mutex_unlock(rb->lock_ringbuffer);
 		return pointer;
      }
     else {
 
 #ifdef DEBUG_PRINT
-		printf("Ana_Proc%d: Writer%d Prepare to Sleep! rb->num_avail_elements=%d, rb->tail=%d\n", gv->rank[0], lv->tid, rb->num_avail_elements, rb->tail);
+		printf("Ana_Proc%d: Writer%d ****Prepare to Sleep!**** rb->num_avail_elements=%d, rb->tail=%d\n", gv->rank[0], lv->tid, rb->num_avail_elements, rb->tail);
 		fflush(stdout);
 #endif //DEBUG_PRINT
 
