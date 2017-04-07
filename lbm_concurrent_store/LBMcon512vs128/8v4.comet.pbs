@@ -1,14 +1,14 @@
 #!/bin/bash
-#SBATCH --job-name="LBMSt2v1s4"
-#SBATCH --output="LBMSt2v1s4.%j.out"
+#SBATCH --job-name="LBMSt8v4s4"
+#SBATCH --output="LBMSt8v4s4.%j.out"
 #SBATCH --partition=debug
 #SBATCH --nodes=1
-#SBATCH --ntasks-per-node=6
+#SBATCH --ntasks-per-node=24
 #SBATCH --export=ALL
 #SBATCH -t 0:10:00
 
 ##################parameter setting#################################################
-directory="LBMcon002vs001"
+directory="LBMcon008vs004"
 
 FILESIZE2PRODUCE=256 # 64*64*256*2*8 = 16MB per proc
 compute_generator_num=1
@@ -17,8 +17,8 @@ analysis_reader_num=1
 analysis_writer_num=1
 # writer_thousandth=300
 computer_group_size=2
-num_comp_proc=2
-num_ana_proc=1
+num_comp_proc=8
+num_ana_proc=4
 total_proc=$((${num_comp_proc} + ${num_ana_proc}))
 
 maxp=3 #control how many times to run each configuration
@@ -79,7 +79,9 @@ echo "@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@"
 for ((p=0; p<$maxp; p++)); do
 cubex=32
 cubez=128
+step_stop=100
 writer_thousandth=0
+lp=4
 val=$((${cubex} * ${cubex} * ${cubez} * 16 / 1024))
 echo "********************************************************************"
 echo "LBMconcurrentstore $val KB, $((${writer_thousandth}/10))% PRB"
@@ -93,7 +95,9 @@ echo "-----------End Delete files-------------"
 
 cubex=64
 cubez=64
+step_stop=100
 writer_thousandth=0
+lp=4
 val=$((${cubex} * ${cubex} * ${cubez} * 16 / 1024))
 echo "********************************************************************"
 echo "LBMconcurrentstore $val KB, $((${writer_thousandth}/10))% PRB"
@@ -107,7 +111,9 @@ echo "-----------End Delete files-------------"
 
 cubex=64
 cubez=128
+step_stop=100
 writer_thousandth=0
+lp=4
 val=$((${cubex} * ${cubex} * ${cubez} * 16 / 1024))
 echo "********************************************************************"
 echo "LBMconcurrentstore $val KB, $((${writer_thousandth}/10))% PRB"

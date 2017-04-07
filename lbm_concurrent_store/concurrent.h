@@ -68,8 +68,8 @@ typedef struct {
   pthread_mutex_t *lock_ringbuffer;
   pthread_cond_t *full;
   pthread_cond_t *empty;
-  pthread_cond_t *data_not_on_disk;
-  pthread_cond_t *final_blk;
+  pthread_cond_t *new_tail;
+  // pthread_cond_t *final_blk;
 } ring_buffer;
 
 typedef struct lv_t {

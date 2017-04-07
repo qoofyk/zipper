@@ -1,6 +1,6 @@
 #include "concurrent.h"
 
-void* analysis_writer_ring_buffer_read_tail(GV gv,LV lv, int* writer_state_p){
+void* analysis_writer_ring_buffer_read_tail(GV gv,LV lv, int* block_id_p, int* source_p, int* writer_state_p){
 
   void* pointer;
 
@@ -17,6 +17,8 @@ void* analysis_writer_ring_buffer_read_tail(GV gv,LV lv, int* writer_state_p){
 
     if (rb->num_avail_elements > 0) {
 		pointer = rb->buffer[rb->tail];
+		*source_p = ((int*)pointer)[0];
+		*block_id_p = ((int*)pointer)[1];
 		*writer_state_p = ((int*)pointer)[2];
 
 // #ifdef DEBUG_PRINT
@@ -123,18 +125,20 @@ void analysis_writer_thread(GV gv, LV lv) {
 
 	while(1){
 
+#ifdef NOKEEP
 		if(gv->analysis_writer_blk_num==0){
 			break;
 		}
+#endif //NOKEEP
 
 		//get pointer from PRB
 
-    	pointer = analysis_writer_ring_buffer_read_tail(gv, lv, &writer_state);
+    	pointer = analysis_writer_ring_buffer_read_tail(gv, lv, &source, &block_id, &writer_state);
 
 		if(pointer!=NULL){
 
-			source = ((int*)pointer)[0];
-			block_id = ((int*)pointer)[1];
+			// source = ((int*)pointer)[0];
+			// block_id = ((int*)pointer)[1];
 
 // #ifdef DEBUG_PRINT
 // 			printf("Ana_Proc%d: Writer%d ***GET A pointer*** write source=%d block_id=%d, my_count=%d\n",
@@ -156,44 +160,63 @@ void analysis_writer_thread(GV gv, LV lv) {
 #endif //KEEP
 
 #ifdef DEBUG_PRINT
-					printf("Ana_Proc%d: Writer%d ***Prepare-Assign-State*** write source=%d block_id=%d, my_count=%d\n",
+					printf("Ana_Proc%d: Writer%d ***Prepare-Assign-State and Prepare to Sleep*** write source=%d block_id=%d, my_count=%d\n",
 						gv->rank[0], lv->tid, ((int*)pointer)[0], ((int*)pointer)[1], my_count);
 					fflush(stdout);
 #endif //DEBUG_PRINT
 
 					pthread_mutex_lock(rb->lock_ringbuffer);
 					((int*)pointer)[2] = ON_DISK;
+					pthread_cond_wait(rb->new_tail, rb->lock_ringbuffer);
 					pthread_mutex_unlock(rb->lock_ringbuffer);
 
 					if(my_count%WRITER_COUNT==0)
 						printf("Ana_Proc%d: Writer%d my_count %d\n", gv->rank[0], lv->tid, my_count);
 
 #ifdef DEBUG_PRINT
-					printf("Ana_Proc%d: Writer%d ***Finish-Write-state*** source=%d block_id=%d, my_count=%d\n",
-						gv->rank[0], lv->tid, ((int*)pointer)[0], ((int*)pointer)[1], my_count);
+					printf("Ana_Proc%d: Writer%d ***Finish-Write-state and Wake up*** source=%d block_id=%d, my_count=%d\n",
+						gv->rank[0], lv->tid, source, block_id, my_count);
 					fflush(stdout);
 #endif //DEBUG_PRINT
+
 				}
-				else{// this block has already been written on disk, so writer wait here
+				else{// this block has already been written on disk, so writer continue read tail
 
 // #ifdef DEBUG_PRINT
-// 					printf("Ana_Proc%d: A_Writer%d get **ON_DISK blk*** src=%d blkid=%d and wait here\n",
-// 						gv->rank[0], lv->tid, source, block_id);
+// 					printf("Ana_Proc%d: Writer%d ***Get a ON_DISK block and Prepare to sleep*** source=%d block_id=%d, my_count=%d\n",
+// 						gv->rank[0], lv->tid, source, block_id, my_count);
+// 					fflush(stdout);
+// #endif //DEBUG_PRINT
+
+// 					pthread_mutex_lock(rb->lock_ringbuffer);
+// 					pthread_cond_wait(rb->new_tail, rb->lock_ringbuffer);
+// 					pthread_mutex_unlock(rb->lock_ringbuffer);
+
+// #ifdef DEBUG_PRINT
+// 					printf("Ana_Proc%d: Writer%d ***Wake up*** source=%d block_id=%d, my_count=%d\n",
+// 						gv->rank[0], lv->tid, source, block_id, my_count);
 // 					fflush(stdout);
 // #endif //DEBUG_PRINT
 
 				}
 			}
-			else{// writer get the final block EXIT_BLK_ID, wake up potential possible asleep ana_consumer
+			else{// writer get the final block EXIT_BLK_ID, continue read tail
 
-				// printf("Ana_Proc%d: A_Writer%d get **EXIT_BLK_ID*** src=%d blkid=%d and wait here\n",
-				// 		gv->rank[0], lv->tid, source, block_id);
-				// fflush(stdout);
+// #ifdef DEBUG_PRINT
+// 					printf("Ana_Proc%d: Writer%d ***Get a EXIT_BLK_ID and Prepare to sleep*** source=%d block_id=%d, my_count=%d\n",
+// 						gv->rank[0], lv->tid, source, block_id, my_count);
+// 					fflush(stdout);
+// #endif //DEBUG_PRINT
 
+// 				pthread_mutex_lock(rb->lock_ringbuffer);
+// 				pthread_cond_wait(rb->new_tail, rb->lock_ringbuffer);
+// 				pthread_mutex_unlock(rb->lock_ringbuffer);
 
-				// printf("Ana_Proc%d: A_Writer%d get **EXIT_BLK_ID*** and WAKE UP src=%d blkid=%d and wait here\n",
-				// 		gv->rank[0], lv->tid, source, block_id);
-				// fflush(stdout);
+// #ifdef DEBUG_PRINT
+// 					printf("Ana_Proc%d: Writer%d ***Wake up*** source=%d block_id=%d, my_count=%d\n",
+// 						gv->rank[0], lv->tid, source, block_id, my_count);
+// 					fflush(stdout);
+// #endif //DEBUG_PRINT
 
 			}
 

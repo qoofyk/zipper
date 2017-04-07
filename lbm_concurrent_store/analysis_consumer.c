@@ -149,9 +149,10 @@ void consumer_ring_buffer_move_tail(GV gv, LV lv, int* flag_p, void* pointer){
               gv->rank[0], lv->tid, ((int*)pointer)[0], ((int*)pointer)[1], ((int*)pointer)[2], ((int*)pointer)[3], rb->tail, rb->num_avail_elements);
             fflush(stdout);
 #endif //DEBUG_PRINT
-
             pthread_cond_signal(rb->full);
+            pthread_cond_signal(rb->new_tail);
             pthread_mutex_unlock(rb->lock_ringbuffer);
+
             // the one who last know the state == both_done will free the pointer, in case of the last error case
             *flag_p=1;
             return;
@@ -166,14 +167,14 @@ void consumer_ring_buffer_move_tail(GV gv, LV lv, int* flag_p, void* pointer){
         }
         pthread_mutex_unlock(rb->lock_ringbuffer);
 
-#ifdef DEBUG_PRINT
-        n++;
-        if(n%1000==0){
-          printf("Ana_Proc%d: Consumer%d move tail n=%d\n",
-              gv->rank[0], lv->tid, n);
-          fflush(stdout);
-        }
-#endif //DEBUG_PRINT
+// #ifdef DEBUG_PRINT
+//         n++;
+//         if(n%1000==0){
+//           printf("Ana_Proc%d: Consumer%d move tail n=%d\n",
+//               gv->rank[0], lv->tid, n);
+//           fflush(stdout);
+//         }
+// #endif //DEBUG_PRINT
     }
   }
 }
@@ -295,6 +296,10 @@ step=%d, i=%d, j=%d, k=%d, gv->calc_counter=%d, consumer_state=%d\n",
 
         free(pointer);
 
+        // pthread_mutex_lock(rb->lock_ringbuffer);
+        // pthread_cond_signal(rb->new_tail);
+        // pthread_mutex_unlock(rb->lock_ringbuffer);
+
         num_exit_flag++;
 
         printf("Ana_Proc%d: Consumer get a EXIT_BLK_ID from source=%d! num_exit_flag=%d\n", gv->rank[0], source, num_exit_flag);
@@ -316,7 +321,8 @@ step=%d, i=%d, j=%d, k=%d, gv->calc_counter=%d, consumer_state=%d\n",
       int n;
       pthread_mutex_lock(rb->lock_ringbuffer);
       n=rb->num_avail_elements;
-      pthread_cond_signal(rb->empty);//wake up potential asleep A_writer
+      pthread_cond_signal(rb->empty); //wake up potential asleep A_writer
+      // pthread_cond_signal(rb->new_tail);
       pthread_mutex_unlock(rb->lock_ringbuffer);
 
       printf("Ana_Proc%d: Consumer prepare to exit! With ring_buffer num_avail_elements=%d\n",

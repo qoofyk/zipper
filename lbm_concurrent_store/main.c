@@ -1276,11 +1276,11 @@ PRODUCER_Ringbuffer %.3fGB, size=%d member\n",
 	    consumer_rb.lock_ringbuffer = (pthread_mutex_t *) malloc(sizeof(pthread_mutex_t));
 	    consumer_rb.full = (pthread_cond_t *) malloc(sizeof(pthread_cond_t));
 	    consumer_rb.empty = (pthread_cond_t *) malloc(sizeof(pthread_cond_t));
-	    // consumer_rb.final_blk = (pthread_cond_t *) malloc(sizeof(pthread_cond_t));
+	    consumer_rb.new_tail = (pthread_cond_t *) malloc(sizeof(pthread_cond_t));
 	    pthread_mutex_init(consumer_rb.lock_ringbuffer, NULL);
 	    pthread_cond_init(consumer_rb.full, NULL);
 	    pthread_cond_init(consumer_rb.empty, NULL);
-	    // pthread_cond_init(consumer_rb.final_blk, NULL);
+	    pthread_cond_init(consumer_rb.new_tail, NULL);
 	    gv->consumer_rb_p = &consumer_rb;
 
 	    //gv->consumer_rb_p = rb_init(gv,CONSUMER_RINGBUFFER_TOTAL_MEMORY,&consumer_rb);
