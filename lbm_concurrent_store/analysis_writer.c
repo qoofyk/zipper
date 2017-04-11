@@ -53,9 +53,11 @@ void analysis_write_blk_per_file(GV gv, LV lv, int source, int blk_id, void* buf
 	double t0=0,t1=0;
 	int i=0;
 	//"/N/dc2/scratch/fuyuan/LBMconcurrentstore/LBMcon%03dvs%03d/cid%03d/2lbm_cid%03dblk%d.d"
+#ifndef WRITE_ONE_FILE
 	sprintf(file_name,ADDRESS,gv->compute_process_num, gv->analysis_process_num, source, source, blk_id);
 	// printf("%d %d %d %d %d %d \n %s\n", gv->compute_process_num, gv->analysis_process_num, gv->rank[0], gv->rank[0], lv->tid, blk_id,file_name);
 	// fflush(stdout);
+#endif //WRITE_ONE_FILE
 
 	while((fp==NULL) && (i<TRYNUM)){
 		fp=fopen(file_name,"w");
@@ -85,6 +87,38 @@ void analysis_write_blk_per_file(GV gv, LV lv, int source, int blk_id, void* buf
 
 	fclose(fp);
 }
+
+
+void analysis_write_one_file(GV gv, LV lv, int source, int blk_id, char* buffer, int nbytes, FILE *fp){
+	double t0=0,t1=0;
+	int error=-1;
+	int i=0;
+
+	while((error==-1) && (i<TRYNUM)){
+		error=fseek(fp, blk_id*gv->block_size, SEEK_SET);
+  		if(error==-1){
+  			if(i==TRYNUM-1){
+  				printf("Fatal Error: Ana_Proc%d fseek error block_id=%d, *fp=%p\n",
+  					gv->rank[0], blk_id, (void*)fp);
+  				fflush(stdout);
+  			}
+  			i++;
+            usleep(1000);
+  		}
+	}
+
+
+	t0 = get_cur_time();
+	error=fwrite(buffer, nbytes, 1, fp);
+	if(error==0){
+		perror("Write error:");
+		fflush(stdout);
+	}
+
+	t1 = get_cur_time();
+	lv->only_fwrite_time += t1 - t0;
+}
+
 
 void analysis_writer_thread(GV gv, LV lv) {
 
@@ -129,7 +163,11 @@ void analysis_writer_thread(GV gv, LV lv) {
 
 #ifdef KEEP
 					t0 = get_cur_time();
+#ifdef WRITE_ONE_FILE
+					analysis_write_one_file(gv, lv, source, block_id, pointer+sizeof(int)*4, gv->block_size, gv->ana_fp[source%gv->computer_group_size]);
+#else
 					analysis_write_blk_per_file(gv, lv, source, block_id, pointer+sizeof(int)*4, gv->block_size);
+#endif //WRITE_ONE_FILE
 					t1 = get_cur_time();
 					lv->write_time += t1 - t0;
 #endif //KEEP

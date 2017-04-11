@@ -130,7 +130,7 @@ void* consumer_ring_buffer_read_tail(GV gv, LV lv, int* consumer_state_p){
 void consumer_ring_buffer_move_tail(GV gv, LV lv, int* flag_p, void* pointer){
 
   ring_buffer *rb = gv->consumer_rb_p;
-  int n=0;
+  // int n=0;
 
   if(pointer!=NULL){
       while(1){

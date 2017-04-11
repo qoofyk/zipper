@@ -1070,6 +1070,46 @@ void run_lbm(GV gv, int dims_cube[3], MPI_Comm *pcomm){
 }
 
 
+void comp_open_one_big_file(GV gv){
+	char file_name[128];
+	int i=0;
+
+	sprintf(file_name, ADDRESS, gv->compute_process_num, gv->analysis_process_num, gv->rank[0], gv->rank[0]);
+	// sprintf(file_name,"/var/tmp/exp2_file_blk%d.data",blk_id);
+	while((gv->fp==NULL) && (i<TRYNUM)){
+		gv->fp=fopen(file_name,"w");
+		gv->fp=fopen(file_name,"r+");
+		if(gv->fp==NULL){
+		  if(i==TRYNUM-1){
+		    printf("Fatal Error: Comp_Proc%d open an empty file\n", gv->rank[0]);
+		    fflush(stdout);
+		  }
+
+		  i++;
+		  usleep(1000);
+		}
+	}
+}
+
+void ana_open_one_big_file(GV gv){
+	int j;
+	char file_name[128];
+
+	for(j=0;j<gv->computer_group_size;j++){
+
+		sprintf(file_name, ADDRESS, gv->compute_process_num, gv->analysis_process_num,
+			(gv->rank[0]-gv->compute_process_num)*gv->computer_group_size+j, (gv->rank[0]-gv->compute_process_num)*gv->computer_group_size+j);
+
+		gv->ana_fp[j]=fopen(file_name,"r+");
+
+		if(gv->ana_fp[j]==NULL){
+			printf("Ana_Proc%d: read empty file from last_gen_rank=%d\n",
+                  gv->rank[0], gv->rank[0]/gv->computer_group_size+j);
+            fflush(stdout);
+		}
+	}
+}
+
 int main(int argc, char **argv){
 
 	MPI_Comm mycomm;
@@ -1215,6 +1255,11 @@ PRODUCER_Ringbuffer %.3fGB, size=%d member\n",
 		gv->flag_sender_get_finalblk = 0;
 		gv->flag_writer_get_finalblk = 0;
 
+#ifdef WRITE_ONE_FILE
+		comp_open_one_big_file(gv);
+		MPI_Barrier(MPI_COMM_WORLD);
+#endif //WRITE_ONE_FILE
+
 		//init lock
 		pthread_mutex_init(&gv->lock_block_id,NULL);
 	    pthread_mutex_init(&gv->lock_writer_progress, NULL);
@@ -1241,6 +1286,10 @@ PRODUCER_Ringbuffer %.3fGB, size=%d member\n",
 		  pthread_join(thrds[i], &retval);
 		  // printf("Compute Node %d Thread %d is finished\n", gv->rank[0] ,i);
 		}
+
+#ifdef WRITE_ONE_FILE
+		fclose(gv->fp);
+#endif //WRITE_ONE_FILE
 
 		t1=get_cur_time();
 		free(lvs);
@@ -1305,6 +1354,12 @@ CONSUMER_Ringbuffer %.3fGB, size=%d member\n",
 
 	    gv->ana_writer_done = 0;
 
+#ifdef WRITE_ONE_FILE
+	    MPI_Barrier(MPI_COMM_WORLD);
+	    gv->ana_fp = (FILE **)malloc(sizeof(FILE *) * gv->computer_group_size);
+		ana_open_one_big_file(gv);
+#endif //WRITE_ONE_FILE
+
 	    //initialize lock
 	    pthread_mutex_init(&gv->lock_recv,NULL);
 	    // pthread_mutex_init(&gv->lock_prefetcher_progress, NULL);
@@ -1327,6 +1382,11 @@ CONSUMER_Ringbuffer %.3fGB, size=%d member\n",
 		  pthread_join(thrds[i], &retval);
 		  // printf("Analysis Node %d Thread %d is finished\n", gv->rank[0], i);
 		}
+
+#ifdef WRITE_ONE_FILE
+		for(i=0; i<gv->computer_group_size; i++)
+			fclose(gv->ana_fp[i]);
+#endif //WRITE_ONE_FILE
 
 		free(lvs);
 		free(attrs);

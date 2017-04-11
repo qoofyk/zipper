@@ -31,7 +31,9 @@ void comp_write_blk_per_file(GV gv, LV lv,int blk_id, char* buffer, int nbytes){
 	double t0=0,t1=0;
 	int i=0;
 	//"/N/dc2/scratch/fuyuan/LBMconcurrent/LBMcon%03dvs%03d/cid%03d/2lbm_cid%03dblk%d.d"
-	sprintf(file_name,ADDRESS,gv->compute_process_num, gv->analysis_process_num, gv->rank[0], gv->rank[0], blk_id);
+#ifndef WRITE_ONE_FILE
+	sprintf(file_name, ADDRESS, gv->compute_process_num, gv->analysis_process_num, gv->rank[0], gv->rank[0], blk_id);
+#endif //WRITE_ONE_FILE
 	// printf("%d %d %d %d %d %d \n %s\n", gv->num_compute_nodes, gv->num_analysis_nodes, gv->rank[0], gv->rank[0], lv->tid, blk_id,file_name);
 	// fflush(stdout);
 
@@ -39,7 +41,7 @@ void comp_write_blk_per_file(GV gv, LV lv,int blk_id, char* buffer, int nbytes){
 	    fp=fopen(file_name,"wb");
 	    if(fp==NULL){
 	    	if(i==TRYNUM-1){
-	    		printf("Warning: Compute Process %d Writer %d write empty file last_gen_rank=%d, blk_id=%d\n",
+	    		printf("Fatal Error: Comp_Proc%d Writer%d write empty file last_gen_rank=%d, blk_id=%d\n",
 			        gv->rank[0], lv->tid, gv->rank[0], blk_id);
 			    fflush(stdout);
 	    	}
@@ -56,9 +58,40 @@ void comp_write_blk_per_file(GV gv, LV lv,int blk_id, char* buffer, int nbytes){
 	fclose(fp);
 }
 
+
+void comp_write_one_big_file(GV gv, LV lv, int blk_id, char* buffer, int nbytes, FILE *fp){
+	double t0=0,t1=0;
+	int error=-1;
+	int i=0;
+
+	while((error==-1) && (i<TRYNUM)){
+		error=fseek(fp, blk_id*gv->block_size, SEEK_SET);
+  		if(error==-1){
+  			if(i==TRYNUM-1){
+  				printf("Fatal Error: Comp_Proc%d fseek error block_id=%d, fp=%p\n",
+  					gv->rank[0], blk_id, (void*)fp);
+  				fflush(stdout);
+  			}
+  			i++;
+            usleep(1000);
+  		}
+	}
+
+
+	t0 = get_cur_time();
+	error=fwrite(buffer, nbytes, 1, fp);
+	if(error==0){
+		perror("Write error:");
+		fflush(stdout);
+	}
+
+	t1 = get_cur_time();
+	lv->only_fwrite_time += t1 - t0;
+}
+
 void compute_writer_thread(GV gv,LV lv) {
 
-	int block_id=0,my_count=0;
+	int block_id=0, my_count=0;
 	double t0=0,t1=0,t2=0,t3=0;
 	char* buffer=NULL;
 	char my_exit_flag=0;
@@ -89,7 +122,12 @@ void compute_writer_thread(GV gv,LV lv) {
 #endif //DEBUG_PRINT
 
 					t0 = get_cur_time();
+#ifdef WRITE_ONE_FILE
+					comp_write_one_big_file(gv, lv, block_id, buffer+sizeof(int), gv->block_size, gv->fp);
+#else
 					comp_write_blk_per_file(gv, lv, block_id, buffer+sizeof(int), gv->block_size);
+#endif //WRITE_ONE_FILE
+
 					t1 = get_cur_time();
 					lv->write_time += t1 - t0;
 					my_count++;

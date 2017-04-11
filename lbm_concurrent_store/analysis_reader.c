@@ -22,14 +22,16 @@ void ring_buffer_put(GV gv,LV lv,char * buffer){
   }
 }
 
-void read_blk(GV gv, LV lv,int last_gen_rank,int blk_id, char* buffer, int nbytes){
+void read_blk_per_file(GV gv, LV lv, int last_gen_rank, int blk_id, char* buffer, int nbytes){
   char file_name[128];
   FILE *fp=NULL;
   int i=0;
   double t0=0, t1=0;
   //"/N/dc2/scratch/fuyuan/LBMconcurrent/LBMcon%03dvs%03d/cid%03d/2lbm_cid%03dblk%d.d"
+#ifndef WRITE_ONE_FILE
   sprintf(file_name,ADDRESS,gv->compute_process_num, gv->analysis_process_num, last_gen_rank, last_gen_rank, blk_id);
   // fp=fopen(file_name,"rb");
+#endif //WRITE_ONE_FILE
 
   while((fp==NULL) && (i<TRYNUM)){
     fp=fopen(file_name,"rb");
@@ -59,6 +61,38 @@ void read_blk(GV gv, LV lv,int last_gen_rank,int blk_id, char* buffer, int nbyte
 
   fclose(fp);
 }
+
+void ana_read_one_file(GV gv, LV lv, int last_gen_rank, int blk_id, char* buffer, FILE *fp){
+  double t0=0, t1=0;
+  int error=-1;
+  int i=0;
+
+  while((error==-1) && (i<TRYNUM)){
+    error=fseek(fp, blk_id*gv->block_size, SEEK_SET);
+      if(error==-1){
+        if(i==TRYNUM-1){
+          printf("Ana_Proc%d: fseek error src=%d, block_id=%d, fp=%p\n",
+            gv->rank[0], last_gen_rank, blk_id, (void *)fp);
+          fflush(stdout);
+        }
+        i++;
+        usleep(1000);
+      }
+  }
+
+
+  t0 = get_cur_time();
+  fread(buffer, gv->block_size, 1, fp);
+  if(ferror(fp)==-1){
+    perror("fread error:");
+    fflush(stdout);
+  }
+
+  t1 = get_cur_time();
+  lv->only_fread_time += t1 - t0;
+}
+
+
 
 void analysis_reader_thread(GV gv,LV lv) {
 
@@ -123,11 +157,12 @@ void analysis_reader_thread(GV gv,LV lv) {
         fflush(stdout);
 #endif //DEBUG_PRINT
 
-        // printf("Ana %d Reader %d start read rank%d blk_id%d\n",
-        //   gv->rank[0], lv->tid, last_gen_rank, block_id);
-        // fflush(stdout);
         t0 = get_cur_time();
-        read_blk(gv, lv,last_gen_rank, block_id, new_buffer+3*sizeof(int),gv->block_size);    //read file block to buffer memory
+#ifdef WRITE_ONE_FILE
+        ana_read_one_file(gv, lv, last_gen_rank, block_id, new_buffer+4*sizeof(int), gv->ana_fp[last_gen_rank%gv->computer_group_size]);
+#else
+        read_blk_per_file(gv, lv,last_gen_rank, block_id, new_buffer+4*sizeof(int), gv->block_size);    //read file block to buffer memory
+#endif //WRITE_ONE_FILE
         t1 = get_cur_time();
         lv->read_time += t1 - t0;
         read_file_cnt++;

@@ -20,7 +20,13 @@ Brief desc of the file: Header
 
 // #define DEBUG_PRINT
 // #define TOTAL_FILE2PRODUCE_1GB 1024*1024*1024L
-#define ADDRESS "/oasis/scratch/comet/qoofyk/temp_project/LBMconcurrentstore/LBMcon%03dvs%03d/cid%03d/2lbm_cid%03dblk%d.d"
+#ifdef WRITE_ONE_FILE
+    #define ADDRESS "/oasis/scratch/comet/qoofyk/temp_project/LBMconcurrentstore/LBMcon%03dvs%03d/cid%03d/2lbm_cid%03d"
+#else
+    #define ADDRESS "/oasis/scratch/comet/qoofyk/temp_project/LBMconcurrentstore/LBMcon%03dvs%03d/cid%03d/2lbm_cid%03dblk%d.d"
+#endif //WRITE_ONE_FILE
+
+
 
 #define MPI_MSG_TAG 49
 #define MIX_MPI_DISK_TAG 50
@@ -97,7 +103,7 @@ typedef struct gv_t {
 
   int rank[2], size[2], namelen, color;
   char processor_name[128];
-  int computer_group_size,analysis_process_num,compute_process_num; //Num in each Compute Group, Num of Analysis Node
+  int computer_group_size, analysis_process_num, compute_process_num; //Num in each Compute Group, Num of Analysis Node
 
   ring_buffer* producer_rb_p;
   ring_buffer* consumer_rb_p;
@@ -149,6 +155,11 @@ typedef struct gv_t {
   pthread_mutex_t lock_writer_done;
   pthread_mutex_t lock_recv;
   // pthread_mutex_t lock_prefetcher_progress;
+
+#ifdef WRITE_ONE_FILE
+  FILE *fp;
+  FILE **ana_fp;
+#endif //WRITE_ONE_FILE
 
   LV  all_lvs;
 }* GV;

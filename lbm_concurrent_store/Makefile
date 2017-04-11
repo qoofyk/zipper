@@ -14,7 +14,7 @@ LINK    =  mpicc
 OPT     =  -g -O3
 
 ADDCFLAGS = -Wall
-CCFLAGS = $(OPT) -DKEEP
+CCFLAGS = $(OPT) -DKEEP -DWRITE_ONE_FILE
 LDFLAGS = $(OPT)
 
 ## Libraries
