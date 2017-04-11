@@ -80,6 +80,8 @@ void comp_write_one_big_file(GV gv, LV lv, int blk_id, char* buffer, int nbytes,
 
 	t0 = get_cur_time();
 	error=fwrite(buffer, nbytes, 1, fp);
+	fflush(fp);
+
 	if(error==0){
 		perror("Write error:");
 		fflush(stdout);

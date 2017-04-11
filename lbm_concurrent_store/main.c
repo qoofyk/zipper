@@ -1077,8 +1077,9 @@ void comp_open_one_big_file(GV gv){
 	sprintf(file_name, ADDRESS, gv->compute_process_num, gv->analysis_process_num, gv->rank[0], gv->rank[0]);
 	// sprintf(file_name,"/var/tmp/exp2_file_blk%d.data",blk_id);
 	while((gv->fp==NULL) && (i<TRYNUM)){
-		gv->fp=fopen(file_name,"w");
-		gv->fp=fopen(file_name,"r+");
+		gv->fp=fopen(file_name,"w+");
+
+		// gv->fp=fopen(file_name,"r+");
 		if(gv->fp==NULL){
 		  if(i==TRYNUM-1){
 		    printf("Fatal Error: Comp_Proc%d open an empty file\n", gv->rank[0]);

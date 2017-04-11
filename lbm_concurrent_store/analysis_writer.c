@@ -1,6 +1,6 @@
 #include "concurrent.h"
 
-void* analysis_writer_ring_buffer_read_tail(GV gv,LV lv, int* block_id_p, int* source_p, int* writer_state_p){
+void* analysis_writer_ring_buffer_read_tail(GV gv,LV lv, int* source_p, int* block_id_p, int* writer_state_p){
 
   void* pointer;
 
@@ -69,7 +69,7 @@ void analysis_write_blk_per_file(GV gv, LV lv, int source, int blk_id, void* buf
 			}
 
 		  i++;
-		  sleep(1);
+		  usleep(1000);
 		}
 	}
 
@@ -110,6 +110,8 @@ void analysis_write_one_file(GV gv, LV lv, int source, int blk_id, char* buffer,
 
 	t0 = get_cur_time();
 	error=fwrite(buffer, nbytes, 1, fp);
+	fflush(fp);
+
 	if(error==0){
 		perror("Write error:");
 		fflush(stdout);
@@ -164,6 +166,8 @@ void analysis_writer_thread(GV gv, LV lv) {
 #ifdef KEEP
 					t0 = get_cur_time();
 #ifdef WRITE_ONE_FILE
+					printf("block_id=%d\n", block_id);
+					fflush(stdout);
 					analysis_write_one_file(gv, lv, source, block_id, pointer+sizeof(int)*4, gv->block_size, gv->ana_fp[source%gv->computer_group_size]);
 #else
 					analysis_write_blk_per_file(gv, lv, source, block_id, pointer+sizeof(int)*4, gv->block_size);
