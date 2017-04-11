@@ -2,8 +2,24 @@
 All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/) 
 and this project adheres to [Semantic Versioning](http://semver.org/).
-## [0.1.11] 2017 April 4
-#### upon submission
+
+## [0.1.13] 2017 April 11
+#### use flexpath 
+-flexpath
+	longer calculation time?
+	t_prepare:0.099268 s, t_cal 42.772855 s,t_buffer = 0.388137, t_write 149.501805 s
+
+
+## [0.1.12] 2017 April 6
+#### Q
+- what if only has dspaces write?
+- is the fist step has the smallest writting time?
+	989971
+- cannot run producer without consumer
+	989835
+	
+
+## [0.1.11] 2017 April 4 #### upon submission
 - maxversion =5
 - analysis is commented
 #### try
@@ -17,7 +33,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 	120s
 	two nodes, with 4 procs, 114s
 - doubts
-	if disable analysis, why writting time is decreased?
+	if disable analysis, why writting time is decreased?(985141& 989763)
 	
 
 #### MPIIO more tests

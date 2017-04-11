@@ -1,3 +1,22 @@
+1000659
+    flexpath again
+    t_prepare:0.099056 s, t_cal 47.947185 s,t_buffer = 0.381423, t_write 133.391801 s
+    
+1000611
+    dspaces nokeep 8:4 same as before, 33s cal, total 147s
+1000598
+    flexpath 8:4
+    t_prepare:0.099268 s, t_cal 42.772855 s,t_buffer = 0.388137, t_write 149.501805 s(why calculation is longer?)
+-------------------------------------------------------------------
+990028
+    mpiio for 768-384
+989977
+    1 step has writting time 10s
+    2 step has 5s
+    after that, each step is around 1.4s
+989971
+    print out the time spend in each step
+
 985605
     2 server nodes with  8 processes
     t_prepare:0.070657 s, t_cal 33.336477 s, t_write 123.082560 s
@@ -14,11 +33,9 @@
     stat:time for read 35.299027 s; time for advancing step 75.014883 s; time for analyst 38.248347 s
 985141
     1 server node with 1 server process
-    t_prepare:0.082188 s, t_cal 32.822827 s, t_write 147.587935 s
+    t_prepare:0.082188 s, t_cal 32.822827 s, t_write 147.587935 s(will decrease to 120 if disable analysis, 989763)
     stat:time for read 53.557231 s; time for advancing step 76.971237 s; time for analyst 39.008861 s
 
-
-    
 -------------------------------------------------------------------
 run_analysis is commented since 982346()
 

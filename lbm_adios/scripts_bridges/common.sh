@@ -8,8 +8,7 @@ BIN_PRODUCER=${BUILD_DIR}/bin/run_lbm;
 BIN_CONSUMER=${BUILD_DIR}/bin/adios_read_global;
 
 #This job runs with 3 nodes  
-#ibrun in verbose mode will give binding detail  
-#BUILD=${PBS_O_WORKDIR}/build_dspaces/bin
+#ibrun in verbose mode will give binding detail  #BUILD=${PBS_O_WORKDIR}/build_dspaces/bin
 DS_SERVER=${PBS_O_HOME}/envs/Dataspacesroot/bin/dataspaces_server
 PBS_RESULTDIR=${SCRATCH_DIR}/results
 

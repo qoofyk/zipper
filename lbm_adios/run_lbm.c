@@ -3,10 +3,11 @@
 #include "adios_adaptor.h"
 #define SIZE_ONE (2)
 #include "utility.h"
+#include "adios_error.h"
 
 #define debug
 
-#if defined(USE_MPIIO) || defined(USE_DATASPACES) || defined(USE_DIMES)
+#if defined(USE_MPIIO) || defined(USE_DATASPACES) || defined(USE_DIMES) ||defined(USE_FLEXPATH)
 #define USE_ADIOS
 #endif
     
@@ -19,8 +20,9 @@ void run_lbm(char * filepath, int step_stop, int dims_cube[3], MPI_Comm *pcomm)
 
 // aditional timer for staging
 #ifdef ENABLE_TIMING
-    double t7=0 ;
+    double t7=0, t8=0;
     double t_write=0;
+    double t_buffer =0;
 #endif
         int gi, gj, gk, nx,ny,nz;
 
@@ -990,6 +992,10 @@ void run_lbm(char * filepath, int step_stop, int dims_cube[3], MPI_Comm *pcomm)
                 }
             }
         }
+
+        t7 = get_cur_time();
+		t_buffer+=t7-t6;
+
         
         /*******************************
          *          ADIOS              *
@@ -1038,8 +1044,9 @@ void run_lbm(char * filepath, int step_stop, int dims_cube[3], MPI_Comm *pcomm)
         free(buffer);
 
 #ifdef ENABLE_TIMING
-        t7 = get_cur_time();
-        t_write += t7-t6;
+        t8 = get_cur_time();
+            printf("rank %d: writting time for step %d is %f\n", rank, step, t8-t7);
+        t_write += t8-t7;
 #endif
 
 		//free(buffer);
@@ -1063,7 +1070,7 @@ void run_lbm(char * filepath, int step_stop, int dims_cube[3], MPI_Comm *pcomm)
 
 
 		}  /* end of while loop */
-        printf("rank %d, t_prepare:%f s, t_cal %f s, t_write %f s\n", rank,init_lbm_time, only_lbm_time, t_write);
+        printf("rank %d, t_prepare:%f s, t_cal %f s,t_buffer = %f, t_write %f s\n", rank,init_lbm_time, only_lbm_time,t_buffer, t_write);
 
 		// MPI_Barrier(comm1d);
 		t3= get_cur_time();
@@ -1107,11 +1114,15 @@ int main(int argc, char * argv[]){
   strcpy(trans_method, "dataspaces");
 #elif defined(USE_DIMES)
   strcpy(trans_method, "dimes");
+#elif defined(USE_FLEXPATH)
+  strcpy(trans_method, "flexpath");
 #endif
   sprintf(xmlfile,"adios_xmls/dbroker_%s.xml", trans_method);
+  //printf("rank %d, try to init with %s", rank, xmlfile);
   if(adios_init (xmlfile, comm) != 0){
     printf("ERROR: rank %d: adios init err with %s\n", rank, trans_method);
-    exit(-1);
+    printf("ERR: %s", adios_get_last_errmsg());
+    return -1;
   }
   else{
       if(rank ==0)

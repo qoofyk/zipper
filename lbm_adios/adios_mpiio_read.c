@@ -118,7 +118,8 @@ int main (int argc, char ** argv)
         // new step avaible from producer
         while(timestep < time_stamp){
             timestep++;
-            printf("rank %d: reader opened step %d\n",rank, timestep);
+            if(rank ==0)
+                printf("rank %d: reader opened step %d\n", timestep);
             sprintf(filename_atom, "%s/atom_%d.bp", filepath, timestep);
             f = adios_read_open_file(filename_atom, method, comm);
 
@@ -147,7 +148,7 @@ int main (int argc, char ** argv)
 
                 start[1] = 0;
                 count[1] = v->dims[1];
-                printf("rank %d: start: (%ld, %ld), count:( %ld, %ld)\n", rank, start[0], start[1], count[0], count[1]);
+                //printf("rank %d: start: (%ld, %ld), count:( %ld, %ld)\n", rank, start[0], start[1], count[0], count[1]);
                 sel = adios_selection_boundingbox (v->ndim, start, count);
             }
 
@@ -157,10 +158,12 @@ int main (int argc, char ** argv)
 
             adios_read_close (f);
 
-            printf("rank %d: Step %d read\n", rank, timestep);
+            if(rank ==0)
+                printf("Step %d read\n", timestep);
             // analysis
             run_analysis(data, slice_size, lp);
-            printf("rank %d: Step %d moments calculated\n", rank, timestep);
+            if(rank == 0)
+                printf("Step %d moments calculated\n", timestep);
         }
     }
     MPI_Barrier(comm);

@@ -57,6 +57,8 @@ int main (int argc, char ** argv)
     enum ADIOS_READ_METHOD method = ADIOS_READ_METHOD_DATASPACES;
 #elif defined(USE_DIMES)
     enum ADIOS_READ_METHOD method = ADIOS_READ_METHOD_DIMES;
+#elif defined(USE_FLEXPATH)
+    enum ADIOS_READ_METHOD method = ADIOS_READ_METHOD_FLEXPATH;
 #else
     enum ADIOS_READ_METHOD method = ADIOS_READ_METHOD_BP;
 #endif
@@ -82,7 +84,7 @@ int main (int argc, char ** argv)
     }
     else{
         if(rank == 0)
-            printf("rank %d: adios read method init complete\n", rank);
+            printf("rank %d: adios read method init complete with %d\n", rank, method);
     }
 
 #ifdef HAS_KEEP
@@ -94,6 +96,11 @@ int main (int argc, char ** argv)
   adios_init ("adios_xmls/dbroker_dimes.xml", comm);
   if(rank ==0)
     printf("rank %d: adios init complete with dimes\n", rank);
+#elif defined(USE_FLEXPATH)
+  adios_init ("adios_xmls/dbroker_flexpath.xml", comm);
+  if(rank ==0)
+    printf("rank %d: adios init complete with flexpath\n", rank);
+
 #else 
 #error("define stating transport method");
 #endif
