@@ -25,7 +25,7 @@ char* producer_ring_buffer_get(GV gv,LV lv){
   }
 }
 
-void write_blk(GV gv, LV lv,int blk_id, char* buffer, int nbytes){
+void comp_write_blk_per_file(GV gv, LV lv,int blk_id, char* buffer, int nbytes){
 	char file_name[128];
 	FILE *fp=NULL;
 	double t0=0,t1=0;
@@ -89,7 +89,7 @@ void compute_writer_thread(GV gv,LV lv) {
 #endif //DEBUG_PRINT
 
 					t0 = get_cur_time();
-					write_blk(gv, lv, block_id, buffer+sizeof(int), gv->block_size);
+					comp_write_blk_per_file(gv, lv, block_id, buffer+sizeof(int), gv->block_size);
 					t1 = get_cur_time();
 					lv->write_time += t1 - t0;
 					my_count++;

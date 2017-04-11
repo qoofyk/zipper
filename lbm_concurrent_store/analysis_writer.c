@@ -46,29 +46,8 @@ void* analysis_writer_ring_buffer_read_tail(GV gv,LV lv, int* block_id_p, int* s
   }
 }
 
-// void analysis_writer_ring_buffer_move_tail(GV gv,LV lv,int* flag_p, char* pointer){
 
-//   	ring_buffer *rb = gv->consumer_rb_p;
-
-// 	if(pointer!=NULL){
-//   		while(1){
-//   			pthread_mutex_lock(rb->lock_ringbuffer);
-// 			if(pointer[9] == CALC_DONE){
-// 				rb->tail = (rb->tail + 1) % rb->bufsize;
-// 				rb->num_avail_elements--;
-
-// 				pthread_cond_signal(rb->full);
-// 				pthread_mutex_unlock(rb->lock_ringbuffer);
-// 				// the one who last know the state == both_done will free the pointer, in case of the last error case
-// 			  	*flag_p=1;
-// 				return;
-// 			}
-// 			pthread_mutex_unlock(rb->lock_ringbuffer);
-// 		}
-//   	}
-// }
-
-void analysis_write_blk(GV gv, LV lv, int source, int blk_id, void* buffer, int nbytes){
+void analysis_write_blk_per_file(GV gv, LV lv, int source, int blk_id, void* buffer, int nbytes){
 	char file_name[128];
 	FILE *fp=NULL;
 	double t0=0,t1=0;
@@ -125,11 +104,11 @@ void analysis_writer_thread(GV gv, LV lv) {
 
 	while(1){
 
-#ifdef NOKEEP
-		if(gv->analysis_writer_blk_num==0){
-			break;
-		}
-#endif //NOKEEP
+// #ifdef NOKEEP
+// 		if(gv->analysis_writer_blk_num==0){
+// 			break;
+// 		}
+// #endif //NOKEEP
 
 		//get pointer from PRB
 
@@ -137,14 +116,11 @@ void analysis_writer_thread(GV gv, LV lv) {
 
 		if(pointer!=NULL){
 
-			// source = ((int*)pointer)[0];
-			// block_id = ((int*)pointer)[1];
-
-// #ifdef DEBUG_PRINT
-// 			printf("Ana_Proc%d: Writer%d ***GET A pointer*** write source=%d block_id=%d, my_count=%d\n",
-// 				gv->rank[0], lv->tid, ((int*)pointer)[0], ((int*)pointer)[1], my_count);
-// 			fflush(stdout);
-// #endif //DEBUG_PRINT
+#ifdef DEBUG_PRINT
+			printf("Ana_Proc%d: Writer%d ***GET A pointer*** write source=%d block_id=%d, my_count=%d\n",
+				gv->rank[0], lv->tid, source, block_id, my_count);
+			fflush(stdout);
+#endif //DEBUG_PRINT
 
 
 			if (block_id != EXIT_BLK_ID){
@@ -153,11 +129,12 @@ void analysis_writer_thread(GV gv, LV lv) {
 
 #ifdef KEEP
 					t0 = get_cur_time();
-					// analysis_write_blk(gv, lv, source, block_id, pointer+sizeof(int)*4, gv->block_size);
+					analysis_write_blk_per_file(gv, lv, source, block_id, pointer+sizeof(int)*4, gv->block_size);
 					t1 = get_cur_time();
 					lv->write_time += t1 - t0;
-					my_count++;
 #endif //KEEP
+					my_count++;
+
 
 #ifdef DEBUG_PRINT
 					printf("Ana_Proc%d: Writer%d ***Prepare-Assign-State and Prepare to Sleep*** write source=%d block_id=%d, my_count=%d\n",
@@ -180,17 +157,13 @@ void analysis_writer_thread(GV gv, LV lv) {
 #endif //DEBUG_PRINT
 
 				}
-				else{// this block has already been written on disk, so writer continue read tail
+				else{// this block has already been written on disk, then writer continue read tail
 
 // #ifdef DEBUG_PRINT
 // 					printf("Ana_Proc%d: Writer%d ***Get a ON_DISK block and Prepare to sleep*** source=%d block_id=%d, my_count=%d\n",
 // 						gv->rank[0], lv->tid, source, block_id, my_count);
 // 					fflush(stdout);
 // #endif //DEBUG_PRINT
-
-// 					pthread_mutex_lock(rb->lock_ringbuffer);
-// 					pthread_cond_wait(rb->new_tail, rb->lock_ringbuffer);
-// 					pthread_mutex_unlock(rb->lock_ringbuffer);
 
 // #ifdef DEBUG_PRINT
 // 					printf("Ana_Proc%d: Writer%d ***Wake up*** source=%d block_id=%d, my_count=%d\n",
@@ -200,7 +173,7 @@ void analysis_writer_thread(GV gv, LV lv) {
 
 				}
 			}
-			else{// writer get the final block EXIT_BLK_ID, continue read tail
+			else{// writer get the final block EXIT_BLK_ID, then continue read tail
 
 // #ifdef DEBUG_PRINT
 // 					printf("Ana_Proc%d: Writer%d ***Get a EXIT_BLK_ID and Prepare to sleep*** source=%d block_id=%d, my_count=%d\n",
@@ -208,9 +181,6 @@ void analysis_writer_thread(GV gv, LV lv) {
 // 					fflush(stdout);
 // #endif //DEBUG_PRINT
 
-// 				pthread_mutex_lock(rb->lock_ringbuffer);
-// 				pthread_cond_wait(rb->new_tail, rb->lock_ringbuffer);
-// 				pthread_mutex_unlock(rb->lock_ringbuffer);
 
 // #ifdef DEBUG_PRINT
 // 					printf("Ana_Proc%d: Writer%d ***Wake up*** source=%d block_id=%d, my_count=%d\n",

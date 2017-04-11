@@ -1,11 +1,11 @@
 #!/bin/bash
 #SBATCH --job-name="LBMSt8v4s4"
 #SBATCH --output="LBMSt8v4s4.%j.out"
-#SBATCH --partition=debug
+#SBATCH --partition=compute
 #SBATCH --nodes=1
 #SBATCH --ntasks-per-node=24
 #SBATCH --export=ALL
-#SBATCH -t 0:10:00
+#SBATCH -t 2:00:00
 
 ##################parameter setting#################################################
 directory="LBMcon008vs004"
@@ -21,7 +21,7 @@ num_comp_proc=8
 num_ana_proc=4
 total_proc=$((${num_comp_proc} + ${num_ana_proc}))
 
-maxp=3 #control how many times to run each configuration
+maxp=5 #control how many times to run each configuration
 lp=4   #n_moment
 step_stop=100
 
@@ -76,106 +76,106 @@ echo "*********************$num_ana_proc Analysis Read**********************"
 echo "Block size starting from 64KB,128KB,256KB,512KB,1MB,2MB,4MB,8MB"
 echo "@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@"
 
-for ((p=0; p<$maxp; p++)); do
-cubex=32
-cubez=128
-step_stop=100
-writer_thousandth=0
-lp=4
-val=$((${cubex} * ${cubex} * ${cubez} * 16 / 1024))
-echo "********************************************************************"
-echo "LBMconcurrentstore $val KB, $((${writer_thousandth}/10))% PRB"
-echo "********************************************************************"
-$my_run_exp2 $compute_generator_num $compute_writer_num $analysis_reader_num $analysis_writer_num $writer_thousandth $computer_group_size $num_ana_proc $cubex $cubez $step_stop $lp $FILESIZE2PRODUCE
-echo "-----------Start Deleting files-------------"
-# for ((m=0;m<$num_comp_proc;m++)); do
-#     $my_del_exp2 $(printf "/N/dc2/scratch/fuyuan/LBMconcurrentstore/$directory/cid%03g" $m)
-# done
-echo "-----------End Delete files-------------"
-
-cubex=64
-cubez=64
-step_stop=100
-writer_thousandth=0
-lp=4
-val=$((${cubex} * ${cubex} * ${cubez} * 16 / 1024))
-echo "********************************************************************"
-echo "LBMconcurrentstore $val KB, $((${writer_thousandth}/10))% PRB"
-echo "********************************************************************"
-$my_run_exp2 $compute_generator_num $compute_writer_num $analysis_reader_num $analysis_writer_num $writer_thousandth $computer_group_size $num_ana_proc $cubex $cubez $step_stop $lp $FILESIZE2PRODUCE
-echo "-----------Start Deleting files-------------"
-# for ((m=0;m<$num_comp_proc;m++)); do
-#     $my_del_exp2 $(printf "/N/dc2/scratch/fuyuan/LBMconcurrentstore/$directory/cid%03g" $m)
-# done
-echo "-----------End Delete files-------------"
-
-cubex=64
-cubez=128
-step_stop=100
-writer_thousandth=0
-lp=4
-val=$((${cubex} * ${cubex} * ${cubez} * 16 / 1024))
-echo "********************************************************************"
-echo "LBMconcurrentstore $val KB, $((${writer_thousandth}/10))% PRB"
-echo "********************************************************************"
-$my_run_exp2 $compute_generator_num $compute_writer_num $analysis_reader_num $analysis_writer_num $writer_thousandth $computer_group_size $num_ana_proc $cubex $cubez $step_stop $lp $FILESIZE2PRODUCE
-echo "-----------Start Deleting files-------------"
-# for ((m=0;m<$num_comp_proc;m++)); do
-#     $my_del_exp2 $(printf "/N/dc2/scratch/fuyuan/LBMconcurrentstore/$directory/cid%03g" $m)
-# done
-echo "-----------End Delete files-------------"
-
-done
-
-
-# cubex=16
-# # writer_thousandth=(0 50 100 200 300)
-# writer_thousandth=(0 50 100 200 300)
-# for((;cubex<=64;cubex=cubex*2));do
-# 	for ((t=1; t<=4; t=t*2)); do
-# 		cubez=$((${cubex} * ${t}))
-# 		val=$((${cubex} * ${cubex} * ${cubez} * 16 / 1024))
-
-# 		if [ $val -eq 64 ]
-#    		then
-#       		continue
-#    		fi
-
-# 		if [ $val -eq 16384 ]
-#    		then
-#       		break
-#    		fi
-
-# 		for ((k=0; k<${#writer_thousandth[@]}; k++)); do
-# 			echo
-# 			echo
-# 			echo "*************************************************************************************"
-# 			echo "---LBM_concurrent_store $val KB, $((${writer_thousandth[k]}/10))% PRB------"
-# 			echo "*************************************************************************************"
-# 			# if [ $val -eq 64 ] && [ $val -eq 128 ] && [ $val -eq 16384 ]
-# 			#  		then
-# 			#     		break
-# 			#fi
-# 			for ((p=0; p<$maxp; p++)); do
-# 				echo "=============Loop $p==============="
-# 				$my_run_exp2 $compute_generator_num $compute_writer_num $analysis_reader_num $analysis_writer_num ${writer_thousandth[k]} $computer_group_size $num_ana_proc $cubex $cubez $step_stop $lp $FILESIZE2PRODUCE
-# 				# echo "-----------Start Deleting files-------------"
-# 				# for ((m=0;m<$num_comp_proc;m++)); do
-# 				#     $my_del_exp2 $(printf "/N/dc2/scratch/fuyuan/LBMconcurrentstore/$directory/cid%03g" $m)
-# 				# done
-# 				# echo "-----------End Delete files-------------"
-# 				echo
-# 			done
-# 		done
-# 	done
-# done
-
-# date
-
+# for ((p=0; p<$maxp; p++)); do
+# cubex=32
+# cubez=128
+# step_stop=100
+# writer_thousandth=0
+# lp=4
+# val=$((${cubex} * ${cubex} * ${cubez} * 16 / 1024))
+# echo "********************************************************************"
+# echo "LBMconcurrentstore $val KB, $((${writer_thousandth}/10))% PRB"
+# echo "********************************************************************"
+# $my_run_exp2 $compute_generator_num $compute_writer_num $analysis_reader_num $analysis_writer_num $writer_thousandth $computer_group_size $num_ana_proc $cubex $cubez $step_stop $lp $FILESIZE2PRODUCE
 # echo "-----------Start Deleting files-------------"
 # # for ((m=0;m<$num_comp_proc;m++)); do
 # #     $my_del_exp2 $(printf "/N/dc2/scratch/fuyuan/LBMconcurrentstore/$directory/cid%03g" $m)
 # # done
 # echo "-----------End Delete files-------------"
+
+# cubex=64
+# cubez=64
+# step_stop=100
+# writer_thousandth=0
+# lp=4
+# val=$((${cubex} * ${cubex} * ${cubez} * 16 / 1024))
+# echo "********************************************************************"
+# echo "LBMconcurrentstore $val KB, $((${writer_thousandth}/10))% PRB"
+# echo "********************************************************************"
+# $my_run_exp2 $compute_generator_num $compute_writer_num $analysis_reader_num $analysis_writer_num $writer_thousandth $computer_group_size $num_ana_proc $cubex $cubez $step_stop $lp $FILESIZE2PRODUCE
+# echo "-----------Start Deleting files-------------"
+# # for ((m=0;m<$num_comp_proc;m++)); do
+# #     $my_del_exp2 $(printf "/N/dc2/scratch/fuyuan/LBMconcurrentstore/$directory/cid%03g" $m)
+# # done
+# echo "-----------End Delete files-------------"
+
+# cubex=64
+# cubez=128
+# step_stop=100
+# writer_thousandth=0
+# lp=4
+# val=$((${cubex} * ${cubex} * ${cubez} * 16 / 1024))
+# echo "********************************************************************"
+# echo "LBMconcurrentstore $val KB, $((${writer_thousandth}/10))% PRB"
+# echo "********************************************************************"
+# $my_run_exp2 $compute_generator_num $compute_writer_num $analysis_reader_num $analysis_writer_num $writer_thousandth $computer_group_size $num_ana_proc $cubex $cubez $step_stop $lp $FILESIZE2PRODUCE
+# echo "-----------Start Deleting files-------------"
+# # for ((m=0;m<$num_comp_proc;m++)); do
+# #     $my_del_exp2 $(printf "/N/dc2/scratch/fuyuan/LBMconcurrentstore/$directory/cid%03g" $m)
+# # done
+# echo "-----------End Delete files-------------"
+
+# done
+
+
+cubex=16
+# writer_thousandth=(0 50 100 200 300)
+writer_thousandth=(0 50 100 200 300)
+for((;cubex<=64;cubex=cubex*2));do
+	for ((t=1; t<=4; t=t*2)); do
+		cubez=$((${cubex} * ${t}))
+		val=$((${cubex} * ${cubex} * ${cubez} * 16 / 1024))
+
+		if [ $val -eq 64 ]
+   		then
+      		continue
+   		fi
+
+		if [ $val -eq 16384 ]
+   		then
+      		break
+   		fi
+
+		for ((k=0; k<${#writer_thousandth[@]}; k++)); do
+			echo
+			echo
+			echo "*************************************************************************************"
+			echo "---LBM_concurrent_store $val KB, $((${writer_thousandth[k]}/10))% PRB------"
+			echo "*************************************************************************************"
+			# if [ $val -eq 64 ] && [ $val -eq 128 ] && [ $val -eq 16384 ]
+			#  		then
+			#     		break
+			#fi
+			for ((p=0; p<$maxp; p++)); do
+				echo "=============Loop $p==============="
+				$my_run_exp2 $compute_generator_num $compute_writer_num $analysis_reader_num $analysis_writer_num ${writer_thousandth[k]} $computer_group_size $num_ana_proc $cubex $cubez $step_stop $lp $FILESIZE2PRODUCE
+				# echo "-----------Start Deleting files-------------"
+				# for ((m=0;m<$num_comp_proc;m++)); do
+				#     $my_del_exp2 $(printf "/N/dc2/scratch/fuyuan/LBMconcurrentstore/$directory/cid%03g" $m)
+				# done
+				# echo "-----------End Delete files-------------"
+				echo
+			done
+		done
+	done
+done
+
+date
+
+echo "-----------Start Deleting files-------------"
+# for ((m=0;m<$num_comp_proc;m++)); do
+#     $my_del_exp2 $(printf "/N/dc2/scratch/fuyuan/LBMconcurrentstore/$directory/cid%03g" $m)
+# done
+echo "-----------End Delete files-------------"
 
 

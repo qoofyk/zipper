@@ -1,6 +1,6 @@
 /********************************************************
 Copyright YUANKUN FU
-Brief desc of the file: consumer thread
+Brief desc of the file: LBM consumer thread
 ********************************************************/
 #include "concurrent.h"
 void simple_verify(GV gv, LV lv, void* buffer, int nbytes, int* consumer_state_p){
@@ -139,8 +139,6 @@ void consumer_ring_buffer_move_tail(GV gv, LV lv, int* flag_p, void* pointer){
 
         if( ((int*)pointer)[2] == ON_DISK){
 
-          // if(rb->num_avail_elements > 0){
-
             rb->tail = (rb->tail + 1) % rb->bufsize;
             rb->num_avail_elements--;
 
@@ -149,20 +147,13 @@ void consumer_ring_buffer_move_tail(GV gv, LV lv, int* flag_p, void* pointer){
               gv->rank[0], lv->tid, ((int*)pointer)[0], ((int*)pointer)[1], ((int*)pointer)[2], ((int*)pointer)[3], rb->tail, rb->num_avail_elements);
             fflush(stdout);
 #endif //DEBUG_PRINT
-            pthread_cond_signal(rb->full);
-            pthread_cond_signal(rb->new_tail);
+            pthread_cond_signal(rb->full);      //wake up receiver put
+            pthread_cond_signal(rb->new_tail);  //wake up ana_writer
             pthread_mutex_unlock(rb->lock_ringbuffer);
 
             // the one who last know the state == both_done will free the pointer, in case of the last error case
             *flag_p=1;
             return;
-          // }
-          // else{
-          //   printf("Ana_Proc%d: Consumer%d prepare to wait to move tail on source=%d, block_id=%d, write_state=%d, calc_state=%d\n",
-          //     gv->rank[0], lv->tid, ((int*)pointer)[0], ((int*)pointer)[1], ((int*)pointer)[2], ((int*)pointer)[3]);
-
-          //   pthread_cond_wait(rb->empty, rb->lock_ringbuffer);
-          // }
 
         }
         pthread_mutex_unlock(rb->lock_ringbuffer);
@@ -223,7 +214,7 @@ void analysis_consumer_thread(GV gv,LV lv){
           gv->CK   = ((int *)pointer)[7];
 
 #ifdef DEBUG_PRINT
-          printf("Ana_Proc%d: Consumer%d calc_n_moments source=%d, block_id=%d \
+          printf("Ana_Proc%d: Consumer%d Prepare to calc_n_moments source=%d, block_id=%d \
 step=%d, i=%d, j=%d, k=%d, gv->calc_counter=%d, consumer_state=%d\n",
           gv->rank[0], lv->tid, ((int *)pointer)[0], ((int *)pointer)[1],
           ((int *)pointer)[4], ((int *)pointer)[5], ((int *)pointer)[6], ((int *)pointer)[7], gv->calc_counter, consumer_state);
@@ -231,7 +222,7 @@ step=%d, i=%d, j=%d, k=%d, gv->calc_counter=%d, consumer_state=%d\n",
 
           t0 = get_cur_time();
           // simple_verify(gv, lv, pointer, gv->block_size, &consumer_state);
-          // calc_n_moments(gv, lv, pointer+sizeof(int)*8, &consumer_state);
+          calc_n_moments(gv, lv, pointer+sizeof(int)*8, &consumer_state);
           t1 = get_cur_time();
           lv->calc_time += t1 - t0;
           gv->calc_counter++;
@@ -295,10 +286,6 @@ step=%d, i=%d, j=%d, k=%d, gv->calc_counter=%d, consumer_state=%d\n",
         consumer_ring_buffer_move_tail(gv, lv, &flag, pointer);
 
         free(pointer);
-
-        // pthread_mutex_lock(rb->lock_ringbuffer);
-        // pthread_cond_signal(rb->new_tail);
-        // pthread_mutex_unlock(rb->lock_ringbuffer);
 
         num_exit_flag++;
 
