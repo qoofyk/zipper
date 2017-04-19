@@ -3,6 +3,20 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/) 
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## [0.1.15] 2017 April 18
+#### changes
+	remove get_group_size
+	remov buffer max-size
+
+## [0.1.14] 2017 April 17
+#### buffersizese
+buffersize for each process or nodes or global size?
+is the reason that the first write takes more time?
+group_size is nozero, if using staging, total_size is zero
+
+#### removed the barrier in 
+
+
 ## [0.1.13] 2017 April 11
 #### use flexpath 
 -flexpath

@@ -45,11 +45,18 @@ void insert_into_adios(char * file_path, char *var_name,int timestep, int n, int
                     + 4 \
                     + 4 \
                     + 8 * (n) * (size_one);
-    adios_group_size (adios_handle, adios_groupsize, &adios_totalsize);
+    //adios_group_size (adios_handle, adios_groupsize, &adios_totalsize);
     adios_write (adios_handle, "NX", &NX);
     adios_write (adios_handle, "lb", &lb);
     adios_write (adios_handle, "n", &n);
     adios_write (adios_handle, "size_one", &size_one);
     adios_write (adios_handle, var_name, buf);
     adios_close (adios_handle);
+
+    /*
+    if(rank ==0){
+        printf("groupsize = %ld, adios totalsize = %ld\n",adios_groupsize, adios_totalsize);
+    }
+    */
 }
+

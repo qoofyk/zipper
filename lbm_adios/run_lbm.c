@@ -1005,7 +1005,13 @@ void run_lbm(char * filepath, int step_stop, int dims_cube[3], MPI_Comm *pcomm)
 
 #ifndef USE_MPIIO
         // for staging, each time write to same file
-        insert_into_adios(filepath, "atom",-1, n, SIZE_ONE , buffer,"w", &comm);
+        if(step ==0){
+            insert_into_adios(filepath, "atom",-1, n, SIZE_ONE , buffer,"w", &comm);
+        }
+        else{
+
+            insert_into_adios(filepath, "atom",-1, n, SIZE_ONE , buffer,"a", &comm);
+        }
 #else
         // for mpiio, each time write different files
         insert_into_adios(filepath, "atom", step, n, SIZE_ONE , buffer,"w", &comm);

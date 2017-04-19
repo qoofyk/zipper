@@ -1,3 +1,10 @@
+1013543
+    config
+        export nnti
+        QUEUE_SIZE=10
+    
+    first several iterations are very fast
+    t_prepare:0.099772 s, t_cal 48.264999 s,t_buffer = 0.365479, t_write 122.166682 s
 1000659
     flexpath again
     t_prepare:0.099056 s, t_cal 47.947185 s,t_buffer = 0.381423, t_write 133.391801 s
