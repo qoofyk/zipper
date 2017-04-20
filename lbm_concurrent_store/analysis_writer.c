@@ -166,8 +166,6 @@ void analysis_writer_thread(GV gv, LV lv) {
 #ifdef KEEP
 					t0 = get_cur_time();
 #ifdef WRITE_ONE_FILE
-					printf("block_id=%d\n", block_id);
-					fflush(stdout);
 					analysis_write_one_file(gv, lv, source, block_id, pointer+sizeof(int)*4, gv->block_size, gv->ana_fp[source%gv->computer_group_size]);
 #else
 					analysis_write_blk_per_file(gv, lv, source, block_id, pointer+sizeof(int)*4, gv->block_size);

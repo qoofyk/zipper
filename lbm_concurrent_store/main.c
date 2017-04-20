@@ -949,7 +949,7 @@ void run_lbm(GV gv, int dims_cube[3], MPI_Comm *pcomm){
 	          {df1[i][j][k][m]=df2[i][j][k][m];}
 
 	t6=get_cur_time();
-	only_lbm_time+=t6-t5;
+	only_lbm_time += t6-t5;
 
 	#ifdef DEBUG_PRINT
 	printf("Comp_Proc%d: Start create_prb_element!\n",gv->rank[0]);
@@ -1394,7 +1394,7 @@ CONSUMER_Ringbuffer %.3fGB, size=%d member\n",
 		free(thrds);
 
 		t1=get_cur_time();
-		printf("Ana_Proc%d on %s: Analysis Job Done! T_total=%.3f\n",gv->rank[0], gv->processor_name,t1-t0);
+		printf("Ana_Proc%d on %s: Analysis Job Done! T_total=%.3f\n",gv->rank[0], gv->processor_name, t1-t0);
 	}
 	else{
 		printf("Error!\n");

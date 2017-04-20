@@ -1,9 +1,0 @@
-syn_disk_only_store
-Loop
-Generator
-gen_time
-send_time
-write_time
-io_read_time
-calc_time
-Finally

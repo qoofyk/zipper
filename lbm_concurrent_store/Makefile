@@ -11,10 +11,10 @@ LINK    =  mpicc
 # CC      = mpicc
 # FC      =  mpifort  #ftn
 # LINK    =  mpifort  #ftn
-OPT     =  -g -O3
+OPT     =  -O3
 
 ADDCFLAGS = -Wall
-CCFLAGS = $(OPT) -DDEBUG_PRINT -DKEEP -DWRITE_ONE_FILE
+CCFLAGS = $(OPT) -DKEEP -DWRITE_ONE_FILE
 LDFLAGS = $(OPT)
 
 ## Libraries
