@@ -1,3 +1,67 @@
+1023484
+    use ADIOS_LOCK_NONE for flexpath, and also use queue size =100
+    writting time is  reduced but reading time and simulation time is reduced
+    rank 0: t_prepare:0.096157 s, t_cal 74.112131 s,t_buffer = 0.378756, t_write 18.409973 s
+
+
+1022954
+    use ADIOS_LOCK_NONE for dataspaces, cannot start the second step
+--------------------------------------------------------------------
+2 vs 2
+    2:2 for dataspaces
+    can only run 1 step
+        obj_put_update_dht()': this should not happen, num_de == 0 ?!
+1020425
+    2:2 for flexpath
+    rank 0, t_prepare:0.100240 s, t_cal 36.241775 s,t_buffer = 0.352581, t_write 35.290532 s
+1020431
+    2:2 for mpiio
+    rank 0, t_prepare:0.094998 s, t_cal 34.470667 s,t_buffer = 0.380254, t_write 41.995600 s
+
+    
+--------------------------------------------------------------------
+2 vs 1
+1020409
+    2:1 for dataspacs
+    much slower, write time, same as 8:4
+    rank 1, t_prepare:0.090932 s, t_cal 35.855491 s,t_buffer = 0.694799, t_write 148.333942 s
+1020273
+    2:1 for flexpath
+    t_prepare:0.117190 s, t_cal 34.793658 s,t_buffer = 0.363246, t_write 48.276190 s
+
+1020351
+    2:1 for mpiio
+    rank 0, t_prepare:0.095643 s, t_cal 33.620270 s,t_buffer = 0.408753, t_write 41.847312 s
+
+
+--------------------------------------------------------------------
+1 vs 1
+1020171
+    April 20
+    1 proc for producer /consumer in dimes
+    rank 0, t_prepare:0.099800 s, t_cal 39.225544 s,t_buffer = 0.428297, t_write 59.117687 s
+    
+1019194
+    April 19
+    1 proc for producer /consumer in dataspaces
+    rank 0, t_prepare:0.115774 s, t_cal 38.675447 s,t_buffer = 0.464524, t_write 59.304806 s
+    
+1019183
+    April 19
+    use 1 proc for producer/consumer in mpiio
+    rank 0, t_prepare:0.102954 s, t_cal 29.752500 s,t_buffer = 0.337182, t_write 35.613051 s
+1019177
+    April 19
+    use 1 proc for producer/consumer in flexpath
+        writing time is much less(in each step only 0.1s+ needed instead 1s+)
+        rank 0, t_prepare:0.112377 s, t_cal 37.403693 s,t_buffer = 0.418905, t_write 13.139727 s
+
+    second try(1019213)
+        rank 0, t_prepare:0.114158 s, t_cal 38.601449 s,t_buffer = 0.463431, t_write 11.460353 s
+
+
+        
+-------------------------------------------------------------------
 1013543
     config
         export nnti

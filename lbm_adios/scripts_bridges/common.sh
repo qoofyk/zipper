@@ -35,13 +35,13 @@ rm -f dataspaces.conf
 #dims = 5, 300000, 10
 #dims = 2, 1500000, 1
 # 64*64*256 will generate 1048576 lines
-DS_LIMIT=$((${FILESIZE2PRODUCE}*${FILESIZE2PRODUCE}*${FILESIZE2PRODUCE}/16)) # make sure dspaces can hold all data
+DS_LIMIT=$((${FILESIZE2PRODUCE}*${FILESIZE2PRODUCE}*${FILESIZE2PRODUCE}*${PROCS_PRODUCER}/16)) # make sure dspaces can hold all data
 
 echo "total number of lines is $DS_LIMIT"
 
 echo "## Config file for DataSpaces
 ndim = 3
-dims = 2, $((DS_LIMIT*2)), 1
+dims = 2, $((DS_LIMIT)), 1
 max_versions = 5
 max_readers = 1
 lock_type = 2

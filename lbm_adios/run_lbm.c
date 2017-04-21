@@ -1043,6 +1043,7 @@ void run_lbm(char * filepath, int step_stop, int dims_cube[3], MPI_Comm *pcomm)
                 close(fd);
             }
         }
+        // wait until all process finish writes and 
         MPI_Barrier(comm);
 #endif
 #endif

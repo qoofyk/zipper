@@ -2,6 +2,38 @@
 All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/) 
 and this project adheres to [Semantic Versioning](http://semver.org/).
+## [0.1.18] 2017 April 21
+#### trials
+- ADIOS_LOCKMODE_NONE doesn't work for dataspaces
+#### to do
+- flexpath use lock-non?
+	no effect
+- use lock-non but increase queue size to 100
+rank 0, t_prepare:0.096157 s, t_cal 74.112131 s,t_buffer = 0.378756, t_write 18.409973 s
+## [0.1.17] 2017 April 20
+#### Questions
+	mpiio-io write when does it return?
+		write into buffer then return immediately?
+#### 2v1
+		mpiio	flexpath	dataspaces	dimes
+		41.84	48.276		148.33		
+#### fixed
+		dataspaces configuration
+		DS_LIMIT should be timed with nprocs_producer
+#### trying(need to roll back)
+	2v2 blocked in second step
+	add buffer size and group size back, job pending(1022958)
+	still  same
+	change lockmode to ADIOS_LOCKMODE_NONE
+	
+
+## [0.1.16] 2017 April 19
+#### using producer:consumer= 1:1
+	writing time 0.1s for each step(instead of 1.x s for 8vs4)
+	writing time for 100 timesteps
+		mpiio	flexpath	dataspaces	dimes
+		35.61s	13.14s		59.30s		59.11s
+
 
 ## [0.1.15] 2017 April 18
 #### changes
