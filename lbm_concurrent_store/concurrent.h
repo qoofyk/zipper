@@ -20,25 +20,28 @@ Brief desc of the file: Header
 
 // #define DEBUG_PRINT
 // #define TOTAL_FILE2PRODUCE_1GB 1024*1024*1024L
+
+#ifdef COMET
 #ifdef WRITE_ONE_FILE
     #define ADDRESS "/oasis/scratch/comet/qoofyk/temp_project/LBMconcurrentstore/LBMcon%03dvs%03d/cid%03d/2lbm_cid%03d"
 #else
-    #define ADDRESS "/oasis/scratch/comet/qoofyk/temp_project/LBMconcurrentstore/LBMcon%03dvs%03d/cid%03d/2lbm_cid%03dblk%d.d"
+    #define ADDRESS "/oasis/scratch/comet/qoofyk/temp_project/LBMconcurrentstore/LBMcon%03dvs%03d/cid%03d/2lbm_cid%03dblk%d"
 #endif //WRITE_ONE_FILE
+#endif //COMET
 
+#ifdef BRIDGES
+#ifdef WRITE_ONE_FILE
+    #define ADDRESS "/pylon1/cc4s86p/qoofyk/LBMconcurrentstore/LBMcon%03dvs%03d/cid%03d/2lbm_cid%03d"
+#else
+    #define ADDRESS "/pylon1/cc4s86p/qoofyk/LBMconcurrentstore/LBMcon%03dvs%03d/cid%03d/2lbm_cid%03dblk%d"
+#endif //WRITE_ONE_FILE
+#endif //BRIDGES
 
 
 #define MPI_MSG_TAG 49
 #define MIX_MPI_DISK_TAG 50
 #define DISK_TAG 51
 #define EXIT_MSG_TAG 99
-
-// #define BLANK 0
-// #define READ_DONE 4
-// #define CALC_DONE 1
-// #define ANALYSIS_WRITTEN_DONE 2
-// #define CALC_ANALYSIS_WRITTEN_BOTH_DONE 3
-// #define BLANK_CALC_DONE 5
 
 #define NOT_ON_DISK 0
 #define ON_DISK 1

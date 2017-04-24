@@ -4,6 +4,8 @@
 #
 ########################################
 
+vpath	%.c ../
+vpath	%.h ../
 ## Compiler, tools and options
 CC      =  mpicc
 FC      =  mpif90
@@ -14,7 +16,7 @@ LINK    =  mpicc
 OPT     =  -O3
 
 ADDCFLAGS = -Wall
-CCFLAGS = $(OPT) -DKEEP -DWRITE_ONE_FILE
+CCFLAGS = $(OPT) -DCOMET -DWRITE_ONE_FILE
 LDFLAGS = $(OPT)
 
 ## Libraries

@@ -1,0 +1,44 @@
+########################################
+#
+#  LBM_CONCURRENT_STORE MAKEFILE
+#
+########################################
+
+vpath	%.c ../
+vpath	%.h ../
+## Compiler, tools and options
+CC      =  mpicc
+FC      =  mpif90
+LINK    =  mpicc
+# CC      = mpicc
+# FC      =  mpifort  #ftn
+# LINK    =  mpifort  #ftn
+OPT     =  -O3
+
+ADDCFLAGS = -Wall
+CCFLAGS = $(OPT) -DCOMET -DKEEP -DWRITE_ONE_FILE
+LDFLAGS = $(OPT)
+
+## Libraries
+LIBS = -lpthread -lm
+INC  = -I.
+
+## FILES
+OBJECTS = main.o do_thread.o compute_generator.o compute_sender.o compute_writer.o analysis_receiver.o analysis_reader.o analysis_writer.o analysis_consumer.o
+TARGET  = lbm_concurrent_store
+
+
+## Implicit rules
+.SUFFIXES: .c
+.c.o:
+	$(CC) -c $(CCFLAGS) $(ADDCFLAGS) $(INC) $<
+
+## Build rules
+all: $(TARGET)
+
+$(TARGET): $(OBJECTS)
+	$(LINK) -o $@ $(OBJECTS) $(LDFLAGS) $(LIBS)
+
+clean:
+	rm -f $(OBJECTS) $(TARGET)
+	rm -f *~ core
