@@ -1,7 +1,23 @@
-1023484
+1023888
+    April 24
+    queue size =30
+    t_prepare:0.096793 s, t_cal 58.699383 s,t_buffer = 0.391298, t_write 67.074677 s
+    stat:time for read 80.986417 s; time for advancing step 60.186810 s; time for analyst 42.728954 s
+    
+    
+1023832
+    only use queue size =100 use current
+    similar to 1023483, when producer finishes, only 50 iteration are finished in consumer
+1023284
     use ADIOS_LOCK_NONE for flexpath, and also use queue size =100
-    writting time is  reduced but reading time and simulation time is reduced
+    writting time is  reduced but reading time and simulation time is increased
     rank 0: t_prepare:0.096157 s, t_cal 74.112131 s,t_buffer = 0.378756, t_write 18.409973 s
+    consumer:
+        read 95.798134 s; time for advancing step 55.317296 s; time for analyst 38.530918 s
+    
+    previous(1020273):
+        rank 0, t_prepare:0.117190 s, t_cal 34.793658 s,t_buffer = 0.363246, t_write 48.276190 s
+        time for read 31.993267 s; time for advancing step 13.858851 s; time for analyst 42.458436 s
 
 
 1022954

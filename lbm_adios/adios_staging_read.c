@@ -112,8 +112,8 @@ int main (int argc, char ** argv)
 
     // append file name
     sprintf(filename,"%s/%s.bp", filepath, "atom");
-    //ADIOS_FILE * f = adios_read_open (filename, method, comm, ADIOS_LOCKMODE_CURRENT, 0);
-    ADIOS_FILE * f = adios_read_open (filename, method, comm, ADIOS_LOCKMODE_NONE, 0);
+    ADIOS_FILE * f = adios_read_open (filename, method, comm, ADIOS_LOCKMODE_CURRENT, 0);
+    //ADIOS_FILE * f = adios_read_open (filename, method, comm, ADIOS_LOCKMODE_NONE, 0);
 
      if (f == NULL)
     {
@@ -155,8 +155,6 @@ int main (int argc, char ** argv)
     while(errno_streaming_read != err_end_of_stream){
         if(rank == 0)
             printf("rank %d: Step %d start\n", rank, timestep);
-        //ADIOS_FILE * f = adios_read_open ("adios_global.bp", method, comm, ADIOS_LOCKMODE_NONE, 0);
-        //ADIOS_FILE * f = adios_read_open ("adios_global.bp", method, comm, ADIOS_LOCKMODE_ALL, 0);
            /* Read a subset of the temperature array */
         // 0:not used for strea; 1: must be set in stream
         adios_schedule_read (f, sel, "atom", 0, 1, data);
@@ -213,7 +211,7 @@ int main (int argc, char ** argv)
         t_analy += t4-t3;
 
         if(rank ==0)
-            printf("rank %d: Step %d moments calculated\n", rank, timestep);
+            printf("rank %d: Step %d moments calculated, t_read %lf, t_advance %lf, t_analy %lf\n", rank, timestep, t2-t1, t3-t2, t4-t3);
         timestep ++;
 
     }

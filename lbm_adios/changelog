@@ -2,6 +2,13 @@
 All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/) 
 and this project adheres to [Semantic Versioning](http://semver.org/).
+## [0.1.19] 2017 April 22
+#### added
+	breakdown-timer in consumer side
+#### Question
+	adios_perform reads, use nonblock instead?
+
+
 ## [0.1.18] 2017 April 21
 #### trials
 - ADIOS_LOCKMODE_NONE doesn't work for dataspaces
@@ -9,7 +16,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 - flexpath use lock-non?
 	no effect
 - use lock-non but increase queue size to 100
+---- better writting time, but longer gap between simulation stops and
+analysis finishes(90s)
 rank 0, t_prepare:0.096157 s, t_cal 74.112131 s,t_buffer = 0.378756, t_write 18.409973 s
+
 ## [0.1.17] 2017 April 20
 #### Questions
 	mpiio-io write when does it return?
