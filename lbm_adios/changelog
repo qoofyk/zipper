@@ -2,7 +2,22 @@
 All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/) 
 and this project adheres to [Semantic Versioning](http://semver.org/).
-## [0.1.19] 2017 April 22
+## [0.1.20] April 24 2017
+#### changed
+- project moved to comet
+- flexpath configured
+- in ADIOS removed the -g option, rebuilt
+- do I need remove -g option in all libraries?
+#### problems
+- in comet, dataspaces nokeep has PMI error, 9024518
+- in bridges, dspaces only one step, 103192, new: 1032015: move back to
+'5bf287a81', try again
+#### added
+- raw dspaces added
+
+-----------------------------------------------------------------------
+moved on comet on April 24
+## [0.1.19] 2017 April 24
 #### added
 	breakdown-timer in consumer side
 #### Question

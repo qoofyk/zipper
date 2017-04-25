@@ -4,11 +4,21 @@
 #define SIZE_ONE (2)
 #include "utility.h"
 #include "adios_error.h"
+#include "common_utility.h"
+#include "ds_adaptor.h"
 
 #define debug
 
 #if defined(USE_MPIIO) || defined(USE_DATASPACES) || defined(USE_DIMES) ||defined(USE_FLEXPATH)
 #define USE_ADIOS
+#endif
+
+// define RAW_DSPACES
+
+
+#ifdef RAW_DSPACES
+static char var_name[STRING_LENGTH];
+static size_t elem_size=sizeof(double);
 #endif
     
 
@@ -1048,6 +1058,23 @@ void run_lbm(char * filepath, int step_stop, int dims_cube[3], MPI_Comm *pcomm)
 #endif
 #endif
 
+#ifdef RAW_DSPACES
+        int bounds[6] = {0};
+        double time_comm;
+
+        // xmin
+        bounds[1]=n*rank;
+        // ymin
+        bounds[0]=0;
+
+        // xmax
+        bounds[4]=n*(rank+1)-1 ;
+        // ymax
+        bounds[3]=1;
+
+        put_common_buffer(step,2, bounds,rank, &comm, var_name, (void **)&buffer, elem_size, &time_comm);
+#endif
+
         free(buffer);
 
 #ifdef ENABLE_TIMING
@@ -1137,6 +1164,38 @@ int main(int argc, char * argv[]){
   }
 #endif
 
+#ifdef RAW_DSPACES
+        char msg[STRING_LENGTH];
+        printf("trying init dspaces for %d process\n", nprocs);
+        ret = dspaces_init(nprocs, 1, &gcomm, NULL);
+
+        printf("dspaces init successfuly \n");
+
+        if(ret == 0){
+            sprintf(msg, "dataspaces init successfully");
+            my_message(msg, rank, LOG_CRITICAL);
+        }else{
+            sprintf(msg, "dataspaces init error");
+            my_message(msg, rank, LOG_CRITICAL);
+            exit(-1);
+        }
+
+        /*
+        * set bounds and dspaces variables
+        */
+        sprintf(var_name, "atom");
+
+
+        // data layout
+//#ifdef FORCE_GDIM
+        int n = dims_cube[0]*dims_cube[1]*dime_cube[2];
+        uint64_t gdims[2] = {2, n};
+        dspaces_define_gdim(var_name, 2,gdims);
+//#endif
+
+#endif
+
+
   if(rank == 0 ){
       printf("output will be saved in %s\n", filepath);
   }
@@ -1159,6 +1218,10 @@ int main(int argc, char * argv[]){
   adios_finalize (rank);
   printf("rank %d: adios finalize complete\n", rank); 
 #endif                                                      
+
+#ifdef RAW_DSPACES
+    dspaces_finalize();
+#endif
   MPI_Finalize();
   printf("rank %d: exit\n", rank);
   return 0;
