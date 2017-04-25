@@ -1,10 +1,8 @@
 #include "run_lbm.h"        
 //#include "adios_write_global.h"
 #include "adios_adaptor.h"
-#define SIZE_ONE (2)
 #include "utility.h"
 #include "adios_error.h"
-#include "common_utility.h"
 #include "ds_adaptor.h"
 
 #define debug
@@ -1131,13 +1129,13 @@ int main(int argc, char * argv[]){
 	MPI_Init(&argc, &argv);
 
   MPI_Comm comm = MPI_COMM_WORLD;
-  int         rank, size;
+  int         rank, nprocs;
   MPI_Comm_rank (comm, &rank);
-  MPI_Comm_size (comm, &size);
+  MPI_Comm_size (comm, &nprocs);
   char nodename[256];
   int nodename_length;
     MPI_Get_processor_name(nodename, &nodename_length );
-    printf("%s:I am rank %d of %d\n",nodename, rank, size);
+    printf("%s:I am rank %d of %d\n",nodename, rank, nprocs);
 
 
 #ifdef USE_ADIOS
@@ -1166,8 +1164,9 @@ int main(int argc, char * argv[]){
 
 #ifdef RAW_DSPACES
         char msg[STRING_LENGTH];
+        int ret = -1;
         printf("trying init dspaces for %d process\n", nprocs);
-        ret = dspaces_init(nprocs, 1, &gcomm, NULL);
+        ret = dspaces_init(nprocs, 1, &comm, NULL);
 
         printf("dspaces init successfuly \n");
 
@@ -1188,8 +1187,8 @@ int main(int argc, char * argv[]){
 
         // data layout
 //#ifdef FORCE_GDIM
-        int n = dims_cube[0]*dims_cube[1]*dime_cube[2];
-        uint64_t gdims[2] = {2, n};
+        int n = dims_cube[0]*dims_cube[1]*dims_cube[2];
+        uint64_t gdims[2] = {2, n*nprocs};
         dspaces_define_gdim(var_name, 2,gdims);
 //#endif
 

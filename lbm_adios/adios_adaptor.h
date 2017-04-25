@@ -10,6 +10,7 @@ extern "C"{
 #include "adios.h"
 #include "time.h"
 #include <unistd.h>
+#include "utility.h"
 
 
 /* 

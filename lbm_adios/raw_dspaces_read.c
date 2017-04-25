@@ -26,7 +26,6 @@
 //#include "adios_read_global.h"
 #include "run_analysis.h"
 #include "utility.h"
-#include "common_utility.h"
 #include "ds_adaptor.h"
 
 #ifdef RAW_DSPACES
@@ -39,26 +38,33 @@ static size_t elem_size=sizeof(double);
 
 int main (int argc, char ** argv) 
 {
-    if(argc !=3){
-        printf("need to specify timstop scratch path for i/o\n");
+    if(argc !=5){
+        printf("need to specify timstop total_file_size scratch procs_prod path for i/o\n");
         exit(-1);
     }
     char filepath[256];
-    int nstop = atoi(argv[1]);
-    strcpy(filepath, argv[2]);
+    int nstop;
+    int filesize2produce;
+    int nprocs_producer;
+
+    nstop= atoi(argv[1]);
+    filesize2produce = atoi(argv[2]);
+    strcpy(filepath, argv[3]);
+    nprocs_producer= atoi(argv[4]);
+    
 
     int lp = 4;
 
     /******************** configuration stop ***********/
 
-    int         rank, size;
+    int         rank, nprocs;
     MPI_Comm    comm = MPI_COMM_WORLD;
     void * data = NULL;
     uint64_t start[2], count[2];
 
     MPI_Init (&argc, &argv);
     MPI_Comm_rank (comm, &rank);
-    MPI_Comm_size (comm, &size);
+    MPI_Comm_size (comm, &nprocs);
 
     int timestep;
     
@@ -67,8 +73,9 @@ int main (int argc, char ** argv)
 
 #ifdef RAW_DSPACES
     char msg[STRING_LENGTH];
+    int ret=-1;
     printf("trying init dspaces for %d process\n", nprocs);
-    ret = dspaces_init(nprocs, 2, &gcomm, NULL);
+    ret = dspaces_init(nprocs, 2, &comm, NULL);
 
     printf("dspaces init successfuly \n");
 
@@ -86,62 +93,64 @@ int main (int argc, char ** argv)
     */
     sprintf(var_name, "atom");
 
-
-    // data layout
-//#ifdef FORCE_GDIM
-    int n = dims_cube[0]*dims_cube[1]*dime_cube[2];
-    uint64_t gdims[2] = {2, n};
+    int dims_cube[3] = {filesize2produce/4,filesize2produce/4,filesize2produce};
+    // each producer process 
+    int n = dims_cube[0]*dims_cube[1]*dims_cube[2];
+    // how many lines in global
+    int global_size= n*nprocs_producer;
+    uint64_t gdims[2] = {2, global_size};
     dspaces_define_gdim(var_name, 2,gdims);
+    uint64_t slice_size;
+               
+    slice_size = (global_size)/nprocs;
+
+    data = malloc (slice_size * SIZE_ONE* sizeof (double));
+    if (data == NULL)
+    {
+        fprintf (stderr, "malloc failed.\n");
+        return -1;
+    }
+
+    start[0] = slice_size * rank;
+    if (rank == nprocs-1) /* last rank may read more lines */
+        slice_size = slice_size + global_size%nprocs;
+    count[0] = slice_size;
+
+    start[1] = 0;
+    count[1] = 2;
+    printf("rank %d: start: (%ld, %ld), count:( %ld, %ld)\n", rank, start[0], start[1], count[0], count[1]);
+
+    int bounds[6] = {0};
+    double time_comm;
+    bounds[1]=start[0];
+    bounds[0]=start[1];
+    bounds[4]=start[0]+count[0]-1;
+    bounds[3]=start[1]+count[1]-1;
 //#endif
-
-
 #endif
 
-    for(timestep=0; timestep < MAX_STEP; timestep++){
-    
-        uint64_t slice_size;
-        int start[2], count[2];
-                   
-        slice_size = n/size;
+    for(timestep=0; timestep < nstop; timestep++){
 
-        data = malloc (slice_size * SIZEONE* sizeof (double));
-        if (data == NULL)
-        {
-            fprintf (stderr, "malloc failed.\n");
-            return -1;
-        }
+#ifdef RAW_DSPACES
 
-        start[0] = slice_size * rank;
-        if (rank == size-1) /* last rank may read more lines */
-            slice_size = slice_size + v->dims[0]%size;
-        count[0] = slice_size;
-
-        start[1] = 0;
-        count[1] = 2;
-                //printf("rank %d: start: (%ld, %ld), count:( %ld, %ld)\n", rank, start[0], start[1], count[0], count[1]);
-
-        int bounds[6] = {0};
-        double time_comm;
-        bounds[1]=start[0];
-        bounds[0]=start[1]
-        bounds[4]=start[0]+count[0]-1;
-        bounds[3]=start[1]+count[1]-1;
-
-        get_common_buffer(step,2, bounds,rank, &comm, var_name, (void **)&data, elem_size, &time_comm);
+        get_common_buffer(timestep,2, bounds,rank, &comm, var_name, (void **)&data, elem_size, &time_comm);
+#endif
         if(rank ==0)
             printf("Step %d read\n", timestep);
         // analysis
         run_analysis(data, slice_size, lp);
         if(rank == 0)
             printf("Step %d moments calculated\n", timestep);
+
     }
+
+    free (data);
     MPI_Barrier(comm);
     double t_end = get_cur_time();
     if(rank == 0){
       printf("stat:Consumer end  at %lf \n", t_end);
     }
 
-    free (data);
 
 #ifdef RAW_DSPACES
     dspaces_finalize();

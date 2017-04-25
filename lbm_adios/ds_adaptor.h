@@ -4,10 +4,12 @@ extern "C" {
 #endif
 
 #include "dataspaces.h"
-#include "common_utility.h"
-#include "region_def.h"
+#include "utility.h"
+//#include "region_def.h"
 #include "string.h"
 #include "mpi.h"
+#include "stdlib.h"
+#include <stdio.h>
 
 //#include <mpi.h>
 
@@ -32,7 +34,7 @@ void get_common_buffer(int timestep,int ndim, int bounds[6], int rank, MPI_Comm 
  
 void put_common_buffer(int timestep, int ndim, int bounds[6], int rank, MPI_Comm * p_gcomm,char * var_name, void **p_buffer,size_t elem_size, double *p_time_used);
 
-void get_common_buffer_unblocking(int timestep,int ndim, int bounds[6], int rank, MPI_Comm * p_gcomm,char * var_name, void **p_buffer,size_t elem_size, double *p_time_used);
+//void get_common_buffer_unblocking(int timestep,int ndim, int bounds[6], int rank, MPI_Comm * p_gcomm,char * var_name, void **p_buffer,size_t elem_size, double *p_time_used);
 
 #ifdef __cplusplus
 }

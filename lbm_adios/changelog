@@ -2,6 +2,16 @@
 All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/) 
 and this project adheres to [Semantic Versioning](http://semver.org/).
+## [0.1.21] April 25 2017
+#### Qestion:
+	how to deal with different nlines in various processes?
+	erase the warning flags?
+#### changes
+	malloc-free in in the loop of raw_dspaces_read
+	consumer need to know how many procs in producer
+#### issues
+	raw dspaces has rpc_connect error:9036590/results/consumer.log
+
 ## [0.1.20] April 24 2017
 #### changed
 - project moved to comet
@@ -14,6 +24,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 '5bf287a81', try again
 #### added
 - raw dspaces added
+
 
 -----------------------------------------------------------------------
 moved on comet on April 24
