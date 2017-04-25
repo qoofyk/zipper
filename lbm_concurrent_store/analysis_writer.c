@@ -54,7 +54,7 @@ void analysis_write_blk_per_file(GV gv, LV lv, int source, int blk_id, void* buf
 	int i=0;
 	//"/N/dc2/scratch/fuyuan/LBMconcurrentstore/LBMcon%03dvs%03d/cid%03d/2lbm_cid%03dblk%d.d"
 #ifndef WRITE_ONE_FILE
-	sprintf(file_name,ADDRESS,gv->compute_process_num, gv->analysis_process_num, source, source, blk_id);
+	sprintf(file_name, ADDRESS, gv->compute_process_num, gv->analysis_process_num, source, source, blk_id);
 	// printf("%d %d %d %d %d %d \n %s\n", gv->compute_process_num, gv->analysis_process_num, gv->rank[0], gv->rank[0], lv->tid, blk_id,file_name);
 	// fflush(stdout);
 #endif //WRITE_ONE_FILE

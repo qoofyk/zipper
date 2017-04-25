@@ -1063,7 +1063,7 @@ void run_lbm(GV gv, int dims_cube[3], MPI_Comm *pcomm){
 	// gv->compute_all_done = 1;
 	// printf("$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$\n");
 	printf("Comp_Proc%d on %s: LBM computation Done! Only_LBM_Time=%.3f, T_compute/Block=%.3fus, T_total_compute=%.3f\n",
-	gv->rank[0], gv->processor_name, only_lbm_time, (t3-t2)*1000000/gv->cpt_total_blks, t3-t2);
+		gv->rank[0], gv->processor_name, only_lbm_time, (t3-t2)*1000000/gv->cpt_total_blks, t3-t2);
 	fflush(stdout);
 	//------------------------------------------------END OF LBM--------------------------------------------------------
 

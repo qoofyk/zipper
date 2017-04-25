@@ -231,10 +231,12 @@ step=%d, i=%d, j=%d, k=%d, gv->calc_counter=%d, consumer_state=%d\n",
           ((int *)pointer)[3] = CALC_DONE;
           pthread_mutex_unlock(rb->lock_ringbuffer);
 
+#ifdef DEBUG_PRINT
           if(gv->calc_counter%ANALSIS_COUNT==0){
             printf("Ana_Proc%d: Consumer%d calc_counter %d\n", gv->rank[0], lv->tid, gv->calc_counter);
             fflush(stdout);
           }
+#endif //DEBUG_PRINT
 
 #ifdef DEBUG_PRINT
           printf("Ana_Proc%d: Consumer%d ***PASS-Assign-CALC_DONE*** calculating source=%d block_id=%d, flag=%d, calc_counter=%d\n",

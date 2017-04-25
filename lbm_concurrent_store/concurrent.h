@@ -61,7 +61,7 @@ Brief desc of the file: Header
 */
 
 #define NMOMENT 8
-#define TRYNUM 50
+#define TRYNUM 100
 
 #define WRITER_COUNT 5000
 #define ANALSIS_COUNT 5000

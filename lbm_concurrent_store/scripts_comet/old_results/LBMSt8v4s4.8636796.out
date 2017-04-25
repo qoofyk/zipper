@@ -1,0 +1,2373 @@
+Fri Apr  7 08:03:00 PDT 2017
+------LBM_concurrent_store---------------
+lp=4, step_stop=100
+Usage: %s 1 1 1     2 4
+Block size starting from 64KB,128KB,256KB,512KB,1MB,2MB,4MB,8MB
+Block size input =	   1   ,2    ,4    ,8    ,16 ,32 ,64 ,128
+remove all subdirectories
+Fri Apr  7 08:03:00 PDT 2017
+-----------Delete files-----------------
+-----------End Delete files-------------
+Fri Apr  7 08:03:00 PDT 2017
+mkdir: cannot create directory `/oasis/scratch/comet/qoofyk/temp_project/LBMconcurrentstore': File exists
+mkdir new
+
+
+####### Simulate 8 Compute Parallel Write vs 4 Analysis Parallel Read ########
+@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+***********8 Compute Write*******************************
+Block size starting from 64KB,128KB,256KB,512KB,1MB,2MB,4MB,8MB
+cubex =	   			   16  ,16   ,16   ,32   ,32 ,32 ,64 ,64
+cubez =	   			   16  ,32   ,64   ,32   ,64 ,128,64 ,128
+*********************4 Analysis Read**********************
+Block size starting from 64KB,128KB,256KB,512KB,1MB,2MB,4MB,8MB
+@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+********************************************************************
+LBMconcurrentstore 2048 KB, 0% PRB
+********************************************************************
+IBRUN: Command is /home/qoofyk/General_Data_Broker/lbm_concurrent_store/lbm_concurrent_store
+IBRUN: Command is /home/qoofyk/General_Data_Broker/lbm_concurrent_store/lbm_concurrent_store
+IBRUN: Even number of ranks per node (12)--hacking nodefile...
+IBRUN: Running on 1 unique nodes
+IBRUN: Will place 12 ranks on comet-14-01 with 2 threads each
+IBRUN: Nodefile is /tmp/zXBNdj_lUe
+IBRUN: Adding MV2_CPU_MAPPING=0-1:2-3:4-5:6-7:8-9:10-11:12-13:14-15:16-17:18-19:20-21:22-23:24-25:26-27:28-29:30-31:32-33:34-35:36-37:38-39:40-41:42-43:44-45:46-47 to the environment
+IBRUN: Adding MV2_USE_OLD_BCAST=1 to the environment
+IBRUN: Adding MV2_USE_HUGEPAGES=0 to the environment
+IBRUN: Adding MV2_HOMOGENEOUS_CLUSTER=0 to the environment
+IBRUN: Adding MV2_DEFAULT_TIME_OUT=23 to the environment
+IBRUN: Adding MV2_USE_UD_HYBRID=0 to the environment
+IBRUN: Added 6 new environment variables to the execution environment
+IBRUN: Command string is [mpirun_rsh -np 12 -hostfile /tmp/zXBNdj_lUe -export /home/qoofyk/General_Data_Broker/lbm_concurrent_store/lbm_concurrent_store 1 1 1 1 0 2 4 32 128 100 4 256]
+Hello world! I'm rank 8 of 12 on comet-14-01.sdsc.edu with provided=3, block_size=2097168, cube_size=262144 double
+Hello world! I'm rank 0 of 12 on comet-14-01.sdsc.edu with provided=3, block_size=2097168, cube_size=262144 double
+Hello world! I'm rank 3 of 12 on comet-14-01.sdsc.edu with provided=3, block_size=2097168, cube_size=262144 double
+Hello world! I'm rank 9 of 12 on comet-14-01.sdsc.edu with provided=3, block_size=2097168, cube_size=262144 double
+Hello world! I'm rank 1 of 12 on comet-14-01.sdsc.edu with provided=3, block_size=2097168, cube_size=262144 double
+Hello world! I'm rank 4 of 12 on comet-14-01.sdsc.edu with provided=3, block_size=2097168, cube_size=262144 double
+Hello world! I'm rank 2 of 12 on comet-14-01.sdsc.edu with provided=3, block_size=2097168, cube_size=262144 double
+Hello world! I'm rank 6 of 12 on comet-14-01.sdsc.edu with provided=3, block_size=2097168, cube_size=262144 double
+Hello world! I'm rank 7 of 12 on comet-14-01.sdsc.edu with provided=3, block_size=2097168, cube_size=262144 double
+Hello world! I'm rank 10 of 12 on comet-14-01.sdsc.edu with provided=3, block_size=2097168, cube_size=262144 double
+Hello world! I'm rank 11 of 12 on comet-14-01.sdsc.edu with provided=3, block_size=2097168, cube_size=262144 double
+Hello world! I'm rank 5 of 12 on comet-14-01.sdsc.edu with provided=3, block_size=2097168, cube_size=262144 double
+Comp_Proc7 of 8 cpt_total_blks=800, writer_blk_num=0, sender_blk_num=800, PRODUCER_Ringbuffer 0.500GB, size=256 member
+Comp_Proc0 of 8 cpt_total_blks=800, writer_blk_num=0, sender_blk_num=800, PRODUCER_Ringbuffer 0.500GB, size=256 member
+Ana_Proc11 of 4 ana_total_blks=1600, reader_blk_num=0, analysis_writer_blk_num=1600, CONSUMER_Ringbuffer 0.500GB, size=256 member
+Ana_Proc8 of 4 ana_total_blks=1600, reader_blk_num=0, analysis_writer_blk_num=1600, CONSUMER_Ringbuffer 0.500GB, size=256 member
+Comp_Proc6: Writer0 is turned off
+Comp_Proc6: Writer0 T_write=0.000, T_only_fwrite=0.000, T_total=0.000 with 0 blocks
+Comp_Proc5: Writer0 is turned off
+Comp_Proc5: Writer0 T_write=0.000, T_only_fwrite=0.000, T_total=0.000 with 0 blocks
+Comp_Proc3: Writer0 is turned off
+Comp_Proc4: Writer0 is turned off
+Comp_Proc0: Writer0 is turned off
+Comp_Proc0: Writer0 T_write=0.000, T_only_fwrite=0.000, T_total=0.000 with 0 blocks
+Comp_Proc3: Writer0 T_write=0.000, T_only_fwrite=0.000, T_total=0.000 with 0 blocks
+Ana_Proc11: Reader0 is turned off
+Comp_Proc4: Writer0 T_write=0.000, T_only_fwrite=0.000, T_total=0.000 with 0 blocks
+Comp_Proc1: Writer0 is turned off
+Ana_Proc11: Reader0 T_total=0.000, T_io_read=0.000, T_only_fread=0.000 with 0 blocks
+Comp_Proc1: Writer0 T_write=0.000, T_only_fwrite=0.000, T_total=0.000 with 0 blocks
+Ana_Proc9: Reader0 is turned off
+Comp_Proc7: Writer0 is turned off
+Comp_Proc7: Writer0 T_write=0.000, T_only_fwrite=0.000, T_total=0.000 with 0 blocks
+Comp_Proc2: Writer0 is turned off
+Ana_Proc9: Reader0 T_total=0.000, T_io_read=0.000, T_only_fread=0.000 with 0 blocks
+Comp_Proc2: Writer0 T_write=0.000, T_only_fwrite=0.000, T_total=0.000 with 0 blocks
+Ana_Proc10: Reader0 is turned off
+Ana_Proc10: Reader0 T_total=0.000, T_io_read=0.000, T_only_fread=0.000 with 0 blocks
+Ana_Proc8: Reader0 is turned off
+Ana_Proc8: Reader0 T_total=0.000, T_io_read=0.000, T_only_fread=0.000 with 0 blocks
+Init LBM Time=0.094516
+step=0 of 100
+step=1 of 100
+step=2 of 100
+step=3 of 100
+step=4 of 100
+step=5 of 100
+step=6 of 100
+step=7 of 100
+step=8 of 100
+step=9 of 100
+step=10 of 100
+step=11 of 100
+step=12 of 100
+step=13 of 100
+step=14 of 100
+step=15 of 100
+step=16 of 100
+step=17 of 100
+step=18 of 100
+step=19 of 100
+step=20 of 100
+step=21 of 100
+step=22 of 100
+step=23 of 100
+step=24 of 100
+step=25 of 100
+step=26 of 100
+step=27 of 100
+step=28 of 100
+step=29 of 100
+step=30 of 100
+step=31 of 100
+step=32 of 100
+step=33 of 100
+step=34 of 100
+step=35 of 100
+step=36 of 100
+step=37 of 100
+step=38 of 100
+step=39 of 100
+step=40 of 100
+step=41 of 100
+step=42 of 100
+step=43 of 100
+step=44 of 100
+step=45 of 100
+step=46 of 100
+step=47 of 100
+step=48 of 100
+step=49 of 100
+step=50 of 100
+step=51 of 100
+step=52 of 100
+step=53 of 100
+step=54 of 100
+step=55 of 100
+step=56 of 100
+step=57 of 100
+step=58 of 100
+step=59 of 100
+step=60 of 100
+step=61 of 100
+step=62 of 100
+step=63 of 100
+step=64 of 100
+step=65 of 100
+step=66 of 100
+step=67 of 100
+step=68 of 100
+step=69 of 100
+step=70 of 100
+step=71 of 100
+step=72 of 100
+step=73 of 100
+step=74 of 100
+step=75 of 100
+step=76 of 100
+step=77 of 100
+step=78 of 100
+step=79 of 100
+step=80 of 100
+step=81 of 100
+step=82 of 100
+step=83 of 100
+step=84 of 100
+step=85 of 100
+step=86 of 100
+step=87 of 100
+step=88 of 100
+step=89 of 100
+step=90 of 100
+step=91 of 100
+step=92 of 100
+step=93 of 100
+step=94 of 100
+step=95 of 100
+step=96 of 100
+step=97 of 100
+step=98 of 100
+step=99 of 100
+Comp_Proc6: LBM generate the EXIT block_id=-1 in timestep=100 with total_blks 800
+Comp_Proc6 on comet-14-01.sdsc.edu: LBM computation Done! Only_LBM_Time=33.065, T_compute/Block=42813.978us, T_total_compute=34.251
+Comp_Proc3: LBM generate the EXIT block_id=-1 in timestep=100 with total_blks 800
+Comp_Proc3 on comet-14-01.sdsc.edu: LBM computation Done! Only_LBM_Time=33.179, T_compute/Block=42817.941us, T_total_compute=34.254
+Comp_Proc2: LBM generate the EXIT block_id=-1 in timestep=100 with total_blks 800
+Comp_Proc5: LBM generate the EXIT block_id=-1 in timestep=100 with total_blks 800
+Comp_Proc5 on comet-14-01.sdsc.edu: LBM computation Done! Only_LBM_Time=33.105, T_compute/Block=42818.460us, T_total_compute=34.255
+Comp_Proc2 on comet-14-01.sdsc.edu: LBM computation Done! Only_LBM_Time=33.125, T_compute/Block=42818.450us, T_total_compute=34.255
+Comp_Proc1: LBM generate the EXIT block_id=-1 in timestep=100 with total_blks 800
+Comp_Proc1 on comet-14-01.sdsc.edu: LBM computation Done! Only_LBM_Time=33.135, T_compute/Block=42819.645us, T_total_compute=34.256
+Comp_Proc6: Sender1 Get exit flag msg and prepare to quit
+Comp_Proc6: ---Normal case--- Sender1 longer than writer !!!!---###---
+Comp_Proc6: Sender1 T_total=34.257, mpi_send_progress_counter=800,T_mix_send=0.000, T_only_mpi_send=0.945, mix_msg_id=0, disk_id=0, long_msg_id=800
+Comp_Proc6: Job finish on comet-14-01.sdsc.edu, T_total=34.257
+Comp_Proc7: LBM generate the EXIT block_id=-1 in timestep=100 with total_blks 800
+Comp_Proc7 on comet-14-01.sdsc.edu: LBM computation Done! Only_LBM_Time=33.171, T_compute/Block=42821.389us, T_total_compute=34.257
+Comp_Proc5: Sender1 Get exit flag msg and prepare to quit
+Comp_Proc5: ---Normal case--- Sender1 longer than writer !!!!---###---
+Comp_Proc5: Sender1 T_total=34.258, mpi_send_progress_counter=800,T_mix_send=0.000, T_only_mpi_send=1.190, mix_msg_id=0, disk_id=0, long_msg_id=800
+Comp_Proc5: Job finish on comet-14-01.sdsc.edu, T_total=34.259
+Ana_Proc11: Receiver3 get a *EXIT_MSG_TAG* from src=6 with block_id=-1, num_exit_flag=1
+Ana_Proc11: Consumer get a EXIT_BLK_ID from source=6 and Prepare to free it
+Ana_Proc11: Consumer get a EXIT_BLK_ID from source=6! num_exit_flag=1
+Ana_Proc10: Receiver3 get a *EXIT_MSG_TAG* from src=5 with block_id=-1, num_exit_flag=1
+Comp_Proc0: LBM generate the EXIT block_id=-1 in timestep=100 with total_blks 800
+Ana_Proc10: Consumer get a EXIT_BLK_ID from source=5 and Prepare to free it
+Ana_Proc10: Consumer get a EXIT_BLK_ID from source=5! num_exit_flag=1
+Comp_Proc0 on comet-14-01.sdsc.edu: LBM computation Done! Only_LBM_Time=32.813, T_compute/Block=42825.945us, T_total_compute=34.261
+Comp_Proc7: Sender1 Get exit flag msg and prepare to quit
+Comp_Proc7: ---Normal case--- Sender1 longer than writer !!!!---###---
+Comp_Proc7: Sender1 T_total=34.267, mpi_send_progress_counter=800,T_mix_send=0.000, T_only_mpi_send=1.687, mix_msg_id=0, disk_id=0, long_msg_id=800
+Comp_Proc7: Job finish on comet-14-01.sdsc.edu, T_total=34.267
+Comp_Proc1: Sender1 Get exit flag msg and prepare to quit
+Comp_Proc1: ---Normal case--- Sender1 longer than writer !!!!---###---
+Comp_Proc1: Sender1 T_total=34.267, mpi_send_progress_counter=800,T_mix_send=0.000, T_only_mpi_send=1.987, mix_msg_id=0, disk_id=0, long_msg_id=800
+Comp_Proc1: Job finish on comet-14-01.sdsc.edu, T_total=34.267
+Comp_Proc2: Sender1 Get exit flag msg and prepare to quit
+Comp_Proc2: ---Normal case--- Sender1 longer than writer !!!!---###---
+Comp_Proc2: Sender1 T_total=34.267, mpi_send_progress_counter=800,T_mix_send=0.000, T_only_mpi_send=2.011, mix_msg_id=0, disk_id=0, long_msg_id=800
+Comp_Proc2: Job finish on comet-14-01.sdsc.edu, T_total=34.268
+Ana_Proc11: Receiver3 get a *EXIT_MSG_TAG* from src=7 with block_id=-1, num_exit_flag=2
+Ana_Proc11: Receiver3 T_total=34.268, mpi_recv_progress_counter=1600, T_receive_wait=32.185, T_wait_lock=0.000, long_msg_id=1600, mix_msg_id= 0,disk_id=0
+Ana_Proc11: Consumer get a EXIT_BLK_ID from source=7 and Prepare to free it
+Ana_Proc11: Consumer get a EXIT_BLK_ID from source=7! num_exit_flag=2
+Ana_Proc11: Consumer prepare to exit!
+Ana_Proc11: Consumer prepare to exit! With ring_buffer num_avail_elements=0
+Ana_Proc11: Consumer T_total_consumer=34.268, T_calc=0.000, T_wait=34.022, T_move_tail=0.000, my_count=1600, free_count=1600
+Ana_Proc11: A_Writer1 get NULL to exit
+Ana_Proc11: Writer1 T_write=0.001, T_only_fwrite=0.000, T_total=34.268, my_count=1600
+Ana_Proc11 on comet-14-01.sdsc.edu: Analysis Job Done! T_total=34.268
+Comp_Proc3: Sender1 Get exit flag msg and prepare to quit
+Comp_Proc3: ---Normal case--- Sender1 longer than writer !!!!---###---
+Comp_Proc3: Sender1 T_total=34.269, mpi_send_progress_counter=800,T_mix_send=0.000, T_only_mpi_send=2.220, mix_msg_id=0, disk_id=0, long_msg_id=800
+Comp_Proc3: Job finish on comet-14-01.sdsc.edu, T_total=34.269
+Comp_Proc4: LBM generate the EXIT block_id=-1 in timestep=100 with total_blks 800
+Comp_Proc4 on comet-14-01.sdsc.edu: LBM computation Done! Only_LBM_Time=32.896, T_compute/Block=42836.104us, T_total_compute=34.269
+Ana_Proc8: Receiver3 get a *EXIT_MSG_TAG* from src=1 with block_id=-1, num_exit_flag=1
+Ana_Proc9: Receiver3 get a *EXIT_MSG_TAG* from src=2 with block_id=-1, num_exit_flag=1
+Ana_Proc8: Consumer get a EXIT_BLK_ID from source=1 and Prepare to free it
+Ana_Proc8: Consumer get a EXIT_BLK_ID from source=1! num_exit_flag=1
+Ana_Proc9: Receiver3 get a *EXIT_MSG_TAG* from src=3 with block_id=-1, num_exit_flag=2
+Ana_Proc9: Receiver3 T_total=34.270, mpi_recv_progress_counter=1600, T_receive_wait=32.325, T_wait_lock=0.000, long_msg_id=1600, mix_msg_id= 0,disk_id=0
+Ana_Proc9: Consumer get a EXIT_BLK_ID from source=2 and Prepare to free it
+Comp_Proc4: Sender1 Get exit flag msg and prepare to quit
+Ana_Proc9: Consumer get a EXIT_BLK_ID from source=2! num_exit_flag=1
+Ana_Proc9: Consumer get a EXIT_BLK_ID from source=3 and Prepare to free it
+Comp_Proc4: ---Normal case--- Sender1 longer than writer !!!!---###---
+Comp_Proc4: Sender1 T_total=34.270, mpi_send_progress_counter=800,T_mix_send=0.000, T_only_mpi_send=0.548, mix_msg_id=0, disk_id=0, long_msg_id=800
+Comp_Proc4: Job finish on comet-14-01.sdsc.edu, T_total=34.270
+Ana_Proc9: Consumer get a EXIT_BLK_ID from source=3! num_exit_flag=2
+Ana_Proc9: Consumer prepare to exit!
+Ana_Proc9: Consumer prepare to exit! With ring_buffer num_avail_elements=0
+Ana_Proc9: Consumer T_total_consumer=34.270, T_calc=0.000, T_wait=33.919, T_move_tail=0.000, my_count=1600, free_count=1600
+Ana_Proc9: A_Writer1 get NULL to exit
+Ana_Proc9: Writer1 T_write=0.001, T_only_fwrite=0.000, T_total=34.270, my_count=1600
+Ana_Proc9 on comet-14-01.sdsc.edu: Analysis Job Done! T_total=34.271
+Ana_Proc10: Receiver3 get a *EXIT_MSG_TAG* from src=4 with block_id=-1, num_exit_flag=2
+Ana_Proc10: Receiver3 T_total=34.271, mpi_recv_progress_counter=1600, T_receive_wait=32.224, T_wait_lock=0.000, long_msg_id=1600, mix_msg_id= 0,disk_id=0
+Comp_Proc0: Sender1 Get exit flag msg and prepare to quit
+Ana_Proc10: Consumer get a EXIT_BLK_ID from source=4 and Prepare to free it
+Comp_Proc0: ---Normal case--- Sender1 longer than writer !!!!---###---
+Ana_Proc10: Consumer get a EXIT_BLK_ID from source=4! num_exit_flag=2
+Comp_Proc0: Sender1 T_total=34.271, mpi_send_progress_counter=800,T_mix_send=0.000, T_only_mpi_send=2.166, mix_msg_id=0, disk_id=0, long_msg_id=800
+Ana_Proc10: Consumer prepare to exit!
+Ana_Proc10: Consumer prepare to exit! With ring_buffer num_avail_elements=0
+Ana_Proc10: Consumer T_total_consumer=34.271, T_calc=0.000, T_wait=34.031, T_move_tail=0.000, my_count=1600, free_count=1600
+Ana_Proc10: A_Writer1 get NULL to exit
+Ana_Proc10: Writer1 T_write=0.001, T_only_fwrite=0.000, T_total=34.271, my_count=1600
+Comp_Proc0: Job finish on comet-14-01.sdsc.edu, T_total=34.272
+Ana_Proc10 on comet-14-01.sdsc.edu: Analysis Job Done! T_total=34.272
+Ana_Proc8: Receiver3 get a *EXIT_MSG_TAG* from src=0 with block_id=-1, num_exit_flag=2
+Ana_Proc8: Receiver3 T_total=34.272, mpi_recv_progress_counter=1600, T_receive_wait=32.246, T_wait_lock=0.000, long_msg_id=1600, mix_msg_id= 0,disk_id=0
+Ana_Proc8: Consumer get a EXIT_BLK_ID from source=0 and Prepare to free it
+Ana_Proc8: Consumer get a EXIT_BLK_ID from source=0! num_exit_flag=2
+Ana_Proc8: Consumer prepare to exit!
+Ana_Proc8: Consumer prepare to exit! With ring_buffer num_avail_elements=0
+Ana_Proc8: Consumer T_total_consumer=34.273, T_calc=0.000, T_wait=34.011, T_move_tail=0.000, my_count=1600, free_count=1600
+Ana_Proc8: A_Writer1 get NULL to exit
+Ana_Proc8: Writer1 T_write=0.001, T_only_fwrite=0.000, T_total=34.273, my_count=1600
+Ana_Proc8 on comet-14-01.sdsc.edu: Analysis Job Done! T_total=34.273
+IBRUN: Job ended with value 0
+-----------Start Deleting files-------------
+-----------End Delete files-------------
+********************************************************************
+LBMconcurrentstore 4096 KB, 0% PRB
+********************************************************************
+IBRUN: Command is /home/qoofyk/General_Data_Broker/lbm_concurrent_store/lbm_concurrent_store
+IBRUN: Command is /home/qoofyk/General_Data_Broker/lbm_concurrent_store/lbm_concurrent_store
+IBRUN: Even number of ranks per node (12)--hacking nodefile...
+IBRUN: Running on 1 unique nodes
+IBRUN: Will place 12 ranks on comet-14-01 with 2 threads each
+IBRUN: Nodefile is /tmp/OrzOB3GTvX
+IBRUN: Adding MV2_CPU_MAPPING=0-1:2-3:4-5:6-7:8-9:10-11:12-13:14-15:16-17:18-19:20-21:22-23:24-25:26-27:28-29:30-31:32-33:34-35:36-37:38-39:40-41:42-43:44-45:46-47 to the environment
+IBRUN: Adding MV2_USE_OLD_BCAST=1 to the environment
+IBRUN: Adding MV2_USE_HUGEPAGES=0 to the environment
+IBRUN: Adding MV2_HOMOGENEOUS_CLUSTER=0 to the environment
+IBRUN: Adding MV2_DEFAULT_TIME_OUT=23 to the environment
+IBRUN: Adding MV2_USE_UD_HYBRID=0 to the environment
+IBRUN: Added 6 new environment variables to the execution environment
+IBRUN: Command string is [mpirun_rsh -np 12 -hostfile /tmp/OrzOB3GTvX -export /home/qoofyk/General_Data_Broker/lbm_concurrent_store/lbm_concurrent_store 1 1 1 1 0 2 4 64 64 100 4 256]
+Hello world! I'm rank 3 of 12 on comet-14-01.sdsc.edu with provided=3, block_size=4194320, cube_size=524288 double
+Hello world! I'm rank 11 of 12 on comet-14-01.sdsc.edu with provided=3, block_size=4194320, cube_size=524288 double
+Hello world! I'm rank 8 of 12 on comet-14-01.sdsc.edu with provided=3, block_size=4194320, cube_size=524288 double
+Hello world! I'm rank 2 of 12 on comet-14-01.sdsc.edu with provided=3, block_size=4194320, cube_size=524288 double
+Hello world! I'm rank 7 of 12 on comet-14-01.sdsc.edu with provided=3, block_size=4194320, cube_size=524288 double
+Hello world! I'm rank 4 of 12 on comet-14-01.sdsc.edu with provided=3, block_size=4194320, cube_size=524288 double
+Hello world! I'm rank 9 of 12 on comet-14-01.sdsc.edu with provided=3, block_size=4194320, cube_size=524288 double
+Hello world! I'm rank 5 of 12 on comet-14-01.sdsc.edu with provided=3, block_size=4194320, cube_size=524288 double
+Hello world! I'm rank 10 of 12 on comet-14-01.sdsc.edu with provided=3, block_size=4194320, cube_size=524288 double
+Hello world! I'm rank 6 of 12 on comet-14-01.sdsc.edu with provided=3, block_size=4194320, cube_size=524288 double
+Hello world! I'm rank 0 of 12 on comet-14-01.sdsc.edu with provided=3, block_size=4194320, cube_size=524288 double
+Hello world! I'm rank 1 of 12 on comet-14-01.sdsc.edu with provided=3, block_size=4194320, cube_size=524288 double
+Comp_Proc7 of 8 cpt_total_blks=400, writer_blk_num=0, sender_blk_num=400, PRODUCER_Ringbuffer 0.500GB, size=128 member
+Ana_Proc11 of 4 ana_total_blks=800, reader_blk_num=0, analysis_writer_blk_num=800, CONSUMER_Ringbuffer 0.500GB, size=128 member
+Ana_Proc8 of 4 ana_total_blks=800, reader_blk_num=0, analysis_writer_blk_num=800, CONSUMER_Ringbuffer 0.500GB, size=128 member
+Comp_Proc0 of 8 cpt_total_blks=400, writer_blk_num=0, sender_blk_num=400, PRODUCER_Ringbuffer 0.500GB, size=128 member
+Comp_Proc3: Writer0 is turned off
+Comp_Proc3: Writer0 T_write=0.000, T_only_fwrite=0.000, T_total=0.000 with 0 blocks
+Comp_Proc2: Writer0 is turned off
+Comp_Proc2: Writer0 T_write=0.000, T_only_fwrite=0.000, T_total=0.000 with 0 blocks
+Comp_Proc5: Writer0 is turned off
+Comp_Proc5: Writer0 T_write=0.000, T_only_fwrite=0.000, T_total=0.000 with 0 blocks
+Ana_Proc10: Reader0 is turned off
+Ana_Proc9: Reader0 is turned off
+Ana_Proc10: Reader0 T_total=0.000, T_io_read=0.000, T_only_fread=0.000 with 0 blocks
+Ana_Proc9: Reader0 T_total=0.000, T_io_read=0.000, T_only_fread=0.000 with 0 blocks
+Ana_Proc8: Reader0 is turned off
+Comp_Proc6: Writer0 is turned off
+Ana_Proc8: Reader0 T_total=0.000, T_io_read=0.000, T_only_fread=0.000 with 0 blocks
+Comp_Proc4: Writer0 is turned off
+Comp_Proc7: Writer0 is turned off
+Comp_Proc6: Writer0 T_write=0.000, T_only_fwrite=0.000, T_total=0.000 with 0 blocks
+Comp_Proc4: Writer0 T_write=0.000, T_only_fwrite=0.000, T_total=0.000 with 0 blocks
+Comp_Proc7: Writer0 T_write=0.000, T_only_fwrite=0.000, T_total=0.000 with 0 blocks
+Comp_Proc0: Writer0 is turned off
+Comp_Proc0: Writer0 T_write=0.000, T_only_fwrite=0.000, T_total=0.000 with 0 blocks
+Ana_Proc11: Reader0 is turned off
+Comp_Proc1: Writer0 is turned off
+Ana_Proc11: Reader0 T_total=0.000, T_io_read=0.000, T_only_fread=0.000 with 0 blocks
+Comp_Proc1: Writer0 T_write=0.000, T_only_fwrite=0.000, T_total=0.000 with 0 blocks
+Init LBM Time=0.094452
+step=0 of 100
+step=1 of 100
+step=2 of 100
+step=3 of 100
+step=4 of 100
+step=5 of 100
+step=6 of 100
+step=7 of 100
+step=8 of 100
+step=9 of 100
+step=10 of 100
+step=11 of 100
+step=12 of 100
+step=13 of 100
+step=14 of 100
+step=15 of 100
+step=16 of 100
+step=17 of 100
+step=18 of 100
+step=19 of 100
+step=20 of 100
+step=21 of 100
+step=22 of 100
+step=23 of 100
+step=24 of 100
+step=25 of 100
+step=26 of 100
+step=27 of 100
+step=28 of 100
+step=29 of 100
+step=30 of 100
+step=31 of 100
+step=32 of 100
+step=33 of 100
+step=34 of 100
+step=35 of 100
+step=36 of 100
+step=37 of 100
+step=38 of 100
+step=39 of 100
+step=40 of 100
+step=41 of 100
+step=42 of 100
+step=43 of 100
+step=44 of 100
+step=45 of 100
+step=46 of 100
+step=47 of 100
+step=48 of 100
+step=49 of 100
+step=50 of 100
+step=51 of 100
+step=52 of 100
+step=53 of 100
+step=54 of 100
+step=55 of 100
+step=56 of 100
+step=57 of 100
+step=58 of 100
+step=59 of 100
+step=60 of 100
+step=61 of 100
+step=62 of 100
+step=63 of 100
+step=64 of 100
+step=65 of 100
+step=66 of 100
+step=67 of 100
+step=68 of 100
+step=69 of 100
+step=70 of 100
+step=71 of 100
+step=72 of 100
+step=73 of 100
+step=74 of 100
+step=75 of 100
+step=76 of 100
+step=77 of 100
+step=78 of 100
+step=79 of 100
+step=80 of 100
+step=81 of 100
+step=82 of 100
+step=83 of 100
+step=84 of 100
+step=85 of 100
+step=86 of 100
+step=87 of 100
+step=88 of 100
+step=89 of 100
+step=90 of 100
+step=91 of 100
+step=92 of 100
+step=93 of 100
+step=94 of 100
+step=95 of 100
+step=96 of 100
+step=97 of 100
+step=98 of 100
+step=99 of 100
+Comp_Proc3: LBM generate the EXIT block_id=-1 in timestep=100 with total_blks 400
+Comp_Proc3 on comet-14-01.sdsc.edu: LBM computation Done! Only_LBM_Time=32.174, T_compute/Block=83029.243us, T_total_compute=33.212
+Comp_Proc3: Sender1 Get exit flag msg and prepare to quit
+Comp_Proc3: ---Normal case--- Sender1 longer than writer !!!!---###---
+Comp_Proc3: Sender1 T_total=33.215, mpi_send_progress_counter=400,T_mix_send=0.000, T_only_mpi_send=0.532, mix_msg_id=0, disk_id=0, long_msg_id=400
+Comp_Proc3: Job finish on comet-14-01.sdsc.edu, T_total=33.215
+Comp_Proc4: LBM generate the EXIT block_id=-1 in timestep=100 with total_blks 400
+Comp_Proc4 on comet-14-01.sdsc.edu: LBM computation Done! Only_LBM_Time=32.152, T_compute/Block=83045.745us, T_total_compute=33.218
+Comp_Proc5: LBM generate the EXIT block_id=-1 in timestep=100 with total_blks 400
+Comp_Proc5 on comet-14-01.sdsc.edu: LBM computation Done! Only_LBM_Time=32.087, T_compute/Block=83046.793us, T_total_compute=33.219
+Ana_Proc9: Receiver3 get a *EXIT_MSG_TAG* from src=3 with block_id=-1, num_exit_flag=1
+Ana_Proc9: Consumer get a EXIT_BLK_ID from source=3 and Prepare to free it
+Ana_Proc9: Consumer get a EXIT_BLK_ID from source=3! num_exit_flag=1
+Comp_Proc6: LBM generate the EXIT block_id=-1 in timestep=100 with total_blks 400
+Comp_Proc1: LBM generate the EXIT block_id=-1 in timestep=100 with total_blks 400
+Comp_Proc1 on comet-14-01.sdsc.edu: LBM computation Done! Only_LBM_Time=32.153, T_compute/Block=83049.502us, T_total_compute=33.220
+Comp_Proc6 on comet-14-01.sdsc.edu: LBM computation Done! Only_LBM_Time=32.119, T_compute/Block=83049.192us, T_total_compute=33.220
+Comp_Proc2: LBM generate the EXIT block_id=-1 in timestep=100 with total_blks 400
+Comp_Proc2 on comet-14-01.sdsc.edu: LBM computation Done! Only_LBM_Time=31.756, T_compute/Block=83049.920us, T_total_compute=33.220
+Comp_Proc0: LBM generate the EXIT block_id=-1 in timestep=100 with total_blks 400
+Comp_Proc0 on comet-14-01.sdsc.edu: LBM computation Done! Only_LBM_Time=32.085, T_compute/Block=83052.875us, T_total_compute=33.221
+Comp_Proc7: LBM generate the EXIT block_id=-1 in timestep=100 with total_blks 400
+Comp_Proc7 on comet-14-01.sdsc.edu: LBM computation Done! Only_LBM_Time=32.154, T_compute/Block=83053.965us, T_total_compute=33.222
+Comp_Proc2: Sender1 Get exit flag msg and prepare to quit
+Comp_Proc2: ---Normal case--- Sender1 longer than writer !!!!---###---
+Comp_Proc2: Sender1 T_total=33.223, mpi_send_progress_counter=400,T_mix_send=0.000, T_only_mpi_send=1.120, mix_msg_id=0, disk_id=0, long_msg_id=400
+Comp_Proc2: Job finish on comet-14-01.sdsc.edu, T_total=33.223
+Ana_Proc9: Receiver3 get a *EXIT_MSG_TAG* from src=2 with block_id=-1, num_exit_flag=2
+Ana_Proc9: Receiver3 T_total=33.225, mpi_recv_progress_counter=800, T_receive_wait=31.769, T_wait_lock=0.000, long_msg_id=800, mix_msg_id= 0,disk_id=0
+Ana_Proc9: Consumer get a EXIT_BLK_ID from source=2 and Prepare to free it
+Ana_Proc9: Consumer get a EXIT_BLK_ID from source=2! num_exit_flag=2
+Ana_Proc9: Consumer prepare to exit!
+Ana_Proc9: Consumer prepare to exit! With ring_buffer num_avail_elements=0
+Ana_Proc9: Consumer T_total_consumer=33.223, T_calc=0.000, T_wait=33.030, T_move_tail=0.000, my_count=800, free_count=800
+Ana_Proc9: A_Writer1 get NULL to exit
+Ana_Proc9: Writer1 T_write=0.001, T_only_fwrite=0.000, T_total=33.225, my_count=800
+Ana_Proc9 on comet-14-01.sdsc.edu: Analysis Job Done! T_total=33.225
+Comp_Proc1: Sender1 Get exit flag msg and prepare to quit
+Comp_Proc1: ---Normal case--- Sender1 longer than writer !!!!---###---
+Comp_Proc1: Sender1 T_total=33.228, mpi_send_progress_counter=400,T_mix_send=0.000, T_only_mpi_send=1.653, mix_msg_id=0, disk_id=0, long_msg_id=400
+Comp_Proc1: Job finish on comet-14-01.sdsc.edu, T_total=33.228
+Comp_Proc6: Sender1 Get exit flag msg and prepare to quit
+Comp_Proc6: ---Normal case--- Sender1 longer than writer !!!!---###---
+Comp_Proc6: Sender1 T_total=33.226, mpi_send_progress_counter=400,T_mix_send=0.000, T_only_mpi_send=1.610, mix_msg_id=0, disk_id=0, long_msg_id=400
+Comp_Proc6: Job finish on comet-14-01.sdsc.edu, T_total=33.228
+Comp_Proc5: Sender1 Get exit flag msg and prepare to quit
+Comp_Proc5: ---Normal case--- Sender1 longer than writer !!!!---###---
+Comp_Proc5: Sender1 T_total=33.229, mpi_send_progress_counter=400,T_mix_send=0.000, T_only_mpi_send=2.037, mix_msg_id=0, disk_id=0, long_msg_id=400
+Comp_Proc5: Job finish on comet-14-01.sdsc.edu, T_total=33.229
+Comp_Proc4: Sender1 Get exit flag msg and prepare to quit
+Comp_Proc4: ---Normal case--- Sender1 longer than writer !!!!---###---
+Comp_Proc4: Sender1 T_total=33.232, mpi_send_progress_counter=400,T_mix_send=0.000, T_only_mpi_send=2.149, mix_msg_id=0, disk_id=0, long_msg_id=400
+Comp_Proc4: Job finish on comet-14-01.sdsc.edu, T_total=33.232
+Ana_Proc8: Receiver3 get a *EXIT_MSG_TAG* from src=1 with block_id=-1, num_exit_flag=1
+Ana_Proc8: Consumer get a EXIT_BLK_ID from source=1 and Prepare to free it
+Ana_Proc8: Consumer get a EXIT_BLK_ID from source=1! num_exit_flag=1
+Ana_Proc11: Receiver3 get a *EXIT_MSG_TAG* from src=6 with block_id=-1, num_exit_flag=1
+Ana_Proc11: Consumer get a EXIT_BLK_ID from source=6 and Prepare to free it
+Ana_Proc11: Consumer get a EXIT_BLK_ID from source=6! num_exit_flag=1
+Comp_Proc0: Sender1 Get exit flag msg and prepare to quit
+Comp_Proc0: ---Normal case--- Sender1 longer than writer !!!!---###---
+Comp_Proc0: Sender1 T_total=33.233, mpi_send_progress_counter=400,T_mix_send=0.000, T_only_mpi_send=2.092, mix_msg_id=0, disk_id=0, long_msg_id=400
+Comp_Proc0: Job finish on comet-14-01.sdsc.edu, T_total=33.233
+Ana_Proc10: Receiver3 get a *EXIT_MSG_TAG* from src=5 with block_id=-1, num_exit_flag=1
+Comp_Proc7: Sender1 Get exit flag msg and prepare to quit
+Comp_Proc7: ---Normal case--- Sender1 longer than writer !!!!---###---
+Comp_Proc7: Sender1 T_total=33.234, mpi_send_progress_counter=400,T_mix_send=0.000, T_only_mpi_send=2.095, mix_msg_id=0, disk_id=0, long_msg_id=400
+Comp_Proc7: Job finish on comet-14-01.sdsc.edu, T_total=33.234
+Ana_Proc10: Receiver3 get a *EXIT_MSG_TAG* from src=4 with block_id=-1, num_exit_flag=2
+Ana_Proc10: Receiver3 T_total=33.234, mpi_recv_progress_counter=800, T_receive_wait=31.596, T_wait_lock=0.000, long_msg_id=800, mix_msg_id= 0,disk_id=0
+Ana_Proc10: Consumer get a EXIT_BLK_ID from source=5 and Prepare to free it
+Ana_Proc10: Consumer get a EXIT_BLK_ID from source=5! num_exit_flag=1
+Ana_Proc10: Consumer get a EXIT_BLK_ID from source=4 and Prepare to free it
+Ana_Proc10: Consumer get a EXIT_BLK_ID from source=4! num_exit_flag=2
+Ana_Proc10: Consumer prepare to exit!
+Ana_Proc10: Consumer prepare to exit! With ring_buffer num_avail_elements=0
+Ana_Proc10: Consumer T_total_consumer=33.234, T_calc=0.000, T_wait=33.084, T_move_tail=0.000, my_count=800, free_count=800
+Ana_Proc10: A_Writer1 get NULL to exit
+Ana_Proc10: Writer1 T_write=0.001, T_only_fwrite=0.000, T_total=33.234, my_count=800
+Ana_Proc10 on comet-14-01.sdsc.edu: Analysis Job Done! T_total=33.234
+Ana_Proc8: Receiver3 get a *EXIT_MSG_TAG* from src=0 with block_id=-1, num_exit_flag=2
+Ana_Proc8: Receiver3 T_total=33.235, mpi_recv_progress_counter=800, T_receive_wait=31.640, T_wait_lock=0.000, long_msg_id=800, mix_msg_id= 0,disk_id=0
+Ana_Proc8: Consumer get a EXIT_BLK_ID from source=0 and Prepare to free it
+Ana_Proc8: Consumer get a EXIT_BLK_ID from source=0! num_exit_flag=2
+Ana_Proc8: Consumer prepare to exit!
+Ana_Proc8: Consumer prepare to exit! With ring_buffer num_avail_elements=0
+Ana_Proc8: Consumer T_total_consumer=33.235, T_calc=0.000, T_wait=33.098, T_move_tail=0.000, my_count=800, free_count=800
+Ana_Proc8: A_Writer1 get NULL to exit
+Ana_Proc8: Writer1 T_write=0.001, T_only_fwrite=0.000, T_total=33.235, my_count=800
+Ana_Proc8 on comet-14-01.sdsc.edu: Analysis Job Done! T_total=33.235
+Ana_Proc11: Receiver3 get a *EXIT_MSG_TAG* from src=7 with block_id=-1, num_exit_flag=2
+Ana_Proc11: Receiver3 T_total=33.235, mpi_recv_progress_counter=800, T_receive_wait=31.596, T_wait_lock=0.000, long_msg_id=800, mix_msg_id= 0,disk_id=0
+Ana_Proc11: Consumer get a EXIT_BLK_ID from source=7 and Prepare to free it
+Ana_Proc11: Consumer get a EXIT_BLK_ID from source=7! num_exit_flag=2
+Ana_Proc11: Consumer prepare to exit!
+Ana_Proc11: Consumer prepare to exit! With ring_buffer num_avail_elements=0
+Ana_Proc11: Consumer T_total_consumer=33.236, T_calc=0.000, T_wait=33.045, T_move_tail=0.000, my_count=800, free_count=800
+Ana_Proc11: A_Writer1 get NULL to exit
+Ana_Proc11: Writer1 T_write=0.001, T_only_fwrite=0.000, T_total=33.236, my_count=800
+Ana_Proc11 on comet-14-01.sdsc.edu: Analysis Job Done! T_total=33.236
+IBRUN: Job ended with value 0
+-----------Start Deleting files-------------
+-----------End Delete files-------------
+********************************************************************
+LBMconcurrentstore 8192 KB, 0% PRB
+********************************************************************
+IBRUN: Command is /home/qoofyk/General_Data_Broker/lbm_concurrent_store/lbm_concurrent_store
+IBRUN: Command is /home/qoofyk/General_Data_Broker/lbm_concurrent_store/lbm_concurrent_store
+IBRUN: Even number of ranks per node (12)--hacking nodefile...
+IBRUN: Running on 1 unique nodes
+IBRUN: Will place 12 ranks on comet-14-01 with 2 threads each
+IBRUN: Nodefile is /tmp/CE42iWBLQk
+IBRUN: Adding MV2_CPU_MAPPING=0-1:2-3:4-5:6-7:8-9:10-11:12-13:14-15:16-17:18-19:20-21:22-23:24-25:26-27:28-29:30-31:32-33:34-35:36-37:38-39:40-41:42-43:44-45:46-47 to the environment
+IBRUN: Adding MV2_USE_OLD_BCAST=1 to the environment
+IBRUN: Adding MV2_USE_HUGEPAGES=0 to the environment
+IBRUN: Adding MV2_HOMOGENEOUS_CLUSTER=0 to the environment
+IBRUN: Adding MV2_DEFAULT_TIME_OUT=23 to the environment
+IBRUN: Adding MV2_USE_UD_HYBRID=0 to the environment
+IBRUN: Added 6 new environment variables to the execution environment
+IBRUN: Command string is [mpirun_rsh -np 12 -hostfile /tmp/CE42iWBLQk -export /home/qoofyk/General_Data_Broker/lbm_concurrent_store/lbm_concurrent_store 1 1 1 1 0 2 4 64 128 100 4 256]
+Hello world! I'm rank 0 of 12 on comet-14-01.sdsc.edu with provided=3, block_size=8388624, cube_size=1048576 double
+Hello world! I'm rank 1 of 12 on comet-14-01.sdsc.edu with provided=3, block_size=8388624, cube_size=1048576 double
+Hello world! I'm rank 8 of 12 on comet-14-01.sdsc.edu with provided=3, block_size=8388624, cube_size=1048576 double
+Hello world! I'm rank 5 of 12 on comet-14-01.sdsc.edu with provided=3, block_size=8388624, cube_size=1048576 double
+Hello world! I'm rank 6 of 12 on comet-14-01.sdsc.edu with provided=3, block_size=8388624, cube_size=1048576 double
+Hello world! I'm rank 2 of 12 on comet-14-01.sdsc.edu with provided=3, block_size=8388624, cube_size=1048576 double
+Hello world! I'm rank 11 of 12 on comet-14-01.sdsc.edu with provided=3, block_size=8388624, cube_size=1048576 double
+Hello world! I'm rank 3 of 12 on comet-14-01.sdsc.edu with provided=3, block_size=8388624, cube_size=1048576 double
+Hello world! I'm rank 9 of 12 on comet-14-01.sdsc.edu with provided=3, block_size=8388624, cube_size=1048576 double
+Hello world! I'm rank 10 of 12 on comet-14-01.sdsc.edu with provided=3, block_size=8388624, cube_size=1048576 double
+Hello world! I'm rank 7 of 12 on comet-14-01.sdsc.edu with provided=3, block_size=8388624, cube_size=1048576 double
+Hello world! I'm rank 4 of 12 on comet-14-01.sdsc.edu with provided=3, block_size=8388624, cube_size=1048576 double
+Comp_Proc7 of 8 cpt_total_blks=200, writer_blk_num=0, sender_blk_num=200, PRODUCER_Ringbuffer 0.500GB, size=64 member
+Comp_Proc0 of 8 cpt_total_blks=200, writer_blk_num=0, sender_blk_num=200, PRODUCER_Ringbuffer 0.500GB, size=64 member
+Ana_Proc8 of 4 ana_total_blks=400, reader_blk_num=0, analysis_writer_blk_num=400, CONSUMER_Ringbuffer 0.500GB, size=64 member
+Ana_Proc11 of 4 ana_total_blks=400, reader_blk_num=0, analysis_writer_blk_num=400, CONSUMER_Ringbuffer 0.500GB, size=64 member
+Comp_Proc5: Writer0 is turned off
+Comp_Proc5: Writer0 T_write=0.000, T_only_fwrite=0.000, T_total=0.000 with 0 blocks
+Ana_Proc10: Reader0 is turned off
+Comp_Proc1: Writer0 is turned off
+Comp_Proc4: Writer0 is turned off
+Ana_Proc10: Reader0 T_total=0.000, T_io_read=0.000, T_only_fread=0.000 with 0 blocks
+Comp_Proc1: Writer0 T_write=0.000, T_only_fwrite=0.000, T_total=0.000 with 0 blocks
+Comp_Proc0: Writer0 is turned off
+Comp_Proc4: Writer0 T_write=0.000, T_only_fwrite=0.000, T_total=0.000 with 0 blocks
+Comp_Proc0: Writer0 T_write=0.000, T_only_fwrite=0.000, T_total=0.000 with 0 blocks
+Ana_Proc8: Reader0 is turned off
+Comp_Proc3: Writer0 is turned off
+Ana_Proc8: Reader0 T_total=0.000, T_io_read=0.000, T_only_fread=0.000 with 0 blocks
+Comp_Proc6: Writer0 is turned off
+Comp_Proc3: Writer0 T_write=0.000, T_only_fwrite=0.000, T_total=0.000 with 0 blocks
+Comp_Proc6: Writer0 T_write=0.000, T_only_fwrite=0.000, T_total=0.000 with 0 blocks
+Ana_Proc11: Reader0 is turned off
+Comp_Proc2: Writer0 is turned off
+Ana_Proc11: Reader0 T_total=0.000, T_io_read=0.000, T_only_fread=0.000 with 0 blocks
+Comp_Proc2: Writer0 T_write=0.000, T_only_fwrite=0.000, T_total=0.000 with 0 blocks
+Ana_Proc9: Reader0 is turned off
+Ana_Proc9: Reader0 T_total=0.000, T_io_read=0.000, T_only_fread=0.000 with 0 blocks
+Comp_Proc7: Writer0 is turned off
+Comp_Proc7: Writer0 T_write=0.000, T_only_fwrite=0.000, T_total=0.000 with 0 blocks
+Init LBM Time=0.095829
+step=0 of 100
+step=1 of 100
+step=2 of 100
+step=3 of 100
+step=4 of 100
+step=5 of 100
+step=6 of 100
+step=7 of 100
+step=8 of 100
+step=9 of 100
+step=10 of 100
+step=11 of 100
+step=12 of 100
+step=13 of 100
+step=14 of 100
+step=15 of 100
+step=16 of 100
+step=17 of 100
+step=18 of 100
+step=19 of 100
+step=20 of 100
+step=21 of 100
+step=22 of 100
+step=23 of 100
+step=24 of 100
+step=25 of 100
+step=26 of 100
+step=27 of 100
+step=28 of 100
+step=29 of 100
+step=30 of 100
+step=31 of 100
+step=32 of 100
+step=33 of 100
+step=34 of 100
+step=35 of 100
+step=36 of 100
+step=37 of 100
+step=38 of 100
+step=39 of 100
+step=40 of 100
+step=41 of 100
+step=42 of 100
+step=43 of 100
+step=44 of 100
+step=45 of 100
+step=46 of 100
+step=47 of 100
+step=48 of 100
+step=49 of 100
+step=50 of 100
+step=51 of 100
+step=52 of 100
+step=53 of 100
+step=54 of 100
+step=55 of 100
+step=56 of 100
+step=57 of 100
+step=58 of 100
+step=59 of 100
+step=60 of 100
+step=61 of 100
+step=62 of 100
+step=63 of 100
+step=64 of 100
+step=65 of 100
+step=66 of 100
+step=67 of 100
+step=68 of 100
+step=69 of 100
+step=70 of 100
+step=71 of 100
+step=72 of 100
+step=73 of 100
+step=74 of 100
+step=75 of 100
+step=76 of 100
+step=77 of 100
+step=78 of 100
+step=79 of 100
+step=80 of 100
+step=81 of 100
+step=82 of 100
+step=83 of 100
+step=84 of 100
+step=85 of 100
+step=86 of 100
+step=87 of 100
+step=88 of 100
+step=89 of 100
+step=90 of 100
+step=91 of 100
+step=92 of 100
+step=93 of 100
+step=94 of 100
+step=95 of 100
+step=96 of 100
+step=97 of 100
+step=98 of 100
+step=99 of 100
+Comp_Proc5: LBM generate the EXIT block_id=-1 in timestep=100 with total_blks 200
+Comp_Proc5 on comet-14-01.sdsc.edu: LBM computation Done! Only_LBM_Time=32.501, T_compute/Block=166870.925us, T_total_compute=33.374
+Comp_Proc4: LBM generate the EXIT block_id=-1 in timestep=100 with total_blks 200
+Comp_Proc4 on comet-14-01.sdsc.edu: LBM computation Done! Only_LBM_Time=32.491, T_compute/Block=166872.340us, T_total_compute=33.374
+Comp_Proc2: LBM generate the EXIT block_id=-1 in timestep=100 with total_blks 200
+Comp_Proc3: LBM generate the EXIT block_id=-1 in timestep=100 with total_blks 200
+Comp_Proc2 on comet-14-01.sdsc.edu: LBM computation Done! Only_LBM_Time=32.475, T_compute/Block=166873.600us, T_total_compute=33.375
+Comp_Proc3 on comet-14-01.sdsc.edu: LBM computation Done! Only_LBM_Time=32.488, T_compute/Block=166876.070us, T_total_compute=33.375
+Comp_Proc6: LBM generate the EXIT block_id=-1 in timestep=100 with total_blks 200
+Comp_Proc6 on comet-14-01.sdsc.edu: LBM computation Done! Only_LBM_Time=32.483, T_compute/Block=166877.275us, T_total_compute=33.375
+Comp_Proc0: LBM generate the EXIT block_id=-1 in timestep=100 with total_blks 200
+Comp_Proc0 on comet-14-01.sdsc.edu: LBM computation Done! Only_LBM_Time=32.225, T_compute/Block=166876.265us, T_total_compute=33.375
+Comp_Proc7: LBM generate the EXIT block_id=-1 in timestep=100 with total_blks 200
+Comp_Proc7 on comet-14-01.sdsc.edu: LBM computation Done! Only_LBM_Time=32.531, T_compute/Block=166881.950us, T_total_compute=33.376
+Comp_Proc0: Sender1 Get exit flag msg and prepare to quit
+Comp_Proc0: ---Normal case--- Sender1 longer than writer !!!!---###---
+Comp_Proc0: Sender1 T_total=33.378, mpi_send_progress_counter=200,T_mix_send=0.000, T_only_mpi_send=0.808, mix_msg_id=0, disk_id=0, long_msg_id=200
+Comp_Proc0: Job finish on comet-14-01.sdsc.edu, T_total=33.378
+Comp_Proc1: LBM generate the EXIT block_id=-1 in timestep=100 with total_blks 200
+Comp_Proc1 on comet-14-01.sdsc.edu: LBM computation Done! Only_LBM_Time=32.243, T_compute/Block=166903.735us, T_total_compute=33.381
+Comp_Proc4: Sender1 Get exit flag msg and prepare to quit
+Comp_Proc4: ---Normal case--- Sender1 longer than writer !!!!---###---
+Comp_Proc4: Sender1 T_total=33.386, mpi_send_progress_counter=200,T_mix_send=0.000, T_only_mpi_send=1.904, mix_msg_id=0, disk_id=0, long_msg_id=200
+Comp_Proc4: Job finish on comet-14-01.sdsc.edu, T_total=33.386
+Comp_Proc2: Sender1 Get exit flag msg and prepare to quit
+Comp_Proc2: ---Normal case--- Sender1 longer than writer !!!!---###---
+Comp_Proc2: Sender1 T_total=33.386, mpi_send_progress_counter=200,T_mix_send=0.000, T_only_mpi_send=1.669, mix_msg_id=0, disk_id=0, long_msg_id=200
+Comp_Proc2: Job finish on comet-14-01.sdsc.edu, T_total=33.386
+Ana_Proc8: Receiver3 get a *EXIT_MSG_TAG* from src=0 with block_id=-1, num_exit_flag=1
+Comp_Proc6: Sender1 Get exit flag msg and prepare to quit
+Comp_Proc6: ---Normal case--- Sender1 longer than writer !!!!---###---
+Comp_Proc6: Sender1 T_total=33.387, mpi_send_progress_counter=200,T_mix_send=0.000, T_only_mpi_send=1.690, mix_msg_id=0, disk_id=0, long_msg_id=200
+Comp_Proc6: Job finish on comet-14-01.sdsc.edu, T_total=33.387
+Ana_Proc8: Consumer get a EXIT_BLK_ID from source=0 and Prepare to free it
+Ana_Proc8: Consumer get a EXIT_BLK_ID from source=0! num_exit_flag=1
+Comp_Proc1: Sender1 Get exit flag msg and prepare to quit
+Comp_Proc1: ---Normal case--- Sender1 longer than writer !!!!---###---
+Comp_Proc1: Sender1 T_total=33.389, mpi_send_progress_counter=200,T_mix_send=0.000, T_only_mpi_send=1.112, mix_msg_id=0, disk_id=0, long_msg_id=200
+Comp_Proc1: Job finish on comet-14-01.sdsc.edu, T_total=33.389
+Comp_Proc5: Sender1 Get exit flag msg and prepare to quit
+Comp_Proc5: ---Normal case--- Sender1 longer than writer !!!!---###---
+Comp_Proc5: Sender1 T_total=33.392, mpi_send_progress_counter=200,T_mix_send=0.000, T_only_mpi_send=2.203, mix_msg_id=0, disk_id=0, long_msg_id=200
+Comp_Proc5: Job finish on comet-14-01.sdsc.edu, T_total=33.392
+Comp_Proc3: Sender1 Get exit flag msg and prepare to quit
+Comp_Proc3: ---Normal case--- Sender1 longer than writer !!!!---###---
+Comp_Proc3: Sender1 T_total=33.392, mpi_send_progress_counter=200,T_mix_send=0.000, T_only_mpi_send=2.334, mix_msg_id=0, disk_id=0, long_msg_id=200
+Comp_Proc3: Job finish on comet-14-01.sdsc.edu, T_total=33.392
+Ana_Proc8: Receiver3 get a *EXIT_MSG_TAG* from src=1 with block_id=-1, num_exit_flag=2
+Ana_Proc8: Receiver3 T_total=33.392, mpi_recv_progress_counter=400, T_receive_wait=31.977, T_wait_lock=0.000, long_msg_id=400, mix_msg_id= 0,disk_id=0
+Ana_Proc8: Consumer get a EXIT_BLK_ID from source=1 and Prepare to free it
+Ana_Proc8: Consumer get a EXIT_BLK_ID from source=1! num_exit_flag=2
+Ana_Proc8: Consumer prepare to exit!
+Ana_Proc8: Consumer prepare to exit! With ring_buffer num_avail_elements=0
+Ana_Proc8: Consumer T_total_consumer=33.392, T_calc=0.000, T_wait=33.298, T_move_tail=0.000, my_count=400, free_count=400
+Ana_Proc8: A_Writer1 get NULL to exit
+Ana_Proc8: Writer1 T_write=0.000, T_only_fwrite=0.000, T_total=33.392, my_count=400
+Ana_Proc8 on comet-14-01.sdsc.edu: Analysis Job Done! T_total=33.393
+Comp_Proc7: Sender1 Get exit flag msg and prepare to quit
+Comp_Proc7: ---Normal case--- Sender1 longer than writer !!!!---###---
+Comp_Proc7: Sender1 T_total=33.392, mpi_send_progress_counter=200,T_mix_send=0.000, T_only_mpi_send=2.223, mix_msg_id=0, disk_id=0, long_msg_id=200
+Comp_Proc7: Job finish on comet-14-01.sdsc.edu, T_total=33.393
+Ana_Proc10: Receiver3 get a *EXIT_MSG_TAG* from src=4 with block_id=-1, num_exit_flag=1
+Ana_Proc9: Receiver3 get a *EXIT_MSG_TAG* from src=2 with block_id=-1, num_exit_flag=1
+Ana_Proc10: Receiver3 get a *EXIT_MSG_TAG* from src=5 with block_id=-1, num_exit_flag=2
+Ana_Proc10: Receiver3 T_total=33.395, mpi_recv_progress_counter=400, T_receive_wait=31.942, T_wait_lock=0.000, long_msg_id=400, mix_msg_id= 0,disk_id=0
+Ana_Proc9: Receiver3 get a *EXIT_MSG_TAG* from src=3 with block_id=-1, num_exit_flag=2
+Ana_Proc9: Receiver3 T_total=33.395, mpi_recv_progress_counter=400, T_receive_wait=31.963, T_wait_lock=0.000, long_msg_id=400, mix_msg_id= 0,disk_id=0
+Ana_Proc10: Consumer get a EXIT_BLK_ID from source=4 and Prepare to free it
+Ana_Proc9: Consumer get a EXIT_BLK_ID from source=2 and Prepare to free it
+Ana_Proc10: Consumer get a EXIT_BLK_ID from source=4! num_exit_flag=1
+Ana_Proc10: Consumer get a EXIT_BLK_ID from source=5 and Prepare to free it
+Ana_Proc9: Consumer get a EXIT_BLK_ID from source=2! num_exit_flag=1
+Ana_Proc9: Consumer get a EXIT_BLK_ID from source=3 and Prepare to free it
+Ana_Proc10: Consumer get a EXIT_BLK_ID from source=5! num_exit_flag=2
+Ana_Proc10: Consumer prepare to exit!
+Ana_Proc10: Consumer prepare to exit! With ring_buffer num_avail_elements=0
+Ana_Proc10: Consumer T_total_consumer=33.396, T_calc=0.000, T_wait=33.287, T_move_tail=0.000, my_count=400, free_count=400
+Ana_Proc10: A_Writer1 get NULL to exit
+Ana_Proc10: Writer1 T_write=0.000, T_only_fwrite=0.000, T_total=33.396, my_count=400
+Ana_Proc9: Consumer get a EXIT_BLK_ID from source=3! num_exit_flag=2
+Ana_Proc9: Consumer prepare to exit!
+Ana_Proc9: Consumer prepare to exit! With ring_buffer num_avail_elements=0
+Ana_Proc10 on comet-14-01.sdsc.edu: Analysis Job Done! T_total=33.396
+Ana_Proc9: Consumer T_total_consumer=33.396, T_calc=0.000, T_wait=33.298, T_move_tail=0.000, my_count=400, free_count=400
+Ana_Proc9: A_Writer1 get NULL to exit
+Ana_Proc9: Writer1 T_write=0.001, T_only_fwrite=0.000, T_total=33.396, my_count=400
+Ana_Proc9 on comet-14-01.sdsc.edu: Analysis Job Done! T_total=33.396
+Ana_Proc11: Receiver3 get a *EXIT_MSG_TAG* from src=6 with block_id=-1, num_exit_flag=1
+Ana_Proc11: Receiver3 get a *EXIT_MSG_TAG* from src=7 with block_id=-1, num_exit_flag=2
+Ana_Proc11: Consumer get a EXIT_BLK_ID from source=6 and Prepare to free it
+Ana_Proc11: Receiver3 T_total=33.396, mpi_recv_progress_counter=400, T_receive_wait=31.957, T_wait_lock=0.000, long_msg_id=400, mix_msg_id= 0,disk_id=0
+Ana_Proc11: Consumer get a EXIT_BLK_ID from source=6! num_exit_flag=1
+Ana_Proc11: Consumer get a EXIT_BLK_ID from source=7 and Prepare to free it
+Ana_Proc11: Consumer get a EXIT_BLK_ID from source=7! num_exit_flag=2
+Ana_Proc11: Consumer prepare to exit!
+Ana_Proc11: Consumer prepare to exit! With ring_buffer num_avail_elements=0
+Ana_Proc11: Consumer T_total_consumer=33.396, T_calc=0.000, T_wait=33.307, T_move_tail=0.000, my_count=400, free_count=400
+Ana_Proc11: A_Writer1 get NULL to exit
+Ana_Proc11: Writer1 T_write=0.000, T_only_fwrite=0.000, T_total=33.396, my_count=400
+Ana_Proc11 on comet-14-01.sdsc.edu: Analysis Job Done! T_total=33.396
+IBRUN: Job ended with value 0
+-----------Start Deleting files-------------
+-----------End Delete files-------------
+********************************************************************
+LBMconcurrentstore 2048 KB, 0% PRB
+********************************************************************
+IBRUN: Command is /home/qoofyk/General_Data_Broker/lbm_concurrent_store/lbm_concurrent_store
+IBRUN: Command is /home/qoofyk/General_Data_Broker/lbm_concurrent_store/lbm_concurrent_store
+IBRUN: Even number of ranks per node (12)--hacking nodefile...
+IBRUN: Running on 1 unique nodes
+IBRUN: Will place 12 ranks on comet-14-01 with 2 threads each
+IBRUN: Nodefile is /tmp/D4zYyk050F
+IBRUN: Adding MV2_CPU_MAPPING=0-1:2-3:4-5:6-7:8-9:10-11:12-13:14-15:16-17:18-19:20-21:22-23:24-25:26-27:28-29:30-31:32-33:34-35:36-37:38-39:40-41:42-43:44-45:46-47 to the environment
+IBRUN: Adding MV2_USE_OLD_BCAST=1 to the environment
+IBRUN: Adding MV2_USE_HUGEPAGES=0 to the environment
+IBRUN: Adding MV2_HOMOGENEOUS_CLUSTER=0 to the environment
+IBRUN: Adding MV2_DEFAULT_TIME_OUT=23 to the environment
+IBRUN: Adding MV2_USE_UD_HYBRID=0 to the environment
+IBRUN: Added 6 new environment variables to the execution environment
+IBRUN: Command string is [mpirun_rsh -np 12 -hostfile /tmp/D4zYyk050F -export /home/qoofyk/General_Data_Broker/lbm_concurrent_store/lbm_concurrent_store 1 1 1 1 0 2 4 32 128 100 4 256]
+Hello world! I'm rank 5 of 12 on comet-14-01.sdsc.edu with provided=3, block_size=2097168, cube_size=262144 double
+Hello world! I'm rank 9 of 12 on comet-14-01.sdsc.edu with provided=3, block_size=2097168, cube_size=262144 double
+Hello world! I'm rank 0 of 12 on comet-14-01.sdsc.edu with provided=3, block_size=2097168, cube_size=262144 double
+Hello world! I'm rank 2 of 12 on comet-14-01.sdsc.edu with provided=3, block_size=2097168, cube_size=262144 double
+Hello world! I'm rank 10 of 12 on comet-14-01.sdsc.edu with provided=3, block_size=2097168, cube_size=262144 double
+Hello world! I'm rank 7 of 12 on comet-14-01.sdsc.edu with provided=3, block_size=2097168, cube_size=262144 double
+Hello world! I'm rank 3 of 12 on comet-14-01.sdsc.edu with provided=3, block_size=2097168, cube_size=262144 double
+Hello world! I'm rank 8 of 12 on comet-14-01.sdsc.edu with provided=3, block_size=2097168, cube_size=262144 double
+Hello world! I'm rank 6 of 12 on comet-14-01.sdsc.edu with provided=3, block_size=2097168, cube_size=262144 double
+Hello world! I'm rank 4 of 12 on comet-14-01.sdsc.edu with provided=3, block_size=2097168, cube_size=262144 double
+Hello world! I'm rank 11 of 12 on comet-14-01.sdsc.edu with provided=3, block_size=2097168, cube_size=262144 double
+Hello world! I'm rank 1 of 12 on comet-14-01.sdsc.edu with provided=3, block_size=2097168, cube_size=262144 double
+Comp_Proc7 of 8 cpt_total_blks=800, writer_blk_num=0, sender_blk_num=800, PRODUCER_Ringbuffer 0.500GB, size=256 member
+Comp_Proc0 of 8 cpt_total_blks=800, writer_blk_num=0, sender_blk_num=800, PRODUCER_Ringbuffer 0.500GB, size=256 member
+Ana_Proc11 of 4 ana_total_blks=1600, reader_blk_num=0, analysis_writer_blk_num=1600, CONSUMER_Ringbuffer 0.500GB, size=256 member
+Ana_Proc8 of 4 ana_total_blks=1600, reader_blk_num=0, analysis_writer_blk_num=1600, CONSUMER_Ringbuffer 0.500GB, size=256 member
+Comp_Proc6: Writer0 is turned off
+Comp_Proc4: Writer0 is turned off
+Ana_Proc9: Reader0 is turned off
+Ana_Proc10: Reader0 is turned off
+Ana_Proc11: Reader0 is turned off
+Ana_Proc8: Reader0 is turned off
+Comp_Proc6: Writer0 T_write=0.000, T_only_fwrite=0.000, T_total=0.000 with 0 blocks
+Comp_Proc4: Writer0 T_write=0.000, T_only_fwrite=0.000, T_total=0.000 with 0 blocks
+Ana_Proc11: Reader0 T_total=0.000, T_io_read=0.000, T_only_fread=0.000 with 0 blocks
+Ana_Proc9: Reader0 T_total=0.000, T_io_read=0.000, T_only_fread=0.000 with 0 blocks
+Ana_Proc10: Reader0 T_total=0.000, T_io_read=0.000, T_only_fread=0.000 with 0 blocks
+Ana_Proc8: Reader0 T_total=0.000, T_io_read=0.000, T_only_fread=0.000 with 0 blocks
+Comp_Proc5: Writer0 is turned off
+Comp_Proc1: Writer0 is turned off
+Comp_Proc5: Writer0 T_write=0.000, T_only_fwrite=0.000, T_total=0.000 with 0 blocks
+Comp_Proc3: Writer0 is turned off
+Comp_Proc1: Writer0 T_write=0.000, T_only_fwrite=0.000, T_total=0.000 with 0 blocks
+Comp_Proc2: Writer0 is turned off
+Comp_Proc3: Writer0 T_write=0.000, T_only_fwrite=0.000, T_total=0.000 with 0 blocks
+Comp_Proc0: Writer0 is turned off
+Comp_Proc2: Writer0 T_write=0.000, T_only_fwrite=0.000, T_total=0.000 with 0 blocks
+Comp_Proc0: Writer0 T_write=0.000, T_only_fwrite=0.000, T_total=0.000 with 0 blocks
+Comp_Proc7: Writer0 is turned off
+Comp_Proc7: Writer0 T_write=0.000, T_only_fwrite=0.000, T_total=0.000 with 0 blocks
+Init LBM Time=0.094877
+step=0 of 100
+step=1 of 100
+step=2 of 100
+step=3 of 100
+step=4 of 100
+step=5 of 100
+step=6 of 100
+step=7 of 100
+step=8 of 100
+step=9 of 100
+step=10 of 100
+step=11 of 100
+step=12 of 100
+step=13 of 100
+step=14 of 100
+step=15 of 100
+step=16 of 100
+step=17 of 100
+step=18 of 100
+step=19 of 100
+step=20 of 100
+step=21 of 100
+step=22 of 100
+step=23 of 100
+step=24 of 100
+step=25 of 100
+step=26 of 100
+step=27 of 100
+step=28 of 100
+step=29 of 100
+step=30 of 100
+step=31 of 100
+step=32 of 100
+step=33 of 100
+step=34 of 100
+step=35 of 100
+step=36 of 100
+step=37 of 100
+step=38 of 100
+step=39 of 100
+step=40 of 100
+step=41 of 100
+step=42 of 100
+step=43 of 100
+step=44 of 100
+step=45 of 100
+step=46 of 100
+step=47 of 100
+step=48 of 100
+step=49 of 100
+step=50 of 100
+step=51 of 100
+step=52 of 100
+step=53 of 100
+step=54 of 100
+step=55 of 100
+step=56 of 100
+step=57 of 100
+step=58 of 100
+step=59 of 100
+step=60 of 100
+step=61 of 100
+step=62 of 100
+step=63 of 100
+step=64 of 100
+step=65 of 100
+step=66 of 100
+step=67 of 100
+step=68 of 100
+step=69 of 100
+step=70 of 100
+step=71 of 100
+step=72 of 100
+step=73 of 100
+step=74 of 100
+step=75 of 100
+step=76 of 100
+step=77 of 100
+step=78 of 100
+step=79 of 100
+step=80 of 100
+step=81 of 100
+step=82 of 100
+step=83 of 100
+step=84 of 100
+step=85 of 100
+step=86 of 100
+step=87 of 100
+step=88 of 100
+step=89 of 100
+step=90 of 100
+step=91 of 100
+step=92 of 100
+step=93 of 100
+step=94 of 100
+step=95 of 100
+step=96 of 100
+step=97 of 100
+step=98 of 100
+step=99 of 100
+Comp_Proc4: LBM generate the EXIT block_id=-1 in timestep=100 with total_blks 800
+Comp_Proc4 on comet-14-01.sdsc.edu: LBM computation Done! Only_LBM_Time=38.336, T_compute/Block=49216.413us, T_total_compute=39.373
+Comp_Proc3: LBM generate the EXIT block_id=-1 in timestep=100 with total_blks 800
+Comp_Proc3 on comet-14-01.sdsc.edu: LBM computation Done! Only_LBM_Time=38.136, T_compute/Block=49214.867us, T_total_compute=39.372
+Comp_Proc5: LBM generate the EXIT block_id=-1 in timestep=100 with total_blks 800
+Comp_Proc5 on comet-14-01.sdsc.edu: LBM computation Done! Only_LBM_Time=38.296, T_compute/Block=49217.473us, T_total_compute=39.374
+Comp_Proc3: Sender1 Get exit flag msg and prepare to quit
+Comp_Proc3: ---Normal case--- Sender1 longer than writer !!!!---###---
+Comp_Proc3: Sender1 T_total=39.396, mpi_send_progress_counter=800,T_mix_send=0.000, T_only_mpi_send=0.597, mix_msg_id=0, disk_id=0, long_msg_id=800
+Comp_Proc3: Job finish on comet-14-01.sdsc.edu, T_total=39.397
+Ana_Proc9: Receiver3 get a *EXIT_MSG_TAG* from src=3 with block_id=-1, num_exit_flag=1
+Ana_Proc9: Consumer get a EXIT_BLK_ID from source=3 and Prepare to free it
+Ana_Proc9: Consumer get a EXIT_BLK_ID from source=3! num_exit_flag=1
+Comp_Proc0: LBM generate the EXIT block_id=-1 in timestep=100 with total_blks 800
+Comp_Proc0 on comet-14-01.sdsc.edu: LBM computation Done! Only_LBM_Time=38.303, T_compute/Block=49220.411us, T_total_compute=39.376
+Comp_Proc0: Sender1 Get exit flag msg and prepare to quit
+Comp_Proc0: ---Normal case--- Sender1 longer than writer !!!!---###---
+Comp_Proc0: Sender1 T_total=39.400, mpi_send_progress_counter=800,T_mix_send=0.000, T_only_mpi_send=0.658, mix_msg_id=0, disk_id=0, long_msg_id=800
+Comp_Proc0: Job finish on comet-14-01.sdsc.edu, T_total=39.400
+Ana_Proc8: Receiver3 get a *EXIT_MSG_TAG* from src=0 with block_id=-1, num_exit_flag=1
+Ana_Proc8: Consumer get a EXIT_BLK_ID from source=0 and Prepare to free it
+Ana_Proc8: Consumer get a EXIT_BLK_ID from source=0! num_exit_flag=1
+Comp_Proc4: Sender1 Get exit flag msg and prepare to quit
+Comp_Proc4: ---Normal case--- Sender1 longer than writer !!!!---###---
+Comp_Proc4: Sender1 T_total=39.396, mpi_send_progress_counter=800,T_mix_send=0.000, T_only_mpi_send=1.918, mix_msg_id=0, disk_id=0, long_msg_id=800
+Comp_Proc4: Job finish on comet-14-01.sdsc.edu, T_total=39.406
+Comp_Proc5: Sender1 Get exit flag msg and prepare to quit
+Comp_Proc5: ---Normal case--- Sender1 longer than writer !!!!---###---
+Comp_Proc5: Sender1 T_total=39.408, mpi_send_progress_counter=800,T_mix_send=0.000, T_only_mpi_send=1.994, mix_msg_id=0, disk_id=0, long_msg_id=800
+Comp_Proc5: Job finish on comet-14-01.sdsc.edu, T_total=39.408
+Ana_Proc10: Receiver3 get a *EXIT_MSG_TAG* from src=4 with block_id=-1, num_exit_flag=1
+Ana_Proc10: Receiver3 get a *EXIT_MSG_TAG* from src=5 with block_id=-1, num_exit_flag=2
+Ana_Proc10: Receiver3 T_total=39.409, mpi_recv_progress_counter=1600, T_receive_wait=37.592, T_wait_lock=0.000, long_msg_id=1600, mix_msg_id= 0,disk_id=0
+Ana_Proc10: Consumer get a EXIT_BLK_ID from source=4 and Prepare to free it
+Ana_Proc10: Consumer get a EXIT_BLK_ID from source=4! num_exit_flag=1
+Ana_Proc10: Consumer get a EXIT_BLK_ID from source=5 and Prepare to free it
+Ana_Proc10: Consumer get a EXIT_BLK_ID from source=5! num_exit_flag=2
+Ana_Proc10: Consumer prepare to exit!
+Ana_Proc10: Consumer prepare to exit! With ring_buffer num_avail_elements=0
+Ana_Proc10: Consumer T_total_consumer=39.409, T_calc=0.000, T_wait=39.045, T_move_tail=0.000, my_count=1600, free_count=1600
+Ana_Proc10: A_Writer1 get NULL to exit
+Ana_Proc10: Writer1 T_write=0.001, T_only_fwrite=0.000, T_total=39.409, my_count=1600
+Ana_Proc10 on comet-14-01.sdsc.edu: Analysis Job Done! T_total=39.409
+Comp_Proc6: LBM generate the EXIT block_id=-1 in timestep=100 with total_blks 800
+Comp_Proc6 on comet-14-01.sdsc.edu: LBM computation Done! Only_LBM_Time=37.769, T_compute/Block=49242.907us, T_total_compute=39.394
+Comp_Proc6: Sender1 Get exit flag msg and prepare to quit
+Comp_Proc6: ---Normal case--- Sender1 longer than writer !!!!---###---
+Comp_Proc6: Sender1 T_total=39.416, mpi_send_progress_counter=800,T_mix_send=0.000, T_only_mpi_send=0.449, mix_msg_id=0, disk_id=0, long_msg_id=800
+Comp_Proc6: Job finish on comet-14-01.sdsc.edu, T_total=39.417
+Ana_Proc11: Receiver3 get a *EXIT_MSG_TAG* from src=6 with block_id=-1, num_exit_flag=1
+Ana_Proc11: Consumer get a EXIT_BLK_ID from source=6 and Prepare to free it
+Ana_Proc11: Consumer get a EXIT_BLK_ID from source=6! num_exit_flag=1
+Comp_Proc2: LBM generate the EXIT block_id=-1 in timestep=100 with total_blks 800
+Comp_Proc2 on comet-14-01.sdsc.edu: LBM computation Done! Only_LBM_Time=37.984, T_compute/Block=49278.093us, T_total_compute=39.422
+Comp_Proc2: Sender1 Get exit flag msg and prepare to quit
+Comp_Proc2: ---Normal case--- Sender1 longer than writer !!!!---###---
+Comp_Proc2: Sender1 T_total=39.445, mpi_send_progress_counter=800,T_mix_send=0.000, T_only_mpi_send=0.245, mix_msg_id=0, disk_id=0, long_msg_id=800
+Comp_Proc2: Job finish on comet-14-01.sdsc.edu, T_total=39.445
+Ana_Proc9: Receiver3 get a *EXIT_MSG_TAG* from src=2 with block_id=-1, num_exit_flag=2
+Ana_Proc9: Receiver3 T_total=39.446, mpi_recv_progress_counter=1600, T_receive_wait=37.341, T_wait_lock=0.000, long_msg_id=1600, mix_msg_id= 0,disk_id=0
+Ana_Proc9: Consumer get a EXIT_BLK_ID from source=2 and Prepare to free it
+Ana_Proc9: Consumer get a EXIT_BLK_ID from source=2! num_exit_flag=2
+Ana_Proc9: Consumer prepare to exit!
+Ana_Proc9: Consumer prepare to exit! With ring_buffer num_avail_elements=0
+Ana_Proc9: Consumer T_total_consumer=39.446, T_calc=0.000, T_wait=39.192, T_move_tail=0.000, my_count=1600, free_count=1600
+Ana_Proc9: A_Writer1 get NULL to exit
+Ana_Proc9: Writer1 T_write=0.002, T_only_fwrite=0.000, T_total=39.446, my_count=1600
+Ana_Proc9 on comet-14-01.sdsc.edu: Analysis Job Done! T_total=39.446
+Comp_Proc1: LBM generate the EXIT block_id=-1 in timestep=100 with total_blks 800
+Comp_Proc1 on comet-14-01.sdsc.edu: LBM computation Done! Only_LBM_Time=37.968, T_compute/Block=49280.713us, T_total_compute=39.425
+Comp_Proc1: Sender1 Get exit flag msg and prepare to quit
+Comp_Proc1: ---Normal case--- Sender1 longer than writer !!!!---###---
+Comp_Proc1: Sender1 T_total=39.447, mpi_send_progress_counter=800,T_mix_send=0.000, T_only_mpi_send=0.369, mix_msg_id=0, disk_id=0, long_msg_id=800
+Comp_Proc1: Job finish on comet-14-01.sdsc.edu, T_total=39.447
+Comp_Proc7: LBM generate the EXIT block_id=-1 in timestep=100 with total_blks 800
+Comp_Proc7 on comet-14-01.sdsc.edu: LBM computation Done! Only_LBM_Time=38.029, T_compute/Block=49281.883us, T_total_compute=39.426
+Comp_Proc7: Sender1 Get exit flag msg and prepare to quit
+Comp_Proc7: ---Normal case--- Sender1 longer than writer !!!!---###---
+Comp_Proc7: Sender1 T_total=39.448, mpi_send_progress_counter=800,T_mix_send=0.000, T_only_mpi_send=0.429, mix_msg_id=0, disk_id=0, long_msg_id=800
+Comp_Proc7: Job finish on comet-14-01.sdsc.edu, T_total=39.448
+Ana_Proc8: Receiver3 get a *EXIT_MSG_TAG* from src=1 with block_id=-1, num_exit_flag=2
+Ana_Proc8: Receiver3 T_total=39.448, mpi_recv_progress_counter=1600, T_receive_wait=37.573, T_wait_lock=0.000, long_msg_id=1600, mix_msg_id= 0,disk_id=0
+Ana_Proc8: Consumer get a EXIT_BLK_ID from source=1 and Prepare to free it
+Ana_Proc8: Consumer get a EXIT_BLK_ID from source=1! num_exit_flag=2
+Ana_Proc8: Consumer prepare to exit!
+Ana_Proc8: Consumer prepare to exit! With ring_buffer num_avail_elements=0
+Ana_Proc8: Consumer T_total_consumer=39.448, T_calc=0.000, T_wait=39.214, T_move_tail=0.000, my_count=1600, free_count=1600
+Ana_Proc8: A_Writer1 get NULL to exit
+Ana_Proc8: Writer1 T_write=0.001, T_only_fwrite=0.000, T_total=39.448, my_count=1600
+Ana_Proc8 on comet-14-01.sdsc.edu: Analysis Job Done! T_total=39.448
+Ana_Proc11: Receiver3 get a *EXIT_MSG_TAG* from src=7 with block_id=-1, num_exit_flag=2
+Ana_Proc11: Receiver3 T_total=39.449, mpi_recv_progress_counter=1600, T_receive_wait=37.574, T_wait_lock=0.000, long_msg_id=1600, mix_msg_id= 0,disk_id=0
+Ana_Proc11: Consumer get a EXIT_BLK_ID from source=7 and Prepare to free it
+Ana_Proc11: Consumer get a EXIT_BLK_ID from source=7! num_exit_flag=2
+Ana_Proc11: Consumer prepare to exit!
+Ana_Proc11: Consumer prepare to exit! With ring_buffer num_avail_elements=0
+Ana_Proc11: Consumer T_total_consumer=39.449, T_calc=0.000, T_wait=39.061, T_move_tail=0.000, my_count=1600, free_count=1600
+Ana_Proc11: A_Writer1 get NULL to exit
+Ana_Proc11: Writer1 T_write=0.002, T_only_fwrite=0.000, T_total=39.449, my_count=1600
+Ana_Proc11 on comet-14-01.sdsc.edu: Analysis Job Done! T_total=39.449
+IBRUN: Job ended with value 0
+-----------Start Deleting files-------------
+-----------End Delete files-------------
+********************************************************************
+LBMconcurrentstore 4096 KB, 0% PRB
+********************************************************************
+IBRUN: Command is /home/qoofyk/General_Data_Broker/lbm_concurrent_store/lbm_concurrent_store
+IBRUN: Command is /home/qoofyk/General_Data_Broker/lbm_concurrent_store/lbm_concurrent_store
+IBRUN: Even number of ranks per node (12)--hacking nodefile...
+IBRUN: Running on 1 unique nodes
+IBRUN: Will place 12 ranks on comet-14-01 with 2 threads each
+IBRUN: Nodefile is /tmp/jxHCUZlmRc
+IBRUN: Adding MV2_CPU_MAPPING=0-1:2-3:4-5:6-7:8-9:10-11:12-13:14-15:16-17:18-19:20-21:22-23:24-25:26-27:28-29:30-31:32-33:34-35:36-37:38-39:40-41:42-43:44-45:46-47 to the environment
+IBRUN: Adding MV2_USE_OLD_BCAST=1 to the environment
+IBRUN: Adding MV2_USE_HUGEPAGES=0 to the environment
+IBRUN: Adding MV2_HOMOGENEOUS_CLUSTER=0 to the environment
+IBRUN: Adding MV2_DEFAULT_TIME_OUT=23 to the environment
+IBRUN: Adding MV2_USE_UD_HYBRID=0 to the environment
+IBRUN: Added 6 new environment variables to the execution environment
+IBRUN: Command string is [mpirun_rsh -np 12 -hostfile /tmp/jxHCUZlmRc -export /home/qoofyk/General_Data_Broker/lbm_concurrent_store/lbm_concurrent_store 1 1 1 1 0 2 4 64 64 100 4 256]
+Hello world! I'm rank 1 of 12 on comet-14-01.sdsc.edu with provided=3, block_size=4194320, cube_size=524288 double
+Hello world! I'm rank 4 of 12 on comet-14-01.sdsc.edu with provided=3, block_size=4194320, cube_size=524288 double
+Hello world! I'm rank 6 of 12 on comet-14-01.sdsc.edu with provided=3, block_size=4194320, cube_size=524288 double
+Hello world! I'm rank 9 of 12 on comet-14-01.sdsc.edu with provided=3, block_size=4194320, cube_size=524288 double
+Hello world! I'm rank 7 of 12 on comet-14-01.sdsc.edu with provided=3, block_size=4194320, cube_size=524288 double
+Hello world! I'm rank 0 of 12 on comet-14-01.sdsc.edu with provided=3, block_size=4194320, cube_size=524288 double
+Hello world! I'm rank 8 of 12 on comet-14-01.sdsc.edu with provided=3, block_size=4194320, cube_size=524288 double
+Hello world! I'm rank 3 of 12 on comet-14-01.sdsc.edu with provided=3, block_size=4194320, cube_size=524288 double
+Hello world! I'm rank 2 of 12 on comet-14-01.sdsc.edu with provided=3, block_size=4194320, cube_size=524288 double
+Hello world! I'm rank 10 of 12 on comet-14-01.sdsc.edu with provided=3, block_size=4194320, cube_size=524288 double
+Hello world! I'm rank 11 of 12 on comet-14-01.sdsc.edu with provided=3, block_size=4194320, cube_size=524288 double
+Hello world! I'm rank 5 of 12 on comet-14-01.sdsc.edu with provided=3, block_size=4194320, cube_size=524288 double
+Comp_Proc7 of 8 cpt_total_blks=400, writer_blk_num=0, sender_blk_num=400, PRODUCER_Ringbuffer 0.500GB, size=128 member
+Ana_Proc11 of 4 ana_total_blks=800, reader_blk_num=0, analysis_writer_blk_num=800, CONSUMER_Ringbuffer 0.500GB, size=128 member
+Comp_Proc0 of 8 cpt_total_blks=400, writer_blk_num=0, sender_blk_num=400, PRODUCER_Ringbuffer 0.500GB, size=128 member
+Ana_Proc8 of 4 ana_total_blks=800, reader_blk_num=0, analysis_writer_blk_num=800, CONSUMER_Ringbuffer 0.500GB, size=128 member
+Comp_Proc5: Writer0 is turned off
+Comp_Proc2: Writer0 is turned off
+Comp_Proc5: Writer0 T_write=0.000, T_only_fwrite=0.000, T_total=0.000 with 0 blocks
+Comp_Proc0: Writer0 is turned off
+Ana_Proc10: Reader0 is turned off
+Comp_Proc7: Writer0 is turned off
+Comp_Proc2: Writer0 T_write=0.000, T_only_fwrite=0.000, T_total=0.000 with 0 blocks
+Comp_Proc0: Writer0 T_write=0.000, T_only_fwrite=0.000, T_total=0.000 with 0 blocks
+Ana_Proc8: Reader0 is turned off
+Comp_Proc7: Writer0 T_write=0.000, T_only_fwrite=0.000, T_total=0.000 with 0 blocks
+Ana_Proc10: Reader0 T_total=0.000, T_io_read=0.000, T_only_fread=0.000 with 0 blocks
+Comp_Proc3: Writer0 is turned off
+Ana_Proc8: Reader0 T_total=0.000, T_io_read=0.000, T_only_fread=0.000 with 0 blocks
+Comp_Proc4: Writer0 is turned off
+Comp_Proc3: Writer0 T_write=0.000, T_only_fwrite=0.000, T_total=0.000 with 0 blocks
+Comp_Proc1: Writer0 is turned off
+Ana_Proc9: Reader0 is turned off
+Comp_Proc4: Writer0 T_write=0.000, T_only_fwrite=0.000, T_total=0.000 with 0 blocks
+Comp_Proc1: Writer0 T_write=0.000, T_only_fwrite=0.000, T_total=0.000 with 0 blocks
+Ana_Proc9: Reader0 T_total=0.000, T_io_read=0.000, T_only_fread=0.000 with 0 blocks
+Ana_Proc11: Reader0 is turned off
+Ana_Proc11: Reader0 T_total=0.000, T_io_read=0.000, T_only_fread=0.000 with 0 blocks
+Comp_Proc6: Writer0 is turned off
+Comp_Proc6: Writer0 T_write=0.000, T_only_fwrite=0.000, T_total=0.000 with 0 blocks
+Init LBM Time=0.094144
+step=0 of 100
+step=1 of 100
+step=2 of 100
+step=3 of 100
+step=4 of 100
+step=5 of 100
+step=6 of 100
+step=7 of 100
+step=8 of 100
+step=9 of 100
+step=10 of 100
+step=11 of 100
+step=12 of 100
+step=13 of 100
+step=14 of 100
+step=15 of 100
+step=16 of 100
+step=17 of 100
+step=18 of 100
+step=19 of 100
+step=20 of 100
+step=21 of 100
+step=22 of 100
+step=23 of 100
+step=24 of 100
+step=25 of 100
+step=26 of 100
+step=27 of 100
+step=28 of 100
+step=29 of 100
+step=30 of 100
+step=31 of 100
+step=32 of 100
+step=33 of 100
+step=34 of 100
+step=35 of 100
+step=36 of 100
+step=37 of 100
+step=38 of 100
+step=39 of 100
+step=40 of 100
+step=41 of 100
+step=42 of 100
+step=43 of 100
+step=44 of 100
+step=45 of 100
+step=46 of 100
+step=47 of 100
+step=48 of 100
+step=49 of 100
+step=50 of 100
+step=51 of 100
+step=52 of 100
+step=53 of 100
+step=54 of 100
+step=55 of 100
+step=56 of 100
+step=57 of 100
+step=58 of 100
+step=59 of 100
+step=60 of 100
+step=61 of 100
+step=62 of 100
+step=63 of 100
+step=64 of 100
+step=65 of 100
+step=66 of 100
+step=67 of 100
+step=68 of 100
+step=69 of 100
+step=70 of 100
+step=71 of 100
+step=72 of 100
+step=73 of 100
+step=74 of 100
+step=75 of 100
+step=76 of 100
+step=77 of 100
+step=78 of 100
+step=79 of 100
+step=80 of 100
+step=81 of 100
+step=82 of 100
+step=83 of 100
+step=84 of 100
+step=85 of 100
+step=86 of 100
+step=87 of 100
+step=88 of 100
+step=89 of 100
+step=90 of 100
+step=91 of 100
+step=92 of 100
+step=93 of 100
+step=94 of 100
+step=95 of 100
+step=96 of 100
+step=97 of 100
+step=98 of 100
+step=99 of 100
+Comp_Proc2: LBM generate the EXIT block_id=-1 in timestep=100 with total_blks 400
+Comp_Proc3: LBM generate the EXIT block_id=-1 in timestep=100 with total_blks 400
+Comp_Proc4: LBM generate the EXIT block_id=-1 in timestep=100 with total_blks 400
+Comp_Proc3 on comet-14-01.sdsc.edu: LBM computation Done! Only_LBM_Time=33.461, T_compute/Block=86357.053us, T_total_compute=34.543
+Comp_Proc4 on comet-14-01.sdsc.edu: LBM computation Done! Only_LBM_Time=33.412, T_compute/Block=86357.372us, T_total_compute=34.543
+Comp_Proc2 on comet-14-01.sdsc.edu: LBM computation Done! Only_LBM_Time=33.402, T_compute/Block=86356.953us, T_total_compute=34.543
+Comp_Proc1: LBM generate the EXIT block_id=-1 in timestep=100 with total_blks 400
+Comp_Proc1 on comet-14-01.sdsc.edu: LBM computation Done! Only_LBM_Time=33.438, T_compute/Block=86361.595us, T_total_compute=34.545
+Comp_Proc6: LBM generate the EXIT block_id=-1 in timestep=100 with total_blks 400
+Comp_Proc6 on comet-14-01.sdsc.edu: LBM computation Done! Only_LBM_Time=33.349, T_compute/Block=86362.237us, T_total_compute=34.545
+Comp_Proc1: Sender1 Get exit flag msg and prepare to quit
+Comp_Proc1: ---Normal case--- Sender1 longer than writer !!!!---###---
+Comp_Proc1: Sender1 T_total=34.546, mpi_send_progress_counter=400,T_mix_send=0.000, T_only_mpi_send=0.471, mix_msg_id=0, disk_id=0, long_msg_id=400
+Comp_Proc1: Job finish on comet-14-01.sdsc.edu, T_total=34.546
+Comp_Proc4: Sender1 Get exit flag msg and prepare to quit
+Comp_Proc4: ---Normal case--- Sender1 longer than writer !!!!---###---
+Comp_Proc4: Sender1 T_total=34.547, mpi_send_progress_counter=400,T_mix_send=0.000, T_only_mpi_send=1.182, mix_msg_id=0, disk_id=0, long_msg_id=400
+Comp_Proc4: Job finish on comet-14-01.sdsc.edu, T_total=34.547
+Ana_Proc8: Receiver3 get a *EXIT_MSG_TAG* from src=1 with block_id=-1, num_exit_flag=1
+Ana_Proc8: Consumer get a EXIT_BLK_ID from source=1 and Prepare to free it
+Ana_Proc8: Consumer get a EXIT_BLK_ID from source=1! num_exit_flag=1
+Comp_Proc6: Sender1 Get exit flag msg and prepare to quit
+Comp_Proc6: ---Normal case--- Sender1 longer than writer !!!!---###---
+Comp_Proc6: Sender1 T_total=34.548, mpi_send_progress_counter=400,T_mix_send=0.000, T_only_mpi_send=1.075, mix_msg_id=0, disk_id=0, long_msg_id=400
+Comp_Proc6: Job finish on comet-14-01.sdsc.edu, T_total=34.548
+Ana_Proc10: Receiver3 get a *EXIT_MSG_TAG* from src=4 with block_id=-1, num_exit_flag=1
+Ana_Proc10: Consumer get a EXIT_BLK_ID from source=4 and Prepare to free it
+Ana_Proc10: Consumer get a EXIT_BLK_ID from source=4! num_exit_flag=1
+Ana_Proc11: Receiver3 get a *EXIT_MSG_TAG* from src=6 with block_id=-1, num_exit_flag=1
+Ana_Proc11: Consumer get a EXIT_BLK_ID from source=6 and Prepare to free it
+Ana_Proc11: Consumer get a EXIT_BLK_ID from source=6! num_exit_flag=1
+Comp_Proc2: Sender1 Get exit flag msg and prepare to quit
+Comp_Proc2: ---Normal case--- Sender1 longer than writer !!!!---###---
+Comp_Proc2: Sender1 T_total=34.556, mpi_send_progress_counter=400,T_mix_send=0.000, T_only_mpi_send=2.117, mix_msg_id=0, disk_id=0, long_msg_id=400
+Comp_Proc2: Job finish on comet-14-01.sdsc.edu, T_total=34.556
+Comp_Proc0: LBM generate the EXIT block_id=-1 in timestep=100 with total_blks 400
+Comp_Proc0 on comet-14-01.sdsc.edu: LBM computation Done! Only_LBM_Time=32.953, T_compute/Block=86394.780us, T_total_compute=34.558
+Comp_Proc3: Sender1 Get exit flag msg and prepare to quit
+Comp_Proc3: ---Normal case--- Sender1 longer than writer !!!!---###---
+Comp_Proc3: Sender1 T_total=34.559, mpi_send_progress_counter=400,T_mix_send=0.000, T_only_mpi_send=2.405, mix_msg_id=0, disk_id=0, long_msg_id=400
+Comp_Proc3: Job finish on comet-14-01.sdsc.edu, T_total=34.559
+Comp_Proc0: Sender1 Get exit flag msg and prepare to quit
+Comp_Proc0: ---Normal case--- Sender1 longer than writer !!!!---###---
+Comp_Proc0: Sender1 T_total=34.559, mpi_send_progress_counter=400,T_mix_send=0.000, T_only_mpi_send=0.420, mix_msg_id=0, disk_id=0, long_msg_id=400
+Comp_Proc0: Job finish on comet-14-01.sdsc.edu, T_total=34.560
+Ana_Proc9: Receiver3 get a *EXIT_MSG_TAG* from src=2 with block_id=-1, num_exit_flag=1
+Ana_Proc8: Receiver3 get a *EXIT_MSG_TAG* from src=0 with block_id=-1, num_exit_flag=2
+Ana_Proc8: Receiver3 T_total=34.561, mpi_recv_progress_counter=800, T_receive_wait=33.006, T_wait_lock=0.000, long_msg_id=800, mix_msg_id= 0,disk_id=0
+Ana_Proc8: Consumer get a EXIT_BLK_ID from source=0 and Prepare to free it
+Ana_Proc8: Consumer get a EXIT_BLK_ID from source=0! num_exit_flag=2
+Ana_Proc8: Consumer prepare to exit!
+Ana_Proc8: Consumer prepare to exit! With ring_buffer num_avail_elements=0
+Ana_Proc8: Consumer T_total_consumer=34.561, T_calc=0.000, T_wait=34.420, T_move_tail=0.000, my_count=800, free_count=800
+Ana_Proc8: A_Writer1 get NULL to exit
+Ana_Proc8: Writer1 T_write=0.001, T_only_fwrite=0.000, T_total=34.561, my_count=800
+Ana_Proc8 on comet-14-01.sdsc.edu: Analysis Job Done! T_total=34.561
+Ana_Proc9: Receiver3 get a *EXIT_MSG_TAG* from src=3 with block_id=-1, num_exit_flag=2
+Ana_Proc9: Receiver3 T_total=34.561, mpi_recv_progress_counter=800, T_receive_wait=32.939, T_wait_lock=0.000, long_msg_id=800, mix_msg_id= 0,disk_id=0
+Ana_Proc9: Consumer get a EXIT_BLK_ID from source=2 and Prepare to free it
+Ana_Proc9: Consumer get a EXIT_BLK_ID from source=2! num_exit_flag=1
+Ana_Proc9: Consumer get a EXIT_BLK_ID from source=3 and Prepare to free it
+Ana_Proc9: Consumer get a EXIT_BLK_ID from source=3! num_exit_flag=2
+Ana_Proc9: Consumer prepare to exit!
+Ana_Proc9: Consumer prepare to exit! With ring_buffer num_avail_elements=0
+Ana_Proc9: Consumer T_total_consumer=34.562, T_calc=0.000, T_wait=34.356, T_move_tail=0.000, my_count=800, free_count=800
+Ana_Proc9: A_Writer1 get NULL to exit
+Ana_Proc9: Writer1 T_write=0.001, T_only_fwrite=0.000, T_total=34.562, my_count=800
+Ana_Proc9 on comet-14-01.sdsc.edu: Analysis Job Done! T_total=34.562
+Comp_Proc7: LBM generate the EXIT block_id=-1 in timestep=100 with total_blks 400
+Comp_Proc5: LBM generate the EXIT block_id=-1 in timestep=100 with total_blks 400
+Comp_Proc5 on comet-14-01.sdsc.edu: LBM computation Done! Only_LBM_Time=33.224, T_compute/Block=86412.100us, T_total_compute=34.565
+Comp_Proc7 on comet-14-01.sdsc.edu: LBM computation Done! Only_LBM_Time=33.105, T_compute/Block=86411.958us, T_total_compute=34.565
+Comp_Proc7: Sender1 Get exit flag msg and prepare to quit
+Comp_Proc7: ---Normal case--- Sender1 longer than writer !!!!---###---
+Comp_Proc7: Sender1 T_total=34.566, mpi_send_progress_counter=400,T_mix_send=0.000, T_only_mpi_send=0.318, mix_msg_id=0, disk_id=0, long_msg_id=400
+Comp_Proc7: Job finish on comet-14-01.sdsc.edu, T_total=34.566
+Comp_Proc5: Sender1 Get exit flag msg and prepare to quit
+Comp_Proc5: ---Normal case--- Sender1 longer than writer !!!!---###---
+Comp_Proc5: Sender1 T_total=34.566, mpi_send_progress_counter=400,T_mix_send=0.000, T_only_mpi_send=0.301, mix_msg_id=0, disk_id=0, long_msg_id=400
+Comp_Proc5: Job finish on comet-14-01.sdsc.edu, T_total=34.566
+Ana_Proc10: Receiver3 get a *EXIT_MSG_TAG* from src=5 with block_id=-1, num_exit_flag=2
+Ana_Proc10: Receiver3 T_total=34.567, mpi_recv_progress_counter=800, T_receive_wait=32.993, T_wait_lock=0.000, long_msg_id=800, mix_msg_id= 0,disk_id=0
+Ana_Proc11: Receiver3 get a *EXIT_MSG_TAG* from src=7 with block_id=-1, num_exit_flag=2
+Ana_Proc11: Receiver3 T_total=34.567, mpi_recv_progress_counter=800, T_receive_wait=32.960, T_wait_lock=0.000, long_msg_id=800, mix_msg_id= 0,disk_id=0
+Ana_Proc10: Consumer get a EXIT_BLK_ID from source=5 and Prepare to free it
+Ana_Proc10: Consumer get a EXIT_BLK_ID from source=5! num_exit_flag=2
+Ana_Proc11: Consumer get a EXIT_BLK_ID from source=7 and Prepare to free it
+Ana_Proc10: Consumer prepare to exit!
+Ana_Proc10: Consumer prepare to exit! With ring_buffer num_avail_elements=0
+Ana_Proc11: Consumer get a EXIT_BLK_ID from source=7! num_exit_flag=2
+Ana_Proc10: Consumer T_total_consumer=34.567, T_calc=0.000, T_wait=34.380, T_move_tail=0.000, my_count=800, free_count=800
+Ana_Proc11: Consumer prepare to exit!
+Ana_Proc10: A_Writer1 get NULL to exit
+Ana_Proc11: Consumer prepare to exit! With ring_buffer num_avail_elements=0
+Ana_Proc10: Writer1 T_write=0.001, T_only_fwrite=0.000, T_total=34.568, my_count=800
+Ana_Proc11: Consumer T_total_consumer=34.568, T_calc=0.000, T_wait=34.410, T_move_tail=0.000, my_count=800, free_count=800
+Ana_Proc11: A_Writer1 get NULL to exit
+Ana_Proc11: Writer1 T_write=0.001, T_only_fwrite=0.000, T_total=34.568, my_count=800
+Ana_Proc11 on comet-14-01.sdsc.edu: Analysis Job Done! T_total=34.568
+Ana_Proc10 on comet-14-01.sdsc.edu: Analysis Job Done! T_total=34.568
+IBRUN: Job ended with value 0
+-----------Start Deleting files-------------
+-----------End Delete files-------------
+********************************************************************
+LBMconcurrentstore 8192 KB, 0% PRB
+********************************************************************
+IBRUN: Command is /home/qoofyk/General_Data_Broker/lbm_concurrent_store/lbm_concurrent_store
+IBRUN: Command is /home/qoofyk/General_Data_Broker/lbm_concurrent_store/lbm_concurrent_store
+IBRUN: Even number of ranks per node (12)--hacking nodefile...
+IBRUN: Running on 1 unique nodes
+IBRUN: Will place 12 ranks on comet-14-01 with 2 threads each
+IBRUN: Nodefile is /tmp/uioc56Idhl
+IBRUN: Adding MV2_CPU_MAPPING=0-1:2-3:4-5:6-7:8-9:10-11:12-13:14-15:16-17:18-19:20-21:22-23:24-25:26-27:28-29:30-31:32-33:34-35:36-37:38-39:40-41:42-43:44-45:46-47 to the environment
+IBRUN: Adding MV2_USE_OLD_BCAST=1 to the environment
+IBRUN: Adding MV2_USE_HUGEPAGES=0 to the environment
+IBRUN: Adding MV2_HOMOGENEOUS_CLUSTER=0 to the environment
+IBRUN: Adding MV2_DEFAULT_TIME_OUT=23 to the environment
+IBRUN: Adding MV2_USE_UD_HYBRID=0 to the environment
+IBRUN: Added 6 new environment variables to the execution environment
+IBRUN: Command string is [mpirun_rsh -np 12 -hostfile /tmp/uioc56Idhl -export /home/qoofyk/General_Data_Broker/lbm_concurrent_store/lbm_concurrent_store 1 1 1 1 0 2 4 64 128 100 4 256]
+Hello world! I'm rank 2 of 12 on comet-14-01.sdsc.edu with provided=3, block_size=8388624, cube_size=1048576 double
+Hello world! I'm rank 4 of 12 on comet-14-01.sdsc.edu with provided=3, block_size=8388624, cube_size=1048576 double
+Hello world! I'm rank 3 of 12 on comet-14-01.sdsc.edu with provided=3, block_size=8388624, cube_size=1048576 double
+Hello world! I'm rank 10 of 12 on comet-14-01.sdsc.edu with provided=3, block_size=8388624, cube_size=1048576 double
+Hello world! I'm rank 0 of 12 on comet-14-01.sdsc.edu with provided=3, block_size=8388624, cube_size=1048576 double
+Hello world! I'm rank 1 of 12 on comet-14-01.sdsc.edu with provided=3, block_size=8388624, cube_size=1048576 double
+Hello world! I'm rank 7 of 12 on comet-14-01.sdsc.edu with provided=3, block_size=8388624, cube_size=1048576 double
+Hello world! I'm rank 5 of 12 on comet-14-01.sdsc.edu with provided=3, block_size=8388624, cube_size=1048576 double
+Hello world! I'm rank 11 of 12 on comet-14-01.sdsc.edu with provided=3, block_size=8388624, cube_size=1048576 double
+Hello world! I'm rank 8 of 12 on comet-14-01.sdsc.edu with provided=3, block_size=8388624, cube_size=1048576 double
+Hello world! I'm rank 6 of 12 on comet-14-01.sdsc.edu with provided=3, block_size=8388624, cube_size=1048576 double
+Hello world! I'm rank 9 of 12 on comet-14-01.sdsc.edu with provided=3, block_size=8388624, cube_size=1048576 double
+Ana_Proc11 of 4 ana_total_blks=400, reader_blk_num=0, analysis_writer_blk_num=400, CONSUMER_Ringbuffer 0.500GB, size=64 member
+Comp_Proc7 of 8 cpt_total_blks=200, writer_blk_num=0, sender_blk_num=200, PRODUCER_Ringbuffer 0.500GB, size=64 member
+Ana_Proc8 of 4 ana_total_blks=400, reader_blk_num=0, analysis_writer_blk_num=400, CONSUMER_Ringbuffer 0.500GB, size=64 member
+Comp_Proc0 of 8 cpt_total_blks=200, writer_blk_num=0, sender_blk_num=200, PRODUCER_Ringbuffer 0.500GB, size=64 member
+Comp_Proc3: Writer0 is turned off
+Comp_Proc3: Writer0 T_write=0.000, T_only_fwrite=0.000, T_total=0.000 with 0 blocks
+Comp_Proc5: Writer0 is turned off
+Ana_Proc8: Reader0 is turned off
+Comp_Proc4: Writer0 is turned off
+Comp_Proc5: Writer0 T_write=0.000, T_only_fwrite=0.000, T_total=0.000 with 0 blocks
+Ana_Proc8: Reader0 T_total=0.000, T_io_read=0.000, T_only_fread=0.000 with 0 blocks
+Comp_Proc4: Writer0 T_write=0.000, T_only_fwrite=0.000, T_total=0.000 with 0 blocks
+Comp_Proc0: Writer0 is turned off
+Comp_Proc0: Writer0 T_write=0.000, T_only_fwrite=0.000, T_total=0.000 with 0 blocks
+Comp_Proc6: Writer0 is turned off
+Comp_Proc2: Writer0 is turned off
+Comp_Proc6: Writer0 T_write=0.000, T_only_fwrite=0.000, T_total=0.000 with 0 blocks
+Ana_Proc9: Reader0 is turned off
+Ana_Proc10: Reader0 is turned off
+Comp_Proc2: Writer0 T_write=0.000, T_only_fwrite=0.000, T_total=0.000 with 0 blocks
+Comp_Proc7: Writer0 is turned off
+Comp_Proc7: Writer0 T_write=0.000, T_only_fwrite=0.000, T_total=0.000 with 0 blocks
+Ana_Proc9: Reader0 T_total=0.000, T_io_read=0.000, T_only_fread=0.000 with 0 blocks
+Comp_Proc1: Writer0 is turned off
+Ana_Proc10: Reader0 T_total=0.000, T_io_read=0.000, T_only_fread=0.000 with 0 blocks
+Comp_Proc1: Writer0 T_write=0.000, T_only_fwrite=0.000, T_total=0.000 with 0 blocks
+Ana_Proc11: Reader0 is turned off
+Ana_Proc11: Reader0 T_total=0.000, T_io_read=0.000, T_only_fread=0.000 with 0 blocks
+Init LBM Time=0.094162
+step=0 of 100
+step=1 of 100
+step=2 of 100
+step=3 of 100
+step=4 of 100
+step=5 of 100
+step=6 of 100
+step=7 of 100
+step=8 of 100
+step=9 of 100
+step=10 of 100
+step=11 of 100
+step=12 of 100
+step=13 of 100
+step=14 of 100
+step=15 of 100
+step=16 of 100
+step=17 of 100
+step=18 of 100
+step=19 of 100
+step=20 of 100
+step=21 of 100
+step=22 of 100
+step=23 of 100
+step=24 of 100
+step=25 of 100
+step=26 of 100
+step=27 of 100
+step=28 of 100
+step=29 of 100
+step=30 of 100
+step=31 of 100
+step=32 of 100
+step=33 of 100
+step=34 of 100
+step=35 of 100
+step=36 of 100
+step=37 of 100
+step=38 of 100
+step=39 of 100
+step=40 of 100
+step=41 of 100
+step=42 of 100
+step=43 of 100
+step=44 of 100
+step=45 of 100
+step=46 of 100
+step=47 of 100
+step=48 of 100
+step=49 of 100
+step=50 of 100
+step=51 of 100
+step=52 of 100
+step=53 of 100
+step=54 of 100
+step=55 of 100
+step=56 of 100
+step=57 of 100
+step=58 of 100
+step=59 of 100
+step=60 of 100
+step=61 of 100
+step=62 of 100
+step=63 of 100
+step=64 of 100
+step=65 of 100
+step=66 of 100
+step=67 of 100
+step=68 of 100
+step=69 of 100
+step=70 of 100
+step=71 of 100
+step=72 of 100
+step=73 of 100
+step=74 of 100
+step=75 of 100
+step=76 of 100
+step=77 of 100
+step=78 of 100
+step=79 of 100
+step=80 of 100
+step=81 of 100
+step=82 of 100
+step=83 of 100
+step=84 of 100
+step=85 of 100
+step=86 of 100
+step=87 of 100
+step=88 of 100
+step=89 of 100
+step=90 of 100
+step=91 of 100
+step=92 of 100
+step=93 of 100
+step=94 of 100
+step=95 of 100
+step=96 of 100
+step=97 of 100
+step=98 of 100
+step=99 of 100
+Comp_Proc3: LBM generate the EXIT block_id=-1 in timestep=100 with total_blks 200
+Comp_Proc3 on comet-14-01.sdsc.edu: LBM computation Done! Only_LBM_Time=32.519, T_compute/Block=166306.090us, T_total_compute=33.261
+Comp_Proc3: Sender1 Get exit flag msg and prepare to quit
+Comp_Proc3: ---Normal case--- Sender1 longer than writer !!!!---###---
+Comp_Proc3: Sender1 T_total=33.265, mpi_send_progress_counter=200,T_mix_send=0.000, T_only_mpi_send=0.531, mix_msg_id=0, disk_id=0, long_msg_id=200
+Comp_Proc3: Job finish on comet-14-01.sdsc.edu, T_total=33.265
+Comp_Proc2: LBM generate the EXIT block_id=-1 in timestep=100 with total_blks 200
+Comp_Proc2 on comet-14-01.sdsc.edu: LBM computation Done! Only_LBM_Time=32.404, T_compute/Block=166335.030us, T_total_compute=33.267
+Comp_Proc4: LBM generate the EXIT block_id=-1 in timestep=100 with total_blks 200
+Comp_Proc4 on comet-14-01.sdsc.edu: LBM computation Done! Only_LBM_Time=32.394, T_compute/Block=166336.820us, T_total_compute=33.267
+Comp_Proc5: LBM generate the EXIT block_id=-1 in timestep=100 with total_blks 200
+Comp_Proc5 on comet-14-01.sdsc.edu: LBM computation Done! Only_LBM_Time=32.375, T_compute/Block=166339.929us, T_total_compute=33.268
+Comp_Proc6: LBM generate the EXIT block_id=-1 in timestep=100 with total_blks 200
+Comp_Proc6 on comet-14-01.sdsc.edu: LBM computation Done! Only_LBM_Time=32.405, T_compute/Block=166342.845us, T_total_compute=33.269
+Comp_Proc7: LBM generate the EXIT block_id=-1 in timestep=100 with total_blks 200
+Comp_Proc7 on comet-14-01.sdsc.edu: LBM computation Done! Only_LBM_Time=32.412, T_compute/Block=166349.624us, T_total_compute=33.270
+Comp_Proc0: LBM generate the EXIT block_id=-1 in timestep=100 with total_blks 200
+Comp_Proc0 on comet-14-01.sdsc.edu: LBM computation Done! Only_LBM_Time=32.239, T_compute/Block=166363.751us, T_total_compute=33.273
+Ana_Proc9: Receiver3 get a *EXIT_MSG_TAG* from src=3 with block_id=-1, num_exit_flag=1
+Ana_Proc9: Consumer get a EXIT_BLK_ID from source=3 and Prepare to free it
+Ana_Proc9: Consumer get a EXIT_BLK_ID from source=3! num_exit_flag=1
+Comp_Proc0: Sender1 Get exit flag msg and prepare to quit
+Comp_Proc0: ---Normal case--- Sender1 longer than writer !!!!---###---
+Comp_Proc0: Sender1 T_total=33.274, mpi_send_progress_counter=200,T_mix_send=0.000, T_only_mpi_send=1.029, mix_msg_id=0, disk_id=0, long_msg_id=200
+Comp_Proc0: Job finish on comet-14-01.sdsc.edu, T_total=33.276
+Comp_Proc6: Sender1 Get exit flag msg and prepare to quit
+Comp_Proc6: ---Normal case--- Sender1 longer than writer !!!!---###---
+Comp_Proc6: Sender1 T_total=33.276, mpi_send_progress_counter=200,T_mix_send=0.000, T_only_mpi_send=0.732, mix_msg_id=0, disk_id=0, long_msg_id=200
+Comp_Proc6: Job finish on comet-14-01.sdsc.edu, T_total=33.276
+Comp_Proc2: Sender1 Get exit flag msg and prepare to quit
+Comp_Proc2: ---Normal case--- Sender1 longer than writer !!!!---###---
+Comp_Proc2: Sender1 T_total=33.277, mpi_send_progress_counter=200,T_mix_send=0.000, T_only_mpi_send=1.241, mix_msg_id=0, disk_id=0, long_msg_id=200
+Comp_Proc2: Job finish on comet-14-01.sdsc.edu, T_total=33.277
+Comp_Proc4: Sender1 Get exit flag msg and prepare to quit
+Comp_Proc4: ---Normal case--- Sender1 longer than writer !!!!---###---
+Comp_Proc4: Sender1 T_total=33.278, mpi_send_progress_counter=200,T_mix_send=0.000, T_only_mpi_send=1.424, mix_msg_id=0, disk_id=0, long_msg_id=200
+Comp_Proc4: Job finish on comet-14-01.sdsc.edu, T_total=33.279
+Comp_Proc7: Sender1 Get exit flag msg and prepare to quit
+Comp_Proc7: ---Normal case--- Sender1 longer than writer !!!!---###---
+Comp_Proc7: Sender1 T_total=33.279, mpi_send_progress_counter=200,T_mix_send=0.000, T_only_mpi_send=1.550, mix_msg_id=0, disk_id=0, long_msg_id=200
+Comp_Proc7: Job finish on comet-14-01.sdsc.edu, T_total=33.279
+Ana_Proc9: Receiver3 get a *EXIT_MSG_TAG* from src=2 with block_id=-1, num_exit_flag=2
+Ana_Proc9: Receiver3 T_total=33.280, mpi_recv_progress_counter=400, T_receive_wait=31.880, T_wait_lock=0.000, long_msg_id=400, mix_msg_id= 0,disk_id=0
+Ana_Proc9: Consumer get a EXIT_BLK_ID from source=2 and Prepare to free it
+Ana_Proc9: Consumer get a EXIT_BLK_ID from source=2! num_exit_flag=2
+Ana_Proc9: Consumer prepare to exit!
+Ana_Proc9: Consumer prepare to exit! With ring_buffer num_avail_elements=0
+Ana_Proc9: Consumer T_total_consumer=33.280, T_calc=0.000, T_wait=33.193, T_move_tail=0.000, my_count=400, free_count=400
+Ana_Proc9: A_Writer1 get NULL to exit
+Ana_Proc9: Writer1 T_write=0.000, T_only_fwrite=0.000, T_total=33.281, my_count=400
+Ana_Proc9 on comet-14-01.sdsc.edu: Analysis Job Done! T_total=33.281
+Ana_Proc11: Receiver3 get a *EXIT_MSG_TAG* from src=6 with block_id=-1, num_exit_flag=1
+Ana_Proc11: Receiver3 get a *EXIT_MSG_TAG* from src=7 with block_id=-1, num_exit_flag=2
+Ana_Proc11: Receiver3 T_total=33.281, mpi_recv_progress_counter=400, T_receive_wait=31.911, T_wait_lock=0.000, long_msg_id=400, mix_msg_id= 0,disk_id=0
+Ana_Proc11: Consumer get a EXIT_BLK_ID from source=6 and Prepare to free it
+Ana_Proc11: Consumer get a EXIT_BLK_ID from source=6! num_exit_flag=1
+Ana_Proc11: Consumer get a EXIT_BLK_ID from source=7 and Prepare to free it
+Ana_Proc11: Consumer get a EXIT_BLK_ID from source=7! num_exit_flag=2
+Ana_Proc11: Consumer prepare to exit!
+Ana_Proc11: Consumer prepare to exit! With ring_buffer num_avail_elements=0
+Ana_Proc11: Consumer T_total_consumer=33.281, T_calc=0.000, T_wait=33.203, T_move_tail=0.000, my_count=400, free_count=400
+Ana_Proc11: A_Writer1 get NULL to exit
+Ana_Proc11: Writer1 T_write=0.000, T_only_fwrite=0.000, T_total=33.281, my_count=400
+Ana_Proc11 on comet-14-01.sdsc.edu: Analysis Job Done! T_total=33.281
+Comp_Proc1: LBM generate the EXIT block_id=-1 in timestep=100 with total_blks 200
+Comp_Proc1 on comet-14-01.sdsc.edu: LBM computation Done! Only_LBM_Time=32.353, T_compute/Block=166408.324us, T_total_compute=33.282
+Ana_Proc8: Receiver3 get a *EXIT_MSG_TAG* from src=0 with block_id=-1, num_exit_flag=1
+Ana_Proc8: Consumer get a EXIT_BLK_ID from source=0 and Prepare to free it
+Ana_Proc8: Consumer get a EXIT_BLK_ID from source=0! num_exit_flag=1
+Comp_Proc5: Sender1 Get exit flag msg and prepare to quit
+Comp_Proc5: ---Normal case--- Sender1 longer than writer !!!!---###---
+Comp_Proc5: Sender1 T_total=33.284, mpi_send_progress_counter=200,T_mix_send=0.000, T_only_mpi_send=1.963, mix_msg_id=0, disk_id=0, long_msg_id=200
+Comp_Proc5: Job finish on comet-14-01.sdsc.edu, T_total=33.284
+Comp_Proc1: Sender1 Get exit flag msg and prepare to quit
+Comp_Proc1: ---Normal case--- Sender1 longer than writer !!!!---###---
+Comp_Proc1: Sender1 T_total=33.284, mpi_send_progress_counter=200,T_mix_send=0.000, T_only_mpi_send=1.128, mix_msg_id=0, disk_id=0, long_msg_id=200
+Comp_Proc1: Job finish on comet-14-01.sdsc.edu, T_total=33.285
+Ana_Proc10: Receiver3 get a *EXIT_MSG_TAG* from src=4 with block_id=-1, num_exit_flag=1
+Ana_Proc10: Receiver3 get a *EXIT_MSG_TAG* from src=5 with block_id=-1, num_exit_flag=2
+Ana_Proc10: Receiver3 T_total=33.287, mpi_recv_progress_counter=400, T_receive_wait=31.858, T_wait_lock=0.000, long_msg_id=400, mix_msg_id= 0,disk_id=0
+Ana_Proc10: Consumer get a EXIT_BLK_ID from source=4 and Prepare to free it
+Ana_Proc8: Receiver3 get a *EXIT_MSG_TAG* from src=1 with block_id=-1, num_exit_flag=2
+Ana_Proc8: Receiver3 T_total=33.288, mpi_recv_progress_counter=400, T_receive_wait=31.941, T_wait_lock=0.000, long_msg_id=400, mix_msg_id= 0,disk_id=0
+Ana_Proc10: Consumer get a EXIT_BLK_ID from source=4! num_exit_flag=1
+Ana_Proc10: Consumer get a EXIT_BLK_ID from source=5 and Prepare to free it
+Ana_Proc10: Consumer get a EXIT_BLK_ID from source=5! num_exit_flag=2
+Ana_Proc10: Consumer prepare to exit!
+Ana_Proc10: Consumer prepare to exit! With ring_buffer num_avail_elements=0
+Ana_Proc10: Consumer T_total_consumer=33.288, T_calc=0.000, T_wait=33.185, T_move_tail=0.000, my_count=400, free_count=400
+Ana_Proc10: A_Writer1 get NULL to exit
+Ana_Proc10: Writer1 T_write=0.001, T_only_fwrite=0.000, T_total=33.288, my_count=400
+Ana_Proc10 on comet-14-01.sdsc.edu: Analysis Job Done! T_total=33.288
+Ana_Proc8: Consumer get a EXIT_BLK_ID from source=1 and Prepare to free it
+Ana_Proc8: Consumer get a EXIT_BLK_ID from source=1! num_exit_flag=2
+Ana_Proc8: Consumer prepare to exit!
+Ana_Proc8: Consumer prepare to exit! With ring_buffer num_avail_elements=0
+Ana_Proc8: Consumer T_total_consumer=33.288, T_calc=0.000, T_wait=33.179, T_move_tail=0.000, my_count=400, free_count=400
+Ana_Proc8: A_Writer1 get NULL to exit
+Ana_Proc8: Writer1 T_write=0.000, T_only_fwrite=0.000, T_total=33.288, my_count=400
+Ana_Proc8 on comet-14-01.sdsc.edu: Analysis Job Done! T_total=33.288
+IBRUN: Job ended with value 0
+-----------Start Deleting files-------------
+-----------End Delete files-------------
+********************************************************************
+LBMconcurrentstore 2048 KB, 0% PRB
+********************************************************************
+IBRUN: Command is /home/qoofyk/General_Data_Broker/lbm_concurrent_store/lbm_concurrent_store
+IBRUN: Command is /home/qoofyk/General_Data_Broker/lbm_concurrent_store/lbm_concurrent_store
+IBRUN: Even number of ranks per node (12)--hacking nodefile...
+IBRUN: Running on 1 unique nodes
+IBRUN: Will place 12 ranks on comet-14-01 with 2 threads each
+IBRUN: Nodefile is /tmp/TchT6CTjK4
+IBRUN: Adding MV2_CPU_MAPPING=0-1:2-3:4-5:6-7:8-9:10-11:12-13:14-15:16-17:18-19:20-21:22-23:24-25:26-27:28-29:30-31:32-33:34-35:36-37:38-39:40-41:42-43:44-45:46-47 to the environment
+IBRUN: Adding MV2_USE_OLD_BCAST=1 to the environment
+IBRUN: Adding MV2_USE_HUGEPAGES=0 to the environment
+IBRUN: Adding MV2_HOMOGENEOUS_CLUSTER=0 to the environment
+IBRUN: Adding MV2_DEFAULT_TIME_OUT=23 to the environment
+IBRUN: Adding MV2_USE_UD_HYBRID=0 to the environment
+IBRUN: Added 6 new environment variables to the execution environment
+IBRUN: Command string is [mpirun_rsh -np 12 -hostfile /tmp/TchT6CTjK4 -export /home/qoofyk/General_Data_Broker/lbm_concurrent_store/lbm_concurrent_store 1 1 1 1 0 2 4 32 128 100 4 256]
+Hello world! I'm rank 0 of 12 on comet-14-01.sdsc.edu with provided=3, block_size=2097168, cube_size=262144 double
+Hello world! I'm rank 3 of 12 on comet-14-01.sdsc.edu with provided=3, block_size=2097168, cube_size=262144 double
+Hello world! I'm rank 10 of 12 on comet-14-01.sdsc.edu with provided=3, block_size=2097168, cube_size=262144 double
+Hello world! I'm rank 6 of 12 on comet-14-01.sdsc.edu with provided=3, block_size=2097168, cube_size=262144 double
+Hello world! I'm rank 1 of 12 on comet-14-01.sdsc.edu with provided=3, block_size=2097168, cube_size=262144 double
+Hello world! I'm rank 4 of 12 on comet-14-01.sdsc.edu with provided=3, block_size=2097168, cube_size=262144 double
+Hello world! I'm rank 11 of 12 on comet-14-01.sdsc.edu with provided=3, block_size=2097168, cube_size=262144 double
+Hello world! I'm rank 7 of 12 on comet-14-01.sdsc.edu with provided=3, block_size=2097168, cube_size=262144 double
+Hello world! I'm rank 5 of 12 on comet-14-01.sdsc.edu with provided=3, block_size=2097168, cube_size=262144 double
+Hello world! I'm rank 8 of 12 on comet-14-01.sdsc.edu with provided=3, block_size=2097168, cube_size=262144 double
+Hello world! I'm rank 9 of 12 on comet-14-01.sdsc.edu with provided=3, block_size=2097168, cube_size=262144 double
+Hello world! I'm rank 2 of 12 on comet-14-01.sdsc.edu with provided=3, block_size=2097168, cube_size=262144 double
+Comp_Proc7 of 8 cpt_total_blks=800, writer_blk_num=0, sender_blk_num=800, PRODUCER_Ringbuffer 0.500GB, size=256 member
+Ana_Proc8 of 4 ana_total_blks=1600, reader_blk_num=0, analysis_writer_blk_num=1600, CONSUMER_Ringbuffer 0.500GB, size=256 member
+Ana_Proc11 of 4 ana_total_blks=1600, reader_blk_num=0, analysis_writer_blk_num=1600, CONSUMER_Ringbuffer 0.500GB, size=256 member
+Comp_Proc0 of 8 cpt_total_blks=800, writer_blk_num=0, sender_blk_num=800, PRODUCER_Ringbuffer 0.500GB, size=256 member
+Comp_Proc2: Writer0 is turned off
+Comp_Proc1: Writer0 is turned off
+Comp_Proc6: Writer0 is turned off
+Comp_Proc4: Writer0 is turned off
+Ana_Proc9: Reader0 is turned off
+Comp_Proc2: Writer0 T_write=0.000, T_only_fwrite=0.000, T_total=0.000 with 0 blocks
+Comp_Proc1: Writer0 T_write=0.000, T_only_fwrite=0.000, T_total=0.000 with 0 blocks
+Comp_Proc6: Writer0 T_write=0.000, T_only_fwrite=0.000, T_total=0.000 with 0 blocks
+Comp_Proc4: Writer0 T_write=0.000, T_only_fwrite=0.000, T_total=0.000 with 0 blocks
+Ana_Proc9: Reader0 T_total=0.000, T_io_read=0.000, T_only_fread=0.000 with 0 blocks
+Ana_Proc10: Reader0 is turned off
+Comp_Proc5: Writer0 is turned off
+Ana_Proc11: Reader0 is turned off
+Comp_Proc0: Writer0 is turned off
+Ana_Proc11: Reader0 T_total=0.000, T_io_read=0.000, T_only_fread=0.000 with 0 blocks
+Ana_Proc10: Reader0 T_total=0.000, T_io_read=0.000, T_only_fread=0.000 with 0 blocks
+Comp_Proc5: Writer0 T_write=0.000, T_only_fwrite=0.000, T_total=0.000 with 0 blocks
+Comp_Proc0: Writer0 T_write=0.000, T_only_fwrite=0.000, T_total=0.000 with 0 blocks
+Ana_Proc8: Reader0 is turned off
+Ana_Proc8: Reader0 T_total=0.000, T_io_read=0.000, T_only_fread=0.000 with 0 blocks
+Comp_Proc7: Writer0 is turned off
+Comp_Proc7: Writer0 T_write=0.000, T_only_fwrite=0.000, T_total=0.000 with 0 blocks
+Comp_Proc3: Writer0 is turned off
+Comp_Proc3: Writer0 T_write=0.000, T_only_fwrite=0.000, T_total=0.001 with 0 blocks
+Init LBM Time=0.089381
+step=0 of 100
+step=1 of 100
+step=2 of 100
+step=3 of 100
+step=4 of 100
+step=5 of 100
+step=6 of 100
+step=7 of 100
+step=8 of 100
+step=9 of 100
+step=10 of 100
+step=11 of 100
+step=12 of 100
+step=13 of 100
+step=14 of 100
+step=15 of 100
+step=16 of 100
+step=17 of 100
+step=18 of 100
+step=19 of 100
+step=20 of 100
+step=21 of 100
+step=22 of 100
+step=23 of 100
+step=24 of 100
+step=25 of 100
+step=26 of 100
+step=27 of 100
+step=28 of 100
+step=29 of 100
+step=30 of 100
+step=31 of 100
+step=32 of 100
+step=33 of 100
+step=34 of 100
+step=35 of 100
+step=36 of 100
+step=37 of 100
+step=38 of 100
+step=39 of 100
+step=40 of 100
+step=41 of 100
+step=42 of 100
+step=43 of 100
+step=44 of 100
+step=45 of 100
+step=46 of 100
+step=47 of 100
+step=48 of 100
+step=49 of 100
+step=50 of 100
+step=51 of 100
+step=52 of 100
+step=53 of 100
+step=54 of 100
+step=55 of 100
+step=56 of 100
+step=57 of 100
+step=58 of 100
+step=59 of 100
+step=60 of 100
+step=61 of 100
+step=62 of 100
+step=63 of 100
+step=64 of 100
+step=65 of 100
+step=66 of 100
+step=67 of 100
+step=68 of 100
+step=69 of 100
+step=70 of 100
+step=71 of 100
+step=72 of 100
+step=73 of 100
+step=74 of 100
+step=75 of 100
+step=76 of 100
+step=77 of 100
+step=78 of 100
+step=79 of 100
+step=80 of 100
+step=81 of 100
+step=82 of 100
+step=83 of 100
+step=84 of 100
+step=85 of 100
+step=86 of 100
+step=87 of 100
+step=88 of 100
+step=89 of 100
+step=90 of 100
+step=91 of 100
+step=92 of 100
+step=93 of 100
+step=94 of 100
+step=95 of 100
+step=96 of 100
+step=97 of 100
+step=98 of 100
+step=99 of 100
+Comp_Proc0: LBM generate the EXIT block_id=-1 in timestep=100 with total_blks 800
+Comp_Proc0 on comet-14-01.sdsc.edu: LBM computation Done! Only_LBM_Time=33.418, T_compute/Block=43145.689us, T_total_compute=34.517
+Comp_Proc3: LBM generate the EXIT block_id=-1 in timestep=100 with total_blks 800
+Comp_Proc0: Sender1 Get exit flag msg and prepare to quit
+Comp_Proc3 on comet-14-01.sdsc.edu: LBM computation Done! Only_LBM_Time=33.339, T_compute/Block=43152.990us, T_total_compute=34.522
+Comp_Proc0: ---Normal case--- Sender1 longer than writer !!!!---###---
+Comp_Proc0: Sender1 T_total=34.523, mpi_send_progress_counter=800,T_mix_send=0.000, T_only_mpi_send=1.180, mix_msg_id=0, disk_id=0, long_msg_id=800
+Comp_Proc0: Job finish on comet-14-01.sdsc.edu, T_total=34.523
+Comp_Proc2: LBM generate the EXIT block_id=-1 in timestep=100 with total_blks 800
+Comp_Proc2 on comet-14-01.sdsc.edu: LBM computation Done! Only_LBM_Time=33.422, T_compute/Block=43153.723us, T_total_compute=34.523
+Comp_Proc4: LBM generate the EXIT block_id=-1 in timestep=100 with total_blks 800
+Comp_Proc4 on comet-14-01.sdsc.edu: LBM computation Done! Only_LBM_Time=33.315, T_compute/Block=43154.961us, T_total_compute=34.524
+Comp_Proc6: LBM generate the EXIT block_id=-1 in timestep=100 with total_blks 800
+Comp_Proc6 on comet-14-01.sdsc.edu: LBM computation Done! Only_LBM_Time=33.365, T_compute/Block=43155.416us, T_total_compute=34.524
+Comp_Proc1: LBM generate the EXIT block_id=-1 in timestep=100 with total_blks 800
+Comp_Proc1 on comet-14-01.sdsc.edu: LBM computation Done! Only_LBM_Time=33.368, T_compute/Block=43155.734us, T_total_compute=34.525
+Ana_Proc8: Receiver3 get a *EXIT_MSG_TAG* from src=0 with block_id=-1, num_exit_flag=1
+Ana_Proc8: Consumer get a EXIT_BLK_ID from source=0 and Prepare to free it
+Ana_Proc8: Consumer get a EXIT_BLK_ID from source=0! num_exit_flag=1
+Comp_Proc7: LBM generate the EXIT block_id=-1 in timestep=100 with total_blks 800
+Comp_Proc7 on comet-14-01.sdsc.edu: LBM computation Done! Only_LBM_Time=33.417, T_compute/Block=43157.224us, T_total_compute=34.526
+Comp_Proc4: Sender1 Get exit flag msg and prepare to quit
+Comp_Proc4: ---Normal case--- Sender1 longer than writer !!!!---###---
+Comp_Proc4: Sender1 T_total=34.530, mpi_send_progress_counter=800,T_mix_send=0.000, T_only_mpi_send=1.241, mix_msg_id=0, disk_id=0, long_msg_id=800
+Comp_Proc4: Job finish on comet-14-01.sdsc.edu, T_total=34.530
+Ana_Proc10: Receiver3 get a *EXIT_MSG_TAG* from src=4 with block_id=-1, num_exit_flag=1
+Ana_Proc10: Consumer get a EXIT_BLK_ID from source=4 and Prepare to free it
+Ana_Proc10: Consumer get a EXIT_BLK_ID from source=4! num_exit_flag=1
+Comp_Proc1: Sender1 Get exit flag msg and prepare to quit
+Comp_Proc1: ---Normal case--- Sender1 longer than writer !!!!---###---
+Comp_Proc1: Sender1 T_total=34.533, mpi_send_progress_counter=800,T_mix_send=0.000, T_only_mpi_send=1.636, mix_msg_id=0, disk_id=0, long_msg_id=800
+Comp_Proc1: Job finish on comet-14-01.sdsc.edu, T_total=34.533
+Comp_Proc5: LBM generate the EXIT block_id=-1 in timestep=100 with total_blks 800
+Ana_Proc8: Receiver3 get a *EXIT_MSG_TAG* from src=1 with block_id=-1, num_exit_flag=2
+Ana_Proc8: Receiver3 T_total=34.534, mpi_recv_progress_counter=1600, T_receive_wait=32.473, T_wait_lock=0.000, long_msg_id=1600, mix_msg_id= 0,disk_id=0
+Comp_Proc5 on comet-14-01.sdsc.edu: LBM computation Done! Only_LBM_Time=33.181, T_compute/Block=43166.664us, T_total_compute=34.533
+Ana_Proc8: Consumer get a EXIT_BLK_ID from source=1 and Prepare to free it
+Ana_Proc8: Consumer get a EXIT_BLK_ID from source=1! num_exit_flag=2
+Ana_Proc8: Consumer prepare to exit!
+Ana_Proc8: Consumer prepare to exit! With ring_buffer num_avail_elements=0
+Ana_Proc8: Consumer T_total_consumer=34.534, T_calc=0.000, T_wait=34.207, T_move_tail=0.000, my_count=1600, free_count=1600
+Ana_Proc8: A_Writer1 get NULL to exit
+Ana_Proc8: Writer1 T_write=0.001, T_only_fwrite=0.000, T_total=34.534, my_count=1600
+Ana_Proc8 on comet-14-01.sdsc.edu: Analysis Job Done! T_total=34.534
+Comp_Proc3: Sender1 Get exit flag msg and prepare to quit
+Comp_Proc3: ---Normal case--- Sender1 longer than writer !!!!---###---
+Comp_Proc3: Sender1 T_total=34.535, mpi_send_progress_counter=800,T_mix_send=0.000, T_only_mpi_send=2.122, mix_msg_id=0, disk_id=0, long_msg_id=800
+Comp_Proc3: Job finish on comet-14-01.sdsc.edu, T_total=34.535
+Comp_Proc6: Sender1 Get exit flag msg and prepare to quit
+Comp_Proc6: ---Normal case--- Sender1 longer than writer !!!!---###---
+Comp_Proc6: Sender1 T_total=34.537, mpi_send_progress_counter=800,T_mix_send=0.000, T_only_mpi_send=2.031, mix_msg_id=0, disk_id=0, long_msg_id=800
+Comp_Proc6: Job finish on comet-14-01.sdsc.edu, T_total=34.537
+Ana_Proc9: Receiver3 get a *EXIT_MSG_TAG* from src=3 with block_id=-1, num_exit_flag=1
+Ana_Proc9: Consumer get a EXIT_BLK_ID from source=3 and Prepare to free it
+Ana_Proc9: Consumer get a EXIT_BLK_ID from source=3! num_exit_flag=1
+Comp_Proc2: Sender1 Get exit flag msg and prepare to quit
+Comp_Proc2: ---Normal case--- Sender1 longer than writer !!!!---###---
+Comp_Proc2: Sender1 T_total=34.538, mpi_send_progress_counter=800,T_mix_send=0.000, T_only_mpi_send=2.453, mix_msg_id=0, disk_id=0, long_msg_id=800
+Comp_Proc2: Job finish on comet-14-01.sdsc.edu, T_total=34.538
+Comp_Proc5: Sender1 Get exit flag msg and prepare to quit
+Comp_Proc5: ---Normal case--- Sender1 longer than writer !!!!---###---
+Comp_Proc5: Sender1 T_total=34.539, mpi_send_progress_counter=800,T_mix_send=0.000, T_only_mpi_send=1.384, mix_msg_id=0, disk_id=0, long_msg_id=800
+Comp_Proc5: Job finish on comet-14-01.sdsc.edu, T_total=34.539
+Ana_Proc9: Receiver3 get a *EXIT_MSG_TAG* from src=2 with block_id=-1, num_exit_flag=2
+Ana_Proc9: Receiver3 T_total=34.539, mpi_recv_progress_counter=1600, T_receive_wait=32.509, T_wait_lock=0.000, long_msg_id=1600, mix_msg_id= 0,disk_id=0
+Ana_Proc9: Consumer get a EXIT_BLK_ID from source=2 and Prepare to free it
+Ana_Proc9: Consumer get a EXIT_BLK_ID from source=2! num_exit_flag=2
+Ana_Proc9: Consumer prepare to exit!
+Ana_Proc9: Consumer prepare to exit! With ring_buffer num_avail_elements=0
+Ana_Proc9: Consumer T_total_consumer=34.539, T_calc=0.000, T_wait=34.221, T_move_tail=0.000, my_count=1600, free_count=1600
+Ana_Proc9: A_Writer1 get NULL to exit
+Ana_Proc9: Writer1 T_write=0.001, T_only_fwrite=0.000, T_total=34.539, my_count=1600
+Ana_Proc9 on comet-14-01.sdsc.edu: Analysis Job Done! T_total=34.539
+Ana_Proc10: Receiver3 get a *EXIT_MSG_TAG* from src=5 with block_id=-1, num_exit_flag=2
+Ana_Proc10: Receiver3 T_total=34.539, mpi_recv_progress_counter=1600, T_receive_wait=32.512, T_wait_lock=0.000, long_msg_id=1600, mix_msg_id= 0,disk_id=0
+Ana_Proc11: Receiver3 get a *EXIT_MSG_TAG* from src=6 with block_id=-1, num_exit_flag=1
+Ana_Proc10: Consumer get a EXIT_BLK_ID from source=5 and Prepare to free it
+Ana_Proc10: Consumer get a EXIT_BLK_ID from source=5! num_exit_flag=2
+Ana_Proc10: Consumer prepare to exit!
+Ana_Proc10: Consumer prepare to exit! With ring_buffer num_avail_elements=0
+Ana_Proc10: Consumer T_total_consumer=34.540, T_calc=0.000, T_wait=34.224, T_move_tail=0.000, my_count=1600, free_count=1600
+Ana_Proc10: A_Writer1 get NULL to exit
+Ana_Proc10: Writer1 T_write=0.001, T_only_fwrite=0.000, T_total=34.540, my_count=1600
+Ana_Proc11: Consumer get a EXIT_BLK_ID from source=6 and Prepare to free it
+Ana_Proc11: Consumer get a EXIT_BLK_ID from source=6! num_exit_flag=1
+Ana_Proc10 on comet-14-01.sdsc.edu: Analysis Job Done! T_total=34.540
+Comp_Proc7: Sender1 Get exit flag msg and prepare to quit
+Comp_Proc7: ---Normal case--- Sender1 longer than writer !!!!---###---
+Comp_Proc7: Sender1 T_total=34.540, mpi_send_progress_counter=800,T_mix_send=0.000, T_only_mpi_send=2.329, mix_msg_id=0, disk_id=0, long_msg_id=800
+Comp_Proc7: Job finish on comet-14-01.sdsc.edu, T_total=34.540
+Ana_Proc11: Receiver3 get a *EXIT_MSG_TAG* from src=7 with block_id=-1, num_exit_flag=2
+Ana_Proc11: Receiver3 T_total=34.541, mpi_recv_progress_counter=1600, T_receive_wait=32.513, T_wait_lock=0.000, long_msg_id=1600, mix_msg_id= 0,disk_id=0
+Ana_Proc11: Consumer get a EXIT_BLK_ID from source=7 and Prepare to free it
+Ana_Proc11: Consumer get a EXIT_BLK_ID from source=7! num_exit_flag=2
+Ana_Proc11: Consumer prepare to exit!
+Ana_Proc11: Consumer prepare to exit! With ring_buffer num_avail_elements=0
+Ana_Proc11: Consumer T_total_consumer=34.541, T_calc=0.000, T_wait=34.239, T_move_tail=0.000, my_count=1600, free_count=1600
+Ana_Proc11: A_Writer1 get NULL to exit
+Ana_Proc11: Writer1 T_write=0.001, T_only_fwrite=0.000, T_total=34.541, my_count=1600
+Ana_Proc11 on comet-14-01.sdsc.edu: Analysis Job Done! T_total=34.541
+IBRUN: Job ended with value 0
+-----------Start Deleting files-------------
+-----------End Delete files-------------
+********************************************************************
+LBMconcurrentstore 4096 KB, 0% PRB
+********************************************************************
+IBRUN: Command is /home/qoofyk/General_Data_Broker/lbm_concurrent_store/lbm_concurrent_store
+IBRUN: Command is /home/qoofyk/General_Data_Broker/lbm_concurrent_store/lbm_concurrent_store
+IBRUN: Even number of ranks per node (12)--hacking nodefile...
+IBRUN: Running on 1 unique nodes
+IBRUN: Will place 12 ranks on comet-14-01 with 2 threads each
+IBRUN: Nodefile is /tmp/1Ra9fZ3l40
+IBRUN: Adding MV2_CPU_MAPPING=0-1:2-3:4-5:6-7:8-9:10-11:12-13:14-15:16-17:18-19:20-21:22-23:24-25:26-27:28-29:30-31:32-33:34-35:36-37:38-39:40-41:42-43:44-45:46-47 to the environment
+IBRUN: Adding MV2_USE_OLD_BCAST=1 to the environment
+IBRUN: Adding MV2_USE_HUGEPAGES=0 to the environment
+IBRUN: Adding MV2_HOMOGENEOUS_CLUSTER=0 to the environment
+IBRUN: Adding MV2_DEFAULT_TIME_OUT=23 to the environment
+IBRUN: Adding MV2_USE_UD_HYBRID=0 to the environment
+IBRUN: Added 6 new environment variables to the execution environment
+IBRUN: Command string is [mpirun_rsh -np 12 -hostfile /tmp/1Ra9fZ3l40 -export /home/qoofyk/General_Data_Broker/lbm_concurrent_store/lbm_concurrent_store 1 1 1 1 0 2 4 64 64 100 4 256]
+Hello world! I'm rank 1 of 12 on comet-14-01.sdsc.edu with provided=3, block_size=4194320, cube_size=524288 double
+Hello world! I'm rank 9 of 12 on comet-14-01.sdsc.edu with provided=3, block_size=4194320, cube_size=524288 double
+Hello world! I'm rank 2 of 12 on comet-14-01.sdsc.edu with provided=3, block_size=4194320, cube_size=524288 double
+Hello world! I'm rank 11 of 12 on comet-14-01.sdsc.edu with provided=3, block_size=4194320, cube_size=524288 double
+Hello world! I'm rank 7 of 12 on comet-14-01.sdsc.edu with provided=3, block_size=4194320, cube_size=524288 double
+Hello world! I'm rank 10 of 12 on comet-14-01.sdsc.edu with provided=3, block_size=4194320, cube_size=524288 double
+Hello world! I'm rank 3 of 12 on comet-14-01.sdsc.edu with provided=3, block_size=4194320, cube_size=524288 double
+Hello world! I'm rank 6 of 12 on comet-14-01.sdsc.edu with provided=3, block_size=4194320, cube_size=524288 double
+Hello world! I'm rank 0 of 12 on comet-14-01.sdsc.edu with provided=3, block_size=4194320, cube_size=524288 double
+Hello world! I'm rank 8 of 12 on comet-14-01.sdsc.edu with provided=3, block_size=4194320, cube_size=524288 double
+Hello world! I'm rank 4 of 12 on comet-14-01.sdsc.edu with provided=3, block_size=4194320, cube_size=524288 double
+Hello world! I'm rank 5 of 12 on comet-14-01.sdsc.edu with provided=3, block_size=4194320, cube_size=524288 double
+Comp_Proc7 of 8 cpt_total_blks=400, writer_blk_num=0, sender_blk_num=400, PRODUCER_Ringbuffer 0.500GB, size=128 member
+Comp_Proc0 of 8 cpt_total_blks=400, writer_blk_num=0, sender_blk_num=400, PRODUCER_Ringbuffer 0.500GB, size=128 member
+Ana_Proc8 of 4 ana_total_blks=800, reader_blk_num=0, analysis_writer_blk_num=800, CONSUMER_Ringbuffer 0.500GB, size=128 member
+Ana_Proc11 of 4 ana_total_blks=800, reader_blk_num=0, analysis_writer_blk_num=800, CONSUMER_Ringbuffer 0.500GB, size=128 member
+Comp_Proc5: Writer0 is turned off
+Comp_Proc5: Writer0 T_write=0.000, T_only_fwrite=0.000, T_total=0.000 with 0 blocks
+Ana_Proc9: Reader0 is turned off
+Comp_Proc7: Writer0 is turned off
+Comp_Proc6: Writer0 is turned off
+Comp_Proc7: Writer0 T_write=0.000, T_only_fwrite=0.000, T_total=0.000 with 0 blocks
+Comp_Proc0: Writer0 is turned off
+Ana_Proc9: Reader0 T_total=0.000, T_io_read=0.000, T_only_fread=0.000 with 0 blocks
+Comp_Proc0: Writer0 T_write=0.000, T_only_fwrite=0.000, T_total=0.000 with 0 blocks
+Comp_Proc6: Writer0 T_write=0.000, T_only_fwrite=0.000, T_total=0.000 with 0 blocks
+Comp_Proc4: Writer0 is turned off
+Comp_Proc4: Writer0 T_write=0.000, T_only_fwrite=0.000, T_total=0.000 with 0 blocks
+Ana_Proc11: Reader0 is turned off
+Ana_Proc10: Reader0 is turned off
+Ana_Proc11: Reader0 T_total=0.000, T_io_read=0.000, T_only_fread=0.000 with 0 blocks
+Ana_Proc10: Reader0 T_total=0.000, T_io_read=0.000, T_only_fread=0.000 with 0 blocks
+Comp_Proc1: Writer0 is turned off
+Comp_Proc1: Writer0 T_write=0.000, T_only_fwrite=0.000, T_total=0.000 with 0 blocks
+Ana_Proc8: Reader0 is turned off
+Ana_Proc8: Reader0 T_total=0.000, T_io_read=0.000, T_only_fread=0.000 with 0 blocks
+Comp_Proc3: Writer0 is turned off
+Comp_Proc3: Writer0 T_write=0.000, T_only_fwrite=0.000, T_total=0.000 with 0 blocks
+Comp_Proc2: Writer0 is turned off
+Comp_Proc2: Writer0 T_write=0.000, T_only_fwrite=0.000, T_total=0.000 with 0 blocks
+Init LBM Time=0.089726
+step=0 of 100
+step=1 of 100
+step=2 of 100
+step=3 of 100
+step=4 of 100
+step=5 of 100
+step=6 of 100
+step=7 of 100
+step=8 of 100
+step=9 of 100
+step=10 of 100
+step=11 of 100
+step=12 of 100
+step=13 of 100
+step=14 of 100
+step=15 of 100
+step=16 of 100
+step=17 of 100
+step=18 of 100
+step=19 of 100
+step=20 of 100
+step=21 of 100
+step=22 of 100
+step=23 of 100
+step=24 of 100
+step=25 of 100
+step=26 of 100
+step=27 of 100
+step=28 of 100
+step=29 of 100
+step=30 of 100
+step=31 of 100
+step=32 of 100
+step=33 of 100
+step=34 of 100
+step=35 of 100
+step=36 of 100
+step=37 of 100
+step=38 of 100
+step=39 of 100
+step=40 of 100
+step=41 of 100
+step=42 of 100
+step=43 of 100
+step=44 of 100
+step=45 of 100
+step=46 of 100
+step=47 of 100
+step=48 of 100
+step=49 of 100
+step=50 of 100
+step=51 of 100
+step=52 of 100
+step=53 of 100
+step=54 of 100
+step=55 of 100
+step=56 of 100
+step=57 of 100
+step=58 of 100
+step=59 of 100
+step=60 of 100
+step=61 of 100
+step=62 of 100
+step=63 of 100
+step=64 of 100
+step=65 of 100
+step=66 of 100
+step=67 of 100
+step=68 of 100
+step=69 of 100
+step=70 of 100
+step=71 of 100
+step=72 of 100
+step=73 of 100
+step=74 of 100
+step=75 of 100
+step=76 of 100
+step=77 of 100
+step=78 of 100
+step=79 of 100
+step=80 of 100
+step=81 of 100
+step=82 of 100
+step=83 of 100
+step=84 of 100
+step=85 of 100
+step=86 of 100
+step=87 of 100
+step=88 of 100
+step=89 of 100
+step=90 of 100
+step=91 of 100
+step=92 of 100
+step=93 of 100
+step=94 of 100
+step=95 of 100
+step=96 of 100
+step=97 of 100
+step=98 of 100
+step=99 of 100
+Comp_Proc5: LBM generate the EXIT block_id=-1 in timestep=100 with total_blks 400
+Comp_Proc4: LBM generate the EXIT block_id=-1 in timestep=100 with total_blks 400
+Comp_Proc4 on comet-14-01.sdsc.edu: LBM computation Done! Only_LBM_Time=31.709, T_compute/Block=81969.572us, T_total_compute=32.788
+Comp_Proc5 on comet-14-01.sdsc.edu: LBM computation Done! Only_LBM_Time=31.704, T_compute/Block=81968.952us, T_total_compute=32.788
+Comp_Proc2: LBM generate the EXIT block_id=-1 in timestep=100 with total_blks 400
+Comp_Proc2 on comet-14-01.sdsc.edu: LBM computation Done! Only_LBM_Time=31.659, T_compute/Block=81973.472us, T_total_compute=32.789
+Comp_Proc6: LBM generate the EXIT block_id=-1 in timestep=100 with total_blks 400
+Comp_Proc6 on comet-14-01.sdsc.edu: LBM computation Done! Only_LBM_Time=31.696, T_compute/Block=81974.625us, T_total_compute=32.790
+Comp_Proc7: LBM generate the EXIT block_id=-1 in timestep=100 with total_blks 400
+Comp_Proc7 on comet-14-01.sdsc.edu: LBM computation Done! Only_LBM_Time=31.762, T_compute/Block=81975.565us, T_total_compute=32.790
+Comp_Proc0: LBM generate the EXIT block_id=-1 in timestep=100 with total_blks 400
+Comp_Proc0 on comet-14-01.sdsc.edu: LBM computation Done! Only_LBM_Time=31.686, T_compute/Block=81977.620us, T_total_compute=32.791
+Comp_Proc0: Sender1 Get exit flag msg and prepare to quit
+Comp_Proc0: ---Normal case--- Sender1 longer than writer !!!!---###---
+Comp_Proc0: Sender1 T_total=32.794, mpi_send_progress_counter=400,T_mix_send=0.000, T_only_mpi_send=0.892, mix_msg_id=0, disk_id=0, long_msg_id=400
+Comp_Proc0: Job finish on comet-14-01.sdsc.edu, T_total=32.794
+Ana_Proc8: Receiver3 get a *EXIT_MSG_TAG* from src=0 with block_id=-1, num_exit_flag=1
+Ana_Proc8: Consumer get a EXIT_BLK_ID from source=0 and Prepare to free it
+Ana_Proc8: Consumer get a EXIT_BLK_ID from source=0! num_exit_flag=1
+Comp_Proc2: Sender1 Get exit flag msg and prepare to quit
+Comp_Proc2: ---Normal case--- Sender1 longer than writer !!!!---###---
+Comp_Proc2: Sender1 T_total=32.796, mpi_send_progress_counter=400,T_mix_send=0.000, T_only_mpi_send=1.147, mix_msg_id=0, disk_id=0, long_msg_id=400
+Comp_Proc2: Job finish on comet-14-01.sdsc.edu, T_total=32.796
+Comp_Proc3: LBM generate the EXIT block_id=-1 in timestep=100 with total_blks 400
+Comp_Proc3 on comet-14-01.sdsc.edu: LBM computation Done! Only_LBM_Time=31.329, T_compute/Block=81987.528us, T_total_compute=32.795
+Comp_Proc3: Sender1 Get exit flag msg and prepare to quit
+Comp_Proc3: ---Normal case--- Sender1 longer than writer !!!!---###---
+Comp_Proc3: Sender1 T_total=32.797, mpi_send_progress_counter=400,T_mix_send=0.000, T_only_mpi_send=1.011, mix_msg_id=0, disk_id=0, long_msg_id=400
+Comp_Proc3: Job finish on comet-14-01.sdsc.edu, T_total=32.798
+Ana_Proc9: Receiver3 get a *EXIT_MSG_TAG* from src=2 with block_id=-1, num_exit_flag=1
+Ana_Proc9: Receiver3 get a *EXIT_MSG_TAG* from src=3 with block_id=-1, num_exit_flag=2
+Ana_Proc9: Receiver3 T_total=32.799, mpi_recv_progress_counter=800, T_receive_wait=31.715, T_wait_lock=0.000, long_msg_id=800, mix_msg_id= 0,disk_id=0
+Ana_Proc9: Consumer get a EXIT_BLK_ID from source=2 and Prepare to free it
+Ana_Proc9: Consumer get a EXIT_BLK_ID from source=2! num_exit_flag=1
+Ana_Proc9: Consumer get a EXIT_BLK_ID from source=3 and Prepare to free it
+Ana_Proc9: Consumer get a EXIT_BLK_ID from source=3! num_exit_flag=2
+Ana_Proc9: Consumer prepare to exit!
+Ana_Proc9: Consumer prepare to exit! With ring_buffer num_avail_elements=0
+Ana_Proc9: Consumer T_total_consumer=32.799, T_calc=0.000, T_wait=32.785, T_move_tail=0.000, my_count=800, free_count=800
+Ana_Proc9: A_Writer1 get NULL to exit
+Ana_Proc9: Writer1 T_write=0.001, T_only_fwrite=0.000, T_total=32.800, my_count=800
+Ana_Proc9 on comet-14-01.sdsc.edu: Analysis Job Done! T_total=32.800
+Comp_Proc6: Sender1 Get exit flag msg and prepare to quit
+Comp_Proc6: ---Normal case--- Sender1 longer than writer !!!!---###---
+Comp_Proc6: Sender1 T_total=32.800, mpi_send_progress_counter=400,T_mix_send=0.000, T_only_mpi_send=1.672, mix_msg_id=0, disk_id=0, long_msg_id=400
+Comp_Proc6: Job finish on comet-14-01.sdsc.edu, T_total=32.801
+Comp_Proc5: Sender1 Get exit flag msg and prepare to quit
+Comp_Proc5: ---Normal case--- Sender1 longer than writer !!!!---###---
+Comp_Proc5: Sender1 T_total=32.801, mpi_send_progress_counter=400,T_mix_send=0.000, T_only_mpi_send=1.829, mix_msg_id=0, disk_id=0, long_msg_id=400
+Comp_Proc5: Job finish on comet-14-01.sdsc.edu, T_total=32.801
+Comp_Proc7: Sender1 Get exit flag msg and prepare to quit
+Comp_Proc7: ---Normal case--- Sender1 longer than writer !!!!---###---
+Comp_Proc7: Sender1 T_total=32.803, mpi_send_progress_counter=400,T_mix_send=0.000, T_only_mpi_send=1.822, mix_msg_id=0, disk_id=0, long_msg_id=400
+Comp_Proc7: Job finish on comet-14-01.sdsc.edu, T_total=32.803
+Comp_Proc4: Sender1 Get exit flag msg and prepare to quit
+Comp_Proc4: ---Normal case--- Sender1 longer than writer !!!!---###---
+Comp_Proc4: Sender1 T_total=32.802, mpi_send_progress_counter=400,T_mix_send=0.000, T_only_mpi_send=2.205, mix_msg_id=0, disk_id=0, long_msg_id=400
+Comp_Proc4: Job finish on comet-14-01.sdsc.edu, T_total=32.804
+Ana_Proc11: Receiver3 get a *EXIT_MSG_TAG* from src=6 with block_id=-1, num_exit_flag=1
+Ana_Proc11: Receiver3 get a *EXIT_MSG_TAG* from src=7 with block_id=-1, num_exit_flag=2
+Ana_Proc11: Receiver3 T_total=32.805, mpi_recv_progress_counter=800, T_receive_wait=31.238, T_wait_lock=0.000, long_msg_id=800, mix_msg_id= 0,disk_id=0
+Ana_Proc11: Consumer get a EXIT_BLK_ID from source=6 and Prepare to free it
+Ana_Proc11: Consumer get a EXIT_BLK_ID from source=6! num_exit_flag=1
+Ana_Proc11: Consumer get a EXIT_BLK_ID from source=7 and Prepare to free it
+Ana_Proc11: Consumer get a EXIT_BLK_ID from source=7! num_exit_flag=2
+Ana_Proc11: Consumer prepare to exit!
+Ana_Proc11: Consumer prepare to exit! With ring_buffer num_avail_elements=0
+Ana_Proc11: Consumer T_total_consumer=32.805, T_calc=0.000, T_wait=32.610, T_move_tail=0.000, my_count=800, free_count=800
+Ana_Proc11: A_Writer1 get NULL to exit
+Ana_Proc11: Writer1 T_write=0.001, T_only_fwrite=0.000, T_total=32.805, my_count=800
+Ana_Proc11 on comet-14-01.sdsc.edu: Analysis Job Done! T_total=32.805
+Comp_Proc1: LBM generate the EXIT block_id=-1 in timestep=100 with total_blks 400
+Comp_Proc1 on comet-14-01.sdsc.edu: LBM computation Done! Only_LBM_Time=31.527, T_compute/Block=82009.920us, T_total_compute=32.804
+Ana_Proc10: Receiver3 get a *EXIT_MSG_TAG* from src=5 with block_id=-1, num_exit_flag=1
+Ana_Proc10: Receiver3 get a *EXIT_MSG_TAG* from src=4 with block_id=-1, num_exit_flag=2
+Ana_Proc10: Receiver3 T_total=32.806, mpi_recv_progress_counter=800, T_receive_wait=31.202, T_wait_lock=0.000, long_msg_id=800, mix_msg_id= 0,disk_id=0
+Comp_Proc1: Sender1 Get exit flag msg and prepare to quit
+Comp_Proc1: ---Normal case--- Sender1 longer than writer !!!!---###---
+Comp_Proc1: Sender1 T_total=32.806, mpi_send_progress_counter=400,T_mix_send=0.000, T_only_mpi_send=0.949, mix_msg_id=0, disk_id=0, long_msg_id=400
+Comp_Proc1: Job finish on comet-14-01.sdsc.edu, T_total=32.806
+Ana_Proc10: Consumer get a EXIT_BLK_ID from source=5 and Prepare to free it
+Ana_Proc10: Consumer get a EXIT_BLK_ID from source=5! num_exit_flag=1
+Ana_Proc10: Consumer get a EXIT_BLK_ID from source=4 and Prepare to free it
+Ana_Proc10: Consumer get a EXIT_BLK_ID from source=4! num_exit_flag=2
+Ana_Proc10: Consumer prepare to exit!
+Ana_Proc10: Consumer prepare to exit! With ring_buffer num_avail_elements=0
+Ana_Proc10: Consumer T_total_consumer=32.806, T_calc=0.000, T_wait=32.666, T_move_tail=0.000, my_count=800, free_count=800
+Ana_Proc10: A_Writer1 get NULL to exit
+Ana_Proc10: Writer1 T_write=0.001, T_only_fwrite=0.000, T_total=32.806, my_count=800
+Ana_Proc10 on comet-14-01.sdsc.edu: Analysis Job Done! T_total=32.806
+Ana_Proc8: Receiver3 get a *EXIT_MSG_TAG* from src=1 with block_id=-1, num_exit_flag=2
+Ana_Proc8: Receiver3 T_total=32.808, mpi_recv_progress_counter=800, T_receive_wait=31.245, T_wait_lock=0.000, long_msg_id=800, mix_msg_id= 0,disk_id=0
+Ana_Proc8: Consumer get a EXIT_BLK_ID from source=1 and Prepare to free it
+Ana_Proc8: Consumer get a EXIT_BLK_ID from source=1! num_exit_flag=2
+Ana_Proc8: Consumer prepare to exit!
+Ana_Proc8: Consumer prepare to exit! With ring_buffer num_avail_elements=0
+Ana_Proc8: Consumer T_total_consumer=32.808, T_calc=0.000, T_wait=32.668, T_move_tail=0.000, my_count=800, free_count=800
+Ana_Proc8: A_Writer1 get NULL to exit
+Ana_Proc8: Writer1 T_write=0.001, T_only_fwrite=0.000, T_total=32.808, my_count=800
+Ana_Proc8 on comet-14-01.sdsc.edu: Analysis Job Done! T_total=32.808
+IBRUN: Job ended with value 0
+-----------Start Deleting files-------------
+-----------End Delete files-------------
+********************************************************************
+LBMconcurrentstore 8192 KB, 0% PRB
+********************************************************************
+IBRUN: Command is /home/qoofyk/General_Data_Broker/lbm_concurrent_store/lbm_concurrent_store
+IBRUN: Command is /home/qoofyk/General_Data_Broker/lbm_concurrent_store/lbm_concurrent_store
+IBRUN: Even number of ranks per node (12)--hacking nodefile...
+IBRUN: Running on 1 unique nodes
+IBRUN: Will place 12 ranks on comet-14-01 with 2 threads each
+IBRUN: Nodefile is /tmp/AwWLDMbfod
+IBRUN: Adding MV2_CPU_MAPPING=0-1:2-3:4-5:6-7:8-9:10-11:12-13:14-15:16-17:18-19:20-21:22-23:24-25:26-27:28-29:30-31:32-33:34-35:36-37:38-39:40-41:42-43:44-45:46-47 to the environment
+IBRUN: Adding MV2_USE_OLD_BCAST=1 to the environment
+IBRUN: Adding MV2_USE_HUGEPAGES=0 to the environment
+IBRUN: Adding MV2_HOMOGENEOUS_CLUSTER=0 to the environment
+IBRUN: Adding MV2_DEFAULT_TIME_OUT=23 to the environment
+IBRUN: Adding MV2_USE_UD_HYBRID=0 to the environment
+IBRUN: Added 6 new environment variables to the execution environment
+IBRUN: Command string is [mpirun_rsh -np 12 -hostfile /tmp/AwWLDMbfod -export /home/qoofyk/General_Data_Broker/lbm_concurrent_store/lbm_concurrent_store 1 1 1 1 0 2 4 64 128 100 4 256]
+Hello world! I'm rank 0 of 12 on comet-14-01.sdsc.edu with provided=3, block_size=8388624, cube_size=1048576 double
+Hello world! I'm rank 6 of 12 on comet-14-01.sdsc.edu with provided=3, block_size=8388624, cube_size=1048576 double
+Hello world! I'm rank 11 of 12 on comet-14-01.sdsc.edu with provided=3, block_size=8388624, cube_size=1048576 double
+Hello world! I'm rank 8 of 12 on comet-14-01.sdsc.edu with provided=3, block_size=8388624, cube_size=1048576 double
+Hello world! I'm rank 5 of 12 on comet-14-01.sdsc.edu with provided=3, block_size=8388624, cube_size=1048576 double
+Hello world! I'm rank 10 of 12 on comet-14-01.sdsc.edu with provided=3, block_size=8388624, cube_size=1048576 double
+Hello world! I'm rank 7 of 12 on comet-14-01.sdsc.edu with provided=3, block_size=8388624, cube_size=1048576 double
+Hello world! I'm rank 1 of 12 on comet-14-01.sdsc.edu with provided=3, block_size=8388624, cube_size=1048576 double
+Hello world! I'm rank 3 of 12 on comet-14-01.sdsc.edu with provided=3, block_size=8388624, cube_size=1048576 double
+Hello world! I'm rank 9 of 12 on comet-14-01.sdsc.edu with provided=3, block_size=8388624, cube_size=1048576 double
+Hello world! I'm rank 2 of 12 on comet-14-01.sdsc.edu with provided=3, block_size=8388624, cube_size=1048576 double
+Hello world! I'm rank 4 of 12 on comet-14-01.sdsc.edu with provided=3, block_size=8388624, cube_size=1048576 double
+Ana_Proc11 of 4 ana_total_blks=400, reader_blk_num=0, analysis_writer_blk_num=400, CONSUMER_Ringbuffer 0.500GB, size=64 member
+Ana_Proc8 of 4 ana_total_blks=400, reader_blk_num=0, analysis_writer_blk_num=400, CONSUMER_Ringbuffer 0.500GB, size=64 member
+Comp_Proc7 of 8 cpt_total_blks=200, writer_blk_num=0, sender_blk_num=200, PRODUCER_Ringbuffer 0.500GB, size=64 member
+Comp_Proc0 of 8 cpt_total_blks=200, writer_blk_num=0, sender_blk_num=200, PRODUCER_Ringbuffer 0.500GB, size=64 member
+Comp_Proc4: Writer0 is turned off
+Comp_Proc2: Writer0 is turned off
+Comp_Proc6: Writer0 is turned off
+Ana_Proc9: Reader0 is turned off
+Comp_Proc1: Writer0 is turned off
+Comp_Proc4: Writer0 T_write=0.000, T_only_fwrite=0.000, T_total=0.000 with 0 blocks
+Comp_Proc2: Writer0 T_write=0.000, T_only_fwrite=0.000, T_total=0.000 with 0 blocks
+Comp_Proc6: Writer0 T_write=0.000, T_only_fwrite=0.000, T_total=0.000 with 0 blocks
+Ana_Proc9: Reader0 T_total=0.000, T_io_read=0.000, T_only_fread=0.000 with 0 blocks
+Comp_Proc1: Writer0 T_write=0.000, T_only_fwrite=0.000, T_total=0.000 with 0 blocks
+Comp_Proc7: Writer0 is turned off
+Comp_Proc7: Writer0 T_write=0.000, T_only_fwrite=0.000, T_total=0.000 with 0 blocks
+Ana_Proc11: Reader0 is turned off
+Ana_Proc11: Reader0 T_total=0.000, T_io_read=0.000, T_only_fread=0.000 with 0 blocks
+Ana_Proc10: Reader0 is turned off
+Ana_Proc8: Reader0 is turned off
+Comp_Proc3: Writer0 is turned off
+Ana_Proc8: Reader0 T_total=0.000, T_io_read=0.000, T_only_fread=0.000 with 0 blocks
+Comp_Proc3: Writer0 T_write=0.000, T_only_fwrite=0.000, T_total=0.000 with 0 blocks
+Comp_Proc5: Writer0 is turned off
+Comp_Proc5: Writer0 T_write=0.000, T_only_fwrite=0.000, T_total=0.000 with 0 blocks
+Ana_Proc10: Reader0 T_total=0.000, T_io_read=0.000, T_only_fread=0.000 with 0 blocks
+Comp_Proc0: Writer0 is turned off
+Comp_Proc0: Writer0 T_write=0.000, T_only_fwrite=0.000, T_total=0.000 with 0 blocks
+Init LBM Time=0.089343
+step=0 of 100
+step=1 of 100
+step=2 of 100
+step=3 of 100
+step=4 of 100
+step=5 of 100
+step=6 of 100
+step=7 of 100
+step=8 of 100
+step=9 of 100
+step=10 of 100
+step=11 of 100
+step=12 of 100
+step=13 of 100
+step=14 of 100
+step=15 of 100
+step=16 of 100
+step=17 of 100
+step=18 of 100
+step=19 of 100
+step=20 of 100
+step=21 of 100
+step=22 of 100
+step=23 of 100
+step=24 of 100
+step=25 of 100
+step=26 of 100
+step=27 of 100
+step=28 of 100
+step=29 of 100
+step=30 of 100
+step=31 of 100
+step=32 of 100
+step=33 of 100
+step=34 of 100
+step=35 of 100
+step=36 of 100
+step=37 of 100
+step=38 of 100
+step=39 of 100
+step=40 of 100
+step=41 of 100
+step=42 of 100
+step=43 of 100
+step=44 of 100
+step=45 of 100
+step=46 of 100
+step=47 of 100
+step=48 of 100
+step=49 of 100
+step=50 of 100
+step=51 of 100
+step=52 of 100
+step=53 of 100
+step=54 of 100
+step=55 of 100
+step=56 of 100
+step=57 of 100
+step=58 of 100
+step=59 of 100
+step=60 of 100
+step=61 of 100
+step=62 of 100
+step=63 of 100
+step=64 of 100
+step=65 of 100
+step=66 of 100
+step=67 of 100
+step=68 of 100
+step=69 of 100
+step=70 of 100
+step=71 of 100
+step=72 of 100
+step=73 of 100
+step=74 of 100
+step=75 of 100
+step=76 of 100
+step=77 of 100
+step=78 of 100
+step=79 of 100
+step=80 of 100
+step=81 of 100
+step=82 of 100
+step=83 of 100
+step=84 of 100
+step=85 of 100
+step=86 of 100
+step=87 of 100
+step=88 of 100
+step=89 of 100
+step=90 of 100
+step=91 of 100
+step=92 of 100
+step=93 of 100
+step=94 of 100
+step=95 of 100
+step=96 of 100
+step=97 of 100
+step=98 of 100
+step=99 of 100
+Comp_Proc0: LBM generate the EXIT block_id=-1 in timestep=100 with total_blks 200
+Comp_Proc0 on comet-14-01.sdsc.edu: LBM computation Done! Only_LBM_Time=32.461, T_compute/Block=165995.220us, T_total_compute=33.199
+Comp_Proc4: LBM generate the EXIT block_id=-1 in timestep=100 with total_blks 200
+Comp_Proc4 on comet-14-01.sdsc.edu: LBM computation Done! Only_LBM_Time=32.296, T_compute/Block=166021.335us, T_total_compute=33.204
+Comp_Proc0: Sender1 Get exit flag msg and prepare to quit
+Comp_Proc0: ---Normal case--- Sender1 longer than writer !!!!---###---
+Comp_Proc0: Sender1 T_total=33.205, mpi_send_progress_counter=200,T_mix_send=0.000, T_only_mpi_send=0.621, mix_msg_id=0, disk_id=0, long_msg_id=200
+Comp_Proc2: LBM generate the EXIT block_id=-1 in timestep=100 with total_blks 200
+Comp_Proc0: Job finish on comet-14-01.sdsc.edu, T_total=33.205
+Comp_Proc2 on comet-14-01.sdsc.edu: LBM computation Done! Only_LBM_Time=32.319, T_compute/Block=166022.640us, T_total_compute=33.205
+Comp_Proc5: LBM generate the EXIT block_id=-1 in timestep=100 with total_blks 200
+Comp_Proc5 on comet-14-01.sdsc.edu: LBM computation Done! Only_LBM_Time=32.349, T_compute/Block=166025.780us, T_total_compute=33.205
+Comp_Proc1: LBM generate the EXIT block_id=-1 in timestep=100 with total_blks 200
+Comp_Proc1 on comet-14-01.sdsc.edu: LBM computation Done! Only_LBM_Time=32.339, T_compute/Block=166027.610us, T_total_compute=33.206
+Comp_Proc6: LBM generate the EXIT block_id=-1 in timestep=100 with total_blks 200
+Comp_Proc6 on comet-14-01.sdsc.edu: LBM computation Done! Only_LBM_Time=32.305, T_compute/Block=166029.921us, T_total_compute=33.206
+Comp_Proc7: LBM generate the EXIT block_id=-1 in timestep=100 with total_blks 200
+Comp_Proc3: LBM generate the EXIT block_id=-1 in timestep=100 with total_blks 200
+Comp_Proc7 on comet-14-01.sdsc.edu: LBM computation Done! Only_LBM_Time=32.368, T_compute/Block=166033.676us, T_total_compute=33.207
+Comp_Proc3 on comet-14-01.sdsc.edu: LBM computation Done! Only_LBM_Time=32.202, T_compute/Block=166033.820us, T_total_compute=33.207
+Ana_Proc8: Receiver3 get a *EXIT_MSG_TAG* from src=0 with block_id=-1, num_exit_flag=1
+Ana_Proc8: Consumer get a EXIT_BLK_ID from source=0 and Prepare to free it
+Ana_Proc8: Consumer get a EXIT_BLK_ID from source=0! num_exit_flag=1
+Comp_Proc4: Sender1 Get exit flag msg and prepare to quit
+Comp_Proc4: ---Normal case--- Sender1 longer than writer !!!!---###---
+Comp_Proc4: Sender1 T_total=33.214, mpi_send_progress_counter=200,T_mix_send=0.000, T_only_mpi_send=1.379, mix_msg_id=0, disk_id=0, long_msg_id=200
+Comp_Proc4: Job finish on comet-14-01.sdsc.edu, T_total=33.214
+Comp_Proc1: Sender1 Get exit flag msg and prepare to quit
+Comp_Proc1: ---Normal case--- Sender1 longer than writer !!!!---###---
+Comp_Proc1: Sender1 T_total=33.214, mpi_send_progress_counter=200,T_mix_send=0.000, T_only_mpi_send=1.367, mix_msg_id=0, disk_id=0, long_msg_id=200
+Comp_Proc1: Job finish on comet-14-01.sdsc.edu, T_total=33.214
+Comp_Proc2: Sender1 Get exit flag msg and prepare to quit
+Comp_Proc2: ---Normal case--- Sender1 longer than writer !!!!---###---
+Comp_Proc2: Sender1 T_total=33.214, mpi_send_progress_counter=200,T_mix_send=0.000, T_only_mpi_send=1.366, mix_msg_id=0, disk_id=0, long_msg_id=200
+Comp_Proc2: Job finish on comet-14-01.sdsc.edu, T_total=33.214
+Comp_Proc6: Sender1 Get exit flag msg and prepare to quit
+Comp_Proc6: ---Normal case--- Sender1 longer than writer !!!!---###---
+Comp_Proc6: Sender1 T_total=33.215, mpi_send_progress_counter=200,T_mix_send=0.000, T_only_mpi_send=1.361, mix_msg_id=0, disk_id=0, long_msg_id=200
+Comp_Proc6: Job finish on comet-14-01.sdsc.edu, T_total=33.216
+Ana_Proc8: Receiver3 get a *EXIT_MSG_TAG* from src=1 with block_id=-1, num_exit_flag=2
+Ana_Proc8: Receiver3 T_total=33.217, mpi_recv_progress_counter=400, T_receive_wait=31.806, T_wait_lock=0.000, long_msg_id=400, mix_msg_id= 0,disk_id=0
+Ana_Proc8: Consumer get a EXIT_BLK_ID from source=1 and Prepare to free it
+Ana_Proc8: Consumer get a EXIT_BLK_ID from source=1! num_exit_flag=2
+Ana_Proc8: Consumer prepare to exit!
+Ana_Proc8: Consumer prepare to exit! With ring_buffer num_avail_elements=0
+Ana_Proc8: Consumer T_total_consumer=33.217, T_calc=0.000, T_wait=33.123, T_move_tail=0.000, my_count=400, free_count=400
+Ana_Proc8: A_Writer1 get NULL to exit
+Ana_Proc8: Writer1 T_write=0.001, T_only_fwrite=0.000, T_total=33.217, my_count=400
+Ana_Proc8 on comet-14-01.sdsc.edu: Analysis Job Done! T_total=33.217
+Comp_Proc5: Sender1 Get exit flag msg and prepare to quit
+Comp_Proc5: ---Normal case--- Sender1 longer than writer !!!!---###---
+Comp_Proc5: Sender1 T_total=33.219, mpi_send_progress_counter=200,T_mix_send=0.000, T_only_mpi_send=1.978, mix_msg_id=0, disk_id=0, long_msg_id=200
+Comp_Proc5: Job finish on comet-14-01.sdsc.edu, T_total=33.219
+Comp_Proc3: Sender1 Get exit flag msg and prepare to quit
+Comp_Proc3: ---Normal case--- Sender1 longer than writer !!!!---###---
+Comp_Proc3: Sender1 T_total=33.219, mpi_send_progress_counter=200,T_mix_send=0.000, T_only_mpi_send=1.881, mix_msg_id=0, disk_id=0, long_msg_id=200
+Comp_Proc3: Job finish on comet-14-01.sdsc.edu, T_total=33.219
+Comp_Proc7: Sender1 Get exit flag msg and prepare to quit
+Comp_Proc7: ---Normal case--- Sender1 longer than writer !!!!---###---
+Comp_Proc7: Sender1 T_total=33.221, mpi_send_progress_counter=200,T_mix_send=0.000, T_only_mpi_send=1.898, mix_msg_id=0, disk_id=0, long_msg_id=200
+Comp_Proc7: Job finish on comet-14-01.sdsc.edu, T_total=33.221
+Ana_Proc10: Receiver3 get a *EXIT_MSG_TAG* from src=4 with block_id=-1, num_exit_flag=1
+Ana_Proc9: Receiver3 get a *EXIT_MSG_TAG* from src=2 with block_id=-1, num_exit_flag=1
+Ana_Proc10: Receiver3 get a *EXIT_MSG_TAG* from src=5 with block_id=-1, num_exit_flag=2
+Ana_Proc10: Receiver3 T_total=33.222, mpi_recv_progress_counter=400, T_receive_wait=31.812, T_wait_lock=0.000, long_msg_id=400, mix_msg_id= 0,disk_id=0
+Ana_Proc9: Receiver3 get a *EXIT_MSG_TAG* from src=3 with block_id=-1, num_exit_flag=2
+Ana_Proc9: Receiver3 T_total=33.223, mpi_recv_progress_counter=400, T_receive_wait=31.805, T_wait_lock=0.000, long_msg_id=400, mix_msg_id= 0,disk_id=0
+Ana_Proc10: Consumer get a EXIT_BLK_ID from source=4 and Prepare to free it
+Ana_Proc9: Consumer get a EXIT_BLK_ID from source=2 and Prepare to free it
+Ana_Proc10: Consumer get a EXIT_BLK_ID from source=4! num_exit_flag=1
+Ana_Proc10: Consumer get a EXIT_BLK_ID from source=5 and Prepare to free it
+Ana_Proc10: Consumer get a EXIT_BLK_ID from source=5! num_exit_flag=2
+Ana_Proc10: Consumer prepare to exit!
+Ana_Proc10: Consumer prepare to exit! With ring_buffer num_avail_elements=0
+Ana_Proc10: Consumer T_total_consumer=33.223, T_calc=0.000, T_wait=33.116, T_move_tail=0.000, my_count=400, free_count=400
+Ana_Proc10: A_Writer1 get NULL to exit
+Ana_Proc9: Consumer get a EXIT_BLK_ID from source=2! num_exit_flag=1
+Ana_Proc10: Writer1 T_write=0.000, T_only_fwrite=0.000, T_total=33.223, my_count=400
+Ana_Proc9: Consumer get a EXIT_BLK_ID from source=3 and Prepare to free it
+Ana_Proc10 on comet-14-01.sdsc.edu: Analysis Job Done! T_total=33.223
+Ana_Proc9: Consumer get a EXIT_BLK_ID from source=3! num_exit_flag=2
+Ana_Proc9: Consumer prepare to exit!
+Ana_Proc9: Consumer prepare to exit! With ring_buffer num_avail_elements=0
+Ana_Proc9: Consumer T_total_consumer=33.223, T_calc=0.000, T_wait=33.119, T_move_tail=0.000, my_count=400, free_count=400
+Ana_Proc9: A_Writer1 get NULL to exit
+Ana_Proc9: Writer1 T_write=0.001, T_only_fwrite=0.000, T_total=33.223, my_count=400
+Ana_Proc9 on comet-14-01.sdsc.edu: Analysis Job Done! T_total=33.223
+Ana_Proc11: Receiver3 get a *EXIT_MSG_TAG* from src=6 with block_id=-1, num_exit_flag=1
+Ana_Proc11: Receiver3 get a *EXIT_MSG_TAG* from src=7 with block_id=-1, num_exit_flag=2
+Ana_Proc11: Receiver3 T_total=33.224, mpi_recv_progress_counter=400, T_receive_wait=31.815, T_wait_lock=0.000, long_msg_id=400, mix_msg_id= 0,disk_id=0
+Ana_Proc11: Consumer get a EXIT_BLK_ID from source=6 and Prepare to free it
+Ana_Proc11: Consumer get a EXIT_BLK_ID from source=6! num_exit_flag=1
+Ana_Proc11: Consumer get a EXIT_BLK_ID from source=7 and Prepare to free it
+Ana_Proc11: Consumer get a EXIT_BLK_ID from source=7! num_exit_flag=2
+Ana_Proc11: Consumer prepare to exit!
+Ana_Proc11: Consumer prepare to exit! With ring_buffer num_avail_elements=0
+Ana_Proc11: Consumer T_total_consumer=33.225, T_calc=0.000, T_wait=33.124, T_move_tail=0.000, my_count=400, free_count=400
+Ana_Proc11: A_Writer1 get NULL to exit
+Ana_Proc11: Writer1 T_write=0.000, T_only_fwrite=0.000, T_total=33.225, my_count=400
+Ana_Proc11 on comet-14-01.sdsc.edu: Analysis Job Done! T_total=33.225
+IBRUN: Job ended with value 0
+-----------Start Deleting files-------------
+-----------End Delete files-------------

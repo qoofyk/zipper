@@ -22,8 +22,8 @@ echo "-----------End Delete files-------------"
 # $my_del_exp2  ${SCRATCH_DIR}/$directory/
 date
 
-mkdir $SCRATCH_DIR
-lfs setstripe --stripe-size 1m --count 4 $SCRATCH_DIR
+mkdir -pv $SCRATCH_DIR
+lfs setstripe --stripe-size 1m --count ${tune_stripe_count} $SCRATCH_DIR
 
 echo "mkdir new"
 for ((m=0;m<$num_comp_proc; m++)); do
