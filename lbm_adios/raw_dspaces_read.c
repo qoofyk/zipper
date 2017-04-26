@@ -28,10 +28,10 @@
 #include "utility.h"
 #include "ds_adaptor.h"
 
-#ifdef RAW_DSPACES
+//#ifdef RAW_DSPACES
 static char var_name[STRING_LENGTH];
 static size_t elem_size=sizeof(double);
-#endif
+//#endif
         
 
 #define DEBUG_Feng
@@ -66,12 +66,17 @@ int main (int argc, char ** argv)
     MPI_Comm_rank (comm, &rank);
     MPI_Comm_size (comm, &nprocs);
 
+    char nodename[256];
+    int nodename_length;
+    MPI_Get_processor_name(nodename, &nodename_length );
+    printf("%s:I am rank %d of %d\n",nodename, rank, nprocs);
+
     int timestep;
     
     /**** use index file to keep track of current step *****/
     MPI_Barrier(comm);
 
-#ifdef RAW_DSPACES
+//#ifdef RAW_DSPACES
     char msg[STRING_LENGTH];
     int ret=-1;
     printf("trying init dspaces for %d process\n", nprocs);
@@ -127,14 +132,14 @@ int main (int argc, char ** argv)
     bounds[4]=start[0]+count[0]-1;
     bounds[3]=start[1]+count[1]-1;
 //#endif
-#endif
+//#endif
 
     for(timestep=0; timestep < nstop; timestep++){
 
-#ifdef RAW_DSPACES
+//#ifdef RAW_DSPACES
 
         get_common_buffer(timestep,2, bounds,rank, &comm, var_name, (void **)&data, elem_size, &time_comm);
-#endif
+//#endif
         if(rank ==0)
             printf("Step %d read\n", timestep);
         // analysis
@@ -152,9 +157,9 @@ int main (int argc, char ** argv)
     }
 
 
-#ifdef RAW_DSPACES
+//#ifdef RAW_DSPACES
     dspaces_finalize();
-#endif
+//#endif
     
 
     MPI_Finalize ();

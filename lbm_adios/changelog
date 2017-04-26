@@ -6,11 +6,16 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 #### Qestion:
 	how to deal with different nlines in various processes?
 	erase the warning flags?
+	PMI error comes from number of arguments!
+	-g option ?
+	mpirun_rsh problem?
 #### changes
 	malloc-free in in the loop of raw_dspaces_read
 	consumer need to know how many procs in producer
 #### issues
 	raw dspaces has rpc_connect error:9036590/results/consumer.log
+#### trials
+	run ds_examples/: works
 
 ## [0.1.20] April 24 2017
 #### changed
@@ -202,5 +207,4 @@ add kep using mpiio, now new ads_adaptor.c/h is created
 #### Changed
 - removed blocks, now each process need to prepare contiguous buffer for adios
 #### To do
-- use small size, verify the correctness of data read
-
+- use small size, verify th
