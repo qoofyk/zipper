@@ -8,7 +8,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 	erase the warning flags?
 	PMI error comes from number of arguments!
 	-g option ?
-	mpirun_rsh problem?
+	mpirun_rsh problem?(apply to ds_exmaple, see what happens)
+		~/ds_examples/ex1_putget correct executed for 1:1
 #### changes
 	malloc-free in in the loop of raw_dspaces_read
 	consumer need to know how many procs in producer
@@ -16,6 +17,12 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 	raw dspaces has rpc_connect error:9036590/results/consumer.log
 #### trials
 	run ds_examples/: works
+	add -g flag, see output(need to roll back), same problem
+	1:1 mpiio works, but very slow 5s per step writing time
+	in bridges, writting time for 1:1 is much smaller:less .3s
+	/pylon5/cc4s86p/fli5/data_broker_adios/1019183/results/producer.log
+#### this PMI error happened before (Mar 30), then project was immigrated to
+bridges
 
 ## [0.1.20] April 24 2017
 #### changed
@@ -207,4 +214,5 @@ add kep using mpiio, now new ads_adaptor.c/h is created
 #### Changed
 - removed blocks, now each process need to prepare contiguous buffer for adios
 #### To do
-- use small size, verify th
+- use small size, verify the correctness of data read
+

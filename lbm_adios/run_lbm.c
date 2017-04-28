@@ -1157,9 +1157,10 @@ int main(int argc, char * argv[]){
     return -1;
   }
   else{
-      if(rank ==0)
-        printf("rank: adios init complete with %s\n", trans_method);
+      //if(rank ==0)
+        printf("rank %d : adios init complete with %s\n", rank, trans_method);
   }
+  MPI_Barrier(comm);
 #endif
 
 #ifdef RAW_DSPACES
