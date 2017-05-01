@@ -1,4 +1,5 @@
 #include "ds_adaptor.h"
+//#define USE_SAME_LOCK
 
 #define debug_1
 void get_common_buffer(int timestep,int ndim, int bounds[6], int rank, MPI_Comm * p_gcomm,char * var_name, void **p_buffer,size_t elem_size, double *p_time_used){
@@ -74,7 +75,7 @@ void get_common_buffer(int timestep,int ndim, int bounds[6], int rank, MPI_Comm 
 
 void put_common_buffer(int timestep,int ndim, int bounds[6], int rank, MPI_Comm * p_gcomm,char * var_name, void  **p_buffer,size_t elem_size, double *p_time_used){
 
-    printf("\n ** prepare to get, ndim = %d\n", ndim);
+    printf("\n ** prepare to put, ndim = %d\n", ndim);
     // how many number of elements are actually written
     //int num_elems;
     char msg[STRING_LENGTH];
@@ -117,7 +118,8 @@ void put_common_buffer(int timestep,int ndim, int bounds[6], int rank, MPI_Comm 
     // write all data in once
     t1 = MPI_Wtime();
     ret_put = dspaces_put(var_name, timestep, elem_size, ndim, lb, ub, *p_buffer);
-    int sync_ok = dspaces_put_sync();
+    //int sync_ok = dspaces_put_sync();
+    int sync_ok = 0;
     t2 = MPI_Wtime();
 
     // now we can release region lock

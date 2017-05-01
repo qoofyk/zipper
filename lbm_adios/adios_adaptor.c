@@ -11,7 +11,7 @@ void insert_into_adios(char * file_path, char *var_name,int timestep, int n, int
     //double      t[NX*SIZE_ONE];
 
     /* ADIOS variables declarations for matching gwrite_temperature.ch */
-    //uint64_t    adios_groupsize, adios_totalsize;
+    uint64_t    adios_groupsize, adios_totalsize;
     int64_t     adios_handle;
 
     MPI_Comm    comm = *pcomm;

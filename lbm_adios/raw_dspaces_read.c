@@ -82,7 +82,7 @@ int main (int argc, char ** argv)
     printf("trying init dspaces for %d process\n", nprocs);
     ret = dspaces_init(nprocs, 2, &comm, NULL);
 
-    printf("dspaces init successfuly \n");
+    //printf("dspaces init successfuly \n");
 
     if(ret == 0){
         sprintf(msg, "dataspaces init successfully");

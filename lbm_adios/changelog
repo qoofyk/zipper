@@ -2,6 +2,13 @@
 All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/) 
 and this project adheres to [Semantic Versioning](http://semver.org/).
+
+## [0.2.0] April 28 2017
+#### moved back to bridges
+#### changes
+#### note
+	all timer in a job should be average
+
 ## [0.1.21] April 25 2017
 #### Qestion:
 	how to deal with different nlines in various processes?

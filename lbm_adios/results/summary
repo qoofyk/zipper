@@ -1,3 +1,32 @@
+1082998
+    see what will happens if using same lock
+    consumer still cannot read
+1081962
+    remove dspace_put_sync
+    first serveral writes are very fast
+    problem:consumer can get read lock but didn't take any action
+1073688
+    increase maxversion to 100
+    still 5s/step
+    problem:consumer can get read lock but didn't take any action
+    
+
+1072840
+    dspaces is slow!
+    5s/step
+    maxversion =5
+    problem:consumer can get read lock but didn't take any action
+
+
+
+-------------------------------------------------------------------------------
+recover:
+    1. remove branch in insert_into_adios, still blocked at second step
+    2. add max-buffer-size and group-size back
+
+5bf287a8159489d335d6fccb6f0ffdbe7defd7fa works.
+April 24: dspaces nokeep cannot start second step
+--------------------------------------------------------------
 1023888
     April 24
     queue size =30
