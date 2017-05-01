@@ -1045,7 +1045,7 @@ void run_lbm(GV gv, int dims_cube[3], MPI_Comm *pcomm){
     // ((int *)buffer)[1]= -1;
     // ((int *)buffer)[2]= -1;
 
-    printf("Comp_Proc%d: LBM generate the EXIT block_id=%d in timestep=%d with total_blks %d\n",
+    printf("Comp_Proc%d: LBM generate the EXIT block_id=%d in timestep=%d with total_blks=%d\n",
       gv->rank[0], ((int *)buffer)[0], gv->step, gv->data_id);
     fflush(stdout);
 
@@ -1062,7 +1062,7 @@ void run_lbm(GV gv, int dims_cube[3], MPI_Comm *pcomm){
 
 	// gv->compute_all_done = 1;
 	// printf("$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$\n");
-	printf("Comp_Proc%d on %s: LBM computation Done! Only_LBM_Time=%.3f, T_compute/Block=%.3fus, T_total_compute=%.3f\n",
+	printf("Comp_Proc%04d on %s: LBM computation Done! Only_LBM_Time=%.3f, T_compute/Block=%.3fus, T_total_compute=%.3f\n",
 		gv->rank[0], gv->processor_name, only_lbm_time, (t3-t2)*1000000/gv->cpt_total_blks, t3-t2);
 	fflush(stdout);
 	//------------------------------------------------END OF LBM--------------------------------------------------------
@@ -1077,7 +1077,7 @@ void comp_open_one_big_file(GV gv){
 	sprintf(file_name, ADDRESS, gv->compute_process_num, gv->analysis_process_num, gv->rank[0], gv->rank[0]);
 	// sprintf(file_name,"/var/tmp/exp2_file_blk%d.data",blk_id);
 	while((gv->fp==NULL) && (i<TRYNUM)){
-		gv->fp=fopen(file_name,"w+");
+		gv->fp=fopen(file_name,"wb+");
 
 		// gv->fp=fopen(file_name,"r+");
 		if(gv->fp==NULL){
@@ -1101,7 +1101,7 @@ void ana_open_one_big_file(GV gv){
 		sprintf(file_name, ADDRESS, gv->compute_process_num, gv->analysis_process_num,
 			(gv->rank[0]-gv->compute_process_num)*gv->computer_group_size+j, (gv->rank[0]-gv->compute_process_num)*gv->computer_group_size+j);
 
-		gv->ana_fp[j]=fopen(file_name,"r+");
+		gv->ana_fp[j]=fopen(file_name,"rb+");
 
 		if(gv->ana_fp[j]==NULL){
 			printf("Ana_Proc%d: read empty file from last_gen_rank=%d\n",
@@ -1297,7 +1297,7 @@ PRODUCER_Ringbuffer %.3fGB, size=%d member\n",
 		free(attrs);
 		free(thrds);
 
-		printf("Comp_Proc%d: Job finish on %s, T_total=%.3f\n", gv->rank[0], gv->processor_name, t1-t0);
+		printf("Comp_Proc%04d: Job finish on %s, T_total=%.3f\n", gv->rank[0], gv->processor_name, t1-t0);
 		fflush(stdout);
 	}
 	else if (gv->color == 1){
@@ -1394,7 +1394,7 @@ CONSUMER_Ringbuffer %.3fGB, size=%d member\n",
 		free(thrds);
 
 		t1=get_cur_time();
-		printf("Ana_Proc%d on %s: Analysis Job Done! T_total=%.3f\n",gv->rank[0], gv->processor_name, t1-t0);
+		printf("Ana_Proc%04d on %s: Analysis Job Done! T_total=%.3f\n",gv->rank[0], gv->processor_name, t1-t0);
 	}
 	else{
 		printf("Error!\n");

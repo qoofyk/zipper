@@ -27,13 +27,13 @@ char* sender_ring_buffer_get(GV gv,LV lv){
 
 void compute_sender_thread(GV gv,LV lv){
 
-	int dest = gv->rank[0]/gv->computer_group_size + gv->computer_group_size*gv->analysis_process_num;
-	int my_count=0,send_counter=0,i;
-	double t0=0,t1=0,t2=0,t3=0;
+	int dest = gv->rank[0]/gv->computer_group_size + gv->compute_process_num;
+	int my_count=0, send_counter=0, i;
+	double t0=0, t1=0, t2=0,t3=0;
 	char* buffer=NULL;
 	int* tmp_int_ptr;
-	int mix_cnt=0,errorcode,long_msg_id=0,mix_msg_id=0,disk_id=0;
-	double mix_send_time=0, only_mpi_send_time=0;
+	int mix_cnt=0, errorcode, long_msg_id=0, mix_msg_id=0, disk_id=0;
+	double mix_send_time=0, pure_mpi_send_time=0;
 	int disk_msg_flag=0;
 	char exit_flag = 0;
 	int block_id;
@@ -49,7 +49,7 @@ void compute_sender_thread(GV gv,LV lv){
 		buffer = sender_ring_buffer_get(gv, lv);
 
 		if(buffer != NULL){
-			tmp_int_ptr = (int*)(buffer + sizeof(int)+sizeof(char)*gv->block_size);
+			tmp_int_ptr = (int*)(buffer + sizeof(int) + sizeof(char)*gv->block_size);
 			my_count++;
 
 			block_id = ((int*)buffer)[0];
@@ -95,14 +95,16 @@ void compute_sender_thread(GV gv,LV lv){
 				// Long_msg
 				else{
 
-					// printf("Comp_Proc%d: Sender %d prepare to send *LONG_MSG* blkid%d\n", gv->rank[0], lv->tid, block_id);
-					// fflush(stdout);
+					if(block_id<0){
+						printf("Comp_Proc%d: Sender%d prepare to send *LONG_MSG* blkid=%d\n", gv->rank[0], lv->tid, block_id);
+						fflush(stdout);
+					}
 
 					t0 = get_cur_time();
 					errorcode = MPI_Send(buffer, gv->block_size+sizeof(int), MPI_CHAR, dest, MPI_MSG_TAG, MPI_COMM_WORLD);
 					check_MPI_success(gv, errorcode);
 					t1 = get_cur_time();
-					only_mpi_send_time += t1 - t0;
+					pure_mpi_send_time += t1 - t0;
 
 
 					gv->mpi_send_progress_counter++;
@@ -171,10 +173,10 @@ void compute_sender_thread(GV gv,LV lv){
 	}
 	t3 = get_cur_time();
 
-	printf("Comp_Proc%d: Sender%d T_total=%.3f, mpi_send_progress_counter=%d,\
-T_mix_send=%.3f, T_only_mpi_send=%.3f, mix_msg_id=%d, disk_id=%d, long_msg_id=%d\n",
+	printf("Comp_Proc%3d: Sender%d T_total=%.3f, mpi_send_progress_counter=%d,\
+T_mix_send=%.3f, T_pure_mpi_send=%.3f, T_total_send=%.3f, mix_msg_id=%d, disk_id=%d, long_msg_id=%d\n",
     gv->rank[0], lv->tid, t3-t2, gv->mpi_send_progress_counter,
-    mix_send_time, only_mpi_send_time, mix_msg_id, disk_id, long_msg_id);
+    mix_send_time, pure_mpi_send_time, mix_send_time+pure_mpi_send_time, mix_msg_id, disk_id, long_msg_id);
   fflush(stdout);
 
 

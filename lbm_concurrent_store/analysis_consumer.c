@@ -213,12 +213,16 @@ void analysis_consumer_thread(GV gv,LV lv){
           gv->CJ   = ((int *)pointer)[6];
           gv->CK   = ((int *)pointer)[7];
 
-#ifdef DEBUG_PRINT
-          printf("Ana_Proc%d: Consumer%d Prepare to calc_n_moments source=%d, block_id=%d \
+// #ifdef DEBUG_PRINT
+          if(block_id<0){
+            printf("Ana_Proc%d: Consumer%d Prepare to calc_n_moments source=%d, block_id=%d \
 step=%d, i=%d, j=%d, k=%d, gv->calc_counter=%d, consumer_state=%d\n",
-          gv->rank[0], lv->tid, ((int *)pointer)[0], ((int *)pointer)[1],
-          ((int *)pointer)[4], ((int *)pointer)[5], ((int *)pointer)[6], ((int *)pointer)[7], gv->calc_counter, consumer_state);
-#endif //DEBUG_PRINT
+              gv->rank[0], lv->tid, ((int *)pointer)[0], ((int *)pointer)[1],
+              ((int *)pointer)[4], ((int *)pointer)[5], ((int *)pointer)[6],
+              ((int *)pointer)[7], gv->calc_counter, consumer_state);
+          }
+
+// #endif //DEBUG_PRINT
 
           t0 = get_cur_time();
           // simple_verify(gv, lv, pointer, gv->block_size, &consumer_state);
@@ -322,7 +326,7 @@ step=%d, i=%d, j=%d, k=%d, gv->calc_counter=%d, consumer_state=%d\n",
   }
   t3 = get_cur_time();
 
-  printf("Ana_Proc%d: Consumer T_total_consumer=%.3f, \
+  printf("Ana_Proc%04d: Consumer T_total_consumer=%.3f, \
 T_calc=%.3f, T_wait=%.3f, T_move_tail=%.3f, my_count=%d, free_count=%d\n",
        gv->rank[0], t3 - t2, lv->calc_time, wait_time, move_tail_time, gv->calc_counter, free_count);
   fflush(stdout);

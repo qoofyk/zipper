@@ -63,13 +63,13 @@ void analysis_write_blk_per_file(GV gv, LV lv, int source, int blk_id, void* buf
 		fp=fopen(file_name,"w");
 		if(fp==NULL){
 			if(i==TRYNUM-1){
-				printf("Warning: Analysis Process %d Writer %d write empty file last_gen_rank=%d, blk_id=%d\n",
+				printf("Warning: Ana_Proc%d: Writer %d write empty file last_gen_rank=%d, blk_id=%d\n",
 				    gv->rank[0], lv->tid, source, blk_id);
 			  	fflush(stdout);
 			}
 
 		  i++;
-		  usleep(1000);
+		  usleep(10000);
 		}
 	}
 
@@ -80,7 +80,7 @@ void analysis_write_blk_per_file(GV gv, LV lv, int source, int blk_id, void* buf
 		lv->only_fwrite_time += t1 - t0;
 	}
 	else{
-		printf("!!!!! Missing Writing File: Analysis Process %d Writer %d write Missing a file last_gen_rank=%d, blk_id=%d !!!!!!!!!!!!!!!\n",
+		printf("!!!!! Missing Writing File: Ana_Proc%d: Writer %d write Missing a file last_gen_rank=%d, blk_id=%d !!!!!!!!!!!!!!!\n",
 				    gv->rank[0], lv->tid, source, blk_id);
 		fflush(stdout);
 	}
@@ -93,13 +93,16 @@ void analysis_write_one_file(GV gv, LV lv, int source, int blk_id, char* buffer,
 	double t0=0,t1=0;
 	int error=-1;
 	int i=0;
+	long int offset;
+
+	offset = (long)blk_id * (long)gv->block_size;
 
 	while((error==-1) && (i<TRYNUM)){
-		error=fseek(fp, blk_id*gv->block_size, SEEK_SET);
+		error=fseek(fp, offset, SEEK_SET);
   		if(error==-1){
   			if(i==TRYNUM-1){
-  				printf("Fatal Error: Ana_Proc%d fseek error block_id=%d, *fp=%p\n",
-  					gv->rank[0], blk_id, (void*)fp);
+  				printf("Ana_Proc%d: Writer Fatal Error--fseek error block_id=%d, offset=%ld,*fp=%p\n",
+  					gv->rank[0], blk_id, offset, (void*)fp);
   				fflush(stdout);
   			}
   			i++;
@@ -166,7 +169,14 @@ void analysis_writer_thread(GV gv, LV lv) {
 #ifdef KEEP
 					t0 = get_cur_time();
 #ifdef WRITE_ONE_FILE
-					analysis_write_one_file(gv, lv, source, block_id, pointer+sizeof(int)*4, gv->block_size, gv->ana_fp[source%gv->computer_group_size]);
+					if(block_id>=0){
+						analysis_write_one_file(gv, lv, source, block_id, pointer+sizeof(int)*4, gv->block_size, gv->ana_fp[source%gv->computer_group_size]);
+					}
+					else{
+						printf("Ana_Proc%d: Writer%d ***GET A WRONG pointer*** write source=%d block_id=%d, my_count=%d\n",
+							gv->rank[0], lv->tid, source, block_id, my_count);
+						fflush(stdout);
+					}
 #else
 					analysis_write_blk_per_file(gv, lv, source, block_id, pointer+sizeof(int)*4, gv->block_size);
 #endif //WRITE_ONE_FILE
@@ -187,8 +197,10 @@ void analysis_writer_thread(GV gv, LV lv) {
 					pthread_cond_wait(rb->new_tail, rb->lock_ringbuffer);
 					pthread_mutex_unlock(rb->lock_ringbuffer);
 
+#ifdef DEBUG_PRINT
 					if(my_count%WRITER_COUNT==0)
 						printf("Ana_Proc%d: Writer%d my_count %d\n", gv->rank[0], lv->tid, my_count);
+#endif //DEBUG_PRINT
 
 #ifdef DEBUG_PRINT
 					printf("Ana_Proc%d: Writer%d ***Finish-Write-state and Wake up*** source=%d block_id=%d, my_count=%d\n",
@@ -247,7 +259,7 @@ void analysis_writer_thread(GV gv, LV lv) {
 	// if(my_count!=gv->analysis_writer_blk_num)
 	// 	printf("Analysis Writer my_count error!\n");
 
-	printf("Ana_Proc%d: Writer%d T_write=%.3f, T_only_fwrite=%.3f, T_total=%.3f, my_count=%d\n",
+	printf("Ana_Proc%04d: Writer%d T_ana_write=%.3f, T_only_fwrite=%.3f, T_total=%.3f, my_count=%d\n",
 		gv->rank[0], lv->tid, lv->write_time, lv->only_fwrite_time, t3 - t2, my_count);
 	fflush(stdout);
 	// printf("Node%d Producer %d Write_Time/Block= %f only_fwrite_time/Block= %f, SPEED= %fKB/s\n",

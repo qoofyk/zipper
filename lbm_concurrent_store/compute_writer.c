@@ -1,6 +1,6 @@
 #include "concurrent.h"
 
-char* producer_ring_buffer_get(GV gv,LV lv){
+char* producer_ring_buffer_get(GV gv, LV lv){
   char* pointer;
   ring_buffer *rb = gv->producer_rb_p;
 
@@ -46,7 +46,7 @@ void comp_write_blk_per_file(GV gv, LV lv,int blk_id, char* buffer, int nbytes){
 			    fflush(stdout);
 	    	}
 	      i++;
-	      sleep(1);
+	      usleep(1000);
 	    }
 	}
 
@@ -63,12 +63,15 @@ void comp_write_one_big_file(GV gv, LV lv, int blk_id, char* buffer, int nbytes,
 	double t0=0,t1=0;
 	int error=-1;
 	int i=0;
+	long int offset;
+
+	offset = (long)blk_id * (long)gv->block_size;
 
 	while((error==-1) && (i<TRYNUM)){
-		error=fseek(fp, blk_id*gv->block_size, SEEK_SET);
+		error=fseek(fp, offset, SEEK_SET);
   		if(error==-1){
   			if(i==TRYNUM-1){
-  				printf("Fatal Error: Comp_Proc%d fseek error block_id=%d, fp=%p\n",
+  				printf("Comp_Proc%d Writer fseek error block_id=%d, fp=%p\n",
   					gv->rank[0], blk_id, (void*)fp);
   				fflush(stdout);
   			}
@@ -113,7 +116,11 @@ void compute_writer_thread(GV gv,LV lv) {
 	else{
 		while(1){
 
+			//get pointer from PRB
+    		buffer = producer_ring_buffer_get(gv, lv);
+
 			if(buffer != NULL){
+
 				block_id = ((int*)buffer)[0];
 
 				if (block_id != EXIT_BLK_ID){
@@ -134,10 +141,12 @@ void compute_writer_thread(GV gv,LV lv) {
 					lv->write_time += t1 - t0;
 					my_count++;
 
+#ifdef DEBUG_PRINT
 					if(my_count%100==0){
 						printf("Comp_Proc%d: Writer%d has written block_id=%d\n", gv->rank[0], lv->tid, my_count);
 						fflush(stdout);
 					}
+#endif //DEBUG_PRINT
 
 					//add to disk_id_array
 					pthread_mutex_lock(&gv->lock_writer_progress);
@@ -150,7 +159,7 @@ void compute_writer_thread(GV gv,LV lv) {
 				else{
 					// Get exit flag msg and quit
 
-					printf("Comp_Proc%d: Writer%d Get exit flag msg and quit\n",
+					printf("Comp_Proc%d: Writer%d Get exit flag msg and quit!\n",
 						gv->rank[0], lv->tid);
 					fflush(stdout);
 
@@ -168,7 +177,7 @@ void compute_writer_thread(GV gv,LV lv) {
 
 				if (my_count >= gv->writer_blk_num) {
 
-					printf("Comp_Proc%d: Writer%d Exceed PreSet percentange blks and quit\n",
+					printf("Comp_Proc%d: Writer%d Exceed PreSet percentange blks and quit!\n",
 						gv->rank[0], lv->tid);
 					fflush(stdout);
 
@@ -178,7 +187,7 @@ void compute_writer_thread(GV gv,LV lv) {
 			else{
 
 #ifdef DEBUG_PRINT
-			printf("Comp_Proc%d: Writer%d Know that Sender Get exit flag msg and let it quit\n",
+			printf("Comp_Proc%d: Writer%d Know that Sender Get exit flag msg and let it quit!\n",
 					gv->rank[0], lv->tid);
 			fflush(stdout);
 #endif //DEBUG_PRINT
@@ -197,7 +206,7 @@ void compute_writer_thread(GV gv,LV lv) {
 
 
 
-	printf("Comp_Proc%d: Writer%d T_write=%.3f, T_only_fwrite=%.3f, T_total=%.3f with %d blocks\n",
+	printf("Comp_Proc%04d: Writer%d T_comp_write=%.3f, T_only_fwrite=%.3f, T_total=%.3f with %d blocks\n",
 		gv->rank[0], lv->tid, lv->write_time, lv->only_fwrite_time, t3-t2, my_count);
 	fflush(stdout);
 	// printf("Node%d Producer %d Write_Time/Block= %f only_fwrite_time/Block= %f, SPEED= %fKB/s\n",

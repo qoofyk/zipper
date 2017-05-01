@@ -5,7 +5,7 @@
 #SBATCH --nodes=32
 #SBATCH --ntasks-per-node=24
 #SBATCH --export=ALL
-#SBATCH -t 2:00:00
+#SBATCH -t 0:30:00
 
 ##################parameter setting#################################################
 directory="LBMcon192vs096"
@@ -27,7 +27,7 @@ lp=4   #n_moment
 NSTOP=300 # how many steps
 
 cubex=16
-writer_thousandth=(0 50 100 200 300)
+writer_thousandth=(0)
 
 tune_stripe_count=-1
 ####################################################################################

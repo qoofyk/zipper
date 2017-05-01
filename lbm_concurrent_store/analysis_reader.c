@@ -66,12 +66,15 @@ void ana_read_one_file(GV gv, LV lv, int last_gen_rank, int blk_id, char* buffer
   double t0=0, t1=0;
   int error=-1;
   int i=0;
+  long int offset;
+
+  offset = (long)blk_id * (long)gv->block_size;
 
   while((error==-1) && (i<TRYNUM)){
-    error=fseek(fp, blk_id*gv->block_size, SEEK_SET);
+    error=fseek(fp, offset, SEEK_SET);
       if(error==-1){
         if(i==TRYNUM-1){
-          printf("Ana_Proc%d: fseek error src=%d, block_id=%d, fp=%p\n",
+          printf("Ana_Proc%d: Reader fseek error src=%d, block_id=%d, fp=%p\n",
             gv->rank[0], last_gen_rank, blk_id, (void *)fp);
           fflush(stdout);
         }
@@ -147,7 +150,6 @@ void analysis_reader_thread(GV gv,LV lv) {
         new_buffer = (char*) malloc(gv->analysis_data_len);
         ((int*)new_buffer)[0]=last_gen_rank;
         ((int*)new_buffer)[1]=block_id;
-        // temp_int_pointer[2]=READ_DONE;
         ((int*)new_buffer)[2] = ON_DISK;
         ((int*)new_buffer)[3] = NOT_CALC;
 
@@ -187,7 +189,7 @@ void analysis_reader_thread(GV gv,LV lv) {
 
 
   t3 = get_cur_time();
-  printf("Ana_Proc%d: Reader%d T_total=%.3f, T_io_read=%.3f, T_only_fread=%.3f with %d blocks\n",
+  printf("Ana_Proc%04d: Reader%d T_total=%.3f, T_ana_read=%.3f, T_only_fread=%.3f with %d blocks\n",
     gv->rank[0], lv->tid, t3 - t2, lv->read_time, lv->only_fread_time, read_file_cnt);
   fflush(stdout);
 }

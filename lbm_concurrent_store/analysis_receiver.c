@@ -96,8 +96,8 @@ void make_prefetch_id_v2(GV gv, int cid, int num_int,int* tmp_int_ptr){
 }
 
 void analysis_receiver_thread(GV gv,LV lv){
-  int recv_int=0, block_id, source;
-  double t0=0, t1=0,t2=0,t3=0,t4=0,t5=0, wait_lock=0;
+  int recv_int=0, block_id=0, source=0;
+  double t0=0, t1=0, t2=0, t3=0, t4=0, t5=0, wait_lock=0;
   double receive_time=0;
   MPI_Status status;
   int errorcode,long_msg_id=0,mix_msg_id=0,disk_id=0;
@@ -178,10 +178,13 @@ void analysis_receiver_thread(GV gv,LV lv){
       tmp_int_ptr[6] = ((int *)gv->org_recv_buffer)[3]; //CJ
       tmp_int_ptr[7] = ((int *)gv->org_recv_buffer)[4]; //CK
 
-#ifdef DEBUG_PRINT
-      printf("Ana_Proc%d: Receiver%d Before memcpy, src=%d, block_id=%d, write=%d, calc=%d, step=%d, CI=%d, CJ=%d, CK=%d\n",
-        gv->rank[0], lv->tid, tmp_int_ptr[0], tmp_int_ptr[1], tmp_int_ptr[2], tmp_int_ptr[3], tmp_int_ptr[4], tmp_int_ptr[5], tmp_int_ptr[6], tmp_int_ptr[7]);
-#endif //DEBUG_PRINT
+// #ifdef DEBUG_PRINT
+      if(block_id<0){
+        printf("Ana_Proc%d: Receiver%d Before memcpy, src=%d, block_id=%d, write=%d, calc=%d, step=%d, CI=%d, CJ=%d, CK=%d\n",
+          gv->rank[0], lv->tid, tmp_int_ptr[0], tmp_int_ptr[1], tmp_int_ptr[2], tmp_int_ptr[3], tmp_int_ptr[4], tmp_int_ptr[5], tmp_int_ptr[6], tmp_int_ptr[7]);
+        fflush(stdout);
+      }
+// #endif //DEBUG_PRINT
 
       memcpy(new_buffer+sizeof(int)*8, gv->org_recv_buffer+sizeof(int)*5, gv->cubex*gv->cubey*gv->cubez*2*sizeof(double));
       // tmp=copy_msg_double( (double*)(new_buffer+sizeof(int)*8), (double*)(gv->org_recv_buffer+sizeof(int)*5), gv->cubex*gv->cubey*gv->cubez*2);
@@ -299,7 +302,7 @@ void analysis_receiver_thread(GV gv,LV lv){
   }
   t1 = get_cur_time();
 
-  printf("Ana_Proc%d: Receiver%d T_total=%.3f, mpi_recv_progress_counter=%d, \
+  printf("Ana_Proc%3d: Receiver%d T_total=%.3f, mpi_recv_progress_counter=%d, \
 T_receive_wait=%.3f, T_wait_lock=%.3f, long_msg_id=%d, mix_msg_id= %d,disk_id=%d\n",
      gv->rank[0], lv->tid, t1 - t0, gv->mpi_recv_progress_counter,
      receive_time, wait_lock, long_msg_id, mix_msg_id, disk_id);
