@@ -1194,7 +1194,7 @@ int main(int argc, char * argv[]){
 //#ifdef FORCE_GDIM
         int n = dims_cube[0]*dims_cube[1]*dims_cube[2];
         uint64_t gdims[2] = {2, n*nprocs};
-        dspaces_define_gdim(var_name, 2,gdims);
+        //dspaces_define_gdim(var_name, 2,gdims);
 //#endif
 
 #endif

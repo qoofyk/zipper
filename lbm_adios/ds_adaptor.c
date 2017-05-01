@@ -56,6 +56,10 @@ void get_common_buffer(int timestep,int ndim, int bounds[6], int rank, MPI_Comm 
     ret_get = dspaces_get(var_name, timestep, elem_size, ndim, lb, ub, *p_buffer);
     t2 = MPI_Wtime();
 
+    sprintf(msg, "try to unlock the read lock");
+    my_message(msg, rank, LOG_WARNING);
+
+
     // now we can release region lock
     dspaces_unlock_on_read(lock_name, p_gcomm);
     sprintf(msg, "release the read lock");
@@ -105,6 +109,10 @@ void put_common_buffer(int timestep,int ndim, int bounds[6], int rank, MPI_Comm 
     snprintf(lock_name, STRING_LENGTH, "%s_lock", var_name);
 #else
     snprintf(lock_name, STRING_LENGTH, "%s_lock_t_%d",var_name, timestep);
+#endif
+
+#ifdef debug_1
+    printf("lb: (%d, %d  %d), hb(%d, %d, %d), elem_size %zu bytes\n", bounds[0], bounds[1], bounds[2], bounds[3], bounds[4], bounds[5], elem_size);
 #endif
 
     sprintf(msg, "try to acquired the write lock %s", lock_name);

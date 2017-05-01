@@ -1,6 +1,11 @@
+Q   
+    gdim removed?
+1084745
+    only one process tried to release read lock, did others return?kh
 1082998
     see what will happens if using same lock
     consumer still cannot read
+    changed it back
 1081962
     remove dspace_put_sync
     first serveral writes are very fast

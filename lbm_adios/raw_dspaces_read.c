@@ -104,7 +104,7 @@ int main (int argc, char ** argv)
     // how many lines in global
     int global_size= n*nprocs_producer;
     uint64_t gdims[2] = {2, global_size};
-    dspaces_define_gdim(var_name, 2,gdims);
+    //dspaces_define_gdim(var_name, 2,gdims);
     uint64_t slice_size;
                
     slice_size = (global_size)/nprocs;
