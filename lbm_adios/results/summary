@@ -1,3 +1,14 @@
+1086067
+    version changed to 5, cannot unlock in first reader iteration, producer is also slower
+
+1085860
+    working version of raw dspaces
+    0.1~0.2s per step in writting
+
+1085794
+	remove gdimdefine functions
+	global dims set to 2 in jobfile => pmi error
+
 Q   
     gdim removed?
 1084745

@@ -5,12 +5,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [0.2.1] May 1 2017
 #### changed
-	remove gdimdefine functions
-	1085794
-	global dims set to 2 in jobfile => pmi error
 #### working version
 	no gdim_define in code
-	with 3d dimensions in jobfile
+	with 2 dimensions in jobfile
 	seems reading takes sometime
 
 
