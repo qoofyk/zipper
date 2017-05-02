@@ -4,6 +4,7 @@ extern "C" {
 #endif
 
 #include "dataspaces.h"
+#include "dimes_interface.h"
 #include "utility.h"
 //#include "region_def.h"
 #include "string.h"

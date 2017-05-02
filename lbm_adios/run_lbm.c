@@ -14,7 +14,11 @@
 // define RAW_DSPACES
 
 
-#ifdef RAW_DSPACES
+#if defined(RAW_DSPACES) || defined(RAW_DIMES)
+#define RUTGERS
+#endif
+
+#ifdef RUTGERS
 static char var_name[STRING_LENGTH];
 static size_t elem_size=sizeof(double);
 #endif
@@ -1060,7 +1064,7 @@ void run_lbm(char * filepath, int step_stop, int dims_cube[3], MPI_Comm *pcomm)
 #endif
 #endif
 
-#ifdef RAW_DSPACES
+#ifdef RUTGERS
         int bounds[6] = {0};
         double time_comm;
 
@@ -1167,7 +1171,7 @@ int main(int argc, char * argv[]){
   MPI_Barrier(comm);
 #endif
 
-#ifdef RAW_DSPACES
+#ifdef RUTGERS
         char msg[STRING_LENGTH];
         int ret = -1;
         printf("trying init dspaces for %d process\n", nprocs);
@@ -1223,7 +1227,7 @@ int main(int argc, char * argv[]){
   printf("rank %d: adios finalize complete\n", rank); 
 #endif                                                      
 
-#ifdef RAW_DSPACES
+#ifdef RAW_RUTGERS
     dspaces_finalize();
 #endif
   MPI_Finalize();

@@ -53,7 +53,13 @@ void get_common_buffer(int timestep,int ndim, int bounds[6], int rank, MPI_Comm 
 
     // read all regions in once
     t1 = MPI_Wtime();
+#ifdef RAW_DSPACES
     ret_get = dspaces_get(var_name, timestep, elem_size, ndim, lb, ub, *p_buffer);
+#elif defined(RAW_DIMES)
+    ret_get = dimes_get(var_name, timestep, elem_size, ndim, lb, ub, *p_buffer);
+#else
+#error("either dspaces or dimes")
+#endif
     t2 = MPI_Wtime();
 
     sprintf(msg, "try to unlock the read lock");
@@ -125,7 +131,13 @@ void put_common_buffer(int timestep,int ndim, int bounds[6], int rank, MPI_Comm 
 
     // write all data in once
     t1 = MPI_Wtime();
+#ifdef RAW_DSPACES
     ret_put = dspaces_put(var_name, timestep, elem_size, ndim, lb, ub, *p_buffer);
+#elif defined(RAW_DIMES)
+    ret_put = dimes_put(var_name, timestep, elem_size, ndim, lb, ub, *p_buffer);
+#else
+#error("either dimes or dataspaces should be defined")
+#endif
     //int sync_ok = dspaces_put_sync();
     int sync_ok = 0;
     t2 = MPI_Wtime();
