@@ -1,10 +1,61 @@
+Mar 3
+1112615
+    timestep changed to 300
+    wait for results
+1109252
+    8 servers in two nodes
+    consumer 
+        time for read 52.290949 s; time for ds_get 43.102167 s; time for analyst 37.557888 s
+
+1108717
+    8 servers in one node
+    wait for results
+    producer
+        rank 0, t_prepare:0.072677 s, t_cal 31.705974 s,t_buffer = 0.334619, t_write 14.063485 s
+    consumer
+        stat:time for read 52.457892 s; time for ds_get 42.482243 s; time for analyst 36.992608 s
+1108676
+    four servers in one nodes
+    wait for results
+    producer:
+        t_prepare:0.079526 s, t_cal 32.637577 s,t_buffer = 0.372480, t_write 15.397109 s
+    consumer
+        time for read 49.933296 s; time for ds_get 39.106010 s; time for analyst 37.426931 s
+1108502
+    try 1108484 again
+    producer
+        rank 0, t_prepare:0.076126 s, t_cal 31.894343 s,t_buffer = 0.340155, t_write 21.663085 s
+    consumer
+        stat:time for read 71.426228 s; time for ds_get 48.901551 s; time for analyst 37.309971 s
+1108484
+    configuration same as 1108421
+    use 2 server processes
+    note: need to roll back!
+    wait for results
+    producer
+         is okay and even faster
+    consumer
+        stoped at the 47th step
+    server info:
+        Status (12) is not IBV_WC_SUCCESS.
+        (__process_event): err (-12).
+1108421
+    1 server processes
+    timer added in raw_dspaces version
+    producer:
+        rank 0, t_prepare:0.071743 s, t_cal 32.427348 s,t_buffer = 0.342315, t_write 31.190054 s
+    consumer dominate the execution timer
+        stat:time for read 80.504931 s; time for ds_get 54.705117 s; time for analyst 36.792386 s
 May 2
 1093155
     raw dimes version first submit
     wait for results
+    dimes_memory_alloc(): ERROR: no sufficient RDMA memory for caching data with 16777216 bytes. Suggested fix: increase the value of '--with-dimes-rdma-buffer-size' at configuration
+    default is 64M for each processes, can only 16M*4=64M, the fifth step will generate this error
 1092629
     raw dspaces getting more info
     wait for results
+    correct, just need to add timer to break down time
 -------------------------------------------
 -
 1086067

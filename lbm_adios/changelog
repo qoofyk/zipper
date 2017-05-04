@@ -2,6 +2,12 @@
 All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/) 
 and this project adheres to [Semantic Versioning](http://semver.org/).
+
+## [0.2.3] mar 4 2017
+#### added
+use more server instances decrease the consumer time.
+#### thoughts:
+use the same pattern as yuankun, mix producer and consumer together.
 ## [0.2.2] May 2 2017
 #### added 
 - dimes added

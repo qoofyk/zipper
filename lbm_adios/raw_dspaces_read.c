@@ -56,6 +56,14 @@ int main (int argc, char ** argv)
     int lp = 4;
 
     /******************** configuration stop ***********/
+#ifdef ENABLE_TIMING
+    double t1, t2, t3;
+    double t_read_1, t_read_2, t_analy;
+    t_read_1 = 0;
+    t_read_2 = 0;
+    t_analy = 0;
+#endif
+
 
     int         rank, nprocs;
     MPI_Comm    comm = MPI_COMM_WORLD;
@@ -126,7 +134,7 @@ int main (int argc, char ** argv)
     printf("rank %d: start: (%ld, %ld), count:( %ld, %ld)\n", rank, start[0], start[1], count[0], count[1]);
 
     int bounds[6] = {0};
-    double time_comm;
+    double time_comm = 0;;
     bounds[1]=start[0];
     bounds[0]=start[1];
     bounds[4]=start[0]+count[0]-1;
@@ -137,15 +145,24 @@ int main (int argc, char ** argv)
     for(timestep=0; timestep < nstop; timestep++){
 
 //#ifdef RAW_DSPACES
-
+        t1 =get_cur_time(); 
         get_common_buffer(timestep,2, bounds,rank, &comm, var_name, (void **)&data, elem_size, &time_comm);
+        t2 =get_cur_time(); 
+        // all time spent by get_common_buffer
+        t_read_1 += t2-t1;
+        // actual communication time
+        t_read_2 += time_comm;
 //#endif
         if(rank ==0)
             printf("Step %d read\n", timestep);
         // analysis
         run_analysis(data, slice_size, lp);
-        if(rank == 0)
-            printf("Step %d moments calculated\n", timestep);
+
+        t3 =get_cur_time(); 
+        t_analy += t3-t2;
+
+        if(rank ==0)
+            printf("rank %d: Step %d moments calculated, t_read %lf, t_advance %lf, t_analy %lf\n", rank, timestep, t2-t1, time_comm, t3-t2);
 
     }
 
@@ -154,6 +171,7 @@ int main (int argc, char ** argv)
     double t_end = get_cur_time();
     if(rank == 0){
       printf("stat:Consumer end  at %lf \n", t_end);
+      printf("stat:time for read %f s; time for ds_get %f s; time for analyst %f s\n", t_read_1, t_read_2, t_analy);
     }
 
 
