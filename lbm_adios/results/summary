@@ -1,7 +1,34 @@
+Mar 4
+1113082
+    24:12 mpiio in 300 steps, 
+    923s e2e time, 
+    there is a pause in consumer at No.278 step 
+1113054
+    24:12 mpiio in 100 steps, consumer and producer finishs almost at the same time
+    128s e2e time
+    
+    
+1112967
+    24:12 dspaces with 16s in 4 server node
+
+1112935
+    24:12 mpiio in 300 steps
+1112767
+    24:12 
+    raw spaces with 8 sp in 2 server node
+    900+ end2end
+    
+    
+1112728
+    24:12
+    simulation only
+    121s for 300 steps
+
+    
 Mar 3
 1112615
     timestep changed to 300
-    wait for results
+    need more max_verion in configurations
 1109252
     8 servers in two nodes
     consumer 

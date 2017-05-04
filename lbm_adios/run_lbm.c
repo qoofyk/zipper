@@ -977,8 +977,8 @@ void run_lbm(char * filepath, int step_stop, int dims_cube[3], MPI_Comm *pcomm)
 
 
 		#ifdef DEBUG_PRINT
-		printf("Compute Node %d Generator start create_prb_element!\n",rank);
-		fflush(stdout);
+        printf("Compute Node %d Generator start create_prb_element!\n",rank);
+        fflush(stdout);
 		#endif //DEBUG_PRINT
 
 		/*create_prb_element*/
@@ -1227,7 +1227,7 @@ int main(int argc, char * argv[]){
   printf("rank %d: adios finalize complete\n", rank); 
 #endif                                                      
 
-#ifdef RAW_RUTGERS
+#ifdef RUTGERS
     dspaces_finalize();
 #endif
   MPI_Finalize();

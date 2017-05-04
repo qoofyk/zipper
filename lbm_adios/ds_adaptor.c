@@ -57,8 +57,8 @@ void get_common_buffer(int timestep,int ndim, int bounds[6], int rank, MPI_Comm 
     ret_get = dspaces_get(var_name, timestep, elem_size, ndim, lb, ub, *p_buffer);
 #elif defined(RAW_DIMES)
     ret_get = dimes_get(var_name, timestep, elem_size, ndim, lb, ub, *p_buffer);
-#else
-#error("either dspaces or dimes")
+//#else
+//#error("either dspaces or dimes")
 #endif
     t2 = MPI_Wtime();
 
@@ -135,8 +135,8 @@ void put_common_buffer(int timestep,int ndim, int bounds[6], int rank, MPI_Comm 
     ret_put = dspaces_put(var_name, timestep, elem_size, ndim, lb, ub, *p_buffer);
 #elif defined(RAW_DIMES)
     ret_put = dimes_put(var_name, timestep, elem_size, ndim, lb, ub, *p_buffer);
-#else
-#error("either dimes or dataspaces should be defined")
+//#else
+//#error("either dimes or dataspaces should be defined")
 #endif
     //int sync_ok = dspaces_put_sync();
     int sync_ok = 0;
