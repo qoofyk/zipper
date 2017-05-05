@@ -44,16 +44,17 @@ int main (int argc, char ** argv)
 
     /******************** configuration stop ***********/
 #ifdef ENABLE_TIMING
-    double t1, t2, t3, t4;
-    double t_read_1, t_read_2, t_analy;
-    t_read_1 = 0;
-    t_read_2 = 0;
+    double t0, t1, t2, t3, t4;
+    double t_prepare, t_get, t_close, t_analy;
+    t_prepare=0;
+    t_get = 0;
+    t_close = 0;
     t_analy = 0;
 #endif
 
 
 
-    int         rank, size;
+    int         rank, nprocs;
     MPI_Comm    comm = MPI_COMM_WORLD;
     //enum ADIOS_READ_METHOD method = ADIOS_READ_METHOD_DATASPACES;
     //enum ADIOS_READ_METHOD method = ADIOS_READ_METHOD_DIMES;
@@ -64,7 +65,7 @@ int main (int argc, char ** argv)
 
     MPI_Init (&argc, &argv);
     MPI_Comm_rank (comm, &rank);
-    MPI_Comm_size (comm, &size);
+    MPI_Comm_size (comm, &nprocs);
 
     int timestep = -1;
     
@@ -128,9 +129,12 @@ int main (int argc, char ** argv)
         while(timestep < time_stamp){
             timestep++;
             if(rank ==0)
-                printf("rank %d: reader opened step %d\n", timestep);
+                printf("----reader opened step %d\n", timestep);
             sprintf(filename_atom, "%s/atom_%d.bp", filepath, timestep);
+
+            t0 = get_cur_time();
             f = adios_read_open_file(filename_atom, method, comm);
+
 
             // the first timestep will get variable metadata
             if(timestep == 0){
@@ -141,7 +145,7 @@ int main (int argc, char ** argv)
                 }
                 
                 v = adios_inq_var (f, "atom");
-                slice_size = v->dims[0]/size;
+                slice_size = v->dims[0]/nprocs;
 
                 data = malloc (slice_size * v->dims[1]* sizeof (double));
                 if (data == NULL)
@@ -151,8 +155,8 @@ int main (int argc, char ** argv)
                 }
 
                 start[0] = slice_size * rank;
-                if (rank == size-1) /* last rank may read more lines */
-                    slice_size = slice_size + v->dims[0]%size;
+                if (rank == nprocs-1) /* last rank may read more lines */
+                    slice_size = slice_size + v->dims[0]%nprocs;
                 count[0] = slice_size;
 
                 start[1] = 0;
@@ -164,16 +168,19 @@ int main (int argc, char ** argv)
             /* Read a subset of the temperature array */
             adios_schedule_read (f, sel, "atom", 0, 1, data);
 
+            // timer for open and schedule
             t1 = get_cur_time();
+            t_prepare+= t1-t0;
+            
+            // timer for actual read
             adios_perform_reads (f, 1);
-
             t2 = get_cur_time();
-            t_read_1 += t2-t1;
+            t_get += t2-t1;
 
+            // timer for closing file
             adios_read_close (f);
             t3 = get_cur_time();
-
-            t_read_2 += t3-t2;
+            t_close += t3-t2;
 
             if(rank ==0)
                 printf("Step %d read\n", timestep);
@@ -183,7 +190,7 @@ int main (int argc, char ** argv)
             t4 = get_cur_time();
             t_analy += t4-t3;
             if(rank == 0){
-                printf("rank %d: Step %d moments calculated, t_read %lf, t_close %lf, t_analy %lf\n", rank, timestep, t2-t1, t3-t2, t4-t3);
+                printf("rank %d: Step %d moments calculated,t_prepare %lf, t_read %lf, t_close %lf, t_analy %lf\n", rank, timestep, t1-t0, t2-t1, t3-t2, t4-t3);
             }
         }
     }
@@ -196,9 +203,18 @@ int main (int argc, char ** argv)
     MPI_Barrier(comm);
     double t_end = get_cur_time();
 
+        double global_t_prepare=0;
+        double global_t_get=0;
+        double global_t_close=0;
+        double global_t_analy=0;
+        MPI_Reduce(&t_prepare, &global_t_prepare, 1, MPI_DOUBLE, MPI_SUM, 0, comm);
+        MPI_Reduce(&t_get, &global_t_get, 1, MPI_DOUBLE, MPI_SUM, 0, comm);
+        MPI_Reduce(&t_close, &global_t_close, 1, MPI_DOUBLE, MPI_SUM, 0, comm);
+        MPI_Reduce(&t_analy, &global_t_analy, 1, MPI_DOUBLE, MPI_SUM, 0, comm);
+ 
     if(rank == 0){
       printf("stat:Consumer end  at %lf \n", t_end);
-      printf("stat:time for read %f s; time for close %f s; time for analy %f s\n", t_read_1, t_read_2, t_analy);
+      printf("stat:time for prepare %fs, read %f s; time for close %f s; time for analy %f s\n",global_t_prepare/nprocs, global_t_get/nprocs, global_t_close/nprocs, global_t_analy/nprocs);
     }
 #endif
     

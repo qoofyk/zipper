@@ -111,7 +111,7 @@ int main (int argc, char ** argv)
     int n = dims_cube[0]*dims_cube[1]*dims_cube[2];
     // how many lines in global
     int global_size= n*nprocs_producer;
-    uint64_t gdims[2] = {2, global_size};
+    //uint64_t gdims[2] = {2, global_size};
     //dspaces_define_gdim(var_name, 2,gdims);
     uint64_t slice_size;
                
@@ -169,9 +169,16 @@ int main (int argc, char ** argv)
     free (data);
     MPI_Barrier(comm);
     double t_end = get_cur_time();
+
+        double global_t_cal=0;
+        double global_t_read=0;
+        double global_t_get=0;
+        MPI_Reduce(&t_analy, &global_t_cal, 1, MPI_DOUBLE, MPI_SUM, 0, comm);
+        MPI_Reduce(&t_read_1, &global_t_read, 1, MPI_DOUBLE, MPI_SUM, 0, comm);
+        MPI_Reduce(&t_read_2, &global_t_get, 1, MPI_DOUBLE, MPI_SUM, 0, comm);
     if(rank == 0){
       printf("stat:Consumer end  at %lf \n", t_end);
-      printf("stat:time for read %f s; time for ds_get %f s; time for analyst %f s\n", t_read_1, t_read_2, t_analy);
+      printf("stat:time for read %f s; time for ds_get %f s; time for analyst %f s\n", global_t_read/nprocs, global_t_get/nprocs, global_t_cal/nprocs);
     }
 
 

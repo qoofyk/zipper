@@ -1,11 +1,38 @@
+Mar 5
+Note: timer added in now averaged
+1116532
+    24-12 300 version
+    dspaces locks are removed
+
+1115790
+    24-12 dimes 20 max version
+    wait resuts
+    can run for 64step,(64*16=1024), not enough spaces in dimes
+    solution: call sync
+
+
+
+1115698
+    24-12 300 mpiio with read timer
+    wait results
+    sum of breakdown is much less then time gap tetween producer and consumer
+--------------------------------------------------------------------------------
 Mar 4
+1114840
+    24-12 300 dimes with read timer
+    with 8 sp in 4 nodes
+    mode 20 in ds_adaptor
+    wait for results
+        server rpc connection error(node 73), so one server is not up
+
 1114745
     24-12 300 mpiio with read timer
     wait for results
 1114063
     24:12 dspaces with 16sp in 4 server node
     use 20 maxversion, lockname is associated with mode 20
-    wait for results
+    same end2end time, but only 20 max_version used in dspaces
+        producer time increased(blocked when dspaces_lock_on_write)
 
 1113082
     24:12 mpiio in 300 steps, 

@@ -46,17 +46,17 @@ void get_common_buffer(int timestep,int ndim, int bounds[6], int rank, MPI_Comm 
     sprintf(msg, "try to acquired the read lock %s", lock_name);
     my_message(msg, rank, LOG_WARNING);
 
-    dspaces_lock_on_read(lock_name, p_gcomm);
+    //dspaces_lock_on_read(lock_name, p_gcomm);
 
     sprintf(msg, "get the read lock");
     my_message(msg, rank, LOG_WARNING);
 
     // read all regions in once
     t1 = MPI_Wtime();
-#ifdef RAW_DSPACES
-    ret_get = dspaces_get(var_name, timestep, elem_size, ndim, lb, ub, *p_buffer);
-#elif defined(RAW_DIMES)
+#ifdef RAW_DIMES
     ret_get = dimes_get(var_name, timestep, elem_size, ndim, lb, ub, *p_buffer);
+#else
+    ret_get = dspaces_get(var_name, timestep, elem_size, ndim, lb, ub, *p_buffer);
 //#else
 //#error("either dspaces or dimes")
 #endif
@@ -67,7 +67,7 @@ void get_common_buffer(int timestep,int ndim, int bounds[6], int rank, MPI_Comm 
 
 
     // now we can release region lock
-    dspaces_unlock_on_read(lock_name, p_gcomm);
+    //dspaces_unlock_on_read(lock_name, p_gcomm);
     sprintf(msg, "release the read lock");
     my_message(msg, rank, LOG_WARNING);
 
@@ -124,17 +124,17 @@ void put_common_buffer(int timestep,int ndim, int bounds[6], int rank, MPI_Comm 
     sprintf(msg, "try to acquired the write lock %s", lock_name);
     my_message(msg, rank, LOG_WARNING);
 
-    dspaces_lock_on_write(lock_name, p_gcomm);
+    //dspaces_lock_on_write(lock_name, p_gcomm);
 
     sprintf(msg, "get the write lock");
     my_message(msg, rank, LOG_WARNING);
 
     // write all data in once
     t1 = MPI_Wtime();
-#ifdef RAW_DSPACES
-    ret_put = dspaces_put(var_name, timestep, elem_size, ndim, lb, ub, *p_buffer);
-#elif defined(RAW_DIMES)
+#ifdef RAW_DIMES
     ret_put = dimes_put(var_name, timestep, elem_size, ndim, lb, ub, *p_buffer);
+#else
+    ret_put = dspaces_put(var_name, timestep, elem_size, ndim, lb, ub, *p_buffer);
 //#else
 //#error("either dimes or dataspaces should be defined")
 #endif
@@ -143,7 +143,7 @@ void put_common_buffer(int timestep,int ndim, int bounds[6], int rank, MPI_Comm 
     t2 = MPI_Wtime();
 
     // now we can release region lock
-    dspaces_unlock_on_write(lock_name, p_gcomm);
+    //dspaces_unlock_on_write(lock_name, p_gcomm);
     sprintf(msg, "release the write lock");
     my_message(msg, rank, LOG_WARNING);
 
