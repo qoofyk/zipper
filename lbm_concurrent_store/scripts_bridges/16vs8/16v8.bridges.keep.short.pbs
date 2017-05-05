@@ -1,0 +1,47 @@
+#!/bin/bash
+#SBATCH --job-name="LBM_Keep_24v12"
+#SBATCH --output="results/LBM.Keep.24v12.%j.out"
+#SBATCH --partition=RM
+#SBATCH --nodes=3
+#SBATCH --ntasks-per-node=12
+#SBATCH --export=ALL
+#SBATCH -t 0:30:00
+
+##################parameter setting#################################################
+directory="LBMcon024vs012"
+
+CASE_NAME=LBM_DataBroker_concurrent_Keep
+FILESIZE2PRODUCE=256 # 64*64*256*2*8 = 16MB per proc
+compute_generator_num=1
+compute_writer_num=1
+analysis_reader_num=1
+analysis_writer_num=1
+# writer_thousandth=300
+compute_group_size=2
+num_comp_proc=24
+num_ana_proc=$((${num_comp_proc} / ${compute_group_size}))
+total_proc=$((${num_comp_proc} + ${num_ana_proc}))
+
+maxp=1 #control how many times to run each configuration
+lp=4   #n_moment
+NSTOP=300 # how many steps
+
+cubex=16
+writer_thousandth=(0 50 100 200 300)
+####################################################################################
+
+echo "-----------case=$CASE_NAME---------------"
+echo "datasize=$FILESIZE2PRODUCE nstops=$NSTOP num_comp_proc=$num_comp_proc num_ana_proc=$num_ana_proc calc_n_moments=$lp NSTOP=$NSTOP"
+
+PBS_O_HOME=$HOME
+PBS_O_WORKDIR=$(pwd)
+
+# comet
+# SCRATCH_DIR=/oasis/scratch/comet/qoofyk/temp_project/LBMconcurrentstore
+# bridges
+groupname=$(id -Gn)
+SCRATCH_DIR=/pylon5/${groupname}/qoofyk/LBMconcurrentstore/
+
+EXE=${PBS_O_HOME}/General_Data_Broker/lbm_concurrent_store/build_keep/lbm_concurrent_store
+
+source ${PBS_O_WORKDIR}/scripts_bridges/common.sh
