@@ -1,4 +1,12 @@
 Mar 4
+1114745
+    24-12 300 mpiio with read timer
+    wait for results
+1114063
+    24:12 dspaces with 16sp in 4 server node
+    use 20 maxversion, lockname is associated with mode 20
+    wait for results
+
 1113082
     24:12 mpiio in 300 steps, 
     923s e2e time, 
@@ -9,7 +17,7 @@ Mar 4
     
     
 1112967
-    24:12 dspaces with 16s in 4 server node
+    24:12 dspaces with 16 sp in 4 server node
 
 1112935
     24:12 mpiio in 300 steps
@@ -31,6 +39,8 @@ Mar 3
     need more max_verion in configurations
 1109252
     8 servers in two nodes
+    producer
+        t_prepare:0.078760 s, t_cal 31.777218 s,t_buffer = 0.369984, t_write 14.020842 s
     consumer 
         time for read 52.290949 s; time for ds_get 43.102167 s; time for analyst 37.557888 s
 

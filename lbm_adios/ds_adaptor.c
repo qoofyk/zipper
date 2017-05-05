@@ -36,7 +36,7 @@ void get_common_buffer(int timestep,int ndim, int bounds[6], int rank, MPI_Comm 
 #ifdef USE_SAME_LOCK
     snprintf(lock_name, STRING_LENGTH, "%s_lock", var_name);
 #else
-    snprintf(lock_name, STRING_LENGTH, "%s_lock_t_%d",var_name, timestep);
+    snprintf(lock_name, STRING_LENGTH, "%s_lock_t_%d",var_name, timestep%20);
 #endif
 
 #ifdef debug_1
@@ -114,7 +114,7 @@ void put_common_buffer(int timestep,int ndim, int bounds[6], int rank, MPI_Comm 
 #ifdef USE_SAME_LOCK
     snprintf(lock_name, STRING_LENGTH, "%s_lock", var_name);
 #else
-    snprintf(lock_name, STRING_LENGTH, "%s_lock_t_%d",var_name, timestep);
+    snprintf(lock_name, STRING_LENGTH, "%s_lock_t_%d",var_name, timestep%20);
 #endif
 
 #ifdef debug_1

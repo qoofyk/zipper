@@ -43,6 +43,15 @@ int main (int argc, char ** argv)
     int lp = 4;
 
     /******************** configuration stop ***********/
+#ifdef ENABLE_TIMING
+    double t1, t2, t3, t4;
+    double t_read_1, t_read_2, t_analy;
+    t_read_1 = 0;
+    t_read_2 = 0;
+    t_analy = 0;
+#endif
+
+
 
     int         rank, size;
     MPI_Comm    comm = MPI_COMM_WORLD;
@@ -154,27 +163,44 @@ int main (int argc, char ** argv)
 
             /* Read a subset of the temperature array */
             adios_schedule_read (f, sel, "atom", 0, 1, data);
+
+            t1 = get_cur_time();
             adios_perform_reads (f, 1);
 
+            t2 = get_cur_time();
+            t_read_1 += t2-t1;
+
             adios_read_close (f);
+            t3 = get_cur_time();
+
+            t_read_2 += t3-t2;
 
             if(rank ==0)
                 printf("Step %d read\n", timestep);
             // analysis
             run_analysis(data, slice_size, lp);
-            if(rank == 0)
-                printf("Step %d moments calculated\n", timestep);
+
+            t4 = get_cur_time();
+            t_analy += t4-t3;
+            if(rank == 0){
+                printf("rank %d: Step %d moments calculated, t_read %lf, t_close %lf, t_analy %lf\n", rank, timestep, t2-t1, t3-t2, t4-t3);
+            }
         }
-    }
-    MPI_Barrier(comm);
-    double t_end = get_cur_time();
-    if(rank == 0){
-      printf("stat:Consumer end  at %lf \n", t_end);
     }
 
     free (data);
     adios_selection_delete (sel);
     adios_free_varinfo (v);
+
+#ifdef ENABLE_TIMING
+    MPI_Barrier(comm);
+    double t_end = get_cur_time();
+
+    if(rank == 0){
+      printf("stat:Consumer end  at %lf \n", t_end);
+      printf("stat:time for read %f s; time for close %f s; time for analy %f s\n", t_read_1, t_read_2, t_analy);
+    }
+#endif
     
 
     MPI_Barrier (comm);
