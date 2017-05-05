@@ -1017,10 +1017,11 @@ void run_lbm(GV gv, int dims_cube[3], MPI_Comm *pcomm){
 	      // fclose(fp);
 	    }
 
-	#ifdef DEBUG_PRINT
+#ifdef DEBUG_PRINT
 	if(gv->step%10==0)
 	  printf("Comp_Proc%d: LBM gv->step = %d\n", gv->rank[0], gv->step);
-	#endif //DEBUG_PRINT
+#endif //DEBUG_PRINT
+
 	time1=0;
 
 	gv->step+=dt;
@@ -1045,9 +1046,11 @@ void run_lbm(GV gv, int dims_cube[3], MPI_Comm *pcomm){
     // ((int *)buffer)[1]= -1;
     // ((int *)buffer)[2]= -1;
 
+#ifdef DEBUG_PRINT
     printf("Comp_Proc%d: LBM generate the EXIT block_id=%d in timestep=%d with total_blks=%d\n",
       gv->rank[0], ((int *)buffer)[0], gv->step, gv->data_id);
     fflush(stdout);
+#endif //DEBUG_PRINT
 
     producer_ring_buffer_put(gv,buffer);
 

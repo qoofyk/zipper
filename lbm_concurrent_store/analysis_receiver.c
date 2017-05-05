@@ -251,6 +251,7 @@ void analysis_receiver_thread(GV gv,LV lv){
     else if(status.MPI_TAG == DISK_TAG){
       MPI_Get_count(&status, MPI_CHAR, &recv_int);
       recv_int=recv_int/sizeof(int);
+
       printf("pure_disk_msg:- recv_int=%d,gv->mpi_recv_progress_counter=%d\n",
         recv_int,gv->mpi_recv_progress_counter);
       fflush(stdout);
@@ -287,9 +288,11 @@ void analysis_receiver_thread(GV gv,LV lv){
       ((int*)new_buffer)[2] = ON_DISK;
       ((int*)new_buffer)[3] = CALC_DONE;
 
+#ifdef DEBUG_PRINT
       printf("Ana_Proc%d: Receiver%d get a *EXIT_MSG_TAG* from src=%d with block_id=%d, num_exit_flag=%d\n",
         gv->rank[0], lv->tid, ((int*)new_buffer)[0], ((int*)new_buffer)[1], num_exit_flag);
       fflush(stdout);
+#endif //DEBUG_PRINT
 
       recv_ring_buffer_put(gv, lv, new_buffer);
 
@@ -302,8 +305,8 @@ void analysis_receiver_thread(GV gv,LV lv){
   }
   t1 = get_cur_time();
 
-  printf("Ana_Proc%3d: Receiver%d T_total=%.3f, mpi_recv_progress_counter=%d, \
-T_receive_wait=%.3f, T_wait_lock=%.3f, long_msg_id=%d, mix_msg_id= %d,disk_id=%d\n",
+  printf("Ana_Proc%04d: Receiver%d T_total=%.3f, mpi_recv_progress_counter=%d, \
+T_receive_wait=%.3f, T_wait_lock=%.3f, long_msg_id=%d, mix_msg_id=%d, disk_id=%d\n",
      gv->rank[0], lv->tid, t1 - t0, gv->mpi_recv_progress_counter,
      receive_time, wait_lock, long_msg_id, mix_msg_id, disk_id);
   fflush(stdout);

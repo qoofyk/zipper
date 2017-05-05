@@ -31,9 +31,9 @@ Brief desc of the file: Header
 
 #ifdef BRIDGES
 #ifdef WRITE_ONE_FILE
-    #define ADDRESS "/pylon1/cc4s86p/qoofyk/LBMconcurrentstore/LBMcon%03dvs%03d/cid%03d/2lbm_cid%03d"
+    #define ADDRESS "/pylon5/cc4s86p/qoofyk/LBMconcurrentstore/LBMcon%03dvs%03d/cid%03d/2lbm_cid%03d"
 #else
-    #define ADDRESS "/pylon1/cc4s86p/qoofyk/LBMconcurrentstore/LBMcon%03dvs%03d/cid%03d/2lbm_cid%03dblk%d"
+    #define ADDRESS "/pylon5/cc4s86p/qoofyk/LBMconcurrentstore/LBMcon%03dvs%03d/cid%03d/2lbm_cid%03dblk%d"
 #endif //WRITE_ONE_FILE
 #endif //BRIDGES
 
@@ -144,6 +144,7 @@ typedef struct gv_t {
   // receiver_thread
   void * org_recv_buffer;
   int mpi_recv_progress_counter; // how many blocks are received
+
   //prefetcher thread
   // int prefetch_counter;  //currently how many file blocks have been read
   int recv_tail;

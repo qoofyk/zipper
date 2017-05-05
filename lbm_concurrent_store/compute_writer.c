@@ -7,8 +7,8 @@ char* producer_ring_buffer_get(GV gv, LV lv){
   pthread_mutex_lock(rb->lock_ringbuffer);
   while(1) {
   	if(gv->flag_sender_get_finalblk==1){
-			pthread_mutex_unlock(rb->lock_ringbuffer);
-			return NULL;
+		pthread_mutex_unlock(rb->lock_ringbuffer);
+		return NULL;
 	}
 
     if (rb->num_avail_elements > 0) {
@@ -136,7 +136,6 @@ void compute_writer_thread(GV gv,LV lv) {
 #else
 					comp_write_blk_per_file(gv, lv, block_id, buffer+sizeof(int), gv->block_size);
 #endif //WRITE_ONE_FILE
-
 					t1 = get_cur_time();
 					lv->write_time += t1 - t0;
 					my_count++;

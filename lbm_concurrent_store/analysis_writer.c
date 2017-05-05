@@ -244,8 +244,12 @@ void analysis_writer_thread(GV gv, LV lv) {
 
 		}
 		else{//get a NULL pointer means: A_consumer got the final block and require A_writer to exit
+
+#ifdef DEBUG_PRINT
 			printf("Ana_Proc%d: A_Writer%d get NULL to exit\n", gv->rank[0], lv->tid);
 			fflush(stdout);
+#endif //DEBUG_PRINT
+
 			break;
 		}
 

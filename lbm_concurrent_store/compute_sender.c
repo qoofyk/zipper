@@ -55,8 +55,10 @@ void compute_sender_thread(GV gv,LV lv){
 			block_id = ((int*)buffer)[0];
 
 			if (block_id != EXIT_BLK_ID){
+
 				// printf("Comp_Proc%d: Sender%d get block_id %d\n", gv->rank[0], lv->tid, block_id);
 				// fflush(stdout);
+
 				//check disk_id_array
 				pthread_mutex_lock(&gv->lock_writer_progress);
 				if (gv->send_tail>0){
@@ -75,6 +77,7 @@ void compute_sender_thread(GV gv,LV lv){
 
 				// Mix_msg
 				if (send_counter > 0){
+
 					// printf("Compute %d Sender send a MIX message send_counter=%d\n", gv->rank[0], send_counter);
 					// fflush(stdout);
 
@@ -106,7 +109,6 @@ void compute_sender_thread(GV gv,LV lv){
 					t1 = get_cur_time();
 					pure_mpi_send_time += t1 - t0;
 
-
 					gv->mpi_send_progress_counter++;
 					long_msg_id++;
 					free(buffer);
@@ -114,10 +116,11 @@ void compute_sender_thread(GV gv,LV lv){
 				}
 			}
 			else{
-
+#ifdef DEBUG_PRINT
 				printf("Comp_Proc%d: Sender%d Get exit flag msg and prepare to quit\n",
 					gv->rank[0], lv->tid);
 				fflush(stdout);
+#endif //DEBUG_PRINT
 
 				pthread_mutex_lock(rb->lock_ringbuffer);
 				gv->flag_sender_get_finalblk = 1;
@@ -132,9 +135,13 @@ void compute_sender_thread(GV gv,LV lv){
 			}
 		}
 		else{//writer get the final msg.
+
+#ifdef DEBUG_PRINT
 			printf("Comp_Proc%d: Sender%d *Discover* *Writer* Get exit flag msg and prepare to quit\n",
 					gv->rank[0], lv->tid);
 			fflush(stdout);
+#endif //DEBUG_PRINT
+
 			my_exit_flag=1;
 		}
 
@@ -146,9 +153,12 @@ void compute_sender_thread(GV gv,LV lv){
 			pthread_mutex_unlock(&gv->lock_writer_progress);
 
 			if (disk_msg_flag == 0){
+
+#ifdef DEBUG_PRINT
 				printf("Comp_Proc%d: ---Normal case--- Sender%d longer than writer !!!!---###---\n",
 					gv->rank[0], lv->tid);
 				fflush(stdout);
+#endif //DEBUG_PRINT
 
 				//send EXIT msg
 				errorcode = MPI_Send(&exit_flag, sizeof(char), MPI_CHAR, dest, EXIT_MSG_TAG, MPI_COMM_WORLD);
@@ -157,9 +167,13 @@ void compute_sender_thread(GV gv,LV lv){
 
 			// Special case: sender finish its job early and wait for writer to finish
 			if (disk_msg_flag == 1){
+
+#ifdef DEBUG_PRINT
 				printf("Comp_Proc%d: ---Special case--- Sender%d wait for Writer and send the last msg with %d blocks!!!!---###---\n",
 					gv->rank[0], lv->tid, gv->send_tail);
 				fflush(stdout);
+#endif //DEBUG_PRINT
+
 				errorcode = MPI_Send(gv->written_id_array, gv->send_tail*sizeof(int), MPI_CHAR, dest, DISK_TAG, MPI_COMM_WORLD);
 				check_MPI_success(gv, errorcode);
 
@@ -173,7 +187,7 @@ void compute_sender_thread(GV gv,LV lv){
 	}
 	t3 = get_cur_time();
 
-	printf("Comp_Proc%3d: Sender%d T_total=%.3f, mpi_send_progress_counter=%d,\
+	printf("Comp_Proc%04d: Sender%d T_total=%.3f, mpi_send_progress_counter=%d,\
 T_mix_send=%.3f, T_pure_mpi_send=%.3f, T_total_send=%.3f, mix_msg_id=%d, disk_id=%d, long_msg_id=%d\n",
     gv->rank[0], lv->tid, t3-t2, gv->mpi_send_progress_counter,
     mix_send_time, pure_mpi_send_time, mix_send_time+pure_mpi_send_time, mix_msg_id, disk_id, long_msg_id);

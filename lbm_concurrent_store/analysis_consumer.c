@@ -173,12 +173,13 @@ void consumer_ring_buffer_move_tail(GV gv, LV lv, int* flag_p, void* pointer){
 void analysis_consumer_thread(GV gv,LV lv){
   double t0=0, t1=0, t2=0, t3=0;
   void* pointer=NULL;
-  double wait_time=0, move_tail_time=0;
+  double read_tail_wait_time=0, move_tail_wait_time=0;
   int source=0, block_id=0;
   int flag=0;
   int free_count=0;
   int consumer_state;
   int num_exit_flag=0;
+  int remaining_elements;
 
   ring_buffer *rb = gv->consumer_rb_p;
   // printf("Analysis Process %d consumer thread %d is running!\n",gv->rank[0], lv->tid);
@@ -191,7 +192,7 @@ void analysis_consumer_thread(GV gv,LV lv){
     t0 = get_cur_time();
     pointer = consumer_ring_buffer_read_tail(gv, lv, &consumer_state);
     t1 = get_cur_time();
-    wait_time += t1-t0;
+    read_tail_wait_time += t1-t0;
 
     if (pointer != NULL) {
 
@@ -240,15 +241,16 @@ step=%d, i=%d, j=%d, k=%d, gv->calc_counter=%d, consumer_state=%d\n",
             printf("Ana_Proc%d: Consumer%d calc_counter %d\n", gv->rank[0], lv->tid, gv->calc_counter);
             fflush(stdout);
           }
-#endif //DEBUG_PRINT
 
-#ifdef DEBUG_PRINT
           printf("Ana_Proc%d: Consumer%d ***PASS-Assign-CALC_DONE*** calculating source=%d block_id=%d, flag=%d, calc_counter=%d\n",
             gv->rank[0], lv->tid, ((int*)pointer)[0], ((int*)pointer)[1], flag, gv->calc_counter);
           fflush(stdout);
 #endif //DEBUG_PRINT
 
+          t0 = get_cur_time();
           consumer_ring_buffer_move_tail(gv, lv, &flag, pointer);
+          t1 = get_cur_time();
+          move_tail_wait_time += t1-t0;
 
 #ifdef DEBUG_PRINT
           printf("Ana_Proc%d: Consumer%d ***PASS-MOVE-TAIL*** source=%d block_id=%d, flag=%d, calc_counter=%d\n",
@@ -286,17 +288,25 @@ step=%d, i=%d, j=%d, k=%d, gv->calc_counter=%d, consumer_state=%d\n",
 
         source = ((int *)pointer)[0];
 
+#ifdef DEBUG_PRINT
         printf("Ana_Proc%d: Consumer get a EXIT_BLK_ID from source=%d and Prepare to free it\n", gv->rank[0], ((int *)pointer)[0]);
         fflush(stdout);
+#endif //DEBUG_PRINT
 
+        t0 = get_cur_time();
         consumer_ring_buffer_move_tail(gv, lv, &flag, pointer);
+        t1 = get_cur_time();
+        move_tail_wait_time += t1-t0;
 
         free(pointer);
 
         num_exit_flag++;
 
+#ifdef DEBUG_PRINT
         printf("Ana_Proc%d: Consumer get a EXIT_BLK_ID from source=%d! num_exit_flag=%d\n", gv->rank[0], source, num_exit_flag);
         fflush(stdout);
+#endif //DEBUG_PRINT
+
       }
     }
     else{
@@ -311,23 +321,25 @@ step=%d, i=%d, j=%d, k=%d, gv->calc_counter=%d, consumer_state=%d\n",
       //set ana_writer exit
       gv->ana_writer_done=1;
 
-      int n;
       pthread_mutex_lock(rb->lock_ringbuffer);
-      n=rb->num_avail_elements;
+      remaining_elements=rb->num_avail_elements;
       pthread_cond_signal(rb->empty); //wake up potential asleep A_writer
       // pthread_cond_signal(rb->new_tail);
       pthread_mutex_unlock(rb->lock_ringbuffer);
 
+#ifdef DEBUG_PRINT
       printf("Ana_Proc%d: Consumer prepare to exit! With ring_buffer num_avail_elements=%d\n",
-        gv->rank[0], n);
+        gv->rank[0], remaining_elements);
       fflush(stdout);
+#endif //DEBUG_PRINT
+
       break;
     }
   }
   t3 = get_cur_time();
 
   printf("Ana_Proc%04d: Consumer T_total_consumer=%.3f, \
-T_calc=%.3f, T_wait=%.3f, T_move_tail=%.3f, my_count=%d, free_count=%d\n",
-       gv->rank[0], t3 - t2, lv->calc_time, wait_time, move_tail_time, gv->calc_counter, free_count);
+T_calc=%.3f, T_wait=%.3f, T_move_tail=%.3f, my_count=%d, free_count=%d, num_avail_elements=%d\n",
+       gv->rank[0], t3 - t2, lv->calc_time, read_tail_wait_time, move_tail_wait_time, gv->calc_counter, free_count, remaining_elements);
   fflush(stdout);
 }
