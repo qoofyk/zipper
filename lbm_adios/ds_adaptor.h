@@ -11,6 +11,7 @@ extern "C" {
 #include "mpi.h"
 #include "stdlib.h"
 #include <stdio.h>
+#define DS_MAX_VERSION (20)
 
 //#include <mpi.h>
 

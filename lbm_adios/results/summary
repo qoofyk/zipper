@@ -1,8 +1,22 @@
-Mar 5
+May 6
+Note: use small granularity
+1118220
+    dimes with small granularity& sync each 20 steps
+
+1118197
+    dspaces with small granularity
+    still very slow, readers seems to get the read lock in the same time
+    change the communicator in lock routines
+
+
+----------------------------------------------------------------------------------------
+May 5
 Note: timer added in now averaged
-1116532
+1116695
     24-12 300 version
     dspaces locks are removed
+    ds_put fine, dspaces get error(data not avaible)
+    try: after two producer process done, the mapped one consumer process get the lock
 
 1115790
     24-12 dimes 20 max version
@@ -17,7 +31,7 @@ Note: timer added in now averaged
     wait results
     sum of breakdown is much less then time gap tetween producer and consumer
 --------------------------------------------------------------------------------
-Mar 4
+May 4
 1114840
     24-12 300 dimes with read timer
     with 8 sp in 4 nodes

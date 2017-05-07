@@ -2,9 +2,20 @@
 All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/) 
 and this project adheres to [Semantic Versioning](http://semver.org/).
+## [0.2.5] Mar 6 2017
+#### changed
+Dataspaces
+	small guantity locks, add part into in lock name,
+	still use max_20 locks
+Dimes
+	not enough space
+	use put_sync every 20 steps
+
 ## [0.2.4] Mar 5 2017
 #### added
 add avg in breakdown timer in raw_dspaces_read, mpiio_read, run_lbm
+#### changed
+dspaces lock removed-> error, consumer need to know when data is avaiblable
 
 ## [0.2.3] mar 4 2017
 #### added

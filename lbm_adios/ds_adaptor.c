@@ -33,10 +33,12 @@ void get_common_buffer(int timestep,int ndim, int bounds[6], int rank, MPI_Comm 
     //int ndim = 3;
 
     char lock_name[STRING_LENGTH];
+    int part = rank;
 #ifdef USE_SAME_LOCK
     snprintf(lock_name, STRING_LENGTH, "%s_lock", var_name);
 #else
-    snprintf(lock_name, STRING_LENGTH, "%s_lock_t_%d",var_name, timestep%20);
+    //snprintf(lock_name, STRING_LENGTH, "%s_lock_t_%d",var_name, timestep%20);
+    snprintf(lock_name, STRING_LENGTH, "%s_lock_p_%d_t_%d",var_name,part, timestep%(DS_MAX_VERSION));
 #endif
 
 #ifdef debug_1
@@ -46,7 +48,7 @@ void get_common_buffer(int timestep,int ndim, int bounds[6], int rank, MPI_Comm 
     sprintf(msg, "try to acquired the read lock %s", lock_name);
     my_message(msg, rank, LOG_WARNING);
 
-    //dspaces_lock_on_read(lock_name, p_gcomm);
+    dspaces_lock_on_read(lock_name, p_gcomm);
 
     sprintf(msg, "get the read lock");
     my_message(msg, rank, LOG_WARNING);
@@ -67,7 +69,7 @@ void get_common_buffer(int timestep,int ndim, int bounds[6], int rank, MPI_Comm 
 
 
     // now we can release region lock
-    //dspaces_unlock_on_read(lock_name, p_gcomm);
+    dspaces_unlock_on_read(lock_name, p_gcomm);
     sprintf(msg, "release the read lock");
     my_message(msg, rank, LOG_WARNING);
 
@@ -111,10 +113,12 @@ void put_common_buffer(int timestep,int ndim, int bounds[6], int rank, MPI_Comm 
     num_points = (bounds[3]-bounds[0]+1)*(bounds[4]- bounds[1]+1)*(bounds[5]- bounds[2]+1);
 
     char lock_name[STRING_LENGTH];
+    unsigned int part = rank/2;
 #ifdef USE_SAME_LOCK
     snprintf(lock_name, STRING_LENGTH, "%s_lock", var_name);
 #else
-    snprintf(lock_name, STRING_LENGTH, "%s_lock_t_%d",var_name, timestep%20);
+    //snprintf(lock_name, STRING_LENGTH, "%s_lock_t_%d",var_name, timestep%20);
+    snprintf(lock_name, STRING_LENGTH, "%s_lock_p_%d_t_%d",var_name,part, timestep%(DS_MAX_VERSION));
 #endif
 
 #ifdef debug_1
@@ -124,7 +128,9 @@ void put_common_buffer(int timestep,int ndim, int bounds[6], int rank, MPI_Comm 
     sprintf(msg, "try to acquired the write lock %s", lock_name);
     my_message(msg, rank, LOG_WARNING);
 
-    //dspaces_lock_on_write(lock_name, p_gcomm);
+    dspaces_lock_on_write(lock_name, p_gcomm);
+
+    
 
     sprintf(msg, "get the write lock");
     my_message(msg, rank, LOG_WARNING);
@@ -132,6 +138,12 @@ void put_common_buffer(int timestep,int ndim, int bounds[6], int rank, MPI_Comm 
     // write all data in once
     t1 = MPI_Wtime();
 #ifdef RAW_DIMES
+    if(timestep%(DS_MAX_VERSION)==0){
+        // this will free  previous buffer
+        dimes_put_sync_all();
+        sprintf(msg, "freed tmp buffer at step at step %d", timestep);
+        my_message(msg, rank, LOG_WARNING);
+    }
     ret_put = dimes_put(var_name, timestep, elem_size, ndim, lb, ub, *p_buffer);
 #else
     ret_put = dspaces_put(var_name, timestep, elem_size, ndim, lb, ub, *p_buffer);
@@ -143,7 +155,7 @@ void put_common_buffer(int timestep,int ndim, int bounds[6], int rank, MPI_Comm 
     t2 = MPI_Wtime();
 
     // now we can release region lock
-    //dspaces_unlock_on_write(lock_name, p_gcomm);
+    dspaces_unlock_on_write(lock_name, p_gcomm);
     sprintf(msg, "release the write lock");
     my_message(msg, rank, LOG_WARNING);
 
