@@ -1089,7 +1089,7 @@ void run_lbm(char * filepath, int step_stop, int dims_cube[3], MPI_Comm *pcomm)
 
 #ifdef ENABLE_TIMING
         t8 = MPI_Wtime();
-        printf("rank %d: Step %d t_lbm %lf, t_write %lf\n, time %lf\n", rank, step, t6-t5,t8-t7, t8);
+        printf("rank %d: Step %d t_lbm %lf, t_write %lf, time %lf\n", rank, step, t6-t5,t8-t7, t8);
         t_write += t8-t7;
 
 #endif

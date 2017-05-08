@@ -104,6 +104,7 @@ int main (int argc, char ** argv)
             else{
                 flock(fd, LOCK_SH);
                 read(fd,  &time_stamp,  sizeof(int));
+                printf("set stamp as %d\n", time_stamp);
                 flock(fd, LOCK_UN);
                 close(fd);
             }
@@ -132,7 +133,7 @@ int main (int argc, char ** argv)
                 printf("----reader opened step %d\n", timestep);
             sprintf(filename_atom, "%s/atom_%d.bp", filepath, timestep);
 
-            t0 = get_cur_time();
+            t0 = MPI_Wtime();
             f = adios_read_open_file(filename_atom, method, comm);
 
 
@@ -169,17 +170,17 @@ int main (int argc, char ** argv)
             adios_schedule_read (f, sel, "atom", 0, 1, data);
 
             // timer for open and schedule
-            t1 = get_cur_time();
+            t1 = MPI_Wtime();
             t_prepare+= t1-t0;
             
             // timer for actual read
             adios_perform_reads (f, 1);
-            t2 = get_cur_time();
+            t2 = MPI_Wtime();
             t_get += t2-t1;
 
             // timer for closing file
             adios_read_close (f);
-            t3 = get_cur_time();
+            t3 = MPI_Wtime();
             t_close += t3-t2;
 
             if(rank ==0)
@@ -187,11 +188,9 @@ int main (int argc, char ** argv)
             // analysis
             run_analysis(data, slice_size, lp);
 
-            t4 = get_cur_time();
+            t4 = MPI_Wtime();
             t_analy += t4-t3;
-            if(rank == 0){
-                printf("rank %d: Step %d moments calculated,t_prepare %lf, t_read %lf, t_close %lf, t_analy %lf\n", rank, timestep, t1-t0, t2-t1, t3-t2, t4-t3);
-            }
+            printf("rank %d: Step %d moments calculated,t_prepare %lf, t_read %lf, t_close %lf, t_analy %lf, time%lf\n", rank, timestep, t1-t0, t2-t1, t3-t2, t4-t3, t4);
         }
     }
 
@@ -201,7 +200,7 @@ int main (int argc, char ** argv)
 
 #ifdef ENABLE_TIMING
     MPI_Barrier(comm);
-    double t_end = get_cur_time();
+    double t_end = MPI_Wtime();
 
         double global_t_prepare=0;
         double global_t_get=0;
