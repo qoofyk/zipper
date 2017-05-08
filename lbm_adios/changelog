@@ -2,11 +2,20 @@
 All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/) 
 and this project adheres to [Semantic Versioning](http://semver.org/).
+## [0.2.6] Mar 7 2017
+#### tried
+- sleep in consumers
+#### added
+	detailed time info in producer/consumer,
+	producer and consumer can finish 200 steps in same time
+
+
 ## [0.2.5] Mar 6 2017
 #### changed
 Dataspaces
 	small guantity locks, add part into in lock name,
 	still use max_20 locks
+	use split communicators
 Dimes
 	not enough space
 	use put_sync every 20 steps

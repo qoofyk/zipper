@@ -120,7 +120,7 @@ void run_lbm(char * filepath, int step_stop, int dims_cube[3], MPI_Comm *pcomm)
 		fflush(stdout);
 		#endif //DEBUG_PRINT
 
-		t2 = get_cur_time();
+		t2 = MPI_Wtime();
 
 		// x_mid=1+(nx-4)/2;
 
@@ -458,7 +458,7 @@ void run_lbm(char * filepath, int step_stop, int dims_cube[3], MPI_Comm *pcomm)
 		}/*end of computing the inlet and outlet d.f. */
 
 
-		t4=get_cur_time();
+		t4=MPI_Wtime();
 		init_lbm_time=t4-t2;
 		only_lbm_time+=t4-t2;
 		if(myid==0){
@@ -472,7 +472,7 @@ void run_lbm(char * filepath, int step_stop, int dims_cube[3], MPI_Comm *pcomm)
 
 		{
 
-		t5=get_cur_time();
+		t5=MPI_Wtime();
 
 		if (myid==0){
 			printf("step = %d   of   %d   \n", step, step_stop);
@@ -974,8 +974,9 @@ void run_lbm(char * filepath, int step_stop, int dims_cube[3], MPI_Comm *pcomm)
 
 		          {df1[i][j][k][m]=df2[i][j][k][m];}
 
-		t6=get_cur_time();
+		t6=MPI_Wtime();
 		only_lbm_time+=t6-t5;
+
 
 
 		#ifdef DEBUG_PRINT
@@ -1007,7 +1008,7 @@ void run_lbm(char * filepath, int step_stop, int dims_cube[3], MPI_Comm *pcomm)
             }
         }
 
-        t7 = get_cur_time();
+        t7 = MPI_Wtime();
 		t_buffer+=t7-t6;
 
         
@@ -1087,12 +1088,10 @@ void run_lbm(char * filepath, int step_stop, int dims_cube[3], MPI_Comm *pcomm)
         free(buffer);
 
 #ifdef ENABLE_TIMING
-        t8 = get_cur_time();
-        if(rank ==0){
-            printf("rank %d: writting time for step %d is %f\n", rank, step, t8-t7);
-            printf("current time is %f\n", t8);
-        }
+        t8 = MPI_Wtime();
+        printf("rank %d: Step %d t_lbm %lf, t_write %lf\n, time %lf\n", rank, step, t6-t5,t8-t7, t8);
         t_write += t8-t7;
+
 #endif
 
 		//free(buffer);
@@ -1130,7 +1129,7 @@ void run_lbm(char * filepath, int step_stop, int dims_cube[3], MPI_Comm *pcomm)
         }
 
 		// MPI_Barrier(comm1d);
-		t3= get_cur_time();
+		t3= MPI_Wtime();
 
 		MPI_Comm_free(&comm1d);
 		MPI_Type_free(&newtype);
@@ -1226,7 +1225,7 @@ int main(int argc, char * argv[]){
   }
 
   MPI_Barrier(comm);
-  double t_start = get_cur_time();
+  double t_start = MPI_Wtime();
   if(rank == 0){
       printf("stat:Simulation start at %lf \n", t_start);
       printf("stat:FILE2PRODUCE=%d, NSTOP= %d \n", filesize2produce, nstop);
@@ -1234,7 +1233,7 @@ int main(int argc, char * argv[]){
   run_lbm(filepath, nstop, dims_cube, &comm);
 
   MPI_Barrier(comm);
-  double t_end = get_cur_time();
+  double t_end = MPI_Wtime();
   if(rank == 0){
       printf("stat:Simulation stop at %lf \n", t_end);
   }

@@ -1,9 +1,75 @@
+May 8
+1122445
+    200 steps consumer and producer finish same time
+    
+1122430
+    print proc info for error 11
+    
+1122384
+    error : get varaible atom err,  error number -11
+        EAGAIN, non-blocking io, data not ready, try again later 
+    try
+    print error process and step, check whether data is prepared in producer side
+1122277
+    again in raw dspaces
+    'dsgrpc_obj_get()': obj_descriptor = {
+        .name = atom,
+        .owner = 0,
+        .version = 292
+        .bb = {lb = {0, 6291456}, ub = {1, 7340031}}
+}
+
+
+    
+1122144
+    more info for raw dspaces
+    connection refused in consumer
+1121965
+    raw dspaces with 16 server processes
+    298 steps all finisheed fast, but cannot finish the final steps
+    rank 2 is too slow!
+        rank 1: Step 299 moments calculated, t_read 412.031851, t_advance 0.499659, t_analy 0.391790
+        rank 6: Step 299 moments calculated, t_read 426.803720, t_advance 0.730462, t_analy 0.239048
+        rank 0: Step 299 moments calculated, t_read 422.268981, t_advance 0.545566, t_analy 0.409425
+        rank 9: Step 299 moments calculated, t_read 420.500582, t_advance 0.715367, t_analy 0.386848
+        rank 2: Step 280 moments calculated, t_read 0.544884, t_advance 0.336426, t_analy 0.391006
+
+    calculation took more time?
+    the last step in producer takes too much time
+    t_prepare:0.085854 s, t_cal 505.359575 s,t_buffer = 1.116890, t_write 197.967837 s, t_put 10.882837 s
+
+May 7
+1120228
+    dimes
+        only sync when step >0
+    reader is faster, but can only run 20 steps(error when sync)
+1120169
+    rerun without sleep in consumer
+    error, server is down
+1120045
+    sleep 3s in rank 0 of consumer
+    more details of raw dspaces
+1119022
+    add sleep in before consumer  lock,
+        add comm_free
+        whether get read lock in the same time
+        now rank 0 gets the lock later
+    so why its so slow?
 May 6
 Note: use small granularity
+1118595
+    use smaller grnularity also use the splited communicator
+    wait for results:
+       producer get lock aynchronously
+       reader still get lock in the same time
+
+
 1118220
     dimes with small granularity& sync each 20 steps
+    producer error in step 20
+    consumer error in step 10
 
-1118197
+1118179
     dspaces with small granularity
     still very slow, readers seems to get the read lock in the same time
     change the communicator in lock routines

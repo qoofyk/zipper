@@ -145,9 +145,9 @@ int main (int argc, char ** argv)
     for(timestep=0; timestep < nstop; timestep++){
 
 //#ifdef RAW_DSPACES
-        t1 =get_cur_time(); 
+        t1 =MPI_Wtime(); 
         get_common_buffer(timestep,2, bounds,rank, &comm, var_name, (void **)&data, elem_size, &time_comm);
-        t2 =get_cur_time(); 
+        t2 =MPI_Wtime(); 
         // all time spent by get_common_buffer
         t_read_1 += t2-t1;
         // actual communication time
@@ -158,17 +158,17 @@ int main (int argc, char ** argv)
         // analysis
         run_analysis(data, slice_size, lp);
 
-        t3 =get_cur_time(); 
+        t3 =MPI_Wtime(); 
         t_analy += t3-t2;
 
-        if(rank ==0)
+        //if(rank ==0)
             printf("rank %d: Step %d moments calculated, t_read %lf, t_advance %lf, t_analy %lf\n", rank, timestep, t2-t1, time_comm, t3-t2);
 
     }
 
     free (data);
     MPI_Barrier(comm);
-    double t_end = get_cur_time();
+    double t_end = MPI_Wtime();
 
         double global_t_cal=0;
         double global_t_read=0;

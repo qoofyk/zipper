@@ -1,5 +1,5 @@
 #!/bin/bash
-#SBATCH --job-name="dspaces_nokeep"
+#SBATCH --job-name="raw_dspaces_nokeep"
 #SBATCH --output="results/%j.out"
 #SBATCH --partition=RM
 #SBATCH --nodes=7
@@ -12,7 +12,7 @@
 CASE_NAME=raw_dspaces_nokeep
 #CASE_NAME=dataspaces_nokeep
 FILESIZE2PRODUCE=256 # 64*64*256*2*8 = 16MB per proc
-NSTOP=300 # how many steps
+NSTOP=200 # how many steps
 PROCS_SERVER=16 # dspaces server
 PROCS_PRODUCER=24
 PROCS_CONSUMER=$((PROCS_PRODUCER/2))
