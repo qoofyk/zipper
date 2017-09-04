@@ -1,7 +1,7 @@
 #include "do_thread.h"
 
 //put the buffer into ring_buffer
-void ring_buffer_put(GV gv,LV lv,char * buffer){
+void ring_buffer_put(GV gv, LV lv, char * buffer, int* num_avail_elements){
 
   ring_buffer *rb;
 
@@ -12,7 +12,8 @@ void ring_buffer_put(GV gv,LV lv,char * buffer){
     if (rb->num_avail_elements < rb->bufsize) {
       rb->buffer[rb->head] = buffer;
       rb->head = (rb->head + 1) % rb->bufsize;
-      rb->num_avail_elements++;
+      *num_avail_elements = ++rb->num_avail_elements;
+
       pthread_cond_broadcast(rb->empty);
       // pthread_cond_signal(rb->empty);
       pthread_mutex_unlock(rb->lock_ringbuffer);
@@ -23,118 +24,180 @@ void ring_buffer_put(GV gv,LV lv,char * buffer){
   }
 }
 
-void read_blk(GV gv, LV lv,int last_gen_rank,int blk_id, char* buffer){
+void read_blk_per_file(GV gv, LV lv, int last_gen_rank, int blk_id, char* buffer, int nbytes){
   char file_name[128];
   FILE *fp=NULL;
   int i=0;
   double t0=0, t1=0;
-  //"/N/dc2/scratch/fuyuan/mb/2vmb/mbexp%03dvs%03d/cid%3d/cid%03dthrd%2dblk%d.d"
-  sprintf(file_name,ADDRESS,gv->compute_process_num, gv->analysis_process_num, last_gen_rank, last_gen_rank, blk_id);
+  //"/N/dc2/scratch/fuyuan/LBMconcurrent/LBMcon%03dvs%03d/cid%03d/2lbm_cid%03dblk%d.d"
+#ifndef WRITE_ONE_FILE
+  sprintf(file_name, ADDRESS, gv->compute_process_num, gv->analysis_process_num, last_gen_rank, last_gen_rank, blk_id);
   // fp=fopen(file_name,"rb");
+#endif //WRITE_ONE_FILE
 
+  while ((fp == NULL) && (i<TRYNUM)){
+    fp = fopen(file_name, "rb");
+    if (fp == NULL){
+      if (i == TRYNUM-1){
+        printf("Warning: Ana_Proc%d: Reader%d read empty file last_gen_rank=%d, blk_id=%d\n",
+          gv->rank[0], lv->tid, last_gen_rank, blk_id);
+        fflush(stdout);
+      }
 
-  while((fp==NULL) && (i<TRYNUM)){
-    fp=fopen(file_name,"rb");
-      if(fp==NULL){
+      i++;
+      usleep(100);
+    }
+  }
+
+  if (fp != NULL){
+    t0 = get_cur_time();
+    fread(buffer, nbytes, 1, fp);
+    t1 = get_cur_time();
+    lv->only_fread_time += t1 - t0;
+  }
+  else{
+    printf("Fatal_Error!!!!!! Ana_Proc%d: Reader%d Makeup a FAKE FILE last_gen_rank=%d, blk_id=%d\n",
+      gv->rank[0], lv->tid, last_gen_rank, blk_id);
+    fflush(stdout);
+  }
+
+  fclose(fp);
+}
+
+void ana_read_one_file(GV gv, LV lv, int last_gen_rank, int blk_id, char* buffer, FILE *fp, int nbytes){
+  double t0=0, t1=0;
+  int error=-1;
+  int i=0;
+  long int offset;
+
+  offset = (long)blk_id * (long)gv->block_size;
+
+  while((error==-1) && (i<TRYNUM)){
+    error=fseek(fp, offset, SEEK_SET);
+      if(error==-1){
         if(i==TRYNUM-1){
-          printf("Warning: Analysis Process %d Reader %d READ empty file last_gen_rank=%d, blk_id=%d\n",
-            gv->rank[0], lv->tid, last_gen_rank, blk_id);
+          printf("Ana_Proc%d: Reader fseek error src=%d, block_id=%d, fp=%p\n",
+            gv->rank[0], last_gen_rank, blk_id, (void *)fp);
           fflush(stdout);
         }
         i++;
         usleep(100);
-    }
+      }
   }
 
+
   t0 = get_cur_time();
-  fread(buffer, gv->block_size, 1, fp);
+  fread(buffer, nbytes, 1, fp);
+  if(ferror(fp)==-1){
+    perror("fread error:");
+    fflush(stdout);
+  }
+  fflush(fp);
   t1 = get_cur_time();
   lv->only_fread_time += t1 - t0;
-
-  fclose(fp);
 }
 
 void analysis_reader_thread(GV gv,LV lv) {
 
   int last_gen_rank=0;
-  int block_id = 0, read_file_cnt=0;
-  double t0=0,t1=0,t2=0,t3=0;
+  int block_id=0, read_file_cnt=0;
+  double t0=0, t1=0, t2=0, t3=0;
 
   char* new_buffer=NULL;
-  int* temp_int_pointer;
   char flag=0;
 
-  // printf("Analysis Process %d Reader thread %d is running!\n",gv->rank[0], lv->tid);
+  int num_avail_elements=0, full=0;
+
+  // printf("Analysis Node %d Reader thread %d is running!\n",gv->rank[0], lv->tid);
   // fflush(stdout);
 
   t2 = get_cur_time();
 
-  // new_buffer = (char*) malloc(sizeof(char)*gv->block_size);
+  if(gv->reader_blk_num==0){
+    printf("Ana_Proc%d: Reader%d is turned off\n", gv->rank[0], lv->tid);
+    fflush(stdout);
+  }
+  else{
+    while(1){
+      flag = 0;
 
-  while(1){
-    flag = 0;
-
-    if(gv->reader_blk_num==0) break;
-
-    pthread_mutex_lock(&gv->lock_recv);
-    if(gv->ana_progress>=gv->ana_total_blks){
-      pthread_mutex_unlock(&gv->lock_recv);
-      break;
-    }
-
-    if(gv->recv_tail>0){
-      flag = 1;
-      //printf("Prefetcher %d read recv_tail = %d\n", lv->tid, gv->recv_tail);
-      last_gen_rank = gv->prefetch_id_array[gv->recv_tail-2]; // get a snapshot of which block has been generated
-      block_id = gv->prefetch_id_array[gv->recv_tail-1];
-
-      // if(gv->prefetch_counter%1000==0)
-      //   printf("!!!!!!!!!Node %d Prefetcher %d get lock, prefetch_counter=%ld, last_gen_rank = %d, step = %d, CI=%d, CJ=%d, CK=%d\n", gv->rank[0], lv->tid, gv->prefetch_counter,last_gen_rank, step, CI, CJ, CK);
-      gv->recv_tail-=2;
-      //printf("Now, Node %d Prefetcher %d minus tail=%d\n", gv->rank[0],lv->tid,gv->recv_tail);
-      // gv->prefetch_counter++;
-    }
-
-    pthread_mutex_unlock(&gv->lock_recv);
-
-
-    if(flag == 1){
-
-      new_buffer = (char*) malloc(gv->analysis_data_len);
-      temp_int_pointer = (int*)new_buffer;
-      temp_int_pointer[0]=last_gen_rank;
-      temp_int_pointer[1]=block_id;
-      // temp_int_pointer[2]=READ_DONE;
-      new_buffer[8] = ON_DISK;
-      new_buffer[9] = NOT_CALC;
-
-      #ifdef DEBUG_PRINT
-      printf("$$$---$$$ Analysis Process %d Reader %d start read rank%d blk_id%d\n",
-        gv->rank[0], lv->tid, last_gen_rank, block_id);
-      fflush(stdout);
-      #endif //DEBUG_PRINT
-
-      t0 = get_cur_time();
-      read_blk(gv, lv,last_gen_rank, block_id, new_buffer+(1+1+1)*sizeof(int));    //read file block to buffer memory
-      t1 = get_cur_time();
-      lv->read_time += t1 - t0;
-      read_file_cnt++;
-
-      t0 = get_cur_time();
-      ring_buffer_put(gv,lv,new_buffer);
-      t1 = get_cur_time();
-      lv->ring_buffer_put_time += t1 - t0;
+      if (gv->ana_reader_done == 1)
+        break;
 
       pthread_mutex_lock(&gv->lock_recv);
-      gv->ana_progress++;
+      if(gv->recv_tail>0){
+        flag = 1;
+        //printf("Prefetcher %d read recv_tail = %d\n", lv->tid, gv->recv_tail);
+        last_gen_rank = gv->prefetch_id_array[gv->recv_tail-2]; // get a snapshot of which block has been generated
+        block_id = gv->prefetch_id_array[gv->recv_tail-1];
+
+        // if(gv->prefetch_counter%1000==0)
+        //   printf("!!!!!!!!!Node %d Prefetcher %d get lock, prefetch_counter=%ld, last_gen_rank = %d, step = %d, CI=%d, CJ=%d, CK=%d\n", gv->rank[0], lv->tid, gv->prefetch_counter,last_gen_rank, step, CI, CJ, CK);
+        gv->recv_tail-=2;
+        //printf("Now, Node %d Prefetcher %d minus tail=%d\n", gv->rank[0],lv->tid,gv->recv_tail);
+        // gv->prefetch_counter++;
+      }
       pthread_mutex_unlock(&gv->lock_recv);
 
-    }
 
+      if(flag == 1){
+
+        new_buffer = (char *) malloc(gv->analysis_data_len);
+        check_malloc(new_buffer);
+
+        ((int*)new_buffer)[0] = last_gen_rank;
+        ((int*)new_buffer)[1] = block_id;
+        ((int*)new_buffer)[2] = ON_DISK;
+        ((int*)new_buffer)[3] = NOT_CALC;
+
+#ifdef DEBUG_PRINT
+        printf("Ana_Proc%d: Reader%d starts read src=%d blk_id=%d\n",
+          gv->rank[0], lv->tid, last_gen_rank, block_id);
+        fflush(stdout);
+#endif //DEBUG_PRINT
+
+        t0 = get_cur_time();
+#ifdef WRITE_ONE_FILE
+        ana_read_one_file(gv, lv, last_gen_rank, block_id, new_buffer+4*sizeof(int), gv->ana_fp[last_gen_rank%gv->computer_group_size], gv->block_size);
+#else
+        read_blk_per_file(gv, lv, last_gen_rank, block_id, new_buffer+4*sizeof(int), gv->block_size);    //read file block to buffer memory
+#endif //WRITE_ONE_FILE
+
+        if(((int*)new_buffer)[4]==0){
+          printf("+++++++++++++++++Ana_Proc%d: Reader%d starts read src=%d blk_id=%d, ((int*)new_buffer)[4]=%d, ((int*)new_buffer)[5]=%d\n",
+            gv->rank[0], lv->tid, last_gen_rank, block_id, ((int*)new_buffer)[4], ((int*)new_buffer)[5]);
+          fflush(stdout);
+        }
+
+
+        t1 = get_cur_time();
+        lv->read_time += t1 - t0;
+        read_file_cnt++;
+
+#ifdef DEBUG_PRINT
+        printf("Ana_Proc%d: Reader%d finish read src=%d blk_id=%d\n",
+          gv->rank[0], lv->tid, last_gen_rank, block_id);
+        fflush(stdout);
+#endif //DEBUG_PRINT
+
+        t0 = get_cur_time();
+        ring_buffer_put(gv, lv, new_buffer, &num_avail_elements);
+        t1 = get_cur_time();
+        lv->ring_buffer_put_time += t1 - t0;
+
+        if(num_avail_elements == gv->consumer_rb_p->bufsize)
+          full++;
+
+      }
+
+      if(read_file_cnt>=gv->reader_blk_num)
+        break;
+    }
   }
 
+
   t3 = get_cur_time();
-  printf("Analysis Process %d Reader %d total_time= %f, io_read_time= %f only_fread_time= %f with %d blocks\n",
-    gv->rank[0], lv->tid, t3-t2, lv->read_time, lv->only_fread_time, read_file_cnt);
+  printf("Ana_Proc%04d: Reader%d T_total=%.3f, T_ana_read=%.3f, T_only_fread=%.3f with %d blocks, full=%d\n",
+    gv->rank[0], lv->tid, t3 - t2, lv->read_time, lv->only_fread_time, read_file_cnt, full);
   fflush(stdout);
 }

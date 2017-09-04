@@ -1,29 +1,32 @@
 ########################################
 #
-#  IUPUI CSCI 503 -- Operating Systems
+#  Synthetic_Concurrent_Keep MAKEFILE
 #
 ########################################
 
+vpath	%.c ../
+vpath	%.h ../
 ## Compiler, tools and options
-CC      =  cc
-FC      =  ftn
-LINK    =  ftn
+CC      =  mpicc
+FC      =  mpif90
+LINK    =  mpicc
 # CC      = mpicc
 # FC      =  mpifort  #ftn
 # LINK    =  mpifort  #ftn
-OPT     =  -O3 -craympich-mt
+OPT     =  -O
 
-ADDCFLAGS =
-CCFLAGS = $(OPT)
+ADDCFLAGS = -Wall
+CCFLAGS = $(OPT) -DBRIDGES -DKEEP -DCONCURRENT_EXP
 LDFLAGS = $(OPT)
 
 ## Libraries
-LIBS = -lpthread -lm
-INC  = -I.
+PAPI_ROOT=/home/qoofyk/papi-5.5.1/build/usr/local
+LIBS = -lpthread -lm -L $(PAPI_ROOT)/lib -lpapi
+INC  = -I . -I $(PAPI_ROOT)/include
 
 ## FILES
 OBJECTS = main.o do_thread.o compute_generator.o compute_sender.o compute_writer.o analysis_receiver.o analysis_reader.o analysis_writer.o analysis_consumer.o
-TARGET  = syn_concurrent_store
+TARGET  = syn_concurrent_keep_sep_file
 
 
 ## Implicit rules
