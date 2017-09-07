@@ -1,8 +1,8 @@
 #include "concurrent.h"
 
-void* analysis_writer_ring_buffer_read_tail(GV gv,LV lv, int* source_p, int* block_id_p, int* writer_state_p){
+char* analysis_writer_ring_buffer_read_tail(GV gv, LV lv, int* source_p, int* block_id_p, int* writer_state_p){
 
-  void* pointer;
+  char* pointer;
 
   ring_buffer *rb = gv->consumer_rb_p;
 
@@ -47,7 +47,7 @@ void* analysis_writer_ring_buffer_read_tail(GV gv,LV lv, int* source_p, int* blo
 }
 
 
-void analysis_write_blk_per_file(GV gv, LV lv, int source, int blk_id, void* buffer, int nbytes){
+void analysis_write_blk_per_file(GV gv, LV lv, int source, int blk_id, char* buffer, int nbytes){
 	char file_name[128];
 	FILE *fp=NULL;
 	double t0=0,t1=0;
@@ -129,11 +129,11 @@ void analysis_writer_thread(GV gv, LV lv) {
 
 	int source=0, block_id=0, my_count=0;
 	double t0=0, t1=0, t2=0, t3=0;
-	void* pointer=NULL;
+	char* pointer=NULL;
 	int writer_state;
 
 	ring_buffer *rb = gv->consumer_rb_p;
-	// int free_count=0;
+
 	// int dest = gv->rank[0]/gv->computer_group_size + gv->computer_group_size*gv->analysis_process_num;
 
 	// printf("Ana_Proc%d: Writer%d is running!\n", gv->rank[0], lv->tid);
@@ -166,8 +166,8 @@ void analysis_writer_thread(GV gv, LV lv) {
 
 				if(writer_state==NOT_ON_DISK){
 
-#ifdef KEEP
 					t0 = get_cur_time();
+#ifdef KEEP
 #ifdef WRITE_ONE_FILE
 					if(block_id>=0){
 						analysis_write_one_file(gv, lv, source, block_id, pointer+sizeof(int)*4, gv->block_size, gv->ana_fp[source%gv->computer_group_size]);
@@ -180,9 +180,9 @@ void analysis_writer_thread(GV gv, LV lv) {
 #else
 					analysis_write_blk_per_file(gv, lv, source, block_id, pointer+sizeof(int)*4, gv->block_size);
 #endif //WRITE_ONE_FILE
+#endif //KEEP
 					t1 = get_cur_time();
 					lv->write_time += t1 - t0;
-#endif //KEEP
 					my_count++;
 
 

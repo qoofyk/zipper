@@ -35,7 +35,7 @@ void run_lbm(GV gv, int dims_cube[3], MPI_Comm *pcomm){
 	int *fp_np,*fp_period;
 	// FILE *fp_u, *fp_v, *fp_out;
 	FILE *fp_out;
-	double t2=0, t3=0,t4=0,t5=0,t6=0,only_lbm_time=0,init_lbm_time=0;
+	double t0=0, t1=0,t2=0, t3=0,t4=0,t5=0,t6=0,only_lbm_time=0,init_lbm_time=0,mpi_sendrecv_time=0;
 	int errorcode;
 
 	char * buffer; //to insert into databroker
@@ -595,6 +595,7 @@ void run_lbm(GV gv, int dims_cube[3], MPI_Comm *pcomm){
 #endif //DEBUG_PRINT
 
 	/* data sending and receiving*/
+	t0 = get_cur_time();
 
 	MPI_Sendrecv(&df2[e+1][0][0][1],1,newtype,nbright,1,&df2[s][0][0][1],1,newtype,nbleft,1,comm1d,&status);
 	// MPI_Barrier(comm1d);
@@ -664,6 +665,9 @@ void run_lbm(GV gv, int dims_cube[3], MPI_Comm *pcomm){
 
 	           &df1[e+1][n2-2][0][16],1,newtype_fr,nbright,1616,comm1d,&status);
 	// MPI_Barrier(comm1d);
+
+	t1 = get_cur_time();
+	mpi_sendrecv_time += t1-t0;
 
 #ifdef DEBUG_PRINT
 	printf("Comp_Proc%d: LBM finish MPI_Sendrecv! step=%d\n", gv->rank[0], gv->step);
@@ -1065,8 +1069,8 @@ void run_lbm(GV gv, int dims_cube[3], MPI_Comm *pcomm){
 
 	// gv->compute_all_done = 1;
 	// printf("$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$\n");
-	printf("Comp_Proc%04d on %s: LBM computation Done! Only_LBM_Time=%.3f, T_compute/Block=%.3fus, T_total_compute=%.3f\n",
-		gv->rank[0], gv->processor_name, only_lbm_time, (t3-t2)*1000000/gv->cpt_total_blks, t3-t2);
+	printf("Comp_Proc%04d on %s: LBM simulation Done! T_Only_LBM=%.3f, T_SIM/Blk=%.3fus, T_total_SIM=%.3f, T_mpi_send_recv=%.3f\n",
+		gv->rank[0], gv->processor_name, only_lbm_time, (t3-t2)*1000000/gv->cpt_total_blks, t3-t2, mpi_sendrecv_time);
 	fflush(stdout);
 	//------------------------------------------------END OF LBM--------------------------------------------------------
 
@@ -1085,7 +1089,7 @@ void comp_open_one_big_file(GV gv){
 		// gv->fp=fopen(file_name,"r+");
 		if(gv->fp==NULL){
 		  if(i==TRYNUM-1){
-		    printf("Fatal Error: Comp_Proc%d open an empty file\n", gv->rank[0]);
+		    printf("Initialize Fatal Error: Comp_Proc%d open an empty file\n", gv->rank[0]);
 		    fflush(stdout);
 		  }
 
@@ -1096,22 +1100,33 @@ void comp_open_one_big_file(GV gv){
 }
 
 void ana_open_one_big_file(GV gv){
-	int j;
-	char file_name[128];
+  int i, j, src;
+  char file_name[128];
 
-	for(j=0;j<gv->computer_group_size;j++){
+  for(j=0;j<gv->computer_group_size;j++){
 
-		sprintf(file_name, ADDRESS, gv->compute_process_num, gv->analysis_process_num,
-			(gv->rank[0]-gv->compute_process_num)*gv->computer_group_size+j, (gv->rank[0]-gv->compute_process_num)*gv->computer_group_size+j);
+    src=(gv->rank[0]-gv->compute_process_num)*gv->computer_group_size+j;
 
-		gv->ana_fp[j]=fopen(file_name,"rb+");
+    sprintf(file_name, ADDRESS, gv->compute_process_num, gv->analysis_process_num, src, src);
 
-		if(gv->ana_fp[j]==NULL){
-			printf("Ana_Proc%d: read empty file from last_gen_rank=%d\n",
-                  gv->rank[0], gv->rank[0]/gv->computer_group_size+j);
-            fflush(stdout);
-		}
-	}
+    i=0;
+
+    while((gv->ana_fp[j]==NULL) && (i<TRYNUM)){
+
+      gv->ana_fp[j]=fopen(file_name,"rb+");
+
+      if(gv->ana_fp[j]==NULL){
+        if(i==TRYNUM-1){
+          printf("Fatal Error: Ana_Proc%d read an empty big file from%d\n", gv->rank[0], src);
+          fflush(stdout);
+        }
+
+        i++;
+        usleep(1000);
+      }
+    }
+
+  }
 }
 
 int main(int argc, char **argv){
@@ -1131,7 +1146,7 @@ int main(int argc, char **argv){
 
 	double t0=0,t1=0;
 
-	if(argc != 13) {
+	if(argc != 14) {
 		fprintf(stderr, "Usage: %s generator_num, writer_num, reader#, writer_thousandth, \
 computer_group_size, num_analysis_nodes, cubex, cubez, step_stop, lp, filesize2produce\n", argv[0]);
 		exit(1);
@@ -1159,6 +1174,7 @@ computer_group_size, num_analysis_nodes, cubex, cubez, step_stop, lp, filesize2p
 	gv->step_stop = atoi(argv[10]);
 
 	gv->lp = atoi(argv[11]); //Loop times in Analysis calc_n_moments
+	gv->writer_prb_thousandth = atoi(argv[13]); //writer start to get element
 
 	//init IObox
 	gv->compute_generator_num = atoi(argv[1]);
@@ -1193,6 +1209,7 @@ computer_group_size, num_analysis_nodes, cubex, cubez, step_stop, lp, filesize2p
 	MPI_Comm_rank(MPI_COMM_WORLD, &gv->rank[0]);
 	MPI_Comm_size(MPI_COMM_WORLD, &gv->size[0]);
 	MPI_Get_processor_name(gv->processor_name, &gv->namelen);
+
 	printf("Hello world! I'm rank %d of %d on %s with provided=%d, block_size=%d, cube_size=%d double\n",
 		gv->rank[0], gv->size[0], gv->processor_name, provided, gv->block_size, gv->cubex*gv->cubey*gv->cubez*2);
 	fflush(stdout);
@@ -1246,7 +1263,7 @@ computer_group_size, num_analysis_nodes, cubex, cubez, step_stop, lp, filesize2p
 	    //gv->producer_rb_p = rb_init(gv,PRODUCER_RINGBUFFER_TOTAL_MEMORY,&producer_rb);
 	    //compute node
 	    if(gv->rank[0]==0 || gv->rank[0]==(gv->compute_process_num-1)){
-	    	printf("Comp_Proc%d of %d cpt_total_blks=%d, writer_blk_num=%d, sender_blk_num=%d, \
+	    	printf("Comp_Proc%04d of %d cpt_total_blks=%d, writer_blk_num=%d, sender_blk_num=%d, \
 PRODUCER_Ringbuffer %.3fGB, size=%d member\n",
 			gv->rank[0], gv->size[1], gv->cpt_total_blks, gv->writer_blk_num, gv->sender_blk_num,
 			PRODUCER_RINGBUFFER_TOTAL_MEMORY/(1024.0*1024.0*1024.0),gv->producer_rb_p->bufsize);
@@ -1260,12 +1277,14 @@ PRODUCER_Ringbuffer %.3fGB, size=%d member\n",
 		gv->flag_writer_get_finalblk = 0;
 
 #ifdef WRITE_ONE_FILE
+		//init gv->fp
+    	gv->fp = NULL;
 		comp_open_one_big_file(gv);
 		MPI_Barrier(MPI_COMM_WORLD);
 #endif //WRITE_ONE_FILE
 
 		//init lock
-		pthread_mutex_init(&gv->lock_block_id,NULL);
+		pthread_mutex_init(&gv->lock_block_id, NULL);
 	    pthread_mutex_init(&gv->lock_writer_progress, NULL);
 	    pthread_mutex_init(&gv->lock_writer_done, NULL);
 //--------------------------------------------------------------------------------------------//
@@ -1305,8 +1324,6 @@ PRODUCER_Ringbuffer %.3fGB, size=%d member\n",
 	}
 	else if (gv->color == 1){
 		//Ana_Proc
-		ring_buffer consumer_rb;
-
 		gv->ana_total_blks = gv->computer_group_size * gv->cpt_total_blks;
 
 		gv->reader_blk_num = gv->computer_group_size * gv->writer_blk_num;
@@ -1321,6 +1338,7 @@ PRODUCER_Ringbuffer %.3fGB, size=%d member\n",
 		gv->all_lvs = lvs;
 
 		//Consumer_ring_buffer initialize
+		ring_buffer consumer_rb;
 	    consumer_rb.bufsize = CONSUMER_RINGBUFFER_TOTAL_MEMORY/(gv->block_size-4*sizeof(int));
 	    consumer_rb.head = 0;
 	    consumer_rb.tail = 0;
@@ -1347,16 +1365,15 @@ CONSUMER_Ringbuffer %.3fGB, size=%d member\n",
 	    }
 
 		gv->mpi_recv_progress_counter = 0;
-	    gv->org_recv_buffer = (int *) malloc(gv->compute_data_len); //long message+
+	    gv->org_recv_buffer = (char *) malloc(gv->compute_data_len); //long message+
 	    check_malloc(gv->org_recv_buffer);
 
 	    // prfetch threads 1+1:cid+blkid
 	    gv->ana_reader_done=0;
+	    gv->ana_writer_done = 0;
 	    gv->prefetch_id_array = (int *) malloc(sizeof(int)*(1+1)*gv->reader_blk_num);
 	    gv->recv_tail = 0;
 	    check_malloc(gv->prefetch_id_array);
-
-	    gv->ana_writer_done = 0;
 
 #ifdef WRITE_ONE_FILE
 	    MPI_Barrier(MPI_COMM_WORLD);
@@ -1371,7 +1388,7 @@ CONSUMER_Ringbuffer %.3fGB, size=%d member\n",
 	    t0=get_cur_time();
 
 		/* Create threads */
-		for(i = 0; i < num_total_thrds; i++) {
+		for(i=0; i<num_total_thrds; i++) {
 		  init_lv(lvs+i, i, gv);
 		  if(pthread_attr_init(attrs+i)) perror("attr_init()");
 		  if(pthread_attr_setscope(attrs+i, PTHREAD_SCOPE_SYSTEM)) perror("attr_setscope()");
@@ -1388,8 +1405,9 @@ CONSUMER_Ringbuffer %.3fGB, size=%d member\n",
 		}
 
 #ifdef WRITE_ONE_FILE
-		for(i=0; i<gv->computer_group_size; i++)
-			fclose(gv->ana_fp[i]);
+		// for(i=0; i<gv->computer_group_size; i++)
+		// 	fclose(gv->ana_fp[i]);
+		free(gv->ana_fp);
 #endif //WRITE_ONE_FILE
 
 		free(lvs);

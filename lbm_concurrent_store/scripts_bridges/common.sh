@@ -26,7 +26,7 @@ echo "remove all subdirectories"
 date
 echo "-----------Delete files-----------------"
 # for ((m=0;m<$num_comp_proc;m++)); do
-#     $my_del_exp2 $(printf "${SCRATCH_DIR}/${directory}/cid%03g" $m)
+#     $my_del_exp2 $(printf "${SCRATCH_DIR}/${directory}/cid%04g" $m)
 # done
 echo "-----------End Delete files-------------"
 # $my_del_exp2  ${SCRATCH_DIR}/$directory/
@@ -37,8 +37,8 @@ lfs setstripe --stripe-size 1m --stripe-count ${tune_stripe_count} ${OUTPUT_DIR}
 
 echo "mkdir new"
 for ((m=0;m<$num_comp_proc; m++)); do
-	mkdir -pv $(printf "${OUTPUT_DIR}/cid%03g " $m)
-	# lfs setstripe --stripe-size 1m --count 4 $(printf "${SCRATCH_DIR}/$directory/cid%03g" $m)
+	mkdir -pv $(printf "${OUTPUT_DIR}/cid%04g " $m)
+	# lfs setstripe --stripe-size 1m --count 4 $(printf "${SCRATCH_DIR}/$directory/cid%04g" $m)
 done
 
 
@@ -134,7 +134,7 @@ for((;cubex<=64;cubex=cubex*2));do
 			#fi
 			for ((p=0; p<$maxp; p++)); do
 				echo "=============Loop $p==============="
-				$my_run_exp2 $compute_generator_num $compute_writer_num $analysis_reader_num $analysis_writer_num ${writer_thousandth[k]} $compute_group_size $num_ana_proc $cubex $cubez $NSTOP $lp $FILESIZE2PRODUCE
+				$my_run_exp2 $compute_generator_num $compute_writer_num $analysis_reader_num $analysis_writer_num ${writer_thousandth[k]} $compute_group_size $num_ana_proc $cubex $cubez $NSTOP $lp $FILESIZE2PRODUCE ${writer_prb_thousandth[k]}
 				# echo "-----------Start Deleting files-------------"
 				# $my_del_exp2
 				# echo "-----------End Delete files-------------"
@@ -148,7 +148,7 @@ date
 
 echo "-----------Start Deleting files-------------"
 # for ((m=0;m<$num_comp_proc;m++)); do
-#     $my_del_exp2 $(printf "/N/dc2/scratch/fuyuan/LBMconcurrentstore/$directory/cid%03g" $m)
+#     $my_del_exp2 $(printf "/N/dc2/scratch/fuyuan/LBMconcurrentstore/$directory/cid%04g" $m)
 # done
 echo "-----------End Delete files-------------"
 

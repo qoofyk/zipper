@@ -2,6 +2,9 @@
 Copyright YUANKUN FU
 Brief desc of the file: Header
 ********************************************************/
+#ifndef CONCURRENT_H
+#define CONCURRENT_H
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
@@ -23,17 +26,18 @@ Brief desc of the file: Header
 
 #ifdef COMET
 #ifdef WRITE_ONE_FILE
-    #define ADDRESS "/oasis/scratch/comet/qoofyk/temp_project/LBMconcurrentstore/LBMcon%03dvs%03d/cid%03d/2lbm_cid%03d"
+    #define ADDRESS "/oasis/scratch/comet/qoofyk/temp_project/LBMconcurrentstore/LBMcon%04dv%04d/cid%04d/2lbm_cid%04d"
 #else
-    #define ADDRESS "/oasis/scratch/comet/qoofyk/temp_project/LBMconcurrentstore/LBMcon%03dvs%03d/cid%03d/2lbm_cid%03dblk%d"
+    #define ADDRESS "/oasis/scratch/comet/qoofyk/temp_project/LBMconcurrentstore/LBMcon%04dv%04d/cid%04d/2lbm_cid%04dblk%d"
 #endif //WRITE_ONE_FILE
 #endif //COMET
 
 #ifdef BRIDGES
 #ifdef WRITE_ONE_FILE
-    #define ADDRESS "/pylon5/cc4s86p/qoofyk/LBMconcurrentstore/LBMcon%03dvs%03d/cid%03d/2lbm_cid%03d"
+                      // /pylon5/cc4s86p/qoofyk/LBMconcurrentstore/LBMcon0112v0056/cid0000
+    #define ADDRESS "/pylon5/cc4s86p/qoofyk/LBMconcurrentstore/LBMcon%04dv%04d/cid%04d/2lbm_cid%04d"
 #else
-    #define ADDRESS "/pylon5/cc4s86p/qoofyk/LBMconcurrentstore/LBMcon%03dvs%03d/cid%03d/2lbm_cid%03dblk%d"
+    #define ADDRESS "/pylon5/cc4s86p/qoofyk/LBMconcurrentstore/LBMcon%04dv%04d/cid%04d/2lbm_cid%04dblk%d"
 #endif //WRITE_ONE_FILE
 #endif //BRIDGES
 
@@ -121,6 +125,7 @@ typedef struct gv_t {
   int ana_total_blks;
   int writer_thousandth;
   int writer_blk_num;
+  int writer_prb_thousandth;
   int reader_blk_num;
   int sender_blk_num;
   int analysis_writer_blk_num;
@@ -142,7 +147,7 @@ typedef struct gv_t {
   int flag_writer_get_finalblk;
 
   // receiver_thread
-  void * org_recv_buffer;
+  char * org_recv_buffer;
   int mpi_recv_progress_counter; // how many blocks are received
 
   //prefetcher thread
@@ -172,10 +177,10 @@ void* compute_node_do_thread(void* v);
 void* analysis_node_do_thread(void* v);
 
 void init_lv(LV lv, int tid, GV gv);
-void mark(char* buffer, int nbytes, int block_id);
+// void mark(char* buffer, int nbytes, int block_id);
 double get_cur_time();
 void debug_print(int myrank);
-void create_blk(char* buffer,  int nbytes, int last_gen);
+// void create_blk(char* buffer, int nbytes, int last_gen);
 void check_malloc(void * pointer);
 void check_MPI_success(GV gv, int errorcode);
 
@@ -190,3 +195,5 @@ void msleep(double milisec);
 
 // void simple_verify(GV gv, LV lv, char* buffer);
 void producer_ring_buffer_put(GV gv,char * buffer);
+
+#endif

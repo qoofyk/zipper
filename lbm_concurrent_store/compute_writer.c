@@ -1,31 +1,33 @@
 #include "concurrent.h"
 
 char* producer_ring_buffer_get(GV gv, LV lv){
-  char* pointer;
-  ring_buffer *rb = gv->producer_rb_p;
+	char* pointer;
+	ring_buffer *rb = gv->producer_rb_p;
+	int writer_on = gv->producer_rb_p->bufsize * gv->writer_prb_thousandth / 1000;
 
-  pthread_mutex_lock(rb->lock_ringbuffer);
-  while(1) {
-  	if(gv->flag_sender_get_finalblk==1){
-		pthread_mutex_unlock(rb->lock_ringbuffer);
-		return NULL;
+	pthread_mutex_lock(rb->lock_ringbuffer);
+	while(1) {
+		if(gv->flag_sender_get_finalblk==1){
+			pthread_mutex_unlock(rb->lock_ringbuffer);
+			return NULL;
+		}
+
+		// if (rb->num_avail_elements > 0) {
+		if (rb->num_avail_elements >= writer_on) {
+		  pointer = rb->buffer[rb->tail];
+		  rb->tail = (rb->tail + 1) % rb->bufsize;
+		  rb->num_avail_elements--;
+		  pthread_cond_signal(rb->full);
+		  pthread_mutex_unlock(rb->lock_ringbuffer);
+		  return pointer;
+		}
+		else {
+		  pthread_cond_wait(rb->empty, rb->lock_ringbuffer);
+		}
 	}
-
-    if (rb->num_avail_elements > 0) {
-      pointer = rb->buffer[rb->tail];
-      rb->tail = (rb->tail + 1) % rb->bufsize;
-      rb->num_avail_elements--;
-      pthread_cond_signal(rb->full);
-      pthread_mutex_unlock(rb->lock_ringbuffer);
-      return pointer;
-    }
-    else {
-      pthread_cond_wait(rb->empty, rb->lock_ringbuffer);
-    }
-  }
 }
 
-void comp_write_blk_per_file(GV gv, LV lv,int blk_id, char* buffer, int nbytes){
+void comp_write_blk_per_file(GV gv, LV lv, int blk_id, char* buffer, int nbytes){
 	char file_name[128];
 	FILE *fp=NULL;
 	double t0=0,t1=0;
@@ -94,7 +96,7 @@ void comp_write_one_big_file(GV gv, LV lv, int blk_id, char* buffer, int nbytes,
 	lv->only_fwrite_time += t1 - t0;
 }
 
-void compute_writer_thread(GV gv,LV lv) {
+void compute_writer_thread(GV gv, LV lv) {
 
 	int block_id=0, my_count=0;
 	double t0=0,t1=0,t2=0,t3=0;
@@ -158,7 +160,7 @@ void compute_writer_thread(GV gv,LV lv) {
 				else{
 					// Get exit flag msg and quit
 
-					printf("Comp_Proc%d: Writer%d Get exit flag msg and quit!\n",
+					printf("Comp_Proc%d: Writer%d Get --EXIT-- flag msg and quit!\n",
 						gv->rank[0], lv->tid);
 					fflush(stdout);
 
@@ -199,11 +201,7 @@ void compute_writer_thread(GV gv,LV lv) {
 		}
 	}
 
-
-
 	t3 = get_cur_time();
-
-
 
 	printf("Comp_Proc%04d: Writer%d T_comp_write=%.3f, T_only_fwrite=%.3f, T_total=%.3f with %d blocks\n",
 		gv->rank[0], lv->tid, lv->write_time, lv->only_fwrite_time, t3-t2, my_count);

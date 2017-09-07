@@ -1,6 +1,6 @@
 #include "concurrent.h"
 
-void recv_ring_buffer_put(GV gv, LV lv, void* buffer){
+void recv_ring_buffer_put(GV gv, LV lv, char* buffer){
 
   ring_buffer *rb = gv->consumer_rb_p;
 
@@ -39,11 +39,11 @@ void recv_ring_buffer_put(GV gv, LV lv, void* buffer){
 }
 
 
-void copy_msg_int(int* temp1, int* temp2, int num_int){
-  int i;
-  for(i=0;i<num_int;i++)
-    temp1[i]=temp2[i];
-}
+// void copy_msg_int(int* temp1, int* temp2, int num_int){
+//   int i;
+//   for(i=0;i<num_int;i++)
+//     temp1[i]=temp2[i];
+// }
 
 // int copy_msg_double(double* p1, double* p2, int num_double){
 //   int i;
@@ -57,11 +57,11 @@ void copy_msg_int(int* temp1, int* temp2, int num_int){
 //   return i;
 // }
 
-void make_prefetch_id(GV gv, int cid, int num_int,int* tmp_int_ptr){
+void make_prefetch_id(GV gv, int cid, int num_int, int* tmp_int_ptr){
   int i;
   int* temp1 = (int*) gv->prefetch_id_array;
   int* temp2 = tmp_int_ptr;
-  for(i=1;i<=num_int;i++){
+  for(i=0;i<num_int;i++){
     temp1[gv->recv_tail]=cid;
     temp1[gv->recv_tail+1]=temp2[i];
     // printf("Receiver MIX: written id= %d\n", temp2[i]);
@@ -76,36 +76,19 @@ void make_prefetch_id(GV gv, int cid, int num_int,int* tmp_int_ptr){
   // fflush(stdout);
 }
 
-void make_prefetch_id_v2(GV gv, int cid, int num_int,int* tmp_int_ptr){
-  int i;
-  int* temp1 = (int*) gv->prefetch_id_array;
-  int* temp2 = tmp_int_ptr;
-  for(i=0;i<num_int;i++){
-    temp1[gv->recv_tail]=cid;
-    temp1[gv->recv_tail+1]=temp2[i];
-    // printf("Disk: written id= %d\n", temp2[i]);
-    // fflush(stdout);
-    // if(temp2[i]>gv->ana_total_blks){
-    //   printf("Error! Compute %d Receiver get temp2[i]=%d\n", temp2[i], gv->rank[0]);
-    //   fflush(stdout);
-    // }
-    gv->recv_tail+=2;
-  }
-  //printf("After copy short_msg, Ana Node %d Receive thread recv_tail = %d\n", gv->rank[0], gv->recv_tail);
-  // fflush(stdout);
-}
 
-void analysis_receiver_thread(GV gv,LV lv){
+void analysis_receiver_thread(GV gv, LV lv){
   int recv_int=0, block_id=0, source=0;
   double t0=0, t1=0, t2=0, t3=0, t4=0, t5=0, wait_lock=0;
   double receive_time=0;
   MPI_Status status;
-  int errorcode,long_msg_id=0,mix_msg_id=0,disk_id=0;
+  int errorcode, long_msg_id=0, mix_msg_id=0, disk_id=0;
   int* tmp_int_ptr;
-  void* new_buffer=NULL;
+  char* new_buffer=NULL;
   int num_exit_flag = 0;
 
-  // printf("Ana Node %d Receiveing thread %d Start receive!\n",gv->rank[0], lv->tid);
+  // printf("Ana_Node %d Receiveing thread %d Start receive!\n",gv->rank[0], lv->tid);
+  // fflush(stdout);
 
   t0 = get_cur_time();
   while(1){
@@ -164,9 +147,10 @@ void analysis_receiver_thread(GV gv,LV lv){
 #endif //DEBUG_PRINT
 
 
-      new_buffer = (void*) malloc(gv->analysis_data_len);
+      new_buffer = (char *) malloc(gv->analysis_data_len);
       tmp_int_ptr = (int*)new_buffer;
       check_malloc(new_buffer);
+
       source = status.MPI_SOURCE;
       tmp_int_ptr[0] = source;
       block_id = ((int *)gv->org_recv_buffer)[0];
@@ -186,7 +170,7 @@ void analysis_receiver_thread(GV gv,LV lv){
       }
 // #endif //DEBUG_PRINT
 
-      memcpy(new_buffer+sizeof(int)*8, gv->org_recv_buffer+sizeof(int)*5, gv->cubex*gv->cubey*gv->cubez*2*sizeof(double));
+      memcpy(new_buffer+sizeof(int)*8, gv->org_recv_buffer+5*sizeof(int), gv->cubex*gv->cubey*gv->cubez*2*sizeof(double));
       // tmp=copy_msg_double( (double*)(new_buffer+sizeof(int)*8), (double*)(gv->org_recv_buffer+sizeof(int)*5), gv->cubex*gv->cubey*gv->cubez*2);
 
 #ifdef DEBUG_PRINT
@@ -205,7 +189,7 @@ void analysis_receiver_thread(GV gv,LV lv){
 #endif //DEBUG_PRINT
 
       /***************************RECEIVE DISK INDEX ARRAY***************************************/
-      tmp_int_ptr = (int*)(gv->org_recv_buffer+sizeof(int)+sizeof(char)*gv->block_size);
+      tmp_int_ptr = (int*)(gv->org_recv_buffer + sizeof(int) + sizeof(char)*gv->block_size);
       recv_int=*(int *)(tmp_int_ptr);
       disk_id += recv_int;
       mix_msg_id++;
@@ -225,23 +209,23 @@ void analysis_receiver_thread(GV gv,LV lv){
       t5 = get_cur_time();
       wait_lock += t5-t4;
 
-      new_buffer = (void*) malloc(gv->analysis_data_len);
-      tmp_int_ptr = (int*)new_buffer;
+      new_buffer = (char *) malloc(gv->analysis_data_len);
       check_malloc(new_buffer);
+      tmp_int_ptr = (int*)new_buffer;
+
       tmp_int_ptr[0] = status.MPI_SOURCE;
       block_id =*((int *)(gv->org_recv_buffer));
-
-      // #ifdef DEBUG_PRINT
-      // printf("Analysis Process %d Receiver %d Get a MIX msg! long_messageind=%d,gv->mpi_recv_progress_counter=%d,block_id=%d\n",
-      //   gv->rank[0], lv->tid, mix_msg_id,gv->mpi_recv_progress_counter,block_id);
-      // fflush(stdout);
-      // #endif //DEBUG_PRINT
-
       tmp_int_ptr[1] = block_id;
       tmp_int_ptr[2] = NOT_ON_DISK;
       tmp_int_ptr[3] = NOT_CALC;
 
-      memcpy(tmp_int_ptr+4, gv->org_recv_buffer+sizeof(int), gv->block_size);
+      // #ifdef DEBUG_PRINT
+      // printf("Analysis Process %d Receiver %d Get a MIX msg! long_messageind=%d, gv->mpi_recv_progress_counter=%d, block_id=%d\n",
+      //   gv->rank[0], lv->tid, mix_msg_id,gv->mpi_recv_progress_counter,block_id);
+      // fflush(stdout);
+      // #endif //DEBUG_PRINT
+
+      memcpy(new_buffer+sizeof(int)*4, gv->org_recv_buffer+sizeof(int), gv->block_size);
       // copy_msg_int(tmp_int_ptr+4,(int*)(),gv->block_size/sizeof(int));
 
       recv_ring_buffer_put(gv, lv, new_buffer);
@@ -249,6 +233,7 @@ void analysis_receiver_thread(GV gv,LV lv){
 
     }
     else if(status.MPI_TAG == DISK_TAG){
+
       MPI_Get_count(&status, MPI_CHAR, &recv_int);
       recv_int=recv_int/sizeof(int);
 
@@ -264,7 +249,7 @@ void analysis_receiver_thread(GV gv,LV lv){
       // printf("\n");
       t4 = get_cur_time();
       pthread_mutex_lock(&gv->lock_recv);
-      make_prefetch_id_v2(gv, status.MPI_SOURCE, recv_int, tmp_int_ptr);
+      make_prefetch_id(gv, status.MPI_SOURCE, recv_int, tmp_int_ptr);
       // tmp_int_ptr=(int*) gv->prefetch_id_array;
       // for(int i=0;i<gv->recv_tail;i++){
       //   printf("%d ", tmp_int_ptr[i]);
@@ -281,8 +266,9 @@ void analysis_receiver_thread(GV gv,LV lv){
 
       num_exit_flag++;
 
-      new_buffer = (void*)malloc(gv->analysis_data_len);
+      new_buffer = (char *)malloc(gv->analysis_data_len);
       check_malloc(new_buffer);
+
       ((int*)new_buffer)[0] = status.MPI_SOURCE;
       ((int*)new_buffer)[1] = EXIT_BLK_ID;
       ((int*)new_buffer)[2] = ON_DISK;

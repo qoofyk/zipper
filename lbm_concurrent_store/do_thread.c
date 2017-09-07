@@ -50,7 +50,7 @@ void* analysis_node_do_thread(void* v) {
   lv = (LV) v;
   gv = (GV) lv->gv;
   tid = lv->tid;
-  // printf("Ana %d Thread %d starts running...\n", gv->rank[0], tid);
+  // printf("Ana_Proc%d: Thread %d starts running...\n", gv->rank[0], tid);
   // fflush(stdout);
 
   if(tid<=(gv->analysis_reader_num-1)) {
@@ -108,10 +108,16 @@ void msleep(double milisec){
 }
 
 void check_malloc(void * pointer){
-  if (pointer == NULL) {
+  if(pointer == NULL) {
     perror("Malloc error!\n");
     fprintf (stderr, "at %s, line %d.\n", __FILE__, __LINE__);
     exit(1);
+  }
+
+  //check is aligned on 8 byte count
+  if((uintptr_t)pointer%8 != 0){
+    printf("Pointer %p is NOT ALIGNED!!!!\n", pointer);
+    fflush(stdout);
   }
 }
 

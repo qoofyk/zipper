@@ -3,7 +3,7 @@ Copyright YUANKUN FU
 Brief desc of the file: LBM consumer thread
 ********************************************************/
 #include "concurrent.h"
-void simple_verify(GV gv, LV lv, void* buffer, int nbytes, int* consumer_state_p){
+void simple_verify(GV gv, LV lv, char* buffer, int nbytes, int* consumer_state_p){
   register int i,j,k;
   //register int computeid=0;
   //int check = *(int *)(buffer);
@@ -43,7 +43,7 @@ void simple_verify(GV gv, LV lv, void* buffer, int nbytes, int* consumer_state_p
     }
 }
 
-void calc_n_moments(GV gv, LV lv, void* buffer, int* consumer_state_p){
+void calc_n_moments(GV gv, LV lv, char* buffer, int* consumer_state_p){
   // register int i,j,k;
   //register int computeid=0;
   //int check = *(int *)(buffer);
@@ -95,8 +95,8 @@ void calc_n_moments(GV gv, LV lv, void* buffer, int* consumer_state_p){
 }
 
 //Consumer
-void* consumer_ring_buffer_read_tail(GV gv, LV lv, int* consumer_state_p){
-  void* pointer;
+char* consumer_ring_buffer_read_tail(GV gv, LV lv, int* consumer_state_p){
+  char* pointer;
 
   ring_buffer *rb = gv->consumer_rb_p;
 
@@ -127,7 +127,7 @@ void* consumer_ring_buffer_read_tail(GV gv, LV lv, int* consumer_state_p){
   }
 }
 
-void consumer_ring_buffer_move_tail(GV gv, LV lv, int* flag_p, void* pointer){
+void consumer_ring_buffer_move_tail(GV gv, LV lv, int* flag_p, char* pointer){
 
   ring_buffer *rb = gv->consumer_rb_p;
   // int n=0;
@@ -172,7 +172,7 @@ void consumer_ring_buffer_move_tail(GV gv, LV lv, int* flag_p, void* pointer){
 
 void analysis_consumer_thread(GV gv,LV lv){
   double t0=0, t1=0, t2=0, t3=0;
-  void* pointer=NULL;
+  char* pointer=NULL;
   double read_tail_wait_time=0, move_tail_wait_time=0;
   int source=0, block_id=0;
   int flag=0;
@@ -194,7 +194,7 @@ void analysis_consumer_thread(GV gv,LV lv){
     t1 = get_cur_time();
     read_tail_wait_time += t1-t0;
 
-    if (pointer != NULL) {
+    if(pointer != NULL) {
 
       source = ((int*)pointer)[0];
       block_id = ((int*)pointer)[1];
@@ -205,7 +205,7 @@ void analysis_consumer_thread(GV gv,LV lv){
 //       fflush(stdout);
 // #endif //DEBUG_PRINT
 
-      if (block_id != EXIT_BLK_ID){
+      if(block_id != EXIT_BLK_ID){
 
         if(consumer_state == NOT_CALC){
 
@@ -222,7 +222,6 @@ step=%d, i=%d, j=%d, k=%d, gv->calc_counter=%d, consumer_state=%d\n",
               ((int *)pointer)[4], ((int *)pointer)[5], ((int *)pointer)[6],
               ((int *)pointer)[7], gv->calc_counter, consumer_state);
           }
-
 // #endif //DEBUG_PRINT
 
           t0 = get_cur_time();
@@ -315,8 +314,10 @@ step=%d, i=%d, j=%d, k=%d, gv->calc_counter=%d, consumer_state=%d\n",
 
     if (num_exit_flag >= gv->computer_group_size){
 
+#ifdef DEBUG_PRINT
       printf("Ana_Proc%d: Consumer prepare to exit!\n", gv->rank[0]);
       fflush(stdout);
+#endif //DEBUG_PRINT
 
       //set ana_writer exit
       gv->ana_writer_done=1;
@@ -339,7 +340,7 @@ step=%d, i=%d, j=%d, k=%d, gv->calc_counter=%d, consumer_state=%d\n",
   t3 = get_cur_time();
 
   printf("Ana_Proc%04d: Consumer T_total_consumer=%.3f, \
-T_calc=%.3f, T_wait=%.3f, T_move_tail=%.3f, my_count=%d, free_count=%d, num_avail_elements=%d\n",
+T_calc=%.3f, T_read_tail_wait=%.3f, T_move_tail_wait=%.3f, my_count=%d, free_count=%d, num_avail_elements=%d\n",
        gv->rank[0], t3 - t2, lv->calc_time, read_tail_wait_time, move_tail_wait_time, gv->calc_counter, free_count, remaining_elements);
   fflush(stdout);
 }
