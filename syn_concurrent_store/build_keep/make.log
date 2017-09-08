@@ -1,10 +1,10 @@
-mpicc -c -O -DBRIDGES -DKEEP -DCONCURRENT_EXP -Wall -I . -I /home/qoofyk/papi-5.5.1/build/usr/local/include ../main.c
-mpicc -c -O -DBRIDGES -DKEEP -DCONCURRENT_EXP -Wall -I . -I /home/qoofyk/papi-5.5.1/build/usr/local/include ../do_thread.c
-mpicc -c -O -DBRIDGES -DKEEP -DCONCURRENT_EXP -Wall -I . -I /home/qoofyk/papi-5.5.1/build/usr/local/include ../compute_generator.c
-mpicc -c -O -DBRIDGES -DKEEP -DCONCURRENT_EXP -Wall -I . -I /home/qoofyk/papi-5.5.1/build/usr/local/include ../compute_sender.c
-mpicc -c -O -DBRIDGES -DKEEP -DCONCURRENT_EXP -Wall -I . -I /home/qoofyk/papi-5.5.1/build/usr/local/include ../compute_writer.c
-mpicc -c -O -DBRIDGES -DKEEP -DCONCURRENT_EXP -Wall -I . -I /home/qoofyk/papi-5.5.1/build/usr/local/include ../analysis_receiver.c
-mpicc -c -O -DBRIDGES -DKEEP -DCONCURRENT_EXP -Wall -I . -I /home/qoofyk/papi-5.5.1/build/usr/local/include ../analysis_reader.c
-mpicc -c -O -DBRIDGES -DKEEP -DCONCURRENT_EXP -Wall -I . -I /home/qoofyk/papi-5.5.1/build/usr/local/include ../analysis_writer.c
-mpicc -c -O -DBRIDGES -DKEEP -DCONCURRENT_EXP -Wall -I . -I /home/qoofyk/papi-5.5.1/build/usr/local/include ../analysis_consumer.c
-mpicc -o syn_concurrent_keep_sep_file main.o do_thread.o compute_generator.o compute_sender.o compute_writer.o analysis_receiver.o analysis_reader.o analysis_writer.o analysis_consumer.o -O -lpthread -lm -L /home/qoofyk/papi-5.5.1/build/usr/local/lib -lpapi
+mpicc -c -O -DBRIDGES -DKEEP -DCONCURRENT_EXP -Wall -I . ../main.c
+mpicc -c -O -DBRIDGES -DKEEP -DCONCURRENT_EXP -Wall -I . ../do_thread.c
+mpicc -c -O -DBRIDGES -DKEEP -DCONCURRENT_EXP -Wall -I . ../compute_generator.c
+mpicc -c -O -DBRIDGES -DKEEP -DCONCURRENT_EXP -Wall -I . ../compute_sender.c
+mpicc -c -O -DBRIDGES -DKEEP -DCONCURRENT_EXP -Wall -I . ../compute_writer.c
+mpicc -c -O -DBRIDGES -DKEEP -DCONCURRENT_EXP -Wall -I . ../analysis_receiver.c
+mpicc -c -O -DBRIDGES -DKEEP -DCONCURRENT_EXP -Wall -I . ../analysis_reader.c
+mpicc -c -O -DBRIDGES -DKEEP -DCONCURRENT_EXP -Wall -I . ../analysis_writer.c
+mpicc -c -O -DBRIDGES -DKEEP -DCONCURRENT_EXP -Wall -I . ../analysis_consumer.c
+mpicc -o syn_concurrent_keep_sep_file main.o do_thread.o compute_generator.o compute_sender.o compute_writer.o analysis_receiver.o analysis_reader.o analysis_writer.o analysis_consumer.o  -lpthread -lm -O

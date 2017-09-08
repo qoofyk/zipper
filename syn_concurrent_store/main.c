@@ -138,6 +138,29 @@ int main(int argc, char **argv){
 
 	//debug_print(gv->rank[0]);
 
+
+#ifdef ADD_PAPI
+	/* Set TESTS_QUIET variable */
+    tests_quiet( argc, argv );
+
+    int papi_retval;
+    /* PAPI Initialization */
+    papi_retval = PAPI_library_init( PAPI_VER_CURRENT );
+    if ( papi_retval != PAPI_VER_CURRENT ) {
+        test_fail(__FILE__, __LINE__,"PAPI_library_init failed\n", papi_retval);
+    }
+
+    if (!TESTS_QUIET) {
+        printf("Proc%d: Trying all infiniband events\n", gv->rank[0]);
+    }
+
+	if (PAPI_thread_init(pthread_self) != PAPI_OK){ //in main function
+    	exit(1);
+  	}
+  	printf("papi threads initialized\n");
+  	fflush(stdout);
+#endif //ADD_PAPI
+
 	if (gv->color == 0){
 //---------------------------- Init DataBroker ---------------------------------------------------//
     	// generator_thread <--> compute_writer, compute_sender
@@ -220,7 +243,7 @@ PRODUCER_Ringbuffer %.3fGB, size=%d member\n",
 		free(attrs);
 		free(thrds);
 
-		printf("Comp_Proc%04d: Task finish on %s, total_time=%.3f s\n", gv->rank[0], gv->processor_name, t1-t0);
+		printf("Comp_Proc%04d: Task finish on %s, T_comp_total=%.3f s\n", gv->rank[0], gv->processor_name, t1-t0);
 		fflush(stdout);
 	}
 	else{
@@ -337,7 +360,7 @@ CONSUMER_Ringbuffer %.3fGB, size=%d member\n",
 		free(thrds);
 
 		t1=get_cur_time();
-		printf("Ana_Proc%04d: Job finished on %s T_total=%.3f\n",
+		printf("Ana_Proc%04d: Job finished on %s T_ana_total=%.3f\n",
 		  gv->rank[0], gv->processor_name, t1-t0);
 		fflush(stdout);
 	}

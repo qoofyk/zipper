@@ -37,9 +37,82 @@ void compute_sender_thread(GV gv,LV lv){
 	char exit_flag = 0;
 	int block_id;
 	char my_exit_flag=0;
-	int num_avail_elements=0, overlap=0;
+	int num_avail_elements=0, remain=0;
 	// printf("Compute %d Sender %d start running!\n", gv->rank[0], lv->tid);
 	// fflush(stdout);
+
+#ifdef ADD_PAPI
+	int retval,cid,numcmp;
+    int EventSet = PAPI_NULL;
+    long long *values = 0;
+    int *codes = 0;
+    char *names = 0;
+    int code;
+    int total_events=0;
+    int r;
+    const PAPI_component_info_t *cmpinfo = NULL;
+
+	numcmp = PAPI_num_components();
+
+    for(cid=0; cid<numcmp; cid++) {
+
+        if ( (cmpinfo = PAPI_get_component_info(cid)) == NULL) {
+            test_fail(__FILE__, __LINE__,"PAPI_get_component_info failed\n",-1);
+        }
+
+        if (!TESTS_QUIET) {
+            printf("Proc%d: Component %d - %d events - %s\n", gv->rank[0], cid,
+                cmpinfo->num_native_events, cmpinfo->name);
+        }
+
+        if ( strstr(cmpinfo->name, "infiniband") == NULL) {
+            continue;
+        }
+        if (cmpinfo->disabled) {
+            test_skip(__FILE__,__LINE__,"Component infiniband is disabled", 0);
+            continue;
+        }
+
+        values = (long long*) malloc(sizeof(long long) * cmpinfo->num_native_events);
+        codes = (int*) malloc(sizeof(int) * cmpinfo->num_native_events);
+        names = (char*) malloc(PAPI_MAX_STR_LEN * cmpinfo->num_native_events);
+
+        EventSet = PAPI_NULL;
+
+        retval = PAPI_create_eventset( &EventSet );
+        if (retval != PAPI_OK) {
+            test_fail(__FILE__, __LINE__, "PAPI_create_eventset()", retval);
+        }
+
+        code = PAPI_NATIVE_MASK;
+
+        r = PAPI_enum_cmp_event( &code, PAPI_ENUM_FIRST, cid );
+        i = 0;
+        while ( r == PAPI_OK ) {
+
+            retval = PAPI_event_code_to_name( code, &names[i*PAPI_MAX_STR_LEN] );
+            if ( retval != PAPI_OK ) {
+                test_fail( __FILE__, __LINE__, "PAPI_event_code_to_name", retval );
+            }
+            codes[i] = code;
+
+            retval = PAPI_add_event( EventSet, code );
+            if (retval != PAPI_OK) {
+                test_fail(__FILE__, __LINE__, "PAPI_add_event()", retval);
+            }
+
+            total_events++;
+
+            r = PAPI_enum_cmp_event( &code, PAPI_ENUM_EVENTS, cid );
+            i += 1;
+        }
+
+        retval = PAPI_start( EventSet );
+        if (retval != PAPI_OK) {
+            test_fail(__FILE__, __LINE__, "PAPI_start()", retval);
+        }
+#endif //ADD_PAPI
+
 
 	ring_buffer *rb = gv->producer_rb_p;
 
@@ -56,7 +129,7 @@ void compute_sender_thread(GV gv,LV lv){
 
 			if (block_id != EXIT_BLK_ID){
 
-				if(num_avail_elements>0) overlap++;
+				if(num_avail_elements>0) remain++;
 
 				// printf("Comp_Proc%d: Sender%d get block_id %d\n", gv->rank[0], lv->tid, block_id);
 				// fflush(stdout);
@@ -193,10 +266,47 @@ void compute_sender_thread(GV gv,LV lv){
 	}
 	t3 = get_cur_time();
 
+#ifdef ADD_PAPI
+	retval = PAPI_stop( EventSet, values);
+        if (retval != PAPI_OK) {
+            test_fail(__FILE__, __LINE__, "PAPI_stop()", retval);
+        }
+
+        printf("Papi Stop: I am Proc%d, TESTS_QUIET=%d\n", gv->rank[0], TESTS_QUIET);
+        fflush(stdout);
+
+        if (!TESTS_QUIET) {
+           for (i=0 ; i<cmpinfo->num_native_events ; ++i)
+               printf("Proc%d: %#x %-24s = %lld\n", gv->rank[0], codes[i], names+i*PAPI_MAX_STR_LEN, values[i]);
+        }
+
+        retval = PAPI_cleanup_eventset( EventSet );
+        if (retval != PAPI_OK) {
+            test_fail(__FILE__, __LINE__, "PAPI_cleanup_eventset()", retval);
+        }
+
+        retval = PAPI_destroy_eventset( &EventSet );
+        if (retval != PAPI_OK) {
+            test_fail(__FILE__, __LINE__, "PAPI_destroy_eventset()", retval);
+        }
+
+        free(names);
+        free(codes);
+        free(values);
+    }
+
+    if (total_events==0) {
+        test_skip(__FILE__,__LINE__,"No infiniband events found", 0);
+    }
+#endif //ADD_PAPI
+
+
+
+
 	printf("Comp_Proc%04d: Sender%d T_total=%.3f, mpi_send_prog_cnt=%d, \
-T_mix_send=%.3f, T_pure_mpi_send=%.3f, T_total_send=%.3f, mix_msg_id=%d, disk_id=%d, long_msg_id=%d, overlap=%d\n",
+T_mix_send=%.3f, T_pure_mpi_send=%.3f, T_total_send=%.3f, mix_msg_id=%d, disk_id=%d, long_msg_id=%d, remain=%d\n",
     gv->rank[0], lv->tid, t3-t2, gv->mpi_send_progress_counter,
-    mix_send_time, pure_mpi_send_time, mix_send_time+pure_mpi_send_time, mix_msg_id, disk_id, long_msg_id, overlap);
+    mix_send_time, pure_mpi_send_time, mix_send_time+pure_mpi_send_time, mix_msg_id, disk_id, long_msg_id, remain);
   fflush(stdout);
 
 

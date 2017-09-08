@@ -85,6 +85,78 @@ void analysis_receiver_thread(GV gv,LV lv){
 
   // printf("Analysis Process %d Receiveing thread %d Start receive!\n",gv->rank[0], lv->tid);
   // fflush(stdout);
+#ifdef ADD_PAPI
+  int retval,cid,numcmp;
+    int EventSet = PAPI_NULL;
+    long long *values = 0;
+    int *codes = 0;
+    char *names = 0;
+    int code;
+    int total_events=0;
+    int r;
+    int i;
+    const PAPI_component_info_t *cmpinfo = NULL;
+
+  numcmp = PAPI_num_components();
+
+    for(cid=0; cid<numcmp; cid++) {
+
+        if ( (cmpinfo = PAPI_get_component_info(cid)) == NULL) {
+            test_fail(__FILE__, __LINE__,"PAPI_get_component_info failed\n",-1);
+        }
+
+        if (!TESTS_QUIET) {
+            printf("Proc%d: Component %d - %d events - %s\n", gv->rank[0], cid,
+                cmpinfo->num_native_events, cmpinfo->name);
+        }
+
+        if ( strstr(cmpinfo->name, "infiniband") == NULL) {
+            continue;
+        }
+        if (cmpinfo->disabled) {
+            test_skip(__FILE__,__LINE__,"Component infiniband is disabled", 0);
+            continue;
+        }
+
+        values = (long long*) malloc(sizeof(long long) * cmpinfo->num_native_events);
+        codes = (int*) malloc(sizeof(int) * cmpinfo->num_native_events);
+        names = (char*) malloc(PAPI_MAX_STR_LEN * cmpinfo->num_native_events);
+
+        EventSet = PAPI_NULL;
+
+        retval = PAPI_create_eventset( &EventSet );
+        if (retval != PAPI_OK) {
+            test_fail(__FILE__, __LINE__, "PAPI_create_eventset()", retval);
+        }
+
+        code = PAPI_NATIVE_MASK;
+
+        r = PAPI_enum_cmp_event( &code, PAPI_ENUM_FIRST, cid );
+        i = 0;
+        while ( r == PAPI_OK ) {
+
+            retval = PAPI_event_code_to_name( code, &names[i*PAPI_MAX_STR_LEN] );
+            if ( retval != PAPI_OK ) {
+                test_fail( __FILE__, __LINE__, "PAPI_event_code_to_name", retval );
+            }
+            codes[i] = code;
+
+            retval = PAPI_add_event( EventSet, code );
+            if (retval != PAPI_OK) {
+                test_fail(__FILE__, __LINE__, "PAPI_add_event()", retval);
+            }
+
+            total_events++;
+
+            r = PAPI_enum_cmp_event( &code, PAPI_ENUM_EVENTS, cid );
+            i += 1;
+        }
+
+        retval = PAPI_start( EventSet );
+        if (retval != PAPI_OK) {
+            test_fail(__FILE__, __LINE__, "PAPI_start()", retval);
+        }
+#endif //ADD_PAPI
 
   t0 = get_cur_time();
   while(1){
@@ -285,6 +357,40 @@ void analysis_receiver_thread(GV gv,LV lv){
     }
   }
   t1 = get_cur_time();
+
+#ifdef ADD_PAPI
+  retval = PAPI_stop( EventSet, values);
+        if (retval != PAPI_OK) {
+            test_fail(__FILE__, __LINE__, "PAPI_stop()", retval);
+        }
+
+        printf("Papi Stop: I am Proc%d, TESTS_QUIET=%d\n", gv->rank[0], TESTS_QUIET);
+        fflush(stdout);
+
+        if (!TESTS_QUIET) {
+           for (i=0 ; i<cmpinfo->num_native_events ; ++i)
+               printf("Proc%d: %#x %-24s = %lld\n", gv->rank[0], codes[i], names+i*PAPI_MAX_STR_LEN, values[i]);
+        }
+
+        retval = PAPI_cleanup_eventset( EventSet );
+        if (retval != PAPI_OK) {
+            test_fail(__FILE__, __LINE__, "PAPI_cleanup_eventset()", retval);
+        }
+
+        retval = PAPI_destroy_eventset( &EventSet );
+        if (retval != PAPI_OK) {
+            test_fail(__FILE__, __LINE__, "PAPI_destroy_eventset()", retval);
+        }
+
+        free(names);
+        free(codes);
+        free(values);
+    }
+
+    if (total_events==0) {
+        test_skip(__FILE__,__LINE__,"No infiniband events found", 0);
+    }
+#endif //ADD_PAPI
 
   printf("Ana_Proc%04d: Receiver%d T_total=%.3f, mpi_recv_progress_counter=%d, \
 T_receive_wait=%.3f, T_wait_lock=%.3f, long_msg_id=%d, mix_msg_id=%d, disk_id=%d, full=%d\n",

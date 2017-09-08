@@ -14,7 +14,11 @@ Brief desc of the file: Header
 #include <unistd.h>
 #include <sys/types.h>
 #include <errno.h>
+
+#ifdef ADD_PAPI
 #include <papi.h>
+#include "papi_test.h"
+#endif //ADD_PAPI
 
 #define PRODUCER_RINGBUFFER_TOTAL_MEMORY 512*1024*1024L //1G Byte, 512MB
 #define CONSUMER_RINGBUFFER_TOTAL_MEMORY 512*1024*1024L
