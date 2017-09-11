@@ -1059,6 +1059,7 @@ void run_lbm(char * filepath, int step_stop, int dims_cube[3], MPI_Comm *pcomm)
                 flock(fd, LOCK_EX);
                 write(fd,  &time_stamp,  sizeof(int));
                 flock(fd, LOCK_UN);
+                printf("write stamp %d at %lf", time_stamp, MPI_Wtime());
                 close(fd);
             }
         }

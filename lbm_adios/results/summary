@@ -1,5 +1,9 @@
-May 8
-1122771/ 1122977
+May 9
+1125183
+    300 dspaceswith maxversion 30
+---------------------------------------------------------------
+Mar 8
+1122771
     200 with maxversion 20 again
         producer
         t_prepare:0.081731 s, t_cal 124.503945 s,t_buffer = 0.791463, t_write 52.432181 s, t_put 7.075397 s

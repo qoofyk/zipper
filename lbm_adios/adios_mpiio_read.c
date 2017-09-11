@@ -73,6 +73,7 @@ int main (int argc, char ** argv)
     int fd; 
     char step_index_file [256];
     int time_stamp = -1;// flag read from producer
+    int time_stamp_old=-1;
     sprintf(step_index_file, "%s/stamp.file", filepath);
 
     MPI_Barrier(comm);
@@ -95,6 +96,7 @@ int main (int argc, char ** argv)
     // flag whether producer finishes all the steps
     int has_more = 1;
     while(has_more){
+        time_stamp_old = time_stamp;
         if(rank ==0){
             fd = open(step_index_file, O_RDONLY);
             if(fd == -1){
@@ -104,7 +106,6 @@ int main (int argc, char ** argv)
             else{
                 flock(fd, LOCK_SH);
                 read(fd,  &time_stamp,  sizeof(int));
-                printf("set stamp as %d\n", time_stamp);
                 flock(fd, LOCK_UN);
                 close(fd);
             }
@@ -117,6 +118,11 @@ int main (int argc, char ** argv)
         }
         // broadcast stamp
         MPI_Bcast(&time_stamp, 1, MPI_INT, 0, comm);
+        MPI_Barrier(comm);
+
+        if(rank ==0 && time_stamp!= time_stamp_old){
+                printf("set stamp as %d at %lf\n", time_stamp, MPI_Wtime());
+        }
 
         if(time_stamp ==-1){
                 sleep(1);
