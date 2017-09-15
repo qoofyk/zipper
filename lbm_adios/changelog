@@ -2,6 +2,27 @@
 All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/) 
 and this project adheres to [Semantic Versioning](http://semver.org/).
+## Sep 14
+	get the traces for dspaces, see dspaces_ex3.slog2 in my laptop, rank has
+	longest unlock_on_read time
+
+	fortran  is disabled
+
+	in ADIOS config.lifen.log, nnti??
+		FP_LIBS =  -levpath -lffs -latl -ldill -lcercs_env
+
+
+## [0.3.0] Sep 13
+## fixed
+	dspaces and tau are installed and functionally properly in bridges
+## to do
+	pthread is not found when compiling evpath
+ 	see:
+		/home/fli5/Downloads/flexpath/build_area/evpath/linux/CMakeFiles/CMakeError.log
+	
+
+## problems
+	
 ## [0.2.7] Mar 9 2017
 #### added  
 - Barrier in mpiio_read timestep Bcast
