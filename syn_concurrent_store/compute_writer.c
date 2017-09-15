@@ -48,7 +48,7 @@ void comp_write_blk_per_file(GV gv, LV lv, int blk_id, char* buffer, int nbytes)
 				fflush(stdout);
 			}
 			i++;
-			usleep(100);
+			usleep(OPEN_USLEEP);
 		}
 	}
 
@@ -61,13 +61,37 @@ void comp_write_blk_per_file(GV gv, LV lv, int blk_id, char* buffer, int nbytes)
 }
 
 void comp_write_one_big_file(GV gv, LV lv, int blk_id, char* buffer, int nbytes, FILE *fp){
-	double t0=0,t1=0;
+	double t0=0, t1=0;
 	int error=-1;
 	int i=0;
 	long int offset;
 
-	offset = (long)blk_id * (long)gv->block_size;
+	//-----------------------------------
+	// char file_name[128];
+	// FILE *fp=NULL;
+	// sprintf(file_name, ADDRESS, gv->compute_process_num, gv->analysis_process_num, gv->rank[0], gv->rank[0]);
+	// // printf("Comp Writer: %d %d %d %d %d %d\n cW: %s\n", gv->compute_process_num, gv->analysis_process_num, gv->rank[0], gv->rank[0], lv->tid, blk_id, file_name);
+ // 	// fflush(stdout);
+	// i=0;
+	// error=-1;
+	// while((fp==NULL) && (i<TRYNUM)){
+	// 	fp=fopen(file_name,"rb+");
 
+	// 	if(fp==NULL){
+	// 	  if(i==TRYNUM-1){
+	// 	    printf("Fatal Error: Comp_Proc%d open an empty big file\n", gv->rank[0]);
+	// 	    fflush(stdout);
+	// 	  }
+
+	// 	  i++;
+	// 	  usleep(OPEN_USLEEP);
+	// 	}
+	// }
+	//-----------------------------------
+
+	offset = (long)blk_id * (long)gv->block_size;
+	i=0;
+	error=-1;
 	while((error==-1) && (i<TRYNUM)){
 		error=fseek(fp, offset, SEEK_SET);
   		if(error==-1){
@@ -77,20 +101,22 @@ void comp_write_one_big_file(GV gv, LV lv, int blk_id, char* buffer, int nbytes,
   				fflush(stdout);
   			}
   			i++;
-            usleep(100);
+            usleep(OPEN_USLEEP);
   		}
 	}
 
+#ifdef DEBUG_PRINT
 	if(((int*)buffer)[0]==0){
 		printf("----wwwwwwwwww----------Comp_Proc%d: Writer%d start to write block_id=%d, ((int*)buffer)[0]=%d, ((int*)buffer)[1]=%d\n",
 			gv->rank[0], lv->tid, blk_id, ((int*)buffer)[0], ((int*)buffer)[1]);
 		fflush(stdout);
 	}
-
+#endif //DEBUG_PRINT
 
 	t0 = get_cur_time();
 	error=fwrite(buffer, nbytes, 1, fp);
 	fflush(fp);
+	// fsync(fileno(fp));
 
 	if(error==0){
 		perror("Write error:");
@@ -99,16 +125,18 @@ void comp_write_one_big_file(GV gv, LV lv, int blk_id, char* buffer, int nbytes,
 
 	t1 = get_cur_time();
 	lv->only_fwrite_time += t1 - t0;
+
+	//------------------------
+	// fclose(fp);
 }
 
 void compute_writer_thread(GV gv, LV lv) {
 
 	int block_id=0, my_count=0;
-	double t0=0,t1=0,t2=0,t3=0;
+	double t0=0, t1=0, t2=0, t3=0;
 	char* buffer=NULL;
 	char my_exit_flag=0;
 	int num_avail_elements=0, overlap=0;
-
 
 	ring_buffer *rb = gv->producer_rb_p;
 
@@ -212,7 +240,7 @@ void compute_writer_thread(GV gv, LV lv) {
 
 	t3 = get_cur_time();
 
-	printf("Comp_Proc%04d: Writer%d T_comp_write=%.3f, T_only_fwrite=%.3f, T_total=%.3f with %d blocks and overlap=%d\n",
+	printf("Comp_Proc%04d: Writer%d T_comp_write=%.3f, T_only_fwrite=%.3f, T_total=%.3f with %d blocks, overlap=%d\n",
 		gv->rank[0], lv->tid, lv->write_time, lv->only_fwrite_time, t3-t2, my_count, overlap);
 	fflush(stdout);
 	// printf("Node%d Producer %d Write_Time/Block= %f only_fwrite_time/Block= %f, SPEED= %fKB/s\n",

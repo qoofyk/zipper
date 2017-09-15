@@ -12,17 +12,19 @@ export MV2_ENABLE_AFFINITY=0
 
 # find number of threads for OpenMP
 # find number of MPI tasks per node
-# set TPN=`echo $SLURM_TASKS_PER_NODE | cut -f 1 -d \(`
-echo $SLURM_TASKS_PER_NODE
+echo "SLURM_TASKS_PER_NODE=$SLURM_TASKS_PER_NODE"
+TPN=`echo $SLURM_TASKS_PER_NODE | cut -d '(' -f 1`
+echo "TPN=$TPN"
 # find number of CPU cores per node
-# set PPN=`echo $SLURM_JOB_CPUS_PER_NODE | cut -f 1 -d \(`
-echo $SLURM_JOB_CPUS_PER_NODE
-# @ THREADS = ( $PPN / $TPN )
-# setenv OMP_NUM_THREADS $THREADS
+echo "SLURM_JOB_CPUS_PER_NODE=$SLURM_JOB_CPUS_PER_NODE"
+PPN=`echo $SLURM_JOB_CPUS_PER_NODE | cut -d '(' -f 1`
+echo "PPN=$PPN"
+THREADS=$(( PPN / TPN ))
+export OMP_NUM_THREADS=$THREADS
 
-# echo "TPN=$TPN, PPN=$PPN, THREADS=$THREADS"
+echo "TPN=$TPN, PPN=$PPN, THREADS=$THREADS"
 
-export OMP_NUM_THREADS=28
+# export OMP_NUM_THREADS=28
 
 echo "OMP_NUM_THREADS=$OMP_NUM_THREADS"
 
@@ -87,40 +89,41 @@ echo "@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@"
 # echo "-----------End Delete files-------------"
 
 
-# echo "~~~~~~~~~~~~~~~~~~Write_one_file~~~~~~~~~~~~~~~~~~~~~~~"
-# for((i=0;i<${#block_size1[@]};i++));do
-# 	for ((k=0; k<${#writer_thousandth[@]}; k++)); do
-# 		echo
-# 		echo
-# 		echo
-# 		echo
-# 		echo
-# 		echo
-# 		val=$(( ${block_size1[i]} * 64 ))
-# 		echo "*************************************************************************************"
-# 		echo "---case=$CASE_NAME $val KB, cpt_total_blks=${cpt_total_blks1[i]}, Hint=$((${writer_thousandth[k]}/10))% Use Disk, Writer_PRB=${writer_prb_thousandth[k]} /1000------"
-# 		echo "*************************************************************************************"
-# 		# if [ $val -eq 64 ] && [ $val -eq 128 ] && [ $val -eq 16384 ]
-# 		#  		then
-# 		#     		break
-# 		#fi
-# 		for ((p=0; p<$maxp; p++)); do
-# 			echo "=============Loop $p==============="
-# 			echo "setstripe $tune_stripe_count"
-# 			echo "utime=${utime1[i]}"
-# 			echo "-----------------------------------"
-# 			$my_run_exp1 $compute_generator_num $compute_writer_num $analysis_reader_num $analysis_writer_num ${block_size1[i]} ${cpt_total_blks1[i]} ${writer_thousandth[k]} $compute_group_size $num_ana_proc $lp ${utime1[i]} ${writer_prb_thousandth[k]}
-# 			sleep 5
-# 			echo "-----------Start Deleting files-------------"
-# 			for ((m=0;m<$num_comp_proc;m++)); do
-# 			    $my_del_exp2 $(printf "${OUTPUT_DIR}/cid%04g" $m)
-# 			done
-# 			echo "-----------End Delete files-------------"
-# 			echo
+echo "~~~~~~~~~~~~~~~~~~Write_one_file~~~~~~~~~~~~~~~~~~~~~~~"
+for((i=0;i<${#block_size1[@]};i++));do
+	for ((k=0; k<${#writer_thousandth[@]}; k++)); do
+		echo
+		echo
+		echo
+		echo
+		echo
+		echo
+		val=$(( ${block_size1[i]} * 64 ))
+		echo "*************************************************************************************"
+		echo "---case=$CASE_NAME $val KB, cpt_total_blks=${cpt_total_blks1[i]}, Hint=$((${writer_thousandth[k]}/10))% Use Disk, Writer_PRB=${writer_prb_thousandth[k]} /1000------"
+		echo "*************************************************************************************"
+		# if [ $val -eq 64 ] && [ $val -eq 128 ] && [ $val -eq 16384 ]
+		#  		then
+		#     		break
+		#fi
+		for ((p=0; p<$maxp; p++)); do
+			echo "=============Loop $p==============="
+			# echo "utime=${utime1[i]}"
+			echo "setstripe $tune_stripe_count"
+			echo "computation_lp=${computation_lp[i]}"
+			echo "-----------------------------------"
+			$my_run_exp1 $compute_generator_num $compute_writer_num $analysis_reader_num $analysis_writer_num ${block_size1[i]} ${cpt_total_blks1[i]} ${writer_thousandth[k]} $compute_group_size $num_ana_proc $lp ${computation_lp[i]} ${writer_prb_thousandth[k]}
+			sleep 5
+			echo "-----------Start Deleting files-------------"
+			for ((m=0;m<$num_comp_proc;m++)); do
+			    $my_del_exp2 $(printf "${OUTPUT_DIR}/cid%04g" $m)
+			done
+			echo "-----------End Delete files-------------"
+			echo
 
-# 		done
-# 	done
-# done
+		done
+	done
+done
 
 
 echo

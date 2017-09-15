@@ -208,10 +208,6 @@ void analysis_receiver_thread(GV gv,LV lv){
       printf("Ana_Proc%d: Receiver *LONG MSG* --src=%d-- num_long_msg=%d, gv->mpi_recv_prog_cnt=%d, get_cnt=%d\n",
         gv->rank[0], status.MPI_SOURCE, long_msg_id, gv->mpi_recv_progress_counter, count);
       fflush(stdout);
-      printf("Ana_Proc%d: Receiver *LONG MSG* --src=%d block_id=%d-- num_long_msg=%d, gv->mpi_recv_prog_cnt=%d, get_cnt=%d, num_double=%d, step=%d, CI=%d, CJ=%d, CK=%d\n",
-        gv->rank[0], status.MPI_SOURCE, ((int *)gv->org_recv_buffer)[0], long_msg_id, gv->mpi_recv_progress_counter,
-        count, gv->cubex*gv->cubey*gv->cubez*2, ((int *)gv->org_recv_buffer)[1], ((int *)gv->org_recv_buffer)[2], ((int *)gv->org_recv_buffer)[3], ((int *)gv->org_recv_buffer)[4]);
-      fflush(stdout);
 #endif //DEBUG_PRINT
 
       new_buffer = (char*) malloc(gv->analysis_data_len);
@@ -228,11 +224,13 @@ void analysis_receiver_thread(GV gv,LV lv){
       memcpy(new_buffer+sizeof(int)*4, gv->org_recv_buffer, gv->block_size);
       // copy_msg_int(temp_int_pointer+3,(int*)gv->org_recv_buffer,gv->block_size/sizeof(int));
 
+#ifdef DEBUG_PRINT
       if(tmp_int_ptr[4]==0){
         printf("Ana_Proc%d: Receiver%d Get a Long_msg! block_id=%d, gv->mpi_recv_progress_counter=%d tmp_int_ptr[4]==%d\n",
           gv->rank[0], lv->tid, block_id, gv->mpi_recv_progress_counter, tmp_int_ptr[4]);
         fflush(stdout);
       }
+#endif //DEBUG_PRINT
 
       recv_ring_buffer_put(gv, lv, new_buffer, &num_avail_elements);
 
@@ -285,11 +283,13 @@ void analysis_receiver_thread(GV gv,LV lv){
 
       memcpy(new_buffer+sizeof(int)*4, gv->org_recv_buffer, gv->block_size);
 
-      if(tmp_int_ptr[4]==0){
+#ifdef DEBUG_PRINT
+      if(tmp_int_ptr[4]==0){ //first real data
         printf("Ana_Proc%d: Receiver%d Get a MIX_msg! block_id=%d, gv->mpi_recv_progress_counter=%d tmp_int_ptr[4]==%d\n",
           gv->rank[0], lv->tid, block_id, gv->mpi_recv_progress_counter, tmp_int_ptr[4]);
         fflush(stdout);
       }
+#endif //DEBUG_PRINT
 
       recv_ring_buffer_put(gv, lv, new_buffer, &num_avail_elements);
 
@@ -392,7 +392,7 @@ void analysis_receiver_thread(GV gv,LV lv){
     }
 #endif //ADD_PAPI
 
-  printf("Ana_Proc%04d: Receiver%d T_total=%.3f, mpi_recv_progress_counter=%d, \
+  printf("Ana_Proc%04d: Receiver%d T_total=%.3f, mpi_recv_prog_cnt=%d, \
 T_receive_wait=%.3f, T_wait_lock=%.3f, long_msg_id=%d, mix_msg_id=%d, disk_id=%d, full=%d\n",
      gv->rank[0], lv->tid, t1 - t0, gv->mpi_recv_progress_counter,
      receive_time, wait_lock, long_msg_id, mix_msg_id, disk_id, full);

@@ -221,7 +221,8 @@ gv->calc_counter=%d, consumer_state=%d\n",
             free_count++;
 
 #ifdef DEBUG_PRINT
-            printf("Ana_Proc%d: *****#####-----Analysis consumer Prepare to free! num_blk_free=%d\n", gv->rank[0], free_count);
+            printf("Ana_Proc%d: *****#####-----Analysis consumer Prepare to free! num_blk_free=%d source=%d block_id=%d\n",
+              gv->rank[0], free_count, ((int*)pointer)[0], ((int*)pointer)[1]);
             fflush(stdout);
 #endif //DEBUG_PRINT
 

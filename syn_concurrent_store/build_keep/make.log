@@ -1,10 +1,10 @@
-mpicc -c -O -DBRIDGES -DKEEP -DCONCURRENT_EXP -Wall -I . ../main.c
-mpicc -c -O -DBRIDGES -DKEEP -DCONCURRENT_EXP -Wall -I . ../do_thread.c
-mpicc -c -O -DBRIDGES -DKEEP -DCONCURRENT_EXP -Wall -I . ../compute_generator.c
-mpicc -c -O -DBRIDGES -DKEEP -DCONCURRENT_EXP -Wall -I . ../compute_sender.c
-mpicc -c -O -DBRIDGES -DKEEP -DCONCURRENT_EXP -Wall -I . ../compute_writer.c
-mpicc -c -O -DBRIDGES -DKEEP -DCONCURRENT_EXP -Wall -I . ../analysis_receiver.c
-mpicc -c -O -DBRIDGES -DKEEP -DCONCURRENT_EXP -Wall -I . ../analysis_reader.c
-mpicc -c -O -DBRIDGES -DKEEP -DCONCURRENT_EXP -Wall -I . ../analysis_writer.c
-mpicc -c -O -DBRIDGES -DKEEP -DCONCURRENT_EXP -Wall -I . ../analysis_consumer.c
-mpicc -o syn_concurrent_keep_sep_file main.o do_thread.o compute_generator.o compute_sender.o compute_writer.o analysis_receiver.o analysis_reader.o analysis_writer.o analysis_consumer.o  -lpthread -lm -O
+mpicc -c -g -DBRIDGES -DKEEP -DWRITE_ONE_FILE -DCONCURRENT_EXP -Wall -I. ../main.c
+mpicc -c -g -DBRIDGES -DKEEP -DWRITE_ONE_FILE -DCONCURRENT_EXP -Wall -I. ../do_thread.c
+mpicc -c -g -DBRIDGES -DKEEP -DWRITE_ONE_FILE -DCONCURRENT_EXP -Wall -I. ../compute_generator.c
+mpicc -c -g -DBRIDGES -DKEEP -DWRITE_ONE_FILE -DCONCURRENT_EXP -Wall -I. ../compute_sender.c
+mpicc -c -g -DBRIDGES -DKEEP -DWRITE_ONE_FILE -DCONCURRENT_EXP -Wall -I. ../compute_writer.c
+mpicc -c -g -DBRIDGES -DKEEP -DWRITE_ONE_FILE -DCONCURRENT_EXP -Wall -I. ../analysis_receiver.c
+mpicc -c -g -DBRIDGES -DKEEP -DWRITE_ONE_FILE -DCONCURRENT_EXP -Wall -I. ../analysis_reader.c
+mpicc -c -g -DBRIDGES -DKEEP -DWRITE_ONE_FILE -DCONCURRENT_EXP -Wall -I. ../analysis_writer.c
+mpicc -c -g -DBRIDGES -DKEEP -DWRITE_ONE_FILE -DCONCURRENT_EXP -Wall -I. ../analysis_consumer.c
+mpicc -o syn_concurrent_keep_one_file main.o do_thread.o compute_generator.o compute_sender.o compute_writer.o analysis_receiver.o analysis_reader.o analysis_writer.o analysis_consumer.o -g -lpthread -lm

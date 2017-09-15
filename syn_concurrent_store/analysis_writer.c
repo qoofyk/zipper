@@ -54,7 +54,7 @@ void analysis_write_blk_per_file(GV gv, LV lv, int source, int blk_id, char* buf
 	//"/N/dc2/scratch/fuyuan/LBMconcurrentstore/LBMcon%03dvs%03d/cid%03d/2lbm_cid%03dblk%d.d"
 #ifndef WRITE_ONE_FILE
 	sprintf(file_name, ADDRESS, gv->compute_process_num, gv->analysis_process_num, source, source, blk_id);
-	// printf("%d %d %d %d %d %d \n %s\n", gv->compute_process_num, gv->analysis_process_num, gv->rank[0], gv->rank[0], lv->tid, blk_id,file_name);
+	// printf("%d %d %d %d %d %d \n %s\n", gv->compute_process_num, gv->analysis_process_num, source, source, lv->tid, blk_id,file_name);
 	// fflush(stdout);
 #endif //WRITE_ONE_FILE
 
@@ -68,7 +68,7 @@ void analysis_write_blk_per_file(GV gv, LV lv, int source, int blk_id, char* buf
 			}
 
 		  i++;
-		  usleep(100);
+		  usleep(OPEN_USLEEP);
 		}
 	}
 
@@ -94,10 +94,52 @@ void analysis_write_one_file(GV gv, LV lv, int source, int blk_id, char* buffer,
 	int i=0;
 	long int offset;
 
-	offset = (long)blk_id * (long)gv->block_size;
+	//------------------------
+	// char file_name[128];
+	// FILE *fp=NULL;
+	// sprintf(file_name, ADDRESS, gv->compute_process_num, gv->analysis_process_num, source, source);
+	// printf("Ana_writer: %d %d %d %d %d %d\n aW: %s\n",
+	// 	gv->compute_process_num, gv->analysis_process_num, source, source, lv->tid, blk_id, file_name);
+	// fflush(stdout);
 
+	// i=0;
+	// error=-1;
+	// while((fp==NULL) && (i<TRYNUM)){
+	// 	fp=fopen(file_name,"rb+");
+	// 	perror("fopen: ");
+	// 	fflush(stderr);
+	// 	if(fp==NULL){
+	// 		if(i==TRYNUM-1){
+	// 			printf("Warning: Ana_Proc%d: Writer %d write empty file last_gen_rank=%d, blk_id=%d\n",
+	// 			    gv->rank[0], lv->tid, source, blk_id);
+	// 		  	fflush(stdout);
+	// 		}
+
+	// 	  i++;
+	// 	  usleep(OPEN_USLEEP);
+	// 	}
+	// }
+
+	// printf("Ana_writer: Pass open blk_id=%d\n", blk_id);
+	// fflush(stdout);
+	// fp=fopen(file_name,"rb+");
+	// perror("fopen");
+	// fflush(stderr);
+	//------------------------
+
+	offset = (long)blk_id * (long)gv->block_size;
+	// printf("offset=%ld, blk_id=%d, block_size=%d\n", offset, blk_id, gv->block_size);
+	// fflush(stdout);
+	// fseek(fp, offset, SEEK_SET);
+	// perror("fseek");
+	// fflush(stderr);
+	// i=0;
+	// error=-1;
 	while((error==-1) && (i<TRYNUM)){
 		error=fseek(fp, offset, SEEK_SET);
+		// perror("fseek: ");
+		// fflush(stderr);
+		// ferror(fp);
   		if(error==-1){
   			if(i==TRYNUM-1){
   				printf("Ana_Proc%d: Writer Fatal Error--fseek error block_id=%d, offset=%ld,*fp=%p\n",
@@ -105,14 +147,20 @@ void analysis_write_one_file(GV gv, LV lv, int source, int blk_id, char* buffer,
   				fflush(stdout);
   			}
   			i++;
-            usleep(100);
+            usleep(OPEN_USLEEP);
   		}
 	}
-
+	// printf("Ana_writer: Pass fseek blk_id=%d\n", blk_id);
+	// fflush(stdout);
 
 	t0 = get_cur_time();
 	error=fwrite(buffer, nbytes, 1, fp);
+	fwrite(buffer, nbytes, 1, fp);
+	// perror("fwrite");
+	// fflush(stderr);
+	// ferror(fp);
 	fflush(fp);
+	// fsync(fileno(fp));
 
 	if(error==0){
 		perror("Write error:");
@@ -121,6 +169,10 @@ void analysis_write_one_file(GV gv, LV lv, int source, int blk_id, char* buffer,
 
 	t1 = get_cur_time();
 	lv->only_fwrite_time += t1 - t0;
+
+	//------------------------
+	// fclose(fp);
+	// perror("fclose");
 }
 
 void analysis_writer_thread(GV gv, LV lv) {
@@ -168,6 +220,11 @@ void analysis_writer_thread(GV gv, LV lv) {
 #ifdef KEEP
 #ifdef WRITE_ONE_FILE
 					if(block_id>=0){
+#ifdef DEBUG_PRINT
+						printf("Ana_Proc%d: Writer%d ***ready to write*** write source=%d block_id=%d, my_count=%d\n",
+							gv->rank[0], lv->tid, source, block_id, my_count);
+						fflush(stdout);
+#endif //DEBUG_PRINT
 						analysis_write_one_file(gv, lv, source, block_id, pointer+sizeof(int)*4, gv->block_size, gv->ana_fp[source%gv->computer_group_size]);
 					}
 					else{
@@ -185,7 +242,7 @@ void analysis_writer_thread(GV gv, LV lv) {
 
 
 #ifdef DEBUG_PRINT
-					printf("Ana_Proc%d: Writer%d ***Prepare-Assign-State and Prepare to Sleep*** write source=%d block_id=%d, my_count=%d\n",
+					printf("Ana_Proc%d: Writer%d ***Prepare-Assign-State*** write source=%d block_id=%d, my_count=%d\n",
 						gv->rank[0], lv->tid, ((int*)pointer)[0], ((int*)pointer)[1], my_count);
 					fflush(stdout);
 #endif //DEBUG_PRINT

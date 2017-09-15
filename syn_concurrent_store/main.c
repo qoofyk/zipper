@@ -8,7 +8,7 @@ void comp_open_one_big_file(GV gv){
   sprintf(file_name, ADDRESS, gv->compute_process_num, gv->analysis_process_num, gv->rank[0], gv->rank[0]);
   // sprintf(file_name,"/var/tmp/exp2_file_blk%d.data",blk_id);
   while((gv->fp==NULL) && (i<TRYNUM)){
-    gv->fp=fopen(file_name,"wb+");
+    gv->fp=fopen(file_name,"wb");
 
     if(gv->fp==NULL){
       if(i==TRYNUM-1){
@@ -17,9 +17,12 @@ void comp_open_one_big_file(GV gv){
       }
 
       i++;
-      usleep(1000);
+      usleep(OPEN_USLEEP);
     }
   }
+
+  //-----------
+  // fclose(gv->fp);
 }
 #endif //WRITE_ONE_FILE
 
@@ -47,9 +50,12 @@ void ana_open_one_big_file(GV gv){
         }
 
         i++;
-        usleep(1000);
+        usleep(OPEN_USLEEP);
       }
     }
+
+    //-----------
+    // fclose(gv->ana_fp[j]);
 
   }
 }
@@ -208,6 +214,9 @@ PRODUCER_Ringbuffer %.3fGB, size=%d member\n",
 		MPI_Barrier(MPI_COMM_WORLD);
 #endif //WRITE_ONE_FILE
 
+		// printf("After comp open!\n");
+	 //    fflush(stdout);
+
 		//init lock
 		pthread_mutex_init(&gv->lock_block_id,NULL);
 	    pthread_mutex_init(&gv->lock_writer_progress, NULL);
@@ -297,6 +306,9 @@ CONSUMER_Ringbuffer %.3fGB, size=%d member\n",
 	    gv->recv_tail = 0;
 	    check_malloc(gv->prefetch_id_array);
 
+	    // printf("Before ana open!\n");
+	    // fflush(stdout);
+
 #ifdef WRITE_ONE_FILE
     //wait for compute_proc create big files
     MPI_Barrier(MPI_COMM_WORLD);
@@ -308,6 +320,9 @@ CONSUMER_Ringbuffer %.3fGB, size=%d member\n",
 
     ana_open_one_big_file(gv);
 #endif //WRITE_ONE_FILE
+
+    	// printf("After ana open!\n");
+	    // fflush(stdout);
 
 	    //initialize lock
 	    pthread_mutex_init(&gv->lock_recv, NULL);

@@ -14,6 +14,7 @@ Brief desc of the file: Header
 #include <unistd.h>
 #include <sys/types.h>
 #include <errno.h>
+#include <stdint.h>
 
 #ifdef ADD_PAPI
 #include <papi.h>
@@ -21,7 +22,12 @@ Brief desc of the file: Header
 #endif //ADD_PAPI
 
 #define PRODUCER_RINGBUFFER_TOTAL_MEMORY 512*1024*1024L //1G Byte, 512MB
-#define CONSUMER_RINGBUFFER_TOTAL_MEMORY 512*1024*1024L
+
+#ifdef CONSUMER_RB_1GB
+  #define CONSUMER_RINGBUFFER_TOTAL_MEMORY 1024*1024*1024L
+#else
+  #define CONSUMER_RINGBUFFER_TOTAL_MEMORY 512*1024*1024L
+#endif //CONSUMER_RB_1GB
 
 // #define DEBUG_PRINT
 // #define TOTAL_FILE2PRODUCE_1GB 1024*1024*1024L
@@ -29,20 +35,29 @@ Brief desc of the file: Header
 
 #ifdef COMET
 #ifdef WRITE_ONE_FILE
-    #define ADDRESS "/oasis/scratch/comet/qoofyk/temp_project/syn/%04dvs%04d/cid%04d/cid%04d"
+    #define ADDRESS "/oasis/scratch/comet/qoofyk/temp_project/syn/%04dv%04d/cid%04d/cid%04d"
 #else
-    #define ADDRESS "/oasis/scratch/comet/qoofyk/temp_project/syn/%04dvs%04d/cid%04d/cid%04dblk%d"
+    #define ADDRESS "/oasis/scratch/comet/qoofyk/temp_project/syn/%04dv%04d/cid%04d/cid%04dblk%d"
 #endif //WRITE_ONE_FILE
 #endif //COMET
 
 #ifdef BRIDGES
 #ifdef WRITE_ONE_FILE
-    #define ADDRESS "/pylon5/cc4s86p/qoofyk/syn/%04dvs%04d/cid%04d/cid%04d"
+    #define ADDRESS "/pylon5/cc4s86p/qoofyk/syn/%04dv%04d/cid%04d/cid%04d"
 #else
-    #define ADDRESS "/pylon5/cc4s86p/qoofyk/syn/%04dvs%04d/cid%04d/cid%04dblk%d"
+    #define ADDRESS "/pylon5/cc4s86p/qoofyk/syn/%04dv%04d/cid%04d/cid%04dblk%d"
 #endif //WRITE_ONE_FILE
+#define OPEN_USLEEP 100
 #endif //BRIDGES
 
+#ifdef BIGRED
+#ifdef WRITE_ONE_FILE
+    #define ADDRESS "/N/dc2/scratch/fuyuan/syn/%04dv%04d/cid%04d/lbm_cid%04d"
+#else
+    #define ADDRESS "/N/dc2/scratch/fuyuan/syn/%04dv%04d/cid%04d/lbm_cid%04dblk%d"
+#endif //WRITE_ONE_FILE
+#define OPEN_USLEEP 100
+#endif //BIGRED
 
 #define MPI_MSG_TAG 49
 #define MIX_MPI_DISK_TAG 50
@@ -56,7 +71,7 @@ Brief desc of the file: Header
 #define CALC_DONE 1
 
 #define CACHE 4
-#define TRYNUM 1000
+#define TRYNUM 10000
 
 #define WRITER_COUNT 2000
 #define ANALSIS_COUNT 1000
