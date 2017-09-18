@@ -2,6 +2,31 @@
 All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/) 
 and this project adheres to [Semantic Versioning](http://semver.org/).
+## Sep 18
+## experiment
+	1768693
+	with tau-enabled dspaces
+	traces/instructed_raw_dspaces..
+	are traces aligned?
+	
+	
+	1767680, with dspaces_origin built
+	raw dataspaces with lbm, to be checked
+	one trace per trace!(because I used the original dspaces built?)
+	traces/raw_dspaces_pro/consumer.slog2
+
+	1769997
+	minmax with 10 steps
+	traces/ex3_10_steps.slog2
+	bouned by consumer, as exepected.
+	two traces per proc
+
+## Sep 17
+	ldrdmacm libvers is required when building adios
+	adios recompile with adios is slow...
+	should try multiple steps with raw dspaces first..
+## Sep 15
+	see scripts_bridges/lbm_dataspace_nokeep_tau_8 for tau-attached jobs
 ## Sep 14
 	get the traces for dspaces, see dspaces_ex3.slog2 in my laptop, rank has
 	longest unlock_on_read time

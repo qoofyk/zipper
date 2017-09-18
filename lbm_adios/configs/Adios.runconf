@@ -39,12 +39,12 @@ if [ `hostname | cut -c 1-2` == "br" ]; then
         MPICXX=${myCXX} \
         MPIFC=${myFC} \
         CFLAGS="-g -O3 -fPIC"\
-        LIBS="-lpthread -lm" \
+        LIBS="-lrdmacm -libverbs -lpthread -lm" \
         --enable-dependency-tracking \
         --enable-timers \
         --disable-fortran \
         --disable-timer-events \
-        --with-dataspaces=${myDataspaces}\
+        --with-dataspaces=${myDataspaces} \
         --with-dimes=${myDataspaces}  \
         --with-flexpath=${HOME}/envs/Flexpath \
 
