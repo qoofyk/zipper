@@ -2,6 +2,47 @@
 All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/) 
 and this project adheres to [Semantic Versioning](http://semver.org/).
+## Sep 21
+	lbm_dataspaces
+	1781937
+		rerun with more debug info, see where is blocked.
+	1781839
+		still don't see the .bp file in scratch/ folder, reader cannot start
+	lbm_flexpath
+		1781891
+			try again if disable unset nnti
+			end2end 182s.
+		1781815
+			export CMTransport=nnti
+			consumer cannot find the bp file..
+			1. it's using the same interface with dspaces, try dspaces
+			2. unset nnti, try again?
+## Sep 20
+	evpath_mpi
+		1781308
+			unset CMTransport, ok, 
+		1781301
+			using ntti:
+				ERROR [setup_request_channel:nnti_ib.cpp:3919:t18760]:
+				ibv_create_comp_channel failed
+				ERROR [setup_data_channel:nnti_ib.cpp:3982:t18760]:
+				ibv_create_comp_channel failed
+
+		
+## Sep 19
+## experiment
+	1773803
+		1-lock-per-step with comm_world
+		second step is still slow.
+	1772582
+	run with  MPI_COMM_WORLD communicator
+	1771861
+	use 2-procs group in producer, 1-group in consumer
+	only run 5 steps of instructed dspaces
+	previous optimization on dspaces:
+		separate comunicators in consumer
+		2 ranks use same communicators
+		maxversion
 ## Sep 18
 ## experiment
 	1768693
@@ -9,10 +50,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 	traces/instructed_raw_dspaces..
 	are traces aligned?
 	
-	
 	1767680, with dspaces_origin built
 	raw dataspaces with lbm, to be checked
-	one trace per trace!(because I used the original dspaces built?)
+	one trace per proc!(because I used the original dspaces built?, dspaces is
+	not tau-instructed..))
 	traces/raw_dspaces_pro/consumer.slog2
 
 	1769997

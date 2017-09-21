@@ -159,15 +159,23 @@ int main (int argc, char ** argv)
         // 0:not used for strea; 1: must be set in stream
         adios_schedule_read (f, sel, "atom", 0, 1, data);
         t1 = get_cur_time();
+
         
         // block until read complete
         adios_perform_reads (f, 1);
+
+        if(rank ==0)
+            printf("    [DEBUG]:read is performed");
         t2 = get_cur_time();
         t_read_1 += t2-t1;
 
         adios_release_step(f);
         // advance to (1)the next availibale step (2)blocked if not unavailble
         adios_advance_step(f, 0, -1);
+
+        if(rank ==0)
+            printf("    [DEBUG]: advanced to next step in stream");
+        
         t3 = get_cur_time();
 
         t_read_2 += t3-t2;
@@ -213,7 +221,6 @@ int main (int argc, char ** argv)
         if(rank ==0)
             printf("rank %d: Step %d moments calculated, t_read %lf, t_advance %lf, t_analy %lf\n", rank, timestep, t2-t1, t3-t2, t4-t3);
         timestep ++;
-
     }
 
 #ifdef ENABLE_TIMING

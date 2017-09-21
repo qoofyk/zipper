@@ -1,5 +1,6 @@
 #include "ds_adaptor.h"
 //#define USE_SAME_LOCK
+#undef USE_SAME_LOCK
 
 #define debug_1
 void get_common_buffer(int timestep,int ndim, int bounds[6], int rank, MPI_Comm * p_gcomm,char * var_name, void **p_buffer,size_t elem_size, double *p_time_used){
@@ -34,8 +35,10 @@ void get_common_buffer(int timestep,int ndim, int bounds[6], int rank, MPI_Comm 
 
     char lock_name[STRING_LENGTH];
     int part = rank;
-    MPI_Comm row_comm = MPI_COMM_SELF;
+    //MPI_Comm row_comm = MPI_COMM_SELF;
     //MPI_Comm_split(MPI_COMM_WORLD, part, rank, &row_comm);
+    MPI_Comm row_comm = MPI_COMM_WORLD;
+
 
 #ifdef USE_SAME_LOCK
     snprintf(lock_name, STRING_LENGTH, "%s_lock", var_name);
@@ -128,8 +131,10 @@ void put_common_buffer(int timestep,int ndim, int bounds[6], int rank, MPI_Comm 
 
     char lock_name[STRING_LENGTH];
     unsigned int part = rank/2;
-    MPI_Comm row_comm;
-    MPI_Comm_split(MPI_COMM_WORLD, part, rank, &row_comm);
+    /*MPI_Comm row_comm;*/
+    /*MPI_Comm_split(MPI_COMM_WORLD, part, rank, &row_comm);*/
+
+    MPI_Comm row_comm = MPI_COMM_WORLD;
 
 #ifdef USE_SAME_LOCK
     snprintf(lock_name, STRING_LENGTH, "%s_lock", var_name);
@@ -190,7 +195,7 @@ void put_common_buffer(int timestep,int ndim, int bounds[6], int rank, MPI_Comm 
         my_message(msg, rank, LOG_WARNING);
     }
     *p_time_used = t2-t1;
-    MPI_Comm_free(&row_comm);
+    //MPI_Comm_free(&row_comm);
 }
 
 /*
