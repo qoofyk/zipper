@@ -1,9 +1,4 @@
-####################################################
-# common commands for all experiments
-
-
-BUILD_DIR=${PBS_O_WORKDIR}/build_${CASE_NAME}
-
+#################################################### # common commands for all experiments BUILD_DIR=${PBS_O_WORKDIR}/build_${CASE_NAME} 
 BIN_PRODUCER=${BUILD_DIR}/bin/run_lbm;
 BIN_CONSUMER=${BUILD_DIR}/bin/adios_read_global;
 
@@ -88,6 +83,7 @@ done
 
 #LAUNCHER="ibrun -v"
 LAUNCHER="mpirun_rsh"
+echo "use transport method $CMTransport with CMTransportVerbose=$CMTransportVerbose"
 
 ## Run DataSpaces servers
 CMD_SERVER="$LAUNCHER -hostfile $HOST_DIR/hostfile-server -n $PROCS_SERVER ${DS_SERVER} -s $PROCS_SERVER -c $DS_CLIENT_PROCS"

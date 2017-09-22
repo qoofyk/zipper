@@ -2,33 +2,15 @@
 All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/) 
 and this project adheres to [Semantic Versioning](http://semver.org/).
+TODO
+	1. nnti in flexpath
+	2. dspaces hanging
+	3. ENABLE_TESTING in flexpath conf
 ## Sep 21
-	lbm_dataspaces
-	1781937
-		rerun with more debug info, see where is blocked.
-	1781839
-		still don't see the .bp file in scratch/ folder, reader cannot start
-	lbm_flexpath
-		1781891
-			try again if disable unset nnti
-			end2end 182s.
-		1781815
-			export CMTransport=nnti
-			consumer cannot find the bp file..
-			1. it's using the same interface with dspaces, try dspaces
-			2. unset nnti, try again?
-## Sep 20
-	evpath_mpi
-		1781308
-			unset CMTransport, ok, 
-		1781301
-			using ntti:
-				ERROR [setup_request_channel:nnti_ib.cpp:3919:t18760]:
-				ibv_create_comp_channel failed
-				ERROR [setup_data_channel:nnti_ib.cpp:3982:t18760]:
-				ibv_create_comp_channel failed
-
-		
+	exp:
+		with CMTransportVerbose, evpath_mpi can give verbose output of
+		tranport method
+	
 ## Sep 19
 ## experiment
 	1773803
@@ -76,6 +58,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 	in ADIOS config.lifen.log, nnti??
 		FP_LIBS =  -levpath -lffs -latl -ldill -lcercs_env
+	Update: nnti is dynamically loaded using dlopen, see greg's email for more
+	details
 
 
 ## [0.3.0] Sep 13

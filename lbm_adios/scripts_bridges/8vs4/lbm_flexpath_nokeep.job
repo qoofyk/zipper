@@ -2,7 +2,7 @@
 #SBATCH --job-name="flexpath_nokeep"
 #SBATCH --output="results/%j.out"
 #SBATCH --partition=RM
-#SBATCH --nodes=4
+#SBATCH --nodes=3
 #SBATCH --ntasks-per-node=28
 #SBATCH --export=ALL
 #SBATCH -t 00:5:00
@@ -10,15 +10,11 @@
 #SBATCH --mail-type=BEGIN
 #SBATCH --mail-user=lifen@iupui.edu
 
-#This job runs with 2 nodes, 24 cores per node for a total of 48 cores.
-#ibrun in verbose mode will give binding detail ##################parameter setting#################
 CASE_NAME=flexpath_nokeep
 FILESIZE2PRODUCE=256 # 64*64*256*2*8 = 16MB per proc
 NSTOP=100 # how many steps
-PROCS_SERVER=1 # dspaces server
 PROCS_PRODUCER=8
 PROCS_CONSUMER=$((PROCS_PRODUCER/2))
-num_nodes_server=1
 num_nodes_app1=2
 num_nodes_app2=1
 
@@ -29,11 +25,73 @@ unset CMTransport
 echo "use transport method $CMTransport"
 
 ###################################################
-echo "case=$CASE_NAME datasize=$FILESIZE2PRODUCE nstops=$NSTOP procs_server=$PROCS_SERVER procs_producers=$PROCS_PRODUCER procs_consumer=$PROCS_CONSUMER"
+echo "case=$CASE_NAME datasize=$FILESIZE2PRODUCE nstops=$NSTOP procs_producers=$PROCS_PRODUCER procs_consumer=$PROCS_CONSUMER"
 
 PBS_O_HOME=$HOME
 PBS_O_WORKDIR=$(pwd)
 SCRATCH_DIR=/pylon5/cc4s86p/fli5/data_broker_adios/${SLURM_JOBID}
 
-source ${PBS_O_WORKDIR}/scripts_bridges/common.sh
+BUILD_DIR=${PBS_O_WORKDIR}/build_${CASE_NAME}
+
+BIN_PRODUCER=${BUILD_DIR}/bin/run_lbm;
+BIN_CONSUMER=${BUILD_DIR}/bin/adios_read_global;
+
+PBS_RESULTDIR=${SCRATCH_DIR}/results
+
+DS_CLIENT_PROCS=$((${PROCS_PRODUCER} + ${PROCS_CONSUMER}))
+
+echo "${DS_CLIENT_PROCS} clients, $PROCS_SERVER server"
+
+mkdir -pv ${PBS_RESULTDIR}
+mkdir -pv ${SCRATCH_DIR}
+cd ${SCRATCH_DIR}
+cp -R ${PBS_O_WORKDIR}/adios_xmls ${SCRATCH_DIR}
+
+
+# 64*64*256 will generate 1048576 lines
+DS_LIMIT=$((${FILESIZE2PRODUCE}*${FILESIZE2PRODUCE}*${FILESIZE2PRODUCE}*${PROCS_PRODUCER}/16)) # make sure dspaces can hold all data
+
+echo "total number of lines is $DS_LIMIT"
+
+HOST_DIR=$PBS_RESULTDIR/hosts
+mkdir -pv $HOST_DIR
+rm -f $HOST_DIR/hostfile*
+srun -o $HOST_DIR/hostfile-dup hostname
+nodes=(`cat $HOST_DIR/hostfile-dup | sort |uniq`)
+
+echo "${nodes[*]}" > $HOST_DIR/hostfile-all                                                                                                                                        
+idx=0
+# Put the first $num_nodes_app1 nodes to hostfile-app1
+#for i in {1..$num_nodes_app1}
+for ((i=0;i<$num_nodes_app1;i++))
+do
+    echo "${nodes[$idx]}" >> $HOST_DIR/hostfile-app1
+    echo "node in app1 +1"
+    let "idx=idx+1"
+done
+
+# Put the next $num_nodes_app2 nodes to hostfile-app2
+#for i in {1..$num_nodes_app2}
+for ((i=0;i<$num_nodes_app2;i++))
+do
+    echo "node in app2 +1"
+    echo "${nodes[$idx]}" >> $HOST_DIR/hostfile-app2
+    let "idx=idx+1"
+done
+
+
+LAUNCHER="mpirun_rsh"
+echo "use transport method $CMTransport with CMTransportVerbose=$CMTransportVerbose"
+
+CMD_PRODUCER="$LAUNCHER -hostfile $HOST_DIR/hostfile-app1 -n $PROCS_PRODUCER ${BIN_PRODUCER} ${NSTOP} ${FILESIZE2PRODUCE} ${SCRATCH_DIR}"
+$CMD_PRODUCER  &> ${PBS_RESULTDIR}/producer.log &
+echo "producer applciation lauched: $CMD_PRODUCER"
+
+CMD_CONSUMER="$LAUNCHER -hostfile $HOST_DIR/hostfile-app2 -n $PROCS_CONSUMER ${BIN_CONSUMER} ${SCRATCH_DIR}"
+$CMD_CONSUMER  &> ${PBS_RESULTDIR}/consumer.log &
+echo " consumer applciation lauched $CMD_CONSUMER"
+
+## Wait for the entire workflow to finish
+wait
+
 
