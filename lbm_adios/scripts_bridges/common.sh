@@ -1,4 +1,6 @@
-#################################################### # common commands for all experiments BUILD_DIR=${PBS_O_WORKDIR}/build_${CASE_NAME} 
+#################################################### 
+# common commands for all experiments 
+BUILD_DIR=${PBS_O_WORKDIR}/build_${CASE_NAME} 
 BIN_PRODUCER=${BUILD_DIR}/bin/run_lbm;
 BIN_CONSUMER=${BUILD_DIR}/bin/adios_read_global;
 
@@ -18,11 +20,9 @@ mkdir -pv ${SCRATCH_DIR}
 cd ${SCRATCH_DIR}
 cp -R ${PBS_O_WORKDIR}/adios_xmls ${SCRATCH_DIR}
 
-
-
-## Clean up
-rm -f conf *.log srv.lck
-rm -f dataspaces.conf
+## this is a clean working dir
+#rm -f conf *.log srv.lck
+#rm -f dataspaces.conf
 
 ## Create dataspaces configuration file
 # note that we now have 400 regions
@@ -30,6 +30,7 @@ rm -f dataspaces.conf
 #dims = 5, 300000, 10
 #dims = 2, 1500000, 1
 # 64*64*256 will generate 1048576 lines
+echo "total number of lines is being calculated"
 DS_LIMIT=$((${FILESIZE2PRODUCE}*${FILESIZE2PRODUCE}*${FILESIZE2PRODUCE}*${PROCS_PRODUCER}/16)) # make sure dspaces can hold all data
 
 echo "total number of lines is $DS_LIMIT"

@@ -70,7 +70,7 @@ void get_common_buffer(int timestep,int ndim, int bounds[6], int rank, MPI_Comm 
     t1 = MPI_Wtime();
 #ifdef RAW_DIMES
     ret_get = dimes_get(var_name, timestep, elem_size, ndim, lb, ub, *p_buffer);
-        calculation took more time?
+    //calculation took more time?
 #else
     ret_get = dspaces_get(var_name, timestep, elem_size, ndim, lb, ub, *p_buffer);
 //#else

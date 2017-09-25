@@ -6,6 +6,8 @@
 #SBATCH --ntasks-per-node=28
 #SBATCH --export=ALL
 #SBATCH -t 00:5:00
+#SBATCH --mail-type=BEGIN
+#SBATCH --mail-user=lifen@iupui.edu
 
 #This job runs with 2 nodes, 24 cores per node for a total of 48 cores.
 #ibrun in verbose mode will give binding detail ##################parameter setting#################
@@ -13,7 +15,7 @@ CASE_NAME=raw_dimes_nokeep
 #CASE_NAME=dataspaces_nokeep
 FILESIZE2PRODUCE=256 # 64*64*256*2*8 = 16MB per proc
 NSTOP=100 # how many steps
-PROCS_SERVER=1 # dspaces server
+PROCS_SERVER=4 # dspaces server
 PROCS_PRODUCER=8
 PROCS_CONSUMER=$((PROCS_PRODUCER/2))
 num_nodes_server=1

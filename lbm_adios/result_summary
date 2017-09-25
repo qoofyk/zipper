@@ -1,3 +1,20 @@
+## Sep 23
+    1793007
+        raw dimes with 4 server procs 
+    1790908
+        lbm adios nokeep
+## Sep 22
+    using adios 1.12 and new flexpath with version tag adios-1.12, without compression
+    1785704
+        using socket
+        194s
+    
+    1785702
+        using enet
+        303s
+    
+    
+
 ## Sep 21
 	evpath_mpi
 	1783440

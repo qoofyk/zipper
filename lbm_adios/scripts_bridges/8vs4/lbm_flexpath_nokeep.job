@@ -19,8 +19,8 @@ num_nodes_app1=2
 num_nodes_app2=1
 
 #export CMTransport=nnti
-export CMTransportVerbose=1
-#export CMTransport=errornnti
+#export CMTransportVerbose=1
+#export CMTransport=enet
 unset CMTransport
 echo "use transport method $CMTransport"
 

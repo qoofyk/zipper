@@ -1,7 +1,5 @@
 ####################################################
 # common commands for all experiments
-
-
 BUILD_DIR=${PBS_O_WORKDIR}/build_${CASE_NAME}
 
 BIN_PRODUCER=${BUILD_DIR}/bin/run_lbm;
@@ -11,7 +9,6 @@ BIN_CONSUMER=${BUILD_DIR}/bin/raw_dspaces_read;
 #ibrun in verbose mode will give binding detail  #BUILD=${PBS_O_WORKDIR}/build_dspaces/bin
 DS_SERVER=${PBS_O_HOME}/envs/Dataspacesroot/bin/dataspaces_server
 PBS_RESULTDIR=${SCRATCH_DIR}/results
-
 
 
 DS_CLIENT_PROCS=$((${PROCS_PRODUCER} + ${PROCS_CONSUMER}))

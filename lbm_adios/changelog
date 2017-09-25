@@ -3,10 +3,40 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/) 
 and this project adheres to [Semantic Versioning](http://semver.org/).
 TODO
-	1. nnti in flexpath
+	see github log
+	* redesigned flexpath
+	* new version of adios
+
+
+	0. use environment variable instead of preprocessor
+	1. nnti in flexpath, not usable.
 	2. dspaces hanging
-	3. ENABLE_TESTING in flexpath conf
+	3. ENABLE_TESTING in flexpath conf, enabled
+
+## Sep 25
+	
+
+## Sep 22
+	in evpath_mpi/results/socket.log & evpath_mpi/results/enet.log
+	enet also uses socket, I need to see how libsocket is implemented
+	-------------------------------
+	before meeting
+
+
+	NEW version of ADIOS add support for redesigned flexpath!
+	see changelog of adios-1-12: robust flexpath!
+	transpormation us sz!
+	if set flexpath version_tag = adios_1_12, nnti is no longer provided!
+
+	evpath/cmnnti.c
+
+	nnti/nnti.c available_tranport
+	nnti_ib.cpp:
+		setup_request_channel/setup_data_channel
+		ibv_create_comp_channel_wrapper
+		ibv_create_comp_channel
 ## Sep 21
+	enet: timeout
 	exp:
 		with CMTransportVerbose, evpath_mpi can give verbose output of
 		tranport method
