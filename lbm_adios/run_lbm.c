@@ -26,7 +26,6 @@ static size_t elem_size=sizeof(double);
 
 
 
-
 void run_lbm(char * filepath, int step_stop, int dims_cube[3], MPI_Comm *pcomm)
 {
 
