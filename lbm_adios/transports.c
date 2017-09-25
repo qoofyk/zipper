@@ -5,10 +5,10 @@ transport_method_t get_current_transport(){
     char * transport_string; //input from user
 
     /*
-     * default is adios-mpiio
+     * must define tranport method!
      */
-    major = ADIOS_DISK;
-    minor = MPIIO;
+    minor = MAJOR_NO_DEF ;
+    minor = MINOR_NO_DEF;
 
 
     /*

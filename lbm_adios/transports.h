@@ -48,9 +48,16 @@ typedef uint8_t transport_method_t;
 /*
  * @brief construct method using major and minor methods
  */
-static transport_method_t construct_method(uint8_t major, uint8_t minor ){
-    return (major<<4|minor);
-}
+#define construct_method(major, minor) \
+    (major<<4 | minor)
+
+
+#define get_major(method) \
+    (method >> 4)
+
+#define get_minor(method) \
+    (method & 0x0f)
+
 
 /*
  * @brief get current tranport method from environment variables

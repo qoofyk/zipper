@@ -5,23 +5,16 @@
 #include "adios_error.h"
 #include "ds_adaptor.h"
 
+#include "transports.h"
+static transport_method_t transport;
+
 #define debug
 
-#if defined(USE_MPIIO) || defined(USE_DATASPACES) || defined(USE_DIMES) ||defined(USE_FLEXPATH)
-#define USE_ADIOS
-#endif
-
-// define RAW_DSPACES
-
-
-#if defined(RAW_DSPACES) || defined(RAW_DIMES)
-#define RUTGERS
-#endif
-
-#ifdef RUTGERS
+/*
+ * Native staging need to use these
+ */
 static char var_name[STRING_LENGTH];
 static size_t elem_size=sizeof(double);
-#endif
     
 
 
@@ -1010,14 +1003,19 @@ void run_lbm(char * filepath, int step_stop, int dims_cube[3], MPI_Comm *pcomm)
         t7 = MPI_Wtime();
 		t_buffer+=t7-t6;
 
+
         
         /*******************************
          *          ADIOS              *
          *******************************/
         // n can be large (64*64*256)
-#ifdef USE_ADIOS
 
-#ifndef USE_MPIIO
+
+    uint8_t transport_major = get_major(transport);
+    uint8_t transport_minor = get_minor(transport);
+       
+
+    if(transport_major == ADIOS_STAGING){
         // for staging, each time write to same file
         //
         insert_into_adios(filepath, "atom",-1, n, SIZE_ONE , buffer,"w", &comm);
@@ -1030,7 +1028,8 @@ void run_lbm(char * filepath, int step_stop, int dims_cube[3], MPI_Comm *pcomm)
             insert_into_adios(filepath, "atom",-1, n, SIZE_ONE , buffer,"a", &comm);
         }
         */
-#else
+    }
+    else if(transport_major == ADIOS_DISK){
         // for mpiio, each time write different files
         insert_into_adios(filepath, "atom", step, n, SIZE_ONE , buffer,"w", &comm);
         /**** use index file to keep track of current step *****/
@@ -1064,10 +1063,9 @@ void run_lbm(char * filepath, int step_stop, int dims_cube[3], MPI_Comm *pcomm)
         }
         // wait until all process finish writes and 
         MPI_Barrier(comm);
-#endif
-#endif
+    }
 
-#ifdef RUTGERS
+    else if(transport_major == NATIVE_STAGING){
         int bounds[6] = {0};
         double time_comm;
 
@@ -1081,9 +1079,10 @@ void run_lbm(char * filepath, int step_stop, int dims_cube[3], MPI_Comm *pcomm)
         // ymax
         bounds[3]=1;
 
-        put_common_buffer(step,2, bounds,rank, &comm, var_name, (void **)&buffer, elem_size, &time_comm);
+        put_common_buffer(transport_minor, step,2, bounds,rank, &comm, var_name, (void **)&buffer, elem_size, &time_comm);
         t_put+=time_comm;
-#endif
+     }
+
         free(buffer);
 
 #ifdef ENABLE_TIMING
@@ -1157,35 +1156,50 @@ int main(int argc, char * argv[]){
   char nodename[256];
   int nodename_length;
     MPI_Get_processor_name(nodename, &nodename_length );
-    printf("%s:I am rank %d of %d\n",nodename, rank, nprocs);
+
+    /*
+     * get transport method from env variable
+     */
+    transport = get_current_transport();
+    uint8_t transport_major = get_major(transport);
+    uint8_t transport_minor = get_minor(transport);
+    printf("%s:I am rank %d of %d, tranport code %x-%x\n",
+            nodename, rank, nprocs,
+            get_major(transport), get_minor(transport) );
 
 
-#ifdef USE_ADIOS
-  char xmlfile[256], trans_method[256];
-#ifdef USE_MPIIO
-  strcpy(trans_method, "mpiio");
-#elif defined(USE_DATASPACES)
-  strcpy(trans_method, "dataspaces");
-#elif defined(USE_DIMES)
-  strcpy(trans_method, "dimes");
-#elif defined(USE_FLEXPATH)
-  strcpy(trans_method, "flexpath");
-#endif
-  sprintf(xmlfile,"adios_xmls/dbroker_%s.xml", trans_method);
-  //printf("rank %d, try to init with %s", rank, xmlfile);
-  if(adios_init (xmlfile, comm) != 0){
-    printf("ERROR: rank %d: adios init err with %s\n", rank, trans_method);
-    printf("ERR: %s", adios_get_last_errmsg());
-    return -1;
-  }
-  else{
-      //if(rank ==0)
-        printf("rank %d : adios init complete with %s\n", rank, trans_method);
-  }
-  MPI_Barrier(comm);
-#endif
+  if(transport_major == ADIOS_DISK || transport_major == ADIOS_STAGING){
 
-#ifdef RUTGERS
+      char xmlfile[256], trans_method[256];
+
+      if(transport_major == ADIOS_DISK){
+        strcpy(trans_method, "mpiio");
+      }
+      else{
+          if(transport_minor == DSPACES)
+               strcpy(trans_method, "dataspaces");
+          else if(transport_minor == DIMES)
+               strcpy(trans_method, "dimes");
+
+          else if(transport_minor == FLEXPATH)
+               strcpy(trans_method, "flexpath");
+      }
+
+      sprintf(xmlfile,"adios_xmls/dbroker_%s.xml", trans_method);
+      //printf("rank %d, try to init with %s", rank, xmlfile);
+      if(adios_init (xmlfile, comm) != 0){
+        printf("ERROR: rank %d: adios init err with %s\n", rank, trans_method);
+        printf("ERR: %s", adios_get_last_errmsg());
+        return -1;
+      }
+      else{
+          //if(rank ==0)
+            printf("rank %d : adios init complete with %s\n", rank, trans_method);
+      }
+      MPI_Barrier(comm);
+  } //use ADIOS_DISK or ADIOS_STAGING
+
+  else  if(transport_major == NATIVE_STAGING){
         char msg[STRING_LENGTH];
         int ret = -1;
         printf("trying init dspaces for %d process\n", nprocs);
@@ -1214,8 +1228,8 @@ int main(int argc, char * argv[]){
         //uint64_t gdims[2] = {2, n*nprocs};
         //dspaces_define_gdim(var_name, 2,gdims);
 //#endif
+   }
 
-#endif
 
 
   if(rank == 0 ){
@@ -1236,14 +1250,15 @@ int main(int argc, char * argv[]){
       printf("stat:Simulation stop at %lf \n", t_end);
   }
 
-#ifdef USE_ADIOS
+if(transport_major == ADIOS_DISK || transport_major == ADIOS_STAGING){
   adios_finalize (rank);
   printf("rank %d: adios finalize complete\n", rank); 
-#endif                                                      
+}
 
-#ifdef RUTGERS
+else if(transport_major == NATIVE_STAGING){
     dspaces_finalize();
-#endif
+}
+
   MPI_Finalize();
   printf("rank %d: exit\n", rank);
   return 0;

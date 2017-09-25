@@ -3,7 +3,7 @@
 #undef USE_SAME_LOCK
 
 #define debug_1
-void get_common_buffer(int timestep,int ndim, int bounds[6], int rank, MPI_Comm * p_gcomm,char * var_name, void **p_buffer,size_t elem_size, double *p_time_used){
+void get_common_buffer(uint8_t transport_minor,int timestep,int ndim, int bounds[6], int rank, MPI_Comm * p_gcomm,char * var_name, void **p_buffer,size_t elem_size, double *p_time_used){
 
     printf("\n ** prepare to get, ndim = %d\n", ndim);
     // how many number of elements are actually written
@@ -68,14 +68,15 @@ void get_common_buffer(int timestep,int ndim, int bounds[6], int rank, MPI_Comm 
 
     // read all regions in once
     t1 = MPI_Wtime();
-#ifdef RAW_DIMES
-    ret_get = dimes_get(var_name, timestep, elem_size, ndim, lb, ub, *p_buffer);
+    if(transport_minor == DIMES){
+        ret_get = dimes_get(var_name, timestep, elem_size, ndim, lb, ub, *p_buffer);
+    }
     //calculation took more time?
-#else
-    ret_get = dspaces_get(var_name, timestep, elem_size, ndim, lb, ub, *p_buffer);
+    else{
+        ret_get = dspaces_get(var_name, timestep, elem_size, ndim, lb, ub, *p_buffer);
+    }
 //#else
 //#error("either dspaces or dimes")
-#endif
     t2 = MPI_Wtime();
 
     sprintf(msg, "try to unlock the read lock %s for step %d", lock_name, timestep);
@@ -102,7 +103,7 @@ void get_common_buffer(int timestep,int ndim, int bounds[6], int rank, MPI_Comm 
     
 }
 
-void put_common_buffer(int timestep,int ndim, int bounds[6], int rank, MPI_Comm * p_gcomm,char * var_name, void  **p_buffer,size_t elem_size, double *p_time_used){
+void put_common_buffer(uint8_t transport_minor, int timestep,int ndim, int bounds[6], int rank, MPI_Comm * p_gcomm,char * var_name, void  **p_buffer,size_t elem_size, double *p_time_used){
 
     printf("\n ** prepare to put, ndim = %d\n", ndim);
     // how many number of elements are actually written
@@ -159,7 +160,7 @@ void put_common_buffer(int timestep,int ndim, int bounds[6], int rank, MPI_Comm 
 
     // write all data in once
     t1 = MPI_Wtime();
-#ifdef RAW_DIMES
+    if(transport_minor == DIMES){
     if(timestep%(DS_MAX_VERSION)==0 && timestep>0){
         // this will free  previous buffer
         dimes_put_sync_all();
@@ -167,11 +168,11 @@ void put_common_buffer(int timestep,int ndim, int bounds[6], int rank, MPI_Comm 
         my_message(msg, rank, LOG_WARNING);
     }
     ret_put = dimes_put(var_name, timestep, elem_size, ndim, lb, ub, *p_buffer);
-#else
+    }
+    else{
     ret_put = dspaces_put(var_name, timestep, elem_size, ndim, lb, ub, *p_buffer);
-//#else
-//#error("either dimes or dataspaces should be defined")
-#endif
+
+    }
     //int sync_ok = dspaces_put_sync();
     int sync_ok = 0;
     t2 = MPI_Wtime();

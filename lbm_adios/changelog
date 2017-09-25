@@ -14,6 +14,10 @@ TODO
 	3. ENABLE_TESTING in flexpath conf, enabled
 
 ## Sep 25
+	changes:
+		* add transports method, now differnet transport is chosen by
+		Environment Variables.
+		
 	
 
 ## Sep 22

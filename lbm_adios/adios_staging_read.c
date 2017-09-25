@@ -25,6 +25,9 @@
 #include "run_analysis.h"
 #include "adios_adaptor.h"
 #include "utility.h"
+#include <assert.h>
+#include "transports.h"
+static transport_method_t transport;
 
 //#define DEBUG_Feng
 
@@ -53,15 +56,6 @@ int main (int argc, char ** argv)
     int         rank, size;
     MPI_Comm    comm = MPI_COMM_WORLD;
 
-#if defined(USE_DATASPACES)
-    enum ADIOS_READ_METHOD method = ADIOS_READ_METHOD_DATASPACES;
-#elif defined(USE_DIMES)
-    enum ADIOS_READ_METHOD method = ADIOS_READ_METHOD_DIMES;
-#elif defined(USE_FLEXPATH)
-    enum ADIOS_READ_METHOD method = ADIOS_READ_METHOD_FLEXPATH;
-#else
-    enum ADIOS_READ_METHOD method = ADIOS_READ_METHOD_BP;
-#endif
     //enum ADIOS_READ_METHOD method = ADIOS_READ_METHOD_DIMES;
     //enum ADIOS_READ_METHOD method = ADIOS_READ_METHOD_BP;
     ADIOS_SELECTION * sel;
@@ -75,7 +69,30 @@ int main (int argc, char ** argv)
     char nodename[256];
     int nodename_length;
     MPI_Get_processor_name(nodename, &nodename_length );
-    printf("%s:I am rank %d of %d\n",nodename, rank, size);
+
+    /*
+     * get transport method
+     */
+    transport = get_current_transport();
+    uint8_t transport_major = get_major(transport);
+    uint8_t transport_minor = get_minor(transport);
+    printf("%s:I am rank %d of %d, tranport code %x-%x\n",
+            nodename, rank, size,
+            get_major(transport), get_minor(transport) );
+    assert(transport_major == ADIOS_STAGING);
+
+    enum ADIOS_READ_METHOD method;
+    if(transport_minor == DSPACES)
+        method = ADIOS_READ_METHOD_DATASPACES;
+
+    if(transport_minor == DIMES)
+        method = ADIOS_READ_METHOD_DIMES;
+
+    if(transport_minor == FLEXPATH)
+        method = ADIOS_READ_METHOD_FLEXPATH;
+    else{
+        method = ADIOS_READ_METHOD_BP;
+    }
 
 
     if(adios_read_init_method (method, comm, "verbose=3") !=0){

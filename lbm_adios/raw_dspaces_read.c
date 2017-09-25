@@ -27,6 +27,10 @@
 #include "run_analysis.h"
 #include "utility.h"
 #include "ds_adaptor.h"
+#include "assert.h"
+
+#include "transports.h"
+static transport_method_t transport;
 
 //#ifdef RAW_DSPACES
 static char var_name[STRING_LENGTH];
@@ -77,7 +81,18 @@ int main (int argc, char ** argv)
     char nodename[256];
     int nodename_length;
     MPI_Get_processor_name(nodename, &nodename_length );
-    printf("%s:I am rank %d of %d\n",nodename, rank, nprocs);
+
+    /*
+     * get transport method
+     */
+    transport = get_current_transport();
+    uint8_t transport_major = get_major(transport);
+    uint8_t transport_minor = get_minor(transport);
+    printf("%s:I am rank %d of %d, tranport code %x-%x\n",
+            nodename, rank, nprocs,
+            get_major(transport), get_minor(transport) );
+    assert(transport_major ==  NATIVE_STAGING);
+
 
     int timestep;
     
@@ -146,7 +161,7 @@ int main (int argc, char ** argv)
 
 //#ifdef RAW_DSPACES
         t1 =MPI_Wtime(); 
-        get_common_buffer(timestep,2, bounds,rank, &comm, var_name, (void **)&data, elem_size, &time_comm);
+        get_common_buffer(transport_minor, timestep,2, bounds,rank, &comm, var_name, (void **)&data, elem_size, &time_comm);
         t2 =MPI_Wtime(); 
         // all time spent by get_common_buffer
         t_read_1 += t2-t1;

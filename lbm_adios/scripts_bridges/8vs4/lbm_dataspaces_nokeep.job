@@ -30,6 +30,8 @@ PBS_O_HOME=$HOME
 PBS_O_WORKDIR=$(pwd)
 SCRATCH_DIR=/pylon5/cc4s86p/fli5/data_broker_adios/${SLURM_JOBID}
 
+export Transport=ADIOS_STAGING_DSPACES
+
 source ${PBS_O_WORKDIR}/scripts_bridges/common.sh
 
 

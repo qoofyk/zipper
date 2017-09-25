@@ -1,6 +1,6 @@
 ####################################################
 # common commands for all experiments
-BUILD_DIR=${PBS_O_WORKDIR}/build_${CASE_NAME}
+BUILD_DIR=${PBS_O_WORKDIR}/build
 
 BIN_PRODUCER=${BUILD_DIR}/bin/run_lbm;
 BIN_CONSUMER=${BUILD_DIR}/bin/raw_dspaces_read;
