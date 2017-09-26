@@ -163,23 +163,29 @@ void put_common_buffer(uint8_t transport_minor, int timestep,int ndim, int bound
     sprintf(msg, "get the write lock %s for step %d", lock_name, timestep);
     my_message(msg, rank, LOG_WARNING);
 
+    int sync_ok = -1;
+
     // write all data in once
     t1 = MPI_Wtime();
     if(transport_minor == DIMES){
-    if(timestep%(DS_MAX_VERSION)==0 && timestep>0){
-        // this will free  previous buffer
-        dimes_put_sync_all();
-        sprintf(msg, "freed tmp buffer at step at step %d", timestep);
-        my_message(msg, rank, LOG_WARNING);
-    }
-    ret_put = dimes_put(var_name, timestep, elem_size, ndim, lb, ub, *p_buffer);
+        //if(timestep%(DS_MAX_VERSION)==0 && timestep>0){
+            // this will free  previous buffer
+            sync_ok = dimes_put_sync_all();
+            if(sync_ok != 0){
+                perror("put err:");
+                exit(-1);
+            }
+
+            sprintf(msg, "freed tmp buffer at step at step %d", timestep);
+            my_message(msg, rank, LOG_WARNING);
+        //}
+        ret_put = dimes_put(var_name, timestep, elem_size, ndim, lb, ub, *p_buffer);
     }
     else{
-    ret_put = dspaces_put(var_name, timestep, elem_size, ndim, lb, ub, *p_buffer);
+        ret_put = dspaces_put(var_name, timestep, elem_size, ndim, lb, ub, *p_buffer);
+
 
     }
-    //int sync_ok = dspaces_put_sync();
-    int sync_ok = 0;
     t2 = MPI_Wtime();
 
     // now we can release region lock
@@ -190,10 +196,6 @@ void put_common_buffer(uint8_t transport_minor, int timestep,int ndim, int bound
     if(ret_put != 0){
         perror("put err:");
         printf("put varaible %s err,  error number %d \n", var_name, ret_put);
-        exit(-1);
-    }
-    else if(sync_ok != 0){
-        perror("put err:");
         exit(-1);
     }
     else{

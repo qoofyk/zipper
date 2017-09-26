@@ -1,8 +1,25 @@
+## Sep 26
+    Jobs
+    1796902,dimess with flushing last step 
+        now raw dimes can run
+    1798500, 
+        evpath_mpi with infiniband ip address, see verbose log
 ## Sep 25
-# JOBS
-       
-    1794909
-    flexpath with new code organization
+    rerun 8 vs 4 JOBS:
+        1795474
+            lbm_mpiio.job
+        1795473
+           raw_dimes_nokeep.job
+            removew syncall , see results, 1796646
+
+        1795472
+            raw_dspaces_nokeep.job
+        1795471
+            lbm_dimes_nokeep.job
+        1795469
+            lbm_dataspaces_nokeep(4 server, single lock)
+        1795468, correct
+            lbm_flexpath_nokeep(4 server, single lock)
 ## Sep 23
     1793007
         raw dimes with 4 server procs 
@@ -18,10 +35,10 @@
         using enet
         303s
     
-    
-
 ## Sep 21
 	evpath_mpi
+    1798300
+        Sep 26, launch with mpirun_rsh
 	1783440
 		with nnti, with VERBOSE info
 		

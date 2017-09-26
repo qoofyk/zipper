@@ -69,6 +69,13 @@ void run_lbm(char * filepath, int step_stop, int dims_cube[3], MPI_Comm *pcomm)
 		int errorcode;
 
 
+        /*
+         * get transport method
+         */
+        uint8_t transport_major = get_major(transport);
+        uint8_t transport_minor = get_minor(transport);
+
+
 		n1=nx-1;/* n1,n2,n3 are the last indice in arrays*/
 		n2=ny-1;
 		n3=nz-1;
@@ -1011,8 +1018,6 @@ void run_lbm(char * filepath, int step_stop, int dims_cube[3], MPI_Comm *pcomm)
         // n can be large (64*64*256)
 
 
-    uint8_t transport_major = get_major(transport);
-    uint8_t transport_minor = get_minor(transport);
        
 
     if(transport_major == ADIOS_STAGING){
@@ -1080,6 +1085,8 @@ void run_lbm(char * filepath, int step_stop, int dims_cube[3], MPI_Comm *pcomm)
         bounds[3]=1;
 
         put_common_buffer(transport_minor, step,2, bounds,rank , var_name, (void **)&buffer, elem_size, &time_comm);
+        
+
         t_put+=time_comm;
      }
 
@@ -1112,6 +1119,19 @@ void run_lbm(char * filepath, int step_stop, int dims_cube[3], MPI_Comm *pcomm)
 
 
 		}  /* end of while loop */
+
+/*
+         * dimes needs to flush last step
+         */
+        if(transport_minor == DIMES){
+            char lock_name[STRING_LENGTH];
+            snprintf(lock_name, STRING_LENGTH, "%s_lock", var_name);
+            dspaces_lock_on_write(lock_name, &comm);
+            dimes_put_sync_all();
+            dspaces_unlock_on_write(lock_name, &comm);
+            printf("rank %d: step %d last step flushed\n", rank, step);
+
+        }
 
         double global_t_cal=0;
         double global_t_write=0;
