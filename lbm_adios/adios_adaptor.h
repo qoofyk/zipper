@@ -1,3 +1,7 @@
+/*
+ * @author Feng Li, IUPUI
+ * @date   2017
+ */
 #ifndef ADIOS_ADAPTOR_H
 #define ADIOS_ADAPTOR_H
 #ifdef __cplusplus

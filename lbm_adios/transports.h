@@ -19,7 +19,7 @@
  * To select different transport method, set environment method, such as
  *  * export Tranport=NATIVE_STAGING_DSPACES
  *
- * ff will returned for unsuported method
+ * 0xff will returned for unsuported method
  */
 
 
@@ -34,10 +34,10 @@
 /*
  * minor method
  */
-#define MPIIO (0)
-#define DSPACES (1)
-#define DIMES (2)
-#define FLEXPATH (3)
+#define DSPACES (0)
+#define DIMES (1)
+#define FLEXPATH (2)
+#define MPIIO (3)
 #define MINOR_NO_DEF (0xff)
 
 /*

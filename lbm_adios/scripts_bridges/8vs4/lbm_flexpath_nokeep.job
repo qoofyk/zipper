@@ -31,7 +31,7 @@ PBS_O_HOME=$HOME
 PBS_O_WORKDIR=$(pwd)
 SCRATCH_DIR=/pylon5/cc4s86p/fli5/data_broker_adios/${SLURM_JOBID}
 
-export Transport=ADIOS_STAGING_FLEXPATH
+export MyTransport=ADIOS_STAGING_FLEXPATH
 BUILD_DIR=${PBS_O_WORKDIR}/build
 
 BIN_PRODUCER=${BUILD_DIR}/bin/run_lbm;
@@ -84,11 +84,11 @@ done
 LAUNCHER="mpirun_rsh"
 echo "use transport method $CMTransport with CMTransportVerbose=$CMTransportVerbose"
 
-CMD_PRODUCER="$LAUNCHER -hostfile $HOST_DIR/hostfile-app1 -n $PROCS_PRODUCER ${BIN_PRODUCER} ${NSTOP} ${FILESIZE2PRODUCE} ${SCRATCH_DIR}"
+CMD_PRODUCER="$LAUNCHER -export -hostfile $HOST_DIR/hostfile-app1 -n $PROCS_PRODUCER  ${BIN_PRODUCER} ${NSTOP} ${FILESIZE2PRODUCE} ${SCRATCH_DIR}"
 $CMD_PRODUCER  &> ${PBS_RESULTDIR}/producer.log &
 echo "producer applciation lauched: $CMD_PRODUCER"
 
-CMD_CONSUMER="$LAUNCHER -hostfile $HOST_DIR/hostfile-app2 -n $PROCS_CONSUMER ${BIN_CONSUMER} ${SCRATCH_DIR}"
+CMD_CONSUMER="$LAUNCHER -export -hostfile $HOST_DIR/hostfile-app2 -n $PROCS_CONSUMER  ${BIN_CONSUMER} ${SCRATCH_DIR}"
 $CMD_CONSUMER  &> ${PBS_RESULTDIR}/consumer.log &
 echo " consumer applciation lauched $CMD_CONSUMER"
 

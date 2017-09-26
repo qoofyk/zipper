@@ -1,3 +1,9 @@
+/*
+ * @brief simple dspaces/dimes wrapper 
+ *
+ * @author Feng Li, IUPUI
+ * @date   2017
+ */
 
 #ifdef __cplusplus
 extern "C" {
@@ -18,25 +24,35 @@ extern "C" {
 //#include <mpi.h>
 
 /*
- * read raw velocity and pres buffer from dataspaces
- * INPUT:
- *  timestep:
- *      int
- *  extra_info
- *      dimension info
- *  rank
- *  p_gcomm, var_name_vel,_var_name_pres
- *      required by dsput
+ * @brief get data from dspaces/dimes
  *
- * OUTPUT
- *  p_buffer
- *      receiving buffer
+ * @param transport_minor   tranport methid, 0 for dspaces, 1 for dimes
+ * @param timestep  current timstep
+ * @param ndim      number of dimensions
+ * @param bounds    boundry in each dimension
+ * @param rank      rank of current proc
+ * @param var_name  variable name 
+ * @param p_buffer  data buffer
+ * @param elem_size element size
+ * @param p_time_used timer
+ */
+void get_common_buffer(uint8_t transport_minor, int timestep,int ndim, int bounds[6], int rank, char * var_name, void **p_buffer,size_t elem_size, double *p_time_used);
+ 
+/*
+ * @brief put data to dspaces/dimes
+ *
+ * @param transport_minor   tranport methid, 0 for dspaces, 1 for dimes
+ * @param timestep  current timstep
+ * @param ndim      number of dimensions
+ * @param bounds    boundry in each dimension
+ * @param rank      rank of current proc
+ * @param var_name  variable name 
+ * @param p_buffer  data buffer
+ * @param elem_size element size
+ * @param p_time_used timer
  */
 
-// this will get all vel and pres data
-void get_common_buffer(uint8_t transport_minor, int timestep,int ndim, int bounds[6], int rank, MPI_Comm * p_gcomm,char * var_name, void **p_buffer,size_t elem_size, double *p_time_used);
- 
-void put_common_buffer(uint8_t transport_minor, int timestep, int ndim, int bounds[6], int rank, MPI_Comm * p_gcomm,char * var_name, void **p_buffer,size_t elem_size, double *p_time_used);
+void put_common_buffer(uint8_t transport_minor, int timestep, int ndim, int bounds[6], int rank, char * var_name, void **p_buffer,size_t elem_size, double *p_time_used);
 
 //void get_common_buffer_unblocking(int timestep,int ndim, int bounds[6], int rank, MPI_Comm * p_gcomm,char * var_name, void **p_buffer,size_t elem_size, double *p_time_used);
 

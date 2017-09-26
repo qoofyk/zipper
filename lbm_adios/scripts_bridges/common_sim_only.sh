@@ -42,7 +42,7 @@ done
 #LAUNCHER="ibrun -v"
 LAUNCHER="mpirun_rsh"
 
-CMD_PRODUCER="$LAUNCHER -hostfile $HOST_DIR/hostfile-app1 -n $PROCS_PRODUCER ${BIN_PRODUCER} ${NSTOP} ${FILESIZE2PRODUCE} ${SCRATCH_DIR}"
+CMD_PRODUCER="$LAUNCHER -export -hostfile $HOST_DIR/hostfile-app1 -n $PROCS_PRODUCER ${BIN_PRODUCER} ${NSTOP} ${FILESIZE2PRODUCE} ${SCRATCH_DIR}"
 $CMD_PRODUCER  &> ${PBS_RESULTDIR}/producer.log &
 echo "producer applciation lauched: $CMD_PRODUCER"
 

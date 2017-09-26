@@ -1,3 +1,8 @@
+/*
+ * @author Feng Li, IUPUI
+ * @date   2017
+ */
+
 #ifndef UTILITY_H
 #define UTILITY_H
 

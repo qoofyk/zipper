@@ -17,6 +17,13 @@ TODO
 	changes:
 		* add transports method, now differnet transport is chosen by
 		Environment Variables.
+	
+	experiment:
+		each node has 14 proccess
+		
+		56 nodes for producer
+		28 nodes for consumer
+
 		
 	
 

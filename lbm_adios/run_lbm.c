@@ -1079,7 +1079,7 @@ void run_lbm(char * filepath, int step_stop, int dims_cube[3], MPI_Comm *pcomm)
         // ymax
         bounds[3]=1;
 
-        put_common_buffer(transport_minor, step,2, bounds,rank, &comm, var_name, (void **)&buffer, elem_size, &time_comm);
+        put_common_buffer(transport_minor, step,2, bounds,rank , var_name, (void **)&buffer, elem_size, &time_comm);
         t_put+=time_comm;
      }
 

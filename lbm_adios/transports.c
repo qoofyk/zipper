@@ -1,3 +1,7 @@
+/*
+ * @author Feng Li, IUPUI
+ * @date   2017
+ */
 #include "transports.h"
 
 transport_method_t get_current_transport(){
@@ -10,11 +14,10 @@ transport_method_t get_current_transport(){
     minor = MAJOR_NO_DEF ;
     minor = MINOR_NO_DEF;
 
-
     /*
      * get the configuration from environment variable
      */
-    if((transport_string = getenv("Transport")) != NULL){
+    if((transport_string = getenv("MyTransport")) != NULL){
         printf("get string %s\n", transport_string);
         /*
          * adios-mpiio

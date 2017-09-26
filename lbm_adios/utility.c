@@ -1,3 +1,7 @@
+/*
+ * @author Feng Li, IUPUI
+ * @date   2017
+ */
 #include "utility.h"
 double get_cur_time() {
   struct timeval   tv;
