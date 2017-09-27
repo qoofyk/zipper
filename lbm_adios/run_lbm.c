@@ -1206,10 +1206,10 @@ int main(int argc, char * argv[]){
       }
 
       sprintf(xmlfile,"adios_xmls/dbroker_%s.xml", trans_method);
-      //printf("rank %d, try to init with %s", rank, xmlfile);
+      printf("[r%d] try to init with %s\n", rank, xmlfile);
       if(adios_init (xmlfile, comm) != 0){
-        printf("ERROR: rank %d: adios init err with %s\n", rank, trans_method);
-        printf("ERR: %s", adios_get_last_errmsg());
+        printf("[r%d] ERROR: adios init err with %s\n", rank, trans_method);
+        printf("[r%d] ERR: %s\n", rank, adios_get_last_errmsg());
         return -1;
       }
       else{

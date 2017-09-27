@@ -17,6 +17,7 @@ TODO
 	dimes:
 		sync before each step,
 		also sync after the last step
+		1798513: native dimes has 63.43 s for 100 steps!, fastest transport
 ## Sep 25
 	changes:
 		* add transports method, now differnet transport is chosen by

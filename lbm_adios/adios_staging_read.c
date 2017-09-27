@@ -85,10 +85,10 @@ int main (int argc, char ** argv)
     if(transport_minor == DSPACES)
         method = ADIOS_READ_METHOD_DATASPACES;
 
-    if(transport_minor == DIMES)
+    else if(transport_minor == DIMES)
         method = ADIOS_READ_METHOD_DIMES;
 
-    if(transport_minor == FLEXPATH)
+    else if(transport_minor == FLEXPATH)
         method = ADIOS_READ_METHOD_FLEXPATH;
     else{
         method = ADIOS_READ_METHOD_BP;

@@ -1,9 +1,22 @@
+## Sep 27
+    jobs
+    1800352
+        lbm_dspaces
+    1800354
+        lbm_dimes
+    1799627
+    see why adios dspaces/dimes not initialzed, else if !
 ## Sep 26
     Jobs
-    1796902,dimess with flushing last step 
-        now raw dimes can run
+    1798513
+        dimes with 100 steps, 63.4s!
     1798500, 
         evpath_mpi with infiniband ip address, see verbose log
+        seems like mpirun_rsh will automatically choose infiniband,
+        getent will show ipaddress 
+
+    1796902,dimess with flushing last step , small test with 10 steps
+        now raw dimes can run
 ## Sep 25
     rerun 8 vs 4 JOBS:
         1795474
@@ -11,7 +24,6 @@
         1795473
            raw_dimes_nokeep.job
             removew syncall , see results, 1796646
-
         1795472
             raw_dspaces_nokeep.job
         1795471

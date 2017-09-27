@@ -12,7 +12,6 @@
 #This job runs with 2 nodes, 24 cores per node for a total of 48 cores.
 #ibrun in verbose mode will give binding detail ##################parameter setting#################
 CASE_NAME=raw_dspaces_nokeep
-#CASE_NAME=dataspaces_nokeep
 FILESIZE2PRODUCE=256 # 64*64*256*2*8 = 16MB per proc
 NSTOP=100 # how many steps
 PROCS_SERVER=4 # dspaces server
