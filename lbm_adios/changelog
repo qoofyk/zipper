@@ -13,6 +13,10 @@ TODO
 	2. dspaces hanging
 	3. ENABLE_TESTING in flexpath conf, enabled
 
+## Sep 27
+	changes: 
+		filename(scripts scripts and reader name
+	fixing: adios reader initialization
 ## Sep 26
 	dimes:
 		sync before each step,

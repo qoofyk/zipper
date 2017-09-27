@@ -2,7 +2,7 @@
 BUILD_DIR=${PBS_O_WORKDIR}/build
 
 BIN_PRODUCER=${BUILD_DIR}/bin/run_lbm;
-BIN_CONSUMER=${BUILD_DIR}/bin/mpiio_read;
+BIN_CONSUMER=${BUILD_DIR}/bin/adios_disk_read;
 
 #This job runs with 3 nodes  
 #ibrun in verbose mode will give binding detail  

@@ -32,14 +32,14 @@ find_library(CERCS_ENV cercs_env ${FLEXPATH_DIR}/lib)
 #include_directories("${CMAKE_SOURCE_DIR}/src")     
 
 add_executable(run_lbm run_lbm.c adios_adaptor.c utility.c adios_adaptor.c ds_adaptor.c transports.c)
-add_executable(adios_read_global adios_staging_read.c run_analysis.c adios_adaptor.c utility.c transports.c)
-add_executable(mpiio_read adios_mpiio_read.c run_analysis.c adios_adaptor.c utility.c transports.c)
+add_executable(adios_staging_read adios_staging_read.c run_analysis.c adios_adaptor.c utility.c transports.c)
+add_executable(adios_disk_read adios_disk_read.c run_analysis.c adios_adaptor.c utility.c transports.c)
 
-add_executable(raw_dspaces_read raw_dspaces_read.c run_analysis.c adios_adaptor.c utility.c ds_adaptor.c transports.c)
+add_executable(native_staging_read native_staging_read.c run_analysis.c adios_adaptor.c utility.c ds_adaptor.c transports.c)
 #add_executable(adios_read_global adios_mpiio_read.c run_analysis.c adios_adaptor.c)
 # add_executable(adios_write_global adios_write_global.c)
 
-SET(myTARGET run_lbm adios_read_global mpiio_read raw_dspaces_read)
+SET(myTARGET run_lbm adios_staging_read adios_disk_read native_staging_read)
 foreach(item ${myTARGET})
     target_link_libraries(${item} ${ADIOS} ${DSPACES} ${DSCOMMON} ${DART} ${EVPATH} ${FFS} ${ATL} ${DILL} ${CERCS_ENV})
     target_link_libraries(${item} ${MPI_LIBRARIES} pthread rt rdmacm ibverbs m)

@@ -35,7 +35,7 @@ export MyTransport=ADIOS_STAGING_FLEXPATH
 BUILD_DIR=${PBS_O_WORKDIR}/build
 
 BIN_PRODUCER=${BUILD_DIR}/bin/run_lbm;
-BIN_CONSUMER=${BUILD_DIR}/bin/adios_read_global;
+BIN_CONSUMER=${BUILD_DIR}/bin/adios_staging_read;
 
 PBS_RESULTDIR=${SCRATCH_DIR}/results
 

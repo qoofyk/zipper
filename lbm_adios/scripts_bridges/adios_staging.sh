@@ -4,7 +4,7 @@
 BUILD_DIR=${PBS_O_WORKDIR}/build
 
 BIN_PRODUCER=${BUILD_DIR}/bin/run_lbm;
-BIN_CONSUMER=${BUILD_DIR}/bin/adios_read_global;
+BIN_CONSUMER=${BUILD_DIR}/bin/adios_staging_read;
 
 #This job runs with 3 nodes  
 #ibrun in verbose mode will give binding detail  #BUILD=${PBS_O_WORKDIR}/build_dspaces/bin
