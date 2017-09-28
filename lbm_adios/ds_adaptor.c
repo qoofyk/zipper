@@ -4,8 +4,10 @@
  */
 
 #include "ds_adaptor.h"
+#include "utility.h"
 #define USE_SAME_LOCK
 //#undef USE_SAME_LOCK
+extern const int MY_LOGGER;
 
 #define debug_1
 void get_common_buffer(uint8_t transport_minor,int timestep,int ndim, int bounds[6], int rank, char * var_name, void **p_buffer,size_t elem_size, double *p_time_used){
@@ -56,20 +58,12 @@ void get_common_buffer(uint8_t transport_minor,int timestep,int ndim, int bounds
     printf("lb: (%d, %d  %d), hb(%d, %d, %d), elem_size %zu bytes\n", bounds[0], bounds[1], bounds[2], bounds[3], bounds[4], bounds[5], elem_size);
 #endif
 
-    sprintf(msg, "try to acquired the read lock %s for step %d", lock_name, timestep);
-    my_message(msg, rank, LOG_WARNING);
+    clog_debug(CLOG(MY_LOGGER), "try to acquired the read lock %s for step %d", lock_name, timestep);
 
-    /*
-    if(rank ==0){
-        sleep(3);
-    sprintf(msg, "sleep for 3s");
-    my_message(msg, rank, LOG_WARNING);
-    }
-    */
+    
     dspaces_lock_on_read(lock_name, &row_comm);
 
-    sprintf(msg, "get the read lock %s for step %d", lock_name, timestep);
-    my_message(msg, rank, LOG_WARNING);
+    clog_debug(CLOG(MY_LOGGER), "get the read lock %s for step %d", lock_name, timestep);
 
     // read all regions in once
     t1 = MPI_Wtime();
@@ -84,23 +78,19 @@ void get_common_buffer(uint8_t transport_minor,int timestep,int ndim, int bounds
 //#error("either dspaces or dimes")
     t2 = MPI_Wtime();
 
-    sprintf(msg, "try to unlock the read lock %s for step %d", lock_name, timestep);
-    my_message(msg, rank, LOG_WARNING);
+    clog_debug(CLOG(MY_LOGGER), "try to unlock the read lock %s for step %d", lock_name, timestep);
 
 
     // now we can release region lock
     dspaces_unlock_on_read(lock_name, &row_comm);
-    sprintf(msg, "release the read lock %s for step %d ", lock_name, timestep);
-    my_message(msg, rank, LOG_WARNING);
+    clog_debug(CLOG(MY_LOGGER), "release the read lock %s for step %d ", lock_name, timestep);
 
     if(ret_get != 0){
 
-        sprintf(msg, "get varaible %s err in step %d ,  error number %d \n", var_name, timestep, ret_get);
-        my_message(msg, rank, LOG_WARNING);
+        clog_debug(CLOG(MY_LOGGER), "get varaible %s err in step %d ,  error number %d \n", var_name, timestep, ret_get);
         exit(-1);
     }else{
-        sprintf(msg, "read %d elem from dspaces, each has %zu bytes", num_points, elem_size);
-        my_message(msg, rank, LOG_WARNING);
+        clog_debug(CLOG(MY_LOGGER), "read %d elem from dspaces, each has %zu bytes", num_points, elem_size);
     }
 
     *p_time_used = t2-t1;
@@ -153,15 +143,13 @@ void put_common_buffer(uint8_t transport_minor, int timestep,int ndim, int bound
     printf("lb: (%d, %d  %d), hb(%d, %d, %d), elem_size %zu bytes\n", bounds[0], bounds[1], bounds[2], bounds[3], bounds[4], bounds[5], elem_size);
 #endif
 
-    sprintf(msg, "try to acquired the write lock %s for step %d", lock_name, timestep);
-    my_message(msg, rank, LOG_WARNING);
+    clog_debug(CLOG(MY_LOGGER), "try to acquired the write lock %s for step %d", lock_name, timestep);
 
     dspaces_lock_on_write(lock_name, &row_comm);
 
     
 
-    sprintf(msg, "get the write lock %s for step %d", lock_name, timestep);
-    my_message(msg, rank, LOG_WARNING);
+    clog_debug(CLOG(MY_LOGGER), "get the write lock %s for step %d", lock_name, timestep);
 
     int sync_ok = -1;
 
@@ -176,8 +164,7 @@ void put_common_buffer(uint8_t transport_minor, int timestep,int ndim, int bound
                 exit(-1);
             }
 
-            sprintf(msg, "freed tmp buffer at step at step %d", timestep);
-            my_message(msg, rank, LOG_WARNING);
+            clog_debug(CLOG(MY_LOGGER), "freed tmp buffer at step at step %d", timestep);
         //}
         ret_put = dimes_put(var_name, timestep, elem_size, ndim, lb, ub, *p_buffer);
     }
@@ -190,8 +177,7 @@ void put_common_buffer(uint8_t transport_minor, int timestep,int ndim, int bound
 
     // now we can release region lock
     dspaces_unlock_on_write(lock_name, &row_comm);
-    sprintf(msg, "release the write lock %s for step %d ", lock_name, timestep);
-    my_message(msg, rank, LOG_WARNING);
+    clog_debug(CLOG(MY_LOGGER), "release the write lock %s for step %d ", lock_name, timestep);
 
     if(ret_put != 0){
         perror("put err:");
@@ -199,8 +185,7 @@ void put_common_buffer(uint8_t transport_minor, int timestep,int ndim, int bound
         exit(-1);
     }
     else{
-        sprintf(msg, "write %d elem to dspaces, each has %zu bytes", num_points, elem_size);
-        my_message(msg, rank, LOG_WARNING);
+        clog_debug(CLOG(MY_LOGGER), "write %d elem to dspaces, each has %zu bytes", num_points, elem_size);
     }
     *p_time_used = t2-t1;
     //MPI_Comm_free(&row_comm);

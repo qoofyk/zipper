@@ -8,7 +8,7 @@ add_definitions ("-DENABLE_TIMING -Wall -Wextra")
 #add_definitions ("-DUSE_DIMES -DENABLE_TIMING -Wall -Wextra")
 #add_definitions ("-DUSE_DIMES -DHAS_KEEP -DENABLE_TIMING -Wall -Wextra") 
 find_package(MPI REQUIRED)
-include_directories(${MPI_INCLUDE_PATH})
+include_directories(${MPI_INCLUDE_PATH} ${CMAKE_SOURCE_DIR})
 
 set(EXECUTABLE_OUTPUT_PATH "${CMAKE_BINARY_DIR}/bin")
 
@@ -52,5 +52,7 @@ foreach(item ${myTARGET})
         set_target_properties(${item} PROPERTIES LINK_FLAGS "${MPI_C_LINK_FLAGS}")
     endif()
 endforeach(item)
+
+add_subdirectory(tests)
 
 

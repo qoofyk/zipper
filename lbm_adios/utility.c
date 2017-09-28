@@ -23,14 +23,4 @@ void check_malloc(void * pointer){
   }
 }
 
-void my_message(char *msg, int rank, int level){
-    // only log high-priority level
-    if(level > LOG_FILTER){
-        return;
-    }
 
-    if(rank <0)
-        printf("**sequential: %s\n", msg);
-    else
-        printf("**rank %d: %s\n", rank, msg);
-}

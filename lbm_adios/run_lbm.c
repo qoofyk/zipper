@@ -1,7 +1,9 @@
 #include "run_lbm.h"        
+
+#define CLOG_MAIN
+#include "utility.h"
 //#include "adios_write_global.h"
 #include "adios_adaptor.h"
-#include "utility.h"
 #include "adios_error.h"
 #include "ds_adaptor.h"
 
@@ -9,6 +11,10 @@
 static transport_method_t transport;
 
 #define debug
+
+/*
+ * clog identifier
+ */
 
 /*
  * Native staging need to use these
@@ -1159,23 +1165,47 @@ int main(int argc, char * argv[]){
         printf("run_lbm nstop total_file_size scratch_path\n");
         exit(-1);
     }
-    char filepath[256];
+    char *filepath;
     int nstop; //run how many steps
 
     nstop = atoi(argv[1]);
     int filesize2produce = atoi(argv[2]);
     int dims_cube[3] = {filesize2produce/4,filesize2produce/4,filesize2produce};
-    strcpy(filepath, argv[3]);
+    //strcpy(filepath, argv[3]);
+
+    
 
 	MPI_Init(&argc, &argv);
 
-  MPI_Comm comm = MPI_COMM_WORLD;
-  int         rank, nprocs;
-  MPI_Comm_rank (comm, &rank);
-  MPI_Comm_size (comm, &nprocs);
-  char nodename[256];
-  int nodename_length;
+    MPI_Comm comm = MPI_COMM_WORLD;
+    int         rank, nprocs;
+    MPI_Comm_rank (comm, &rank);
+    MPI_Comm_size (comm, &nprocs);
+
+    char nodename[256];
+    int nodename_length;
     MPI_Get_processor_name(nodename, &nodename_length );
+
+    /*
+     * init the clog
+     */
+    
+    int r;
+    char log_path[256];
+
+    filepath = getenv("SCRATCH_DIR");
+    if(filepath == NULL){
+        fprintf(stderr, "scratch dir is not set!\n");
+    }
+    sprintf(log_path,"%s/results/producer_%s.clog",filepath, rank);
+    r = clog_init_path(MY_LOGGER, log_path);
+    if (r != 0) {
+      fprintf(stderr, "Logger initialization failed.\n");
+      return 1;
+    }
+
+
+
 
     /*
      * get transport method from env variable
@@ -1228,11 +1258,9 @@ int main(int argc, char * argv[]){
         printf("dspaces init successfuly \n");
 
         if(ret == 0){
-            sprintf(msg, "dataspaces init successfully");
-            my_message(msg, rank, LOG_CRITICAL);
+            clog_info(CLOG(MY_LOGGER), "dataspaces init successfully");
         }else{
-            sprintf(msg, "dataspaces init error");
-            my_message(msg, rank, LOG_CRITICAL);
+            clog_error(CLOG(MY_LOGGER), "dataspaces init error");
             exit(-1);
         }
 
@@ -1281,6 +1309,11 @@ else if(transport_major == NATIVE_STAGING){
 
   MPI_Finalize();
   printf("rank %d: exit\n", rank);
+
+  /*
+   * close logger
+   */
+  clog_free(MY_LOGGER);
   return 0;
 }
 

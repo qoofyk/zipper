@@ -4,6 +4,8 @@
  * @author Feng Li, IUPUI
  * @date   2017
  */
+#ifndef DS_ADAPTOR_H
+#define DS_ADAPTOR_H
 
 #ifdef __cplusplus
 extern "C" {
@@ -11,7 +13,6 @@ extern "C" {
 
 #include "dataspaces.h"
 #include "dimes_interface.h"
-#include "utility.h"
 //#include "region_def.h"
 #include "string.h"
 #include "mpi.h"
@@ -58,4 +59,6 @@ void put_common_buffer(uint8_t transport_minor, int timestep, int ndim, int boun
 
 #ifdef __cplusplus
 }
+#endif
+
 #endif

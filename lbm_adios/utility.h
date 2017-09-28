@@ -6,6 +6,12 @@
 #ifndef UTILITY_H
 #define UTILITY_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+#include "clog.h"
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
@@ -64,6 +70,11 @@ void check_malloc(void * pointer);
  *      10:INFO
  *      15:VER_INFO
  *******************************/
-void my_message(char *msg, int rank, int level);
+
+static const int MY_LOGGER = 0;
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif
