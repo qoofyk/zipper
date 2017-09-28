@@ -7,12 +7,14 @@
 #include "utility.h"
 #define USE_SAME_LOCK
 //#undef USE_SAME_LOCK
+
+// logger indentifier
 extern const int MY_LOGGER;
 
 #define debug_1
 void get_common_buffer(uint8_t transport_minor,int timestep,int ndim, int bounds[6], int rank, char * var_name, void **p_buffer,size_t elem_size, double *p_time_used){
 
-    printf("\n ** prepare to get, ndim = %d\n", ndim);
+    clog_debug(CLOG(MY_LOGGER),"\n ** prepare to get, ndim = %d\n", ndim);
     // how many number of elements are actually written
     //int num_elems;
     char msg[STRING_LENGTH];
@@ -55,7 +57,7 @@ void get_common_buffer(uint8_t transport_minor,int timestep,int ndim, int bounds
 #endif
 
 #ifdef debug_1
-    printf("lb: (%d, %d  %d), hb(%d, %d, %d), elem_size %zu bytes\n", bounds[0], bounds[1], bounds[2], bounds[3], bounds[4], bounds[5], elem_size);
+    clog_debug(CLOG(MY_LOGGER),"lb: (%d, %d  %d), hb(%d, %d, %d), elem_size %zu bytes\n", bounds[0], bounds[1], bounds[2], bounds[3], bounds[4], bounds[5], elem_size);
 #endif
 
     clog_debug(CLOG(MY_LOGGER), "try to acquired the read lock %s for step %d", lock_name, timestep);
@@ -100,7 +102,7 @@ void get_common_buffer(uint8_t transport_minor,int timestep,int ndim, int bounds
 
 void put_common_buffer(uint8_t transport_minor, int timestep,int ndim, int bounds[6], int rank,char * var_name, void  **p_buffer,size_t elem_size, double *p_time_used){
 
-    printf("\n ** prepare to put, ndim = %d\n", ndim);
+    clog_debug(CLOG(MY_LOGGER),"\n ** prepare to put, ndim = %d\n", ndim);
     // how many number of elements are actually written
     //int num_elems;
     char msg[STRING_LENGTH];
@@ -140,7 +142,7 @@ void put_common_buffer(uint8_t transport_minor, int timestep,int ndim, int bound
 #endif
 
 #ifdef debug_1
-    printf("lb: (%d, %d  %d), hb(%d, %d, %d), elem_size %zu bytes\n", bounds[0], bounds[1], bounds[2], bounds[3], bounds[4], bounds[5], elem_size);
+    clog_debug(CLOG(MY_LOGGER),"lb: (%d, %d  %d), hb(%d, %d, %d), elem_size %zu bytes\n", bounds[0], bounds[1], bounds[2], bounds[3], bounds[4], bounds[5], elem_size);
 #endif
 
     clog_debug(CLOG(MY_LOGGER), "try to acquired the write lock %s for step %d", lock_name, timestep);
@@ -181,7 +183,7 @@ void put_common_buffer(uint8_t transport_minor, int timestep,int ndim, int bound
 
     if(ret_put != 0){
         perror("put err:");
-        printf("put varaible %s err,  error number %d \n", var_name, ret_put);
+        clog_error(CLOG(MY_LOGGER),"put varaible %s err,  error number %d \n", var_name, ret_put);
         exit(-1);
     }
     else{

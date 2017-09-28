@@ -4,6 +4,7 @@ add_executable(test_clog_simple test_clog.c)
 
 find_package(MPI REQUIRED)
 include_directories(${MPI_INCLUDE_PATH} ${CMAKE_SOURCE_DIR})
+
 add_executable(test_clog_mpi test_clog_mpi.c test_clog_minor.c )
 SET(myTARGET test_clog_mpi)
 foreach(item ${myTARGET})

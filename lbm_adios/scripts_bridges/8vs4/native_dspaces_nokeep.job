@@ -26,7 +26,7 @@ echo "case=$CASE_NAME datasize=$FILESIZE2PRODUCE nstops=$NSTOP procs_server=$PRO
 
 PBS_O_HOME=$HOME
 PBS_O_WORKDIR=$(pwd)
-SCRATCH_DIR=/pylon5/cc4s86p/fli5/data_broker_adios/${SLURM_JOBID}
+export SCRATCH_DIR=/pylon5/cc4s86p/fli5/data_broker_adios/${SLURM_JOBID}
 
 export MyTransport=NATIVE_STAGING_DSPACES
 

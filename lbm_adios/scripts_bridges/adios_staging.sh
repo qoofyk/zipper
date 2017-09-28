@@ -103,11 +103,11 @@ sleep 5s  # wait server to fill up the conf file
 #Use ibrun to run the MPI job. It will detect the MPI, generate the hostfile
 # and doing the right binding. With no options ibrun will use all cores.
 #export OMP_NUM_THREADS=1
-CMD_PRODUCER="$LAUNCHER -export -hostfile $HOST_DIR/hostfile-app1 -n $PROCS_PRODUCER ${BIN_PRODUCER} ${NSTOP} ${FILESIZE2PRODUCE} ${SCRATCH_DIR}"
+CMD_PRODUCER="$LAUNCHER -export -hostfile $HOST_DIR/hostfile-app1 -n $PROCS_PRODUCER ${BIN_PRODUCER} ${NSTOP} ${FILESIZE2PRODUCE} "
 $CMD_PRODUCER  &> ${PBS_RESULTDIR}/producer.log &
 echo "producer applciation lauched: $CMD_PRODUCER"
 
-CMD_CONSUMER="$LAUNCHER -export -hostfile $HOST_DIR/hostfile-app2 -n $PROCS_CONSUMER ${BIN_CONSUMER} ${SCRATCH_DIR}"
+CMD_CONSUMER="$LAUNCHER -export -hostfile $HOST_DIR/hostfile-app2 -n $PROCS_CONSUMER ${BIN_CONSUMER}"
 $CMD_CONSUMER  &> ${PBS_RESULTDIR}/consumer.log &
 echo " consumer applciation lauched $CMD_CONSUMER"
 

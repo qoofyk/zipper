@@ -16,6 +16,10 @@
  * number of processes since we decompose only on one 
  * dimension of the global array here. 
 */
+
+#define CLOG_MAIN
+#include "utility.h"
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -24,7 +28,6 @@
 #include "adios_error.h"
 #include "run_analysis.h"
 #include "adios_adaptor.h"
-#include "utility.h"
 #include <assert.h>
 #include "transports.h"
 static transport_method_t transport;
@@ -34,12 +37,15 @@ static transport_method_t transport;
 
 int main (int argc, char ** argv) 
 {
-    if(argc !=2){
-        printf("need to specify scratch path for i/o\n");
+     /*
+     * @input
+     * @param NSTOP
+     * @param FILESIZE2PRODUCE
+     */
+    if(argc !=1){
+        printf("more argumetns than expected\n");
         exit(-1);
     }
-    char filepath[256];
-    strcpy(filepath, argv[1]);
 
     int lp = 4;
 
@@ -71,12 +77,35 @@ int main (int argc, char ** argv)
     MPI_Get_processor_name(nodename, &nodename_length );
 
     /*
+     * init the clog
+     */
+    
+    int r;
+
+    char *filepath = getenv("SCRATCH_DIR");
+    if(filepath == NULL){
+        fprintf(stderr, "scratch dir is not set!\n");
+    }
+    if(rank == 0){
+        r = clog_init_fd(MY_LOGGER, 1);
+    }
+    else{
+        char log_path[256];
+        sprintf(log_path,"%s/results/consumer_%d.clog",filepath, rank);
+        r = clog_init_path(MY_LOGGER, log_path);
+    }
+    if (r != 0) {
+      fprintf(stderr, "Logger initialization failed.\n");
+      return 1;
+    }
+
+    /*
      * get transport method
      */
     transport = get_current_transport();
     uint8_t transport_major = get_major(transport);
     uint8_t transport_minor = get_minor(transport);
-    printf("%s:I am rank %d of %d, tranport code %x-%x\n",
+    clog_info(CLOG(MY_LOGGER),"%s:I am rank %d of %d, tranport code %x-%x\n",
             nodename, rank, size,
             get_major(transport), get_minor(transport) );
     assert(transport_major == ADIOS_STAGING);
@@ -96,27 +125,27 @@ int main (int argc, char ** argv)
 
 
     if(adios_read_init_method (method, comm, "verbose=3") !=0){
-        printf("ERROR: rank %d: adios init err with %d\n", rank, method);
+        clog_info(CLOG(MY_LOGGER),"ERROR: rank %d: adios init err with %d\n", rank, method);
         exit(-1);
     }
     else{
         if(rank == 0)
-            printf("rank %d: adios read method init complete with %d\n", rank, method);
+            clog_info(CLOG(MY_LOGGER),"rank %d: adios read method init complete with %d\n", rank, method);
     }
 
 #ifdef HAS_KEEP
 #if defined(USE_DATASPACES)
   adios_init ("adios_xmls/dbroker_dataspaces.xml", comm);
   if(rank ==0)
-    printf("rank %d: adios init complete with dataspaces\n", rank);
+    clog_info(CLOG(MY_LOGGER),"rank %d: adios init complete with dataspaces\n", rank);
 #elif defined(USE_DIMES)
   adios_init ("adios_xmls/dbroker_dimes.xml", comm);
   if(rank ==0)
-    printf("rank %d: adios init complete with dimes\n", rank);
+    clog_info(CLOG(MY_LOGGER),"rank %d: adios init complete with dimes\n", rank);
 #elif defined(USE_FLEXPATH)
   adios_init ("adios_xmls/dbroker_flexpath.xml", comm);
   if(rank ==0)
-    printf("rank %d: adios init complete with flexpath\n", rank);
+    clog_info(CLOG(MY_LOGGER),"rank %d: adios init complete with flexpath\n", rank);
 
 #else 
 #error("define stating transport method");
@@ -139,7 +168,7 @@ int main (int argc, char ** argv)
     }
     
     if(rank ==0)
-        printf("reader opened the stream\n");
+        clog_info(CLOG(MY_LOGGER),"reader opened the stream\n");
 
     ADIOS_VARINFO * v = adios_inq_var (f, "atom");
 
@@ -152,7 +181,7 @@ int main (int argc, char ** argv)
 
     start[1] = 0;
     count[1] = v->dims[1];
-    printf("rank %d: start: (%ld, %ld), count:( %ld, %ld)\n", rank, start[0], start[1], count[0], count[1]);
+    clog_info(CLOG(MY_LOGGER),"rank %d: start: (%ld, %ld), count:( %ld, %ld)\n", rank, start[0], start[1], count[0], count[1]);
        
 
     data = malloc (slice_size * v->dims[1]* sizeof (double));
@@ -164,14 +193,14 @@ int main (int argc, char ** argv)
 
     sel = adios_selection_boundingbox (v->ndim, start, count);
 
-    //printf("rank %d: adios init complete\n", rank);
+    //clog_info(CLOG(MY_LOGGER),"rank %d: adios init complete\n", rank);
 
     // get read status, before perform mpiio!, so streaming steps are not affected
     int errno_streaming_read = adios_errno;
     //for(timestep = 0; timestep < 10;){
     while(errno_streaming_read != err_end_of_stream){
         if(rank == 0)
-            printf("rank %d: Step %d start\n", rank, timestep);
+            clog_info(CLOG(MY_LOGGER),"rank %d: Step %d start\n", rank, timestep);
            /* Read a subset of the temperature array */
         // 0:not used for strea; 1: must be set in stream
         adios_schedule_read (f, sel, "atom", 0, 1, data);
@@ -182,7 +211,7 @@ int main (int argc, char ** argv)
         adios_perform_reads (f, 1);
 
         if(rank ==0)
-            printf("    [DEBUG]:read is performed");
+            clog_info(CLOG(MY_LOGGER),"    [DEBUG]:read is performed");
         t2 = get_cur_time();
         t_read_1 += t2-t1;
 
@@ -191,7 +220,7 @@ int main (int argc, char ** argv)
         adios_advance_step(f, 0, -1);
 
         if(rank ==0)
-            printf("    [DEBUG]: advanced to next step in stream");
+            clog_info(CLOG(MY_LOGGER),"    [DEBUG]: advanced to next step in stream");
         
         t3 = get_cur_time();
 
@@ -236,7 +265,7 @@ int main (int argc, char ** argv)
         t_analy += t4-t3;
 
         if(rank ==0)
-            printf("rank %d: Step %d moments calculated, t_read %lf, t_advance %lf, t_analy %lf\n", rank, timestep, t2-t1, t3-t2, t4-t3);
+            clog_info(CLOG(MY_LOGGER),"rank %d: Step %d moments calculated, t_read %lf, t_advance %lf, t_analy %lf\n", rank, timestep, t2-t1, t3-t2, t4-t3);
         timestep ++;
     }
 
@@ -244,8 +273,8 @@ int main (int argc, char ** argv)
   MPI_Barrier(comm);
   double t_end = get_cur_time();
   if(rank == 0){
-      printf("stat:Consumer end  at %lf \n", t_end);
-      printf("stat:time for read %f s; time for advancing step %f s; time for analyst %f s\n", t_read_1, t_read_2, t_analy);
+      clog_info(CLOG(MY_LOGGER),"stat:Consumer end  at %lf \n", t_end);
+      clog_info(CLOG(MY_LOGGER),"stat:time for read %f s; time for advancing step %f s; time for analyst %f s\n", t_read_1, t_read_2, t_analy);
   }
 #endif 
     free (data);
@@ -261,7 +290,13 @@ int main (int argc, char ** argv)
   printf("rank %d: adios finalize complete\n", rank); 
 #endif
 
+    /*
+    * close logger
+    */
+    clog_free(MY_LOGGER);
+
     MPI_Finalize ();
     printf("rank %d: exit\n", rank);
+
     return 0;
 }

@@ -45,8 +45,15 @@ static size_t elem_size=sizeof(double);
 
 int main (int argc, char ** argv) 
 {
-    if(argc !=5){
-        printf("need to specify timstop total_file_size scratch procs_prod path for i/o\n");
+    /*
+     * @input
+     *
+     * @param NSTOP
+     * @FILESIZE2PRODCE
+     * @PROCS_PRODUCER
+     */
+    if(argc !=4){
+        printf("need to specify timstop total_file_size scratch procs_prod\n");
         exit(-1);
     }
     int nstop;
@@ -88,14 +95,20 @@ int main (int argc, char ** argv)
      */
     
     int r;
-    char log_path[256];
 
     char *filepath = getenv("SCRATCH_DIR");
     if(filepath == NULL){
         fprintf(stderr, "scratch dir is not set!\n");
     }
-    sprintf(log_path,"%s/results/producer_%d.clog",filepath, rank);
-    r = clog_init_path(MY_LOGGER, log_path);
+
+    if(rank == 0){
+        r = clog_init_fd(MY_LOGGER, 1);
+    }
+    else{
+        char log_path[256];
+        sprintf(log_path,"%s/results/consumer_%d.clog",filepath, rank);
+        r = clog_init_path(MY_LOGGER, log_path);
+    }
     if (r != 0) {
       fprintf(stderr, "Logger initialization failed.\n");
       return 1;
@@ -107,7 +120,7 @@ int main (int argc, char ** argv)
     transport = get_current_transport();
     uint8_t transport_major = get_major(transport);
     uint8_t transport_minor = get_minor(transport);
-    printf("%s:I am rank %d of %d, tranport code %x-%x\n",
+    clog_info(CLOG(MY_LOGGER),"%s:I am rank %d of %d, tranport code %x-%x\n",
             nodename, rank, nprocs,
             get_major(transport), get_minor(transport) );
     assert(transport_major ==  NATIVE_STAGING);
@@ -121,10 +134,10 @@ int main (int argc, char ** argv)
 //#ifdef RAW_DSPACES
     char msg[STRING_LENGTH];
     int ret=-1;
-    printf("trying init dspaces for %d process\n", nprocs);
+    clog_info(CLOG(MY_LOGGER),"trying init dspaces for %d process\n", nprocs);
     ret = dspaces_init(nprocs, 2, &comm, NULL);
 
-    //printf("dspaces init successfuly \n");
+    //clog_info(CLOG(MY_LOGGER),"dspaces init successfuly \n");
 
     if(ret == 0){
         clog_info(CLOG(MY_LOGGER),"dataspaces init successfully");
@@ -163,7 +176,7 @@ int main (int argc, char ** argv)
 
     start[1] = 0;
     count[1] = 2;
-    printf("rank %d: start: (%ld, %ld), count:( %ld, %ld)\n", rank, start[0], start[1], count[0], count[1]);
+    clog_info(CLOG(MY_LOGGER),"start: (%ld, %ld), count:( %ld, %ld)\n", start[0], start[1], count[0], count[1]);
 
     int bounds[6] = {0};
     double time_comm = 0;;
@@ -186,7 +199,7 @@ int main (int argc, char ** argv)
         t_read_2 += time_comm;
 //#endif
         if(rank ==0)
-            printf("Step %d read\n", timestep);
+            clog_info(CLOG(MY_LOGGER),"Step %d read\n", timestep);
         // analysis
         run_analysis(data, slice_size, lp);
 
@@ -194,7 +207,7 @@ int main (int argc, char ** argv)
         t_analy += t3-t2;
 
         //if(rank ==0)
-            printf("rank %d: Step %d moments calculated, t_read %lf, t_advance %lf, t_analy %lf\n", rank, timestep, t2-t1, time_comm, t3-t2);
+            clog_info(CLOG(MY_LOGGER),"Step %d moments calculated, t_read %lf, t_advance %lf, t_analy %lf\n", timestep, t2-t1, time_comm, t3-t2);
 
     }
 
@@ -209,8 +222,8 @@ int main (int argc, char ** argv)
         MPI_Reduce(&t_read_1, &global_t_read, 1, MPI_DOUBLE, MPI_SUM, 0, comm);
         MPI_Reduce(&t_read_2, &global_t_get, 1, MPI_DOUBLE, MPI_SUM, 0, comm);
     if(rank == 0){
-      printf("stat:Consumer end  at %lf \n", t_end);
-      printf("stat:time for read %f s; time for ds_get %f s; time for analyst %f s\n", global_t_read/nprocs, global_t_get/nprocs, global_t_cal/nprocs);
+      clog_info(CLOG(MY_LOGGER),"stat:Consumer end  at %lf \n", t_end);
+      clog_info(CLOG(MY_LOGGER),"stat:time for read %f s; time for ds_get %f s; time for analyst %f s\n", global_t_read/nprocs, global_t_get/nprocs, global_t_cal/nprocs);
     }
 
 
@@ -218,12 +231,13 @@ int main (int argc, char ** argv)
     dspaces_finalize();
 //#endif
 
-    MPI_Finalize ();
-    printf("rank %d: exit\n", rank);
+    clog_info(CLOG(MY_LOGGER),"rank %d: exit\n", rank);
 
-  /*
+    /*
    * close logger
    */
-  clog_free(MY_LOGGER);
+    clog_free(MY_LOGGER);
+
+    MPI_Finalize ();
     return 0;
 }

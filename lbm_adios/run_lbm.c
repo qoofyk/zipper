@@ -1100,14 +1100,14 @@ void run_lbm(char * filepath, int step_stop, int dims_cube[3], MPI_Comm *pcomm)
 
 #ifdef ENABLE_TIMING
         t8 = MPI_Wtime();
-        printf("rank %d: Step %d t_lbm %lf, t_write %lf, time %lf\n", rank, step, t6-t5,t8-t7, t8);
+        clog_info(CLOG(MY_LOGGER),"rank %d: Step %d t_lbm %lf, t_write %lf, time %lf\n", rank, step, t6-t5,t8-t7, t8);
         t_write += t8-t7;
 #endif
 
 		//free(buffer);
 		#ifdef DEBUG_PRINT
 		if(step%10==0)
-		  printf("Node %d step = %d\n", rank, step);
+		  clog_info(CLOG(MY_LOGGER),"Node %d step = %d\n", rank, step);
 		#endif //DEBUG_PRINT
 		time1=0;
 
@@ -1135,7 +1135,7 @@ void run_lbm(char * filepath, int step_stop, int dims_cube[3], MPI_Comm *pcomm)
             dspaces_lock_on_write(lock_name, &comm);
             dimes_put_sync_all();
             dspaces_unlock_on_write(lock_name, &comm);
-            printf("rank %d: step %d last step flushed\n", rank, step);
+            clog_info(CLOG(MY_LOGGER),"rank %d: step %d last step flushed\n", rank, step);
 
         }
 
@@ -1148,7 +1148,7 @@ void run_lbm(char * filepath, int step_stop, int dims_cube[3], MPI_Comm *pcomm)
 
         if(rank == 0){
             //printf("t_prepare:%f s, t_cal %f s,t_buffer = %f, t_write %f s, t_put %f s\n", rank,init_lbm_time, only_lbm_time,t_buffer, t_write, t_write_2);
-            printf("t_prepare:%f s, t_cal %f s,t_buffer = %f, t_write %f s, t_put %f s\n", init_lbm_time, global_t_cal/nprocs ,t_buffer, global_t_write/nprocs, global_t_put/nprocs);
+            clog_info(CLOG(MY_LOGGER),"t_prepare:%f s, t_cal %f s,t_buffer = %f, t_write %f s, t_put %f s\n", init_lbm_time, global_t_cal/nprocs ,t_buffer, global_t_write/nprocs, global_t_put/nprocs);
         }
 
 		// MPI_Barrier(comm1d);
@@ -1161,11 +1161,16 @@ void run_lbm(char * filepath, int step_stop, int dims_cube[3], MPI_Comm *pcomm)
 }
 
 int main(int argc, char * argv[]){
-    if(argc !=4){
-        printf("run_lbm nstop total_file_size scratch_path\n");
+
+    /*
+     * @input
+     * @param NSTOP
+     * @param FILESIZE2PRODUCE
+     */
+    if(argc !=3){
+        printf("run_lbm nstop total_file_size\n");
         exit(-1);
     }
-    char *filepath;
     int nstop; //run how many steps
 
     nstop = atoi(argv[1]);
@@ -1191,21 +1196,26 @@ int main(int argc, char * argv[]){
      */
     
     int r;
-    char log_path[256];
 
-    filepath = getenv("SCRATCH_DIR");
+    char *filepath = getenv("SCRATCH_DIR");
     if(filepath == NULL){
         fprintf(stderr, "scratch dir is not set!\n");
     }
-    sprintf(log_path,"%s/results/producer_%s.clog",filepath, rank);
-    r = clog_init_path(MY_LOGGER, log_path);
+    if(rank == 0){
+        r = clog_init_fd(MY_LOGGER, 1);
+    }
+    else{
+        char log_path[256];
+        sprintf(log_path,"%s/results/producer_%d.clog",filepath, rank);
+        r = clog_init_path(MY_LOGGER, log_path);
+    }
     if (r != 0) {
       fprintf(stderr, "Logger initialization failed.\n");
       return 1;
     }
-
-
-
+    else{
+        printf("Logger init OK");
+    }
 
     /*
      * get transport method from env variable
@@ -1213,7 +1223,7 @@ int main(int argc, char * argv[]){
     transport = get_current_transport();
     uint8_t transport_major = get_major(transport);
     uint8_t transport_minor = get_minor(transport);
-    printf("%s:I am rank %d of %d, tranport code %x-%x\n",
+    clog_info(CLOG(MY_LOGGER),"%s:I am rank %d of %d, tranport code %x-%x\n",
             nodename, rank, nprocs,
             get_major(transport), get_minor(transport) );
 
@@ -1236,15 +1246,16 @@ int main(int argc, char * argv[]){
       }
 
       sprintf(xmlfile,"adios_xmls/dbroker_%s.xml", trans_method);
-      printf("[r%d] try to init with %s\n", rank, xmlfile);
+      clog_info(CLOG(MY_LOGGER),"[r%d] try to init with %s\n", rank, xmlfile);
+
       if(adios_init (xmlfile, comm) != 0){
-        printf("[r%d] ERROR: adios init err with %s\n", rank, trans_method);
-        printf("[r%d] ERR: %s\n", rank, adios_get_last_errmsg());
+        clog_info(CLOG(MY_LOGGER),"[r%d] ERROR: adios init err with %s\n", rank, trans_method);
+        clog_info(CLOG(MY_LOGGER),"[r%d] ERR: %s\n", rank, adios_get_last_errmsg());
         return -1;
       }
       else{
           //if(rank ==0)
-            printf("rank %d : adios init complete with %s\n", rank, trans_method);
+            clog_info(CLOG(MY_LOGGER),"rank %d : adios init complete with %s\n", rank, trans_method);
       }
       MPI_Barrier(comm);
   } //use ADIOS_DISK or ADIOS_STAGING
@@ -1252,10 +1263,10 @@ int main(int argc, char * argv[]){
   else  if(transport_major == NATIVE_STAGING){
         char msg[STRING_LENGTH];
         int ret = -1;
-        printf("trying init dspaces for %d process\n", nprocs);
+        clog_info(CLOG(MY_LOGGER),"trying init dspaces for %d process\n", nprocs);
         ret = dspaces_init(nprocs, 1, &comm, NULL);
 
-        printf("dspaces init successfuly \n");
+        clog_info(CLOG(MY_LOGGER),"dspaces init successfuly \n");
 
         if(ret == 0){
             clog_info(CLOG(MY_LOGGER), "dataspaces init successfully");
@@ -1281,39 +1292,39 @@ int main(int argc, char * argv[]){
 
 
   if(rank == 0 ){
-      printf("output will be saved in %s\n", filepath);
+      clog_info(CLOG(MY_LOGGER),"output will be saved in %s\n", filepath);
   }
 
   MPI_Barrier(comm);
   double t_start = MPI_Wtime();
   if(rank == 0){
-      printf("stat:Simulation start at %lf \n", t_start);
-      printf("stat:FILE2PRODUCE=%d, NSTOP= %d \n", filesize2produce, nstop);
+      clog_info(CLOG(MY_LOGGER),"stat:Simulation start at %lf \n", t_start);
+      clog_info(CLOG(MY_LOGGER),"stat:FILE2PRODUCE=%d, NSTOP= %d \n", filesize2produce, nstop);
   }
   run_lbm(filepath, nstop, dims_cube, &comm);
 
   MPI_Barrier(comm);
   double t_end = MPI_Wtime();
   if(rank == 0){
-      printf("stat:Simulation stop at %lf \n", t_end);
+      clog_info(CLOG(MY_LOGGER),"stat:Simulation stop at %lf \n", t_end);
   }
 
 if(transport_major == ADIOS_DISK || transport_major == ADIOS_STAGING){
   adios_finalize (rank);
-  printf("rank %d: adios finalize complete\n", rank); 
+  clog_info(CLOG(MY_LOGGER),"rank %d: adios finalize complete\n", rank); 
 }
 
 else if(transport_major == NATIVE_STAGING){
     dspaces_finalize();
 }
 
-  MPI_Finalize();
-  printf("rank %d: exit\n", rank);
 
   /*
    * close logger
    */
   clog_free(MY_LOGGER);
+  MPI_Finalize();
+  printf("rank %d: exit\n", rank);
   return 0;
 }
 

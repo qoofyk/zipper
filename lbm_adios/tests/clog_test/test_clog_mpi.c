@@ -10,6 +10,8 @@
 #include <stdio.h>
 #include <mpi.h>
 
+void try_clog_error();
+
 
 int main(int argc, char *argv[]){
     MPI_Init(&argc, &argv);
@@ -24,11 +26,19 @@ int main(int argc, char *argv[]){
      * init log
      */
     int r;
-
-    char log_path[256];
-    sprintf(log_path,"%d.clog", rank);
-    printf("rank %d: i will write log to %s\n", rank,log_path);
-    r = clog_init_path(MY_LOGGER, log_path);
+    
+    /*
+     * root rank will merge with stdout
+     */
+    if(rank == 0){
+        r = clog_init_fd(MY_LOGGER, 1);
+    }
+    else{
+        char log_path[256];
+        sprintf(log_path,"%d.clog", rank);
+        printf("rank %d: i will write log to %s\n", rank,log_path);
+        r = clog_init_path(MY_LOGGER, log_path);
+    }
     if (r != 0) {
       fprintf(stderr, "Logger initialization failed.\n");
       return 1;
@@ -40,6 +50,10 @@ int main(int argc, char *argv[]){
     */
     try_clog_error();
     clog_free(MY_LOGGER);
+
+    //sleep(1000);
+
+    MPI_Finalize();
     return 0;
 }
 
