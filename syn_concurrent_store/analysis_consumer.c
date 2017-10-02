@@ -4,30 +4,27 @@ Brief desc of the file: consumer thread
 ********************************************************/
 #include "do_thread.h"
 
-void simple_verify(GV gv, LV lv, char* buffer, int nbytes, int source, int block_id, int* consumer_state_p){
+void simple_verify(GV gv, LV lv, char* buffer, int nbytes, int source, int block_id, int* consumer_state_p, int* wrong){
   int i, j;
   int x;
-  int check = *((int *)(buffer+sizeof(int)*4));
 
 #ifndef CONCURRENT_EXP
   double sum=0, tmp=0;
 #endif //CONCURRENT_EXP
 
-  //printf("start calc!\n");
-  //printf("before calc data is %d\n",buffer[0]);
-  //gv->computeid=*(int *)(buffer);
-  // printf("calc=%d\n", (nbytes/4-2)*gv->lp);
-
   for(i=0; i<nbytes; i=i+sizeof(int)) {
     for(j=0; j<gv->lp;j++){
       x = *((int *)(buffer+sizeof(int)*4+i));
 
-      if(x!=(check+i*i)){
-        printf("!!!!!simple_verify i=%d j=%d Wrong! x=%d, check=%d, source=%d, block_id=%d, gv->calc_counter=%d, *consumer_state_p=%d, \
+      if(x!=(block_id+i*i)){
+        /*
+        printf("!!!!! Ana_Proc%d: simple_verify i=%d j=%d Wrong! x=%d, source=%d, block_id=%d, gv->calc_counter=%d, *consumer_state_p=%d, \
 ((int*)buffer)[0]=%d, ((int*)buffer)[1]=%d, ((int*)buffer)[2]=%d, ((int*)buffer)[3]=%d, ((int*)buffer)[4]=%d, ((int*)buffer)[5]=%d\n",
-          i, j, x, check, source, block_id, gv->calc_counter, *consumer_state_p,
+          gv->rank[0], i, j, x, source, block_id, gv->calc_counter, *consumer_state_p,
           ((int*)buffer)[0], ((int*)buffer)[1], ((int*)buffer)[2], ((int*)buffer)[3], ((int*)buffer)[4], ((int*)buffer)[5]);
         fflush(stdout);
+        */
+        (*wrong)++;
         return;
       }
 
@@ -82,6 +79,7 @@ char* consumer_ring_buffer_read_tail(GV gv, LV lv, int* consumer_state_p){
     fflush(stdout);
 #endif //DEBUG_PRINT
 
+      lv->wait++;
       pthread_cond_wait(rb->empty, rb->lock_ringbuffer);
 
 #ifdef DEBUG_PRINT
@@ -113,7 +111,7 @@ void consumer_ring_buffer_move_tail(GV gv, LV lv, int* flag_p, char* pointer){
               gv->rank[0], lv->tid, ((int*)pointer)[0], ((int*)pointer)[1], ((int*)pointer)[2], ((int*)pointer)[3], rb->tail, rb->num_avail_elements);
             fflush(stdout);
 #endif //DEBUG_PRINT
-            pthread_cond_signal(rb->full);      //wake up receiver put
+            pthread_cond_broadcast(rb->full);      //wake up receiver and reader put
             pthread_cond_signal(rb->new_tail);  //wake up ana_writer
             pthread_mutex_unlock(rb->lock_ringbuffer);
 
@@ -146,21 +144,27 @@ void analysis_consumer_thread(GV gv,LV lv){
   int consumer_state;
   int num_exit_flag=0;
   int remaining_elements;
+  int wrong=0;
 
   ring_buffer *rb = gv->consumer_rb_p;
   // printf("Analysis Process %d consumer thread %d is running!\n",gv->rank[0], lv->tid);
   // fflush(stdout);
 
-  t2 = get_cur_time();
+  t2 = MPI_Wtime();
   while(1) {
     flag=0;
 
-    t0 = get_cur_time();
+    t0 = MPI_Wtime();
     pointer = consumer_ring_buffer_read_tail(gv, lv, &consumer_state);
-    t1 = get_cur_time();
+    t1 = MPI_Wtime();
     read_tail_wait_time += t1-t0;
 
-    if(pointer != NULL) {
+    if(pointer == NULL) {
+      printf("Ana_Proc%d: Consumer Error -- Get a NULL pointer\n", gv->rank[0]);
+      fflush(stdout);
+      exit(1);
+    }
+    else{
 
       source = ((int*)pointer)[0];
       block_id = ((int*)pointer)[1];
@@ -173,22 +177,34 @@ void analysis_consumer_thread(GV gv,LV lv){
 
       if(block_id != EXIT_BLK_ID){
 
-        if(consumer_state == NOT_CALC){
+        if(consumer_state != NOT_CALC){
+          printf("!!!---ERROR: Ana_Proc%d: Consumer%d GET ERROR BLK with TAG!=NOT_CALC consumer_state=%d ---!!! \n",
+            gv->rank[0], lv->tid, consumer_state);
+          fflush(stdout);
+        }
+        else{// consumer_state==NOT_CALC
 
 // #ifdef DEBUG_PRINT
-          if(block_id<0){
-            printf("Ana_Proc%d: Consumer%d Prepare to simple_verify source=%d, block_id=%d \
-gv->calc_counter=%d, consumer_state=%d\n",
-              gv->rank[0], lv->tid, ((int *)pointer)[0], ((int *)pointer)[1],
-              gv->calc_counter, consumer_state);
-          }
+//           if(block_id<0){
+//              printf("Ana_Proc%d: Consumer%d Prepare to simple_verify source=%d, block_id=%d, gv->calc_counter=%d, consumer_state=%d\n",
+//               gv->rank[0], lv->tid, ((int *)pointer)[0], ((int *)pointer)[1],
+//               gv->calc_counter, consumer_state);
+//             fflush(stdout);
+//           }
 // #endif //DEBUG_PRINT
 
-          t0 = get_cur_time();
-          simple_verify(gv, lv, pointer, gv->block_size, source, block_id, &consumer_state);
-          t1 = get_cur_time();
+          t0 = MPI_Wtime();
+          simple_verify(gv, lv, pointer, gv->block_size, source, block_id, &consumer_state, &wrong);
+          t1 = MPI_Wtime();
           lv->calc_time += t1 - t0;
           gv->calc_counter++;
+
+#ifdef DEBUG_PRINT
+          if(gv->calc_counter>=gv->ana_total_blks){
+            printf("Ana_Proc%d: Consumer%d calc_counter %d\n", gv->rank[0], lv->tid, gv->calc_counter);
+            fflush(stdout);
+          }
+#endif //DEBUG_PRINT
 
           pthread_mutex_lock(rb->lock_ringbuffer);
           ((int *)pointer)[3] = CALC_DONE;
@@ -205,9 +221,9 @@ gv->calc_counter=%d, consumer_state=%d\n",
           fflush(stdout);
 #endif //DEBUG_PRINT
 
-          t0 = get_cur_time();
+          t0 = MPI_Wtime();
           consumer_ring_buffer_move_tail(gv, lv, &flag, pointer);
-          t1 = get_cur_time();
+          t1 = MPI_Wtime();
           move_tail_wait_time += t1-t0;
 
 #ifdef DEBUG_PRINT
@@ -233,13 +249,8 @@ gv->calc_counter=%d, consumer_state=%d\n",
             fflush(stdout);
 #endif //DEBUG_PRINT
 
-
           }
 
-        }
-        else{
-          printf("Ana_Proc%d: Consumer%d !!!---GET ERROR BLK with CALC_DONE---!!!\n", gv->rank[0], free_count);
-          fflush(stdout);
         }
 
       }
@@ -252,9 +263,9 @@ gv->calc_counter=%d, consumer_state=%d\n",
         fflush(stdout);
 #endif //DEBUG_PRINT
 
-        t0 = get_cur_time();
+        t0 = MPI_Wtime();
         consumer_ring_buffer_move_tail(gv, lv, &flag, pointer);
-        t1 = get_cur_time();
+        t1 = MPI_Wtime();
         move_tail_wait_time += t1-t0;
 
         free(pointer);
@@ -268,11 +279,8 @@ gv->calc_counter=%d, consumer_state=%d\n",
 
       }
     }
-    else{
-      printf("Ana_Proc%d: Consumer Error -- Get a NULL pointer\n", gv->rank[0]);
-    }
 
-    if (num_exit_flag >= gv->computer_group_size){
+    if ( (num_exit_flag >= gv->computer_group_size) && (gv->calc_counter >= gv->ana_total_blks) ) {
 
 #ifdef DEBUG_PRINT
       printf("Ana_Proc%d: Consumer prepare to exit!\n", gv->rank[0]);
@@ -297,10 +305,10 @@ gv->calc_counter=%d, consumer_state=%d\n",
       break;
     }
   }
-  t3 = get_cur_time();
+  t3 = MPI_Wtime();
 
-  printf("Ana_Proc%04d: Consumer T_total_consumer=%.3f, T_calc=%.3f, T_read_tail_wait=%.3f, \
-T_move_tail_wait=%.3f, gv->calc_counter=%d, free_count=%d, num_avail_elements=%d\n",
-       gv->rank[0], t3 - t2, lv->calc_time, read_tail_wait_time, move_tail_wait_time, gv->calc_counter, free_count, remaining_elements);
+  printf("Ana_Proc%04d: Consumer%d T_total=%.3f, T_calc=%.3f, T_rd_tail_wt=%.3f, \
+T_mv_tail_wt=%.3f, calc_cnt=%d, empty_wait=%d, wrong=%d\n",
+       gv->rank[0], lv->tid, t3-t2, lv->calc_time, read_tail_wait_time, move_tail_wait_time, gv->calc_counter, lv->wait, wrong);
   fflush(stdout);
 }

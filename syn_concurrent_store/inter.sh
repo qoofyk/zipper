@@ -1,177 +1,88 @@
-directory="mbexp008vs002"
-date
+SLURM_JOBID=111
+
+##################parameter setting#################################################
+directory="0008v0004"
+nproc_per_mac=14
+
+CASE_NAME=Syn_DataBroker_concurrent_NoKeep
 
 compute_generator_num=1
 compute_writer_num=1
 analysis_reader_num=1
 analysis_writer_num=1
-# block_size=1
-# cpt_total_blks=1000
-computer_group_size=4
-num_compute_nodes=8
-num_analysis_nodes=2
-total_nodes=10
-maxp=1
-lp=1
 
-echo "------Optimisation----syn_concurrent_store_080vs080_1M8P---------------"
-echo "lp=$lp,num_compute_nodes=$num_compute_nodes, num_analysis_nodes=$num_analysis_nodes"
-echo "Usage: %s $compute_generator_num $analysis_writer_num {block_size[i]} {cpt_total_blks[i]}  $computer_group_size $num_analysis_nodes"
-echo "Block size starting from 64KB,128KB,256KB,512KB,1MB,2MB,4MB,8MB"
-echo "Block size input =	   1   ,2    ,4    ,8    ,16 ,32 ,64 ,128"
-my_run_exp2="aprun -n $total_nodes -N 1 -d 32 /N/u/fuyuan/BigRed2/Openfoam/20160518_test/syn_concurrent_store/syn_concurrent_store"
-my_del_exp2='time rsync -a --delete-before  /N/dc2/scratch/fuyuan/empty/ '
+compute_group_size=2
+num_comp_proc=8
+num_ana_proc=$((${num_comp_proc} / ${compute_group_size}))
+total_proc=$((${num_comp_proc} + ${num_ana_proc}))
 
-# rm -rf /N/dc2/scratch/fuyuan/store/syn_concurrent_store/$directory/
-mkdir /N/dc2/scratch/fuyuan/store
-mkdir /N/dc2/scratch/fuyuan/store/syn_concurrent_store
-mkdir /N/dc2/scratch/fuyuan/store/syn_concurrent_store/$directory/
-date
-echo "remove all subdirectories"
-echo "-----------Delete files-----------------"
-# for ((m=0;m<$num_compute_nodes;m++)); do
-#     $my_del_exp2 $(printf "/N/dc2/scratch/fuyuan/store/syn_concurrent_store/$directory/cid%03g" $m)
-# done
-echo "-----------End Delete files-------------"
-# $my_del_exp2  /N/dc2/scratch/fuyuan/store/syn_concurrent_store/$directory/
-date
-echo "mkdir new"
-for ((m=0;m<$num_compute_nodes; m++)); do
-	mkdir $(printf "/N/dc2/scratch/fuyuan/store/syn_concurrent_store/$directory/cid%03g " $m)
-	# lfs setstripe --count 4 -o -1 $(printf "/N/dc2/scratch/fuyuan/store/syn_concurrent_store/$directory/cid%03g " $m)
-done
+maxp=1 #control how many times to run each configuration
+lp=5 #verification computation repeat times in ana_consumer_thread
 
-echo
-echo
-echo "####### Simulate $num_compute_nodes Compute Parallel Write vs $num_analysis_nodes Analysis Parallel Read ########"
+#alg: O(n), O(nlgn), O(n^3/2)
+#int=4B
+#n = 1MB--2^18, 2MB--2^19, 4MB--2^20, 8MB--2^21
 
-echo "@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@"
-echo "***********$num_compute_nodes Compute Write*******************************"
-echo "Each compute node has 1 thread, each thread will write according to NUM_ITER and num_blks"
-echo "Block size starting from 64KB,128KB,256KB,512KB,1MB,2MB,4MB,8MB"
-echo "block_size =	   			1  ,    2,    4,    8, 16, 32, 64,128"
-echo "@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@"
-echo
-echo "@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@"
-echo "*********************$num_analysis_nodes Analysis Read**********************"
-echo "Each Analysis node has 1 thread, each thread will read according to NUM_ITER and num_blks"
-echo "Block size starting from 64KB,128KB,256KB,512KB,1MB,2MB,4MB,8MB"
-echo "@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@"
+#core:                   1,   2,   4,  8, 16,  32,  64
+#O(n^3/2) 1MB--  2^9 = 512, 256, 128, 64, 32,  16,   8
+#O(nlogn) 1MB- 		    18,   9,   5,  2,  1,
 
-# # block_size=(1 2 4 8 16 32 64 128)
-# # cpt_total_blks=(2000 2000 2000 2000 2000 2000 2000 2000)
-# # cpt_total_blks=(12800 6400 3200 1600 8000 4000 2000 1000)
-# # writer_thousandth=(0 50 100 200 300)
+#O(n^3/2) 2MB--2^8.5 = 724, 362, 181, 90, 45,  22,  11  60(12cores)
+#O(nlogn) 2MB- 		    19,   9,   4,  2,  1,
 
-# # block_size=(8 16 32 64 128)
-# # cpt_total_blks=(1600 8000 4000 2000 1000)
-# # writer_thousandth=(0 50 100 200 300 400)
+#O(n^3/2) 4MB-- 2^10 =1024, 512, 256, 128,64,  32,  16
+#O(nlogn) 4MB- 		    20,  10,   5,  2,  1,
 
-# block_size=(128 64)
-# cpt_total_blks=(500 1000)
-# writer_thousandth=(0 50 100 200 300)
-block_size=(128)
-cpt_total_blks=(500)
-writer_thousandth=(600)
-utime=0
-for((i=0;i<${#block_size[@]};i++));do
-	for ((k=0; k<${#writer_thousandth[@]}; k++)); do
-		echo
-		echo
-		val=`expr ${block_size[i]} \* 64`
-		echo "*************************************************************************************"
-		echo "---syn_concurrent_store $val KB, cpt_total_blks=${cpt_total_blks[i]},  writer_thousandth = ${writer_thousandth[k]}------"
-		echo "*************************************************************************************"
-		# if [ $val -eq 64 ] && [ $val -eq 128 ] && [ $val -eq 16384 ]
-		#  		then
-		#     		break
-		#fi
-		for ((p=0; p<$maxp; p++)); do
-			echo "=============Loop $p==============="
-			for ((m=0;m<$num_compute_nodes; m++)); do
-				lfs setstripe --count 4 -o -1 $(printf "/N/dc2/scratch/fuyuan/store/syn_concurrent_store/$directory/cid%03g " $m)
-			done
-			$my_run_exp2 $compute_generator_num $compute_writer_num $analysis_reader_num $analysis_writer_num ${block_size[i]} ${cpt_total_blks[i]} ${writer_thousandth[k]} $computer_group_size $num_analysis_nodes $lp $utime
-			# echo "-----------Start Deleting files-------------"
-			# for ((m=0;m<$num_compute_nodes;m++)); do
-			#     $my_del_exp2 $(printf "/N/dc2/scratch/fuyuan/store/syn_concurrent_store/$directory/cid%03g" $m)
-			# done
-			# echo "-----------End Delete files-------------"
-			echo
-		done
-	done
-done
+#O(n^3/2) 8MB--2^10.5=1448, 724, 362, 181, 90, 45,  22  72(20cores)
+#O(nlogn) 8MB- 		    21,  11,   5,  2,  1,
 
-# block_size=(32)
-# cpt_total_blks=(2000)
-# writer_thousandth=(0 50 100 200 300)
+# computation_lp=(1 18 64 1 19 60 1 20 64 1 21 72)
+computation_lp=(1 19 1 20 1 21)
 
-# utime=0
-# for((i=0;i<${#block_size[@]};i++));do
-# 	for ((k=0; k<${#writer_thousandth[@]}; k++)); do
-# 		echo
-# 		echo
-# 		val=`expr ${block_size[i]} \* 64`
-# 		echo "*************************************************************************************"
-# 		echo "---syn_concurrent_store $val KB, cpt_total_blks=${cpt_total_blks[i]},  writer_thousandth = ${writer_thousandth[k]}------"
-# 		echo "*************************************************************************************"
-# 		# if [ $val -eq 64 ] && [ $val -eq 128 ] && [ $val -eq 16384 ]
-# 		#  		then
-# 		#     		break
-# 		#fi
-# 		for ((p=0; p<$maxp; p++)); do
-# 			echo "=============Loop $p==============="
-# 			for ((m=0;m<$num_compute_nodes; m++)); do
-# 				lfs setstripe --count 2 -o -1 $(printf "/N/dc2/scratch/fuyuan/store/syn_concurrent_store/$directory/cid%03g " $m)
-# 			done
-# 			$my_run_exp2 $compute_generator_num $compute_writer_num $analysis_reader_num $analysis_writer_num ${block_size[i]} ${cpt_total_blks[i]} ${writer_thousandth[k]} $computer_group_size $num_analysis_nodes $lp $utime
-# 			# echo "-----------Start Deleting files-------------"
-# 			# for ((m=0;m<$num_compute_nodes;m++)); do
-# 			#     $my_del_exp2 $(printf "/N/dc2/scratch/fuyuan/store/syn_concurrent_store/$directory/cid%03g" $m)
-# 			# done
-# 			# echo "-----------End Delete files-------------"
-# 			echo
-# 		done
-# 	done
-# done
+#one_file
+# utime1=(5000 7000 500 1000) #sleep for microseconds
+# block_size1=(16 16 32 32 64 64 128 128) #1->64KB, 2->128KB, 4->256KB, 8->512KB, 16->1MB, 32->2MB, 64->4MB, 128->8MB, 256->16MB
+# cpt_total_blks1=(4000 4000 2000 2000 1000 1000 500 500)
 
-# block_size=(16 8 4 2)
-# cpt_total_blks=(4000 8000 16000 32000)
-# writer_thousandth=(0 100 200 300)
-# # block_size=(2)
-# # cpt_total_blks=(500)
-# # writer_thousandth=(700)
-# utime=0
-# for((i=0;i<${#block_size[@]};i++));do
-# 	for ((k=0; k<${#writer_thousandth[@]}; k++)); do
-# 		echo
-# 		echo
-# 		val=`expr ${block_size[i]} \* 64`
-# 		echo "*************************************************************************************"
-# 		echo "---syn_concurrent_store $val KB, cpt_total_blks=${cpt_total_blks[i]},  writer_thousandth = ${writer_thousandth[k]}------"
-# 		echo "*************************************************************************************"
-# 		# if [ $val -eq 64 ] && [ $val -eq 128 ] && [ $val -eq 16384 ]
-# 		#  		then
-# 		#     		break
-# 		#fi
-# 		for ((p=0; p<$maxp; p++)); do
-# 			echo "=============Loop $p==============="
-# 			for ((m=0;m<$num_compute_nodes; m++)); do
-# 				lfs setstripe --count 1 -o -1 $(printf "/N/dc2/scratch/fuyuan/store/syn_concurrent_store/$directory/cid%03g " $m)
-# 			done
-# 			$my_run_exp2 $compute_generator_num $compute_writer_num $analysis_reader_num $analysis_writer_num ${block_size[i]} ${cpt_total_blks[i]} ${writer_thousandth[k]} $computer_group_size $num_analysis_nodes $lp $utime
-# 			# echo "-----------Start Deleting files-------------"
-# 			# for ((m=0;m<$num_compute_nodes;m++)); do
-# 			#     $my_del_exp2 $(printf "/N/dc2/scratch/fuyuan/store/syn_concurrent_store/$directory/cid%03g" $m)
-# 			# done
-# 			# echo "-----------End Delete files-------------"
-# 			echo
-# 		done
-# 	done
-# done
+block_size1=(16) #1->64KB, 2->128KB, 4->256KB, 8->512KB, 16->1MB, 32->2MB, 64->4MB, 128->8MB, 256->16MB
+cpt_total_blks1=(4000)
 
-# echo "-----------Start Deleting files-------------"
-# # for ((m=0;m<$num_compute_nodes;m++)); do
-# #     $my_del_exp2 $(printf "/N/dc2/scratch/fuyuan/store/syn_concurrent_store/$directory/cid%03g" $m)
-# # done
-# echo "-----------End Delete files-------------"
+#sepfile
+# utime2=(5000 4500 14000 12000) #sleep for microseconds
+
+# block_size2=(16 16 16 32 32 32 64 64 64 128 128 128) #1->64KB, 2->128KB, 4->256KB, 8->512KB, 16->1MB, 32->2MB, 64->4MB, 128->8MB, 256->16MB
+# cpt_total_blks2=(4000 4000 4000 2000 2000 2000 1000 1000 1000 500 500 500)
+
+# block_size2=(32 32 32 64 64 64 128 128 128) #1->64KB, 2->128KB, 4->256KB, 8->512KB, 16->1MB, 32->2MB, 64->4MB, 128->8MB, 256->16MB
+# cpt_total_blks2=(2000 2000 2000 1000 1000 1000 500 500 500)
+
+
+writer_thousandth=(400)
+writer_prb_thousandth=(1000)
+
+# writer_thousandth=(400 999)
+# writer_prb_thousandth=(1000 1000)
+
+tune_stripe_count=-1
+####################################################################################
+
+echo "-----------case=$CASE_NAME---------------"
+echo "num_comp_proc=$num_comp_proc num_ana_proc=$num_ana_proc stripe_count=$tune_stripe_count"
+
+PBS_O_HOME=$HOME
+PBS_O_WORKDIR=$(pwd)
+
+# comet
+# SCRATCH_DIR=/oasis/scratch/comet/qoofyk/temp_project/syn
+
+# bridges
+groupname=$(id -Gn)
+export SCRATCH_DIR=/pylon5/cc4s86p/qoofyk/syn/${SLURM_JOBID}
+EMPTY_DIR=/pylon5/cc4s86p/qoofyk/empty/
+
+# OUTPUT_DIR=${SCRATCH_DIR}/syn/${directory}
+
+BIN1=${PBS_O_HOME}/General_Data_Broker/syn_concurrent_store/build_nokeep/syn_concurrent_nokeep_one_file
+BIN2=${PBS_O_HOME}/General_Data_Broker/syn_concurrent_store/build_nokeep/syn_concurrent_nokeep_sep_file
+
+source ${PBS_O_WORKDIR}/scripts_bridges/common.sh

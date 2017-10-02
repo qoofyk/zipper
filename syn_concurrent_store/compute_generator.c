@@ -37,11 +37,12 @@ void producer_ring_buffer_put(GV gv, LV lv, char * buffer, int* num_avail_elemen
       //gen_check_blk(gv, rb->buffer[rb->head],gv->block_size);
       rb->head = (rb->head + 1) % rb->bufsize;
       *num_avail_elements = ++rb->num_avail_elements;
-      pthread_cond_broadcast(rb->empty);
-      // pthread_cond_signal(rb->empty);
+      // pthread_cond_broadcast(rb->empty);
+      pthread_cond_signal(rb->empty);
       pthread_mutex_unlock(rb->lock_ringbuffer);
       return;
     } else {
+      lv->wait++;
       pthread_cond_wait(rb->full, rb->lock_ringbuffer);
     }
   }
@@ -50,12 +51,12 @@ void producer_ring_buffer_put(GV gv, LV lv, char * buffer, int* num_avail_elemen
 
 void compute_generator_thread(GV gv,LV lv){
   int block_id=0;
-  double t0=0,t1=0,t2=0,t3=0;
+  double t0=0, t1=0, t2=0, t3=0;
   char* buffer=NULL;
   int num_avail_elements=0, full=0;
   // printf("Generator thread %d is running!\n",lv->tid);
 
-  t2 = get_cur_time();
+  t2 = MPI_Wtime();
 
   while(1){
     pthread_mutex_lock(&gv->lock_block_id);
@@ -85,17 +86,15 @@ void compute_generator_thread(GV gv,LV lv){
       break;
     }
 
-    t0 = get_cur_time();
-
+    t0 = MPI_Wtime();
     buffer = (char*) malloc(gv->compute_data_len);
     // check_malloc(buffer);
     create_blk(buffer, gv->block_size, block_id, gv->computation_lp);
     // mark(buffer,gv->block_size, block_id);
 
     //usleep(gv->utime); //sleep for microseconds
-
-    t1 = get_cur_time();
-    lv->gen_time += t1 - t0;
+    t1 = MPI_Wtime();
+    lv->gen_time += t1-t0;
 
     producer_ring_buffer_put(gv, lv, buffer, &num_avail_elements);
 
@@ -103,8 +102,8 @@ void compute_generator_thread(GV gv,LV lv){
       full++;
 
   }
-  t3 = get_cur_time();
+  t3 = MPI_Wtime();
 
-  printf("Comp_Proc%04d: Generator%d T_create=%.3f, T_total=%.3f, full=%d\n",
-    gv->rank[0], lv->tid, lv->gen_time, t3-t2, full);
+  printf("Comp_Proc%04d: Generator%d, T_total=%.3lf, T_create=%.3lf, full=%d, wait=%d\n",
+    gv->rank[0], lv->tid, t3-t2, lv->gen_time, full, lv->wait);
 }

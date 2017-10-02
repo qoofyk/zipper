@@ -1,25 +1,22 @@
 ########################################
 #
-#  Synthetic_Concurrent_Keep MAKEFILE
+#  Synthetic_Concurrent_NoKeep MAKEFILE
 #
 ########################################
 
 vpath	%.c ../
 vpath	%.h ../
 ## Compiler, tools and options
-CC      =  tau_cc.sh
+CC      =  mpicc
 FC      =  mpif90
-LINK    =  tau_cc.sh
-# CC      =  mpicc
-#FC      =  mpif90
-#LINK    =  mpicc
+LINK    =  mpicc
 
 # PAPI needed
 # OPT     =  -g -DSTATIC_PAPI_EVENTS_TABLE -DPEINCLUDE=\"libpfm4/include/perfmon/perf_event.h\" -D_REENTRANT -D_GNU_SOURCE -DUSE_COMPILER_TLS -Ilibpfm4/include -fvisibility=hidden -Wextra
-OPT = -O
+OPT     =  -O
 
 ADDCFLAGS = -Wall
-CCFLAGS = $(OPT) -DKEEP -DCONCURRENT_EXP
+CCFLAGS = $(OPT)
 LDFLAGS = $(OPT)
 
 ## Libraries
@@ -35,7 +32,7 @@ INC  = -I .
 OBJECTS = main.o do_thread.o compute_generator.o compute_sender.o compute_writer.o analysis_receiver.o analysis_reader.o analysis_writer.o analysis_consumer.o
 # PAPI needed
 # UTILOBJS= $(PAPI_SRC)/testlib/libtestlib.a
-TARGET  = syn_concurrent_keep_sep_file_tau
+TARGET  = syn_concurrent_nokeep_sep_file
 
 
 ## Implicit rules

@@ -23,41 +23,14 @@ Brief desc of the file: Header
 
 #define PRODUCER_RINGBUFFER_TOTAL_MEMORY 512*1024*1024L //1G Byte, 512MB
 
-#ifdef CONSUMER_RB_1GB
-  #define CONSUMER_RINGBUFFER_TOTAL_MEMORY 1024*1024*1024L
+#ifdef CONSUMER_RB_8GB
+  #define CONSUMER_RINGBUFFER_TOTAL_MEMORY 8*1024*1024*1024L
 #else
   #define CONSUMER_RINGBUFFER_TOTAL_MEMORY 512*1024*1024L
-#endif //CONSUMER_RB_1GB
+#endif //CONSUMER_RB_4GB
 
-// #define DEBUG_PRINT
-// #define TOTAL_FILE2PRODUCE_1GB 1024*1024*1024L
-// #define ADDRESS "/N/dc2/scratch/fuyuan/store/syn_concurrent_store/mbexp%03dvs%03d/cid%03d/cid%03dblk%d.d"
 
-#ifdef COMET
-#ifdef WRITE_ONE_FILE
-    #define ADDRESS "/oasis/scratch/comet/qoofyk/temp_project/syn/%04dv%04d/cid%04d/cid%04d"
-#else
-    #define ADDRESS "/oasis/scratch/comet/qoofyk/temp_project/syn/%04dv%04d/cid%04d/cid%04dblk%d"
-#endif //WRITE_ONE_FILE
-#endif //COMET
-
-#ifdef BRIDGES
-#ifdef WRITE_ONE_FILE
-    #define ADDRESS "/pylon5/cc4s86p/qoofyk/syn/%04dv%04d/cid%04d/cid%04d"
-#else
-    #define ADDRESS "/pylon5/cc4s86p/qoofyk/syn/%04dv%04d/cid%04d/cid%04dblk%d"
-#endif //WRITE_ONE_FILE
-#define OPEN_USLEEP 100
-#endif //BRIDGES
-
-#ifdef BIGRED
-#ifdef WRITE_ONE_FILE
-    #define ADDRESS "/N/dc2/scratch/fuyuan/syn/%04dv%04d/cid%04d/lbm_cid%04d"
-#else
-    #define ADDRESS "/N/dc2/scratch/fuyuan/syn/%04dv%04d/cid%04d/lbm_cid%04dblk%d"
-#endif //WRITE_ONE_FILE
-#define OPEN_USLEEP 100
-#endif //BIGRED
+#define OPEN_USLEEP 500
 
 #define MPI_MSG_TAG 49
 #define MIX_MPI_DISK_TAG 50
@@ -71,7 +44,7 @@ Brief desc of the file: Header
 #define CALC_DONE 1
 
 #define CACHE 4
-#define TRYNUM 10000
+#define TRYNUM 200
 
 #define WRITER_COUNT 2000
 #define ANALSIS_COUNT 1000
@@ -101,14 +74,17 @@ typedef struct lv_t {
   double calc_time;
   double ring_buffer_put_time;
   double ring_buffer_get_time;
+
+  int wait;
   void  *gv;
 }* LV;
 
 typedef struct gv_t {
+  char* filepath;
   int rank[2], size[2], namelen, color;
   char processor_name[128];
   int computer_group_size, analysis_process_num, compute_process_num; //Num in each Compute Group, Num of Analysis Node
-  // int computeid;
+
   ring_buffer* producer_rb_p;
   ring_buffer* consumer_rb_p;
 
@@ -153,7 +129,9 @@ typedef struct gv_t {
 
   //prefetcher thread
   // int prefetch_counter;  //currently how many file blocks have been read
+  int recv_head;
   int recv_tail;
+  int recv_avail;
   int * prefetch_id_array;
   int ana_reader_done;
   int ana_writer_done;
@@ -168,7 +146,8 @@ typedef struct gv_t {
 
 #ifdef WRITE_ONE_FILE
   FILE *fp;       //compute_proc open 1 bigfile
-  FILE **ana_fp;  //analysis_proc open several bigfile
+  FILE **ana_read_fp;  //analysis_proc reader open bigfile
+  FILE **ana_write_fp;  //analysis_proc reader open bigfile
 #endif //WRITE_ONE_FILE
 
   LV  all_lvs;

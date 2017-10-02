@@ -14,15 +14,16 @@ char* producer_ring_buffer_get(GV gv, LV lv, int* num_avail_elements){
 
     // if (rb->num_avail_elements > 0) {
 	if (rb->num_avail_elements >= writer_on) {
-      pointer = rb->buffer[rb->tail];
-      rb->tail = (rb->tail + 1) % rb->bufsize;
-      *num_avail_elements = --rb->num_avail_elements;
-      pthread_cond_signal(rb->full);
-      pthread_mutex_unlock(rb->lock_ringbuffer);
-      return pointer;
+		pointer = rb->buffer[rb->tail];
+		rb->tail = (rb->tail + 1) % rb->bufsize;
+		*num_avail_elements = --rb->num_avail_elements;
+		pthread_cond_signal(rb->full);
+		pthread_mutex_unlock(rb->lock_ringbuffer);
+		return pointer;
       }
     else {
-      pthread_cond_wait(rb->empty, rb->lock_ringbuffer);
+    	lv->wait++;
+    	pthread_cond_wait(rb->empty, rb->lock_ringbuffer);
     }
   }
 }
@@ -32,11 +33,11 @@ void comp_write_blk_per_file(GV gv, LV lv, int blk_id, char* buffer, int nbytes)
 	FILE *fp=NULL;
 	double t0=0, t1=0;
 	int i=0;
-	//"/N/dc2/scratch/fuyuan/LBMconcurrent/LBMcon%03dvs%03d/cid%03d/2lbm_cid%03dblk%d.d"
+
 #ifndef WRITE_ONE_FILE
-	sprintf(file_name, ADDRESS, gv->compute_process_num, gv->analysis_process_num, gv->rank[0], gv->rank[0], blk_id);
+	sprintf(file_name, "%s/results/cid%d/cid%d", gv->filepath, gv->rank[0], blk_id);
 #endif //WRITE_ONE_FILE
-	// printf("%d %d %d %d %d %d \n %s\n", gv->num_compute_nodes, gv->num_analysis_nodes, gv->rank[0], gv->rank[0], lv->tid, blk_id,file_name);
+	// printf("%d %d %d %d %d \n %s\n", gv->num_compute_nodes, gv->num_analysis_nodes, gv->rank[0], lv->tid, blk_id, file_name);
 	// fflush(stdout);
 
 	while ((fp == NULL) && (i<TRYNUM)){
@@ -52,9 +53,9 @@ void comp_write_blk_per_file(GV gv, LV lv, int blk_id, char* buffer, int nbytes)
 		}
 	}
 
-	t0 = get_cur_time();
+	t0 = MPI_Wtime();
 	fwrite(buffer, nbytes, 1, fp);
-	t1 = get_cur_time();
+	t1 = MPI_Wtime();
 	lv->only_fwrite_time += t1 - t0;
 
 	fclose(fp);
@@ -92,38 +93,38 @@ void comp_write_one_big_file(GV gv, LV lv, int blk_id, char* buffer, int nbytes,
 	offset = (long)blk_id * (long)gv->block_size;
 	i=0;
 	error=-1;
-	while((error==-1) && (i<TRYNUM)){
+	while(error!=0){
 		error=fseek(fp, offset, SEEK_SET);
-  		if(error==-1){
-  			if(i==TRYNUM-1){
-  				printf("Comp_Proc%d Writer fseek error block_id=%d, fp=%p\n",
-  					gv->rank[0], blk_id, (void*)fp);
-  				fflush(stdout);
-  			}
-  			i++;
-            usleep(OPEN_USLEEP);
-  		}
-	}
+  		i++;
+        // usleep(OPEN_USLEEP);
+		if(i>TRYNUM){
+			printf("Comp_Proc%d Writer fseek error block_id=%d, fp=%p\n",
+				gv->rank[0], blk_id, (void*)fp);
+			fflush(stdout);
+			break;
+		}
+
+  	}
 
 #ifdef DEBUG_PRINT
-	if(((int*)buffer)[0]==0){
+
 		printf("----wwwwwwwwww----------Comp_Proc%d: Writer%d start to write block_id=%d, ((int*)buffer)[0]=%d, ((int*)buffer)[1]=%d\n",
 			gv->rank[0], lv->tid, blk_id, ((int*)buffer)[0], ((int*)buffer)[1]);
 		fflush(stdout);
-	}
+
 #endif //DEBUG_PRINT
 
-	t0 = get_cur_time();
+	t0 = MPI_Wtime();
 	error=fwrite(buffer, nbytes, 1, fp);
 	fflush(fp);
 	// fsync(fileno(fp));
 
-	if(error==0){
-		perror("Write error:");
+	if(ferror(fp)){
+		perror("Comp_Write error:");
 		fflush(stdout);
 	}
 
-	t1 = get_cur_time();
+	t1 = MPI_Wtime();
 	lv->only_fwrite_time += t1 - t0;
 
 	//------------------------
@@ -144,11 +145,15 @@ void compute_writer_thread(GV gv, LV lv) {
 
 	// printf("Compute Process %d Writer thread %d is running!\n",gv->rank[0],lv->tid);
 
-	t2 = get_cur_time();
+	t2 = MPI_Wtime();
 
 	if (gv->writer_blk_num == 0) {
-		printf("Comp_Proc%d: Writer%d is turned off\n", gv->rank[0], lv->tid);
-		fflush(stdout);
+
+		if(gv->rank[0]==0 || gv->rank[0]==(gv->compute_process_num-1)){
+			printf("Comp_Proc%d: Writer%d is turned off\n", gv->rank[0], lv->tid);
+			fflush(stdout);
+		}
+
 	}
 	else{
 		while(1){
@@ -169,19 +174,19 @@ void compute_writer_thread(GV gv, LV lv) {
 					fflush(stdout);
 #endif //DEBUG_PRINT
 
-					t0 = get_cur_time();
+					t0 = MPI_Wtime();
 #ifdef WRITE_ONE_FILE
 					comp_write_one_big_file(gv, lv, block_id, buffer, gv->block_size, gv->fp);
 #else
 					comp_write_blk_per_file(gv, lv, block_id, buffer, gv->block_size);
 #endif //WRITE_ONE_FILE
-					t1 = get_cur_time();
+					t1 = MPI_Wtime();
 					lv->write_time += t1 - t0;
 					my_count++;
 
 #ifdef DEBUG_PRINT
 					if(my_count%100==0){
-						printf("Comp_Proc%d: Writer%d has written block_id=%d\n", gv->rank[0], lv->tid, my_count);
+						printf("Comp_Proc%d: Writer%d has written block_id=%d buffer\n", gv->rank[0], lv->tid, block_id);
 						fflush(stdout);
 					}
 #endif //DEBUG_PRINT
@@ -215,7 +220,7 @@ void compute_writer_thread(GV gv, LV lv) {
 
 				if (my_count >= gv->writer_blk_num) {
 
-					printf("Comp_Proc%d: Writer%d Exceed PreSet percentange blks and quit!\n",
+					printf("Comp_Proc%04d: Writer%d Exceed PreSet percentange blks and quit!\n",
 						gv->rank[0], lv->tid);
 					fflush(stdout);
 
@@ -233,15 +238,41 @@ void compute_writer_thread(GV gv, LV lv) {
 				my_exit_flag=1;
 			}
 
-			if(my_exit_flag==1)
+			if(my_exit_flag==1){
+
+				/*In case at last: sender exit and writer never get lock_writer_progress */
+				if(gv->flag_sender_get_finalblk==1){
+
+					int remain_disk_id=0, errorcode=0;
+					int dest = gv->rank[0]/gv->computer_group_size + gv->compute_process_num;
+
+					pthread_mutex_lock(&gv->lock_writer_progress);
+					if (gv->send_tail>0){
+						remain_disk_id = gv->send_tail;
+						gv->send_tail=0;
+					}
+					pthread_mutex_unlock(&gv->lock_writer_progress);
+
+					if(remain_disk_id>0){
+						errorcode = MPI_Send(gv->written_id_array, remain_disk_id*sizeof(int), MPI_CHAR, dest, DISK_TAG, MPI_COMM_WORLD);
+						check_MPI_success(gv, errorcode);
+						printf("Comp_Proc%04d: Writer%d send remain_disk_id=%d\n",
+							gv->rank[0], lv->tid, remain_disk_id);
+						fflush(stdout);
+					}
+				}
+
+
 				break;
+			}
+
 		}
 	}
 
-	t3 = get_cur_time();
+	t3 = MPI_Wtime();
 
-	printf("Comp_Proc%04d: Writer%d T_comp_write=%.3f, T_only_fwrite=%.3f, T_total=%.3f with %d blocks, overlap=%d\n",
-		gv->rank[0], lv->tid, lv->write_time, lv->only_fwrite_time, t3-t2, my_count, overlap);
+	printf("Comp_Proc%04d: Writer%d T_total=%.3f, T_comp_write=%.3f, T_only_fwrite=%.3f, cnt=%d, overlap=%d, wait=%d, Ov%%=%.1f\n",
+		gv->rank[0], lv->tid, t3-t2, lv->write_time, lv->only_fwrite_time, my_count, overlap, lv->wait, 100.0*overlap/gv->cpt_total_blks);
 	fflush(stdout);
 	// printf("Node%d Producer %d Write_Time/Block= %f only_fwrite_time/Block= %f, SPEED= %fKB/s\n",
 	//   gv->rank[0], lv->tid,  lv->write_time/gv->total_blks, lv->only_fwrite_time/gv->total_blks, gv->total_file/(lv->write_time));

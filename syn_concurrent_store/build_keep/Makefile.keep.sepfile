@@ -10,22 +10,29 @@ vpath	%.h ../
 CC      =  mpicc
 FC      =  mpif90
 LINK    =  mpicc
-# CC      = mpicc
-# FC      =  mpifort  #ftn
-# LINK    =  mpifort  #ftn
-OPT     =  -O
+
+# PAPI needed
+# OPT     =  -g -DSTATIC_PAPI_EVENTS_TABLE -DPEINCLUDE=\"libpfm4/include/perfmon/perf_event.h\" -D_REENTRANT -D_GNU_SOURCE -DUSE_COMPILER_TLS -Ilibpfm4/include -fvisibility=hidden -Wextra
+OPT = -O
 
 ADDCFLAGS = -Wall
-CCFLAGS = $(OPT) -DBRIDGES -DKEEP -DWRITE_ONE_FILE -DCONCURRENT_EXP
+CCFLAGS = $(OPT) -DKEEP
 LDFLAGS = $(OPT)
 
 ## Libraries
 LIBS = -lpthread -lm
-INC  = -I.
+INC  = -I .
+# PAPI needed
+# PAPI_SRC=/home/qoofyk/papi-5.5.1/src
+# LIBS = -lpthread -lm $(PAPI_SRC)/libpapi.a
+# INC  = -I .  -I $(PAPI_SRC)/testlib -I $(PAPI_SRC)
+
 
 ## FILES
 OBJECTS = main.o do_thread.o compute_generator.o compute_sender.o compute_writer.o analysis_receiver.o analysis_reader.o analysis_writer.o analysis_consumer.o
-TARGET  = syn_concurrent_keep_one_file
+# PAPI needed
+# UTILOBJS= $(PAPI_SRC)/testlib/libtestlib.a
+TARGET  = syn_concurrent_keep_sep_file
 
 
 ## Implicit rules
@@ -36,8 +43,8 @@ TARGET  = syn_concurrent_keep_one_file
 ## Build rules
 all: $(TARGET)
 
-$(TARGET): $(OBJECTS)
-	$(LINK) -o $@ $(OBJECTS) $(LDFLAGS) $(LIBS)
+$(TARGET): $(OBJECTS) $(UTILOBJS)
+	$(LINK) -o $@ $(OBJECTS) $(UTILOBJS) $(LIBS) $(LDFLAGS)
 
 clean:
 	rm -f $(OBJECTS) $(TARGET)

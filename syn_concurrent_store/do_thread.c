@@ -8,13 +8,15 @@ void init_lv(LV lv, int tid, GV gv) {
   lv->tid   = tid;
   lv->gv    = gv;
 
-  lv->read_time = 0;
-  lv->write_time = 0;
-  lv->only_fwrite_time = 0;
-  lv->only_fread_time = 0;
-  lv->calc_time = 0;
-  lv->ring_buffer_put_time = 0;
-  lv->ring_buffer_get_time = 0;
+  lv->gen_time    = 0.0;
+  lv->read_time   = 0.0;
+  lv->write_time  = 0.0;
+  lv->only_fwrite_time = 0.0;
+  lv->only_fread_time = 0.0;
+  lv->calc_time = 0.0;
+  lv->ring_buffer_put_time = 0.0;
+  lv->ring_buffer_get_time = 0.0;
+  lv->wait = 0.0;
   //printf("init mutex done!\n");
 }
 
@@ -61,7 +63,7 @@ void* analysis_node_do_thread(void* v) {
      //prefetching thread
       analysis_reader_thread(gv,lv);
     }
-  else if(tid >= gv->analysis_reader_num && tid<=(gv->analysis_reader_num + gv->analysis_writer_num-1)){
+  else if(tid >= gv->analysis_reader_num && tid<=(gv->analysis_reader_num + gv->analysis_writer_num - 1)){
       //writer_thread
       analysis_writer_thread(gv,lv);
   }

@@ -2,60 +2,59 @@
 
 #ifdef WRITE_ONE_FILE
 void comp_open_one_big_file(GV gv){
-  char file_name[128];
+  char file_name[256];
   int i=0;
 
-  sprintf(file_name, ADDRESS, gv->compute_process_num, gv->analysis_process_num, gv->rank[0], gv->rank[0]);
+  sprintf(file_name, "%s/results/cid%d", gv->filepath, gv->rank[0]);
   // sprintf(file_name,"/var/tmp/exp2_file_blk%d.data",blk_id);
-  while((gv->fp==NULL) && (i<TRYNUM)){
+  while(gv->fp==NULL){
+
     gv->fp=fopen(file_name,"wb");
 
-    if(gv->fp==NULL){
-      if(i==TRYNUM-1){
-        printf("Fatal Error: Comp_Proc%d open an empty big file\n", gv->rank[0]);
-        fflush(stdout);
-      }
+    i++;
 
-      i++;
-      usleep(OPEN_USLEEP);
-    }
+    if(i>1)
+		usleep(OPEN_USLEEP);
+
+	if(i>TRYNUM){
+    	printf("Fatal Error: Comp_Proc%d open an empty big file\n", gv->rank[0]);
+    	fflush(stdout);
+    	break;
+	}
   }
 
-  //-----------
-  // fclose(gv->fp);
 }
 #endif //WRITE_ONE_FILE
 
 #ifdef WRITE_ONE_FILE
 void ana_open_one_big_file(GV gv){
   int i, j, src;
-  char file_name[128];
+  char file_name[256];
 
   for(j=0;j<gv->computer_group_size;j++){
 
     src=(gv->rank[0]-gv->compute_process_num)*gv->computer_group_size+j;
 
-    sprintf(file_name, ADDRESS, gv->compute_process_num, gv->analysis_process_num, src, src);
+    sprintf(file_name, "%s/results/cid%d", gv->filepath, src);
 
     i=0;
 
-    while((gv->ana_fp[j]==NULL) && (i<TRYNUM)){
+    while((gv->ana_read_fp[j]==NULL) || (gv->ana_write_fp[j]==NULL)){
 
-      gv->ana_fp[j]=fopen(file_name,"rb+");
+		gv->ana_read_fp[j]=fopen(file_name,"rb");
+		gv->ana_write_fp[j]=fopen(file_name,"rb+");
 
-      if(gv->ana_fp[j]==NULL){
-        if(i==TRYNUM-1){
-          printf("Fatal Error: Ana_Proc%d read an empty big file from%d\n", gv->rank[0], src);
-          fflush(stdout);
-        }
+		i++;
+		if(i>1)
+			usleep(OPEN_USLEEP);
 
-        i++;
-        usleep(OPEN_USLEEP);
-      }
+		if(i>TRYNUM){
+	    	printf("Fatal Error: Ana_Proc%d read an empty big file from%d\n", gv->rank[0], src);
+	    	fflush(stdout);
+	    	break;
+		}
+
     }
-
-    //-----------
-    // fclose(gv->ana_fp[j]);
 
   }
 }
@@ -118,6 +117,11 @@ int main(int argc, char **argv){
   	gv->compute_process_num = gv->computer_group_size * gv->analysis_process_num;
   	gv->calc_counter = 0;
   	// gv->prefetch_counter = 0;
+
+  	gv->filepath = getenv("SCRATCH_DIR");
+    if(gv->filepath == NULL){
+        fprintf(stderr, "scratch dir is not set!\n");
+    }
 
 	// MPI_Init(&argc, &argv);
 	MPI_Init_thread(&argc, &argv, MPI_THREAD_MULTIPLE, &provided);
@@ -194,8 +198,8 @@ int main(int argc, char **argv){
 	    //gv->producer_rb_p = rb_init(gv,PRODUCER_RINGBUFFER_TOTAL_MEMORY,&producer_rb);
 	    //compute node
 	    if(gv->rank[0]==0 || gv->rank[0]==(gv->compute_process_num-1)){
-	    	printf("Comp_Proc%04d of %d on %s: produce %.1fMB, cpt_total_blks=%d, writer_blk_num=%d, sender_blk_num=%d, \
-PRODUCER_Ringbuffer %.3fGB, size=%d member\n",
+	    	printf("Comp_Proc%04d of %d on %s: produce %.1fMB, cpt_total_blks=%d, writer_blk#=%d, sender_blk#=%d, \
+PRB %.3fGB, size=%d member\n",
 			gv->rank[0], gv->size[1], gv->processor_name, gv->total_file, gv->cpt_total_blks, gv->writer_blk_num, gv->sender_blk_num,
 			PRODUCER_RINGBUFFER_TOTAL_MEMORY/(1024.0*1024.0*1024.0), gv->producer_rb_p->bufsize);
 		    fflush(stdout);
@@ -223,7 +227,7 @@ PRODUCER_Ringbuffer %.3fGB, size=%d member\n",
 	    pthread_mutex_init(&gv->lock_writer_done, NULL);
 //--------------------------------------------------------------------------------------------//
 
-		t0=get_cur_time();
+		t0=MPI_Wtime();
 
 		/* Create threads */
 		for(i=0; i<num_total_thrds; i++) {
@@ -246,13 +250,13 @@ PRODUCER_Ringbuffer %.3fGB, size=%d member\n",
     	fclose(gv->fp);
 #endif //WRITE_ONE_FILE
 
-		t1=get_cur_time();
+		t1=MPI_Wtime();
 
 		free(lvs);
 		free(attrs);
 		free(thrds);
 
-		printf("Comp_Proc%04d: Task finish on %s, T_comp_total=%.3f s\n", gv->rank[0], gv->processor_name, t1-t0);
+		printf("Comp_Proc%04d: Task finish on %s, T_comp_total=%.3f\n", gv->rank[0], gv->processor_name, t1-t0);
 		fflush(stdout);
 	}
 	else{
@@ -287,9 +291,9 @@ PRODUCER_Ringbuffer %.3fGB, size=%d member\n",
 	    gv->consumer_rb_p = &consumer_rb;
 
 	    //gv->consumer_rb_p = rb_init(gv,CONSUMER_RINGBUFFER_TOTAL_MEMORY,&consumer_rb);
-	    if(gv->rank[0]==gv->compute_process_num || gv->rank[0]==(gv->compute_process_num+gv->analysis_process_num)){
-	    	printf("Ana_Proc%04d of %d on %s: ana_total_blks=%d, reader_blk_num=%d, analysis_writer_blk_num=%d, \
-CONSUMER_Ringbuffer %.3fGB, size=%d member\n",
+	    if(gv->rank[0]==gv->compute_process_num || gv->rank[0]==(gv->compute_process_num+gv->analysis_process_num-1)){
+	    	printf("Ana_Proc%04d of %d on %s: ana_total_#=%d, reader_blk#=%d, ana_writer_blk#=%d, \
+CRB %.3fGB, size=%d\n",
 		    	gv->rank[0], gv->size[1], gv->processor_name, gv->ana_total_blks, gv->reader_blk_num, gv->analysis_writer_blk_num,
         		CONSUMER_RINGBUFFER_TOTAL_MEMORY/(1024.0*1024.0*1024.0), gv->consumer_rb_p->bufsize);
 	    	fflush(stdout);
@@ -303,7 +307,9 @@ CONSUMER_Ringbuffer %.3fGB, size=%d member\n",
 	    gv->ana_reader_done=0;
     	gv->ana_writer_done=0;
 	    gv->prefetch_id_array = (int *) malloc(sizeof(int)*2*gv->ana_total_blks); //2: src, blk_id
+	    gv->recv_head = 0;
 	    gv->recv_tail = 0;
+	    gv->recv_avail = 0;
 	    check_malloc(gv->prefetch_id_array);
 
 	    // printf("Before ana open!\n");
@@ -314,10 +320,12 @@ CONSUMER_Ringbuffer %.3fGB, size=%d member\n",
     MPI_Barrier(MPI_COMM_WORLD);
 
     //init every ana_fp[i]
-    gv->ana_fp = (FILE **)malloc(sizeof(FILE *) * gv->computer_group_size);
-    for(i=0; i<gv->computer_group_size; i++)
-      gv->ana_fp[i]=NULL;
-
+    gv->ana_read_fp = (FILE **)malloc(sizeof(FILE *) * gv->computer_group_size);
+    gv->ana_write_fp = (FILE **)malloc(sizeof(FILE *) * gv->computer_group_size);
+    for(i=0; i<gv->computer_group_size; i++){
+    	gv->ana_read_fp[i]=NULL;
+    	gv->ana_write_fp[i]=NULL;
+    }
     ana_open_one_big_file(gv);
 #endif //WRITE_ONE_FILE
 
@@ -328,7 +336,7 @@ CONSUMER_Ringbuffer %.3fGB, size=%d member\n",
 	    pthread_mutex_init(&gv->lock_recv, NULL);
 	    // pthread_mutex_init(&gv->lock_prefetcher_progress, NULL);
 
-	    t0=get_cur_time();
+	    t0=MPI_Wtime();
 		/* Create threads */
 		for(i=0; i<num_total_thrds; i++) {
 		  init_lv(lvs+i, i, gv);
@@ -367,15 +375,16 @@ CONSUMER_Ringbuffer %.3fGB, size=%d member\n",
     //   printf("Ana_Proc%04d: successfully close big file %d\n", gv->rank[0], i);
     //   fflush(stdout);
     // }
-    	free(gv->ana_fp);
+		free(gv->ana_read_fp);
+    	free(gv->ana_write_fp);
 #endif //WRITE_ONE_FILE
 
 		free(lvs);
 		free(attrs);
 		free(thrds);
 
-		t1=get_cur_time();
-		printf("Ana_Proc%04d: Job finished on %s T_ana_total=%.3f\n",
+		t1=MPI_Wtime();
+		printf("Ana_Proc%04d: Task finish on %s, T_ana_total=%.3f\n",
 		  gv->rank[0], gv->processor_name, t1-t0);
 		fflush(stdout);
 	}
