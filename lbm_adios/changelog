@@ -13,10 +13,18 @@ TODO
 	3. ENABLE_TESTING in flexpath conf, enabled
 
 ## Oct 2
-	adios-staging didn't specify locktype=2, dspaces default type is 1
-	2-d dimesions as in native dspaces?
-	adios removed lock-size 2
-	
+#### fixing:
+	1. comment out dataspaces locktype specification in adios_staging, as it
+	does in adios staging example. (then type 1 lock will be used)
+	2. use 2-d dimesions as in native dspaces?
+	3. add timeout for adios_read_open, reader applications will try multiple
+	times until stream is available.
+
+	adios_dspaces with 1 server process: 230s
+	adios_dimes with 1 server process: 155.54s
+#### changed:
+	now adios_staging use 4 server processes
+
 ## Oct 1 
 	should try adios_staging skeletopn code
 	1810216

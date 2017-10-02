@@ -1128,7 +1128,7 @@ void run_lbm(char * filepath, int step_stop, int dims_cube[3], MPI_Comm *pcomm)
 /*
          * dimes needs to flush last step
          */
-        if(transport_minor == DIMES){
+        if(transport_major == NATIVE_STAGING && transport_minor == DIMES){
             char lock_name[STRING_LENGTH];
             snprintf(lock_name, STRING_LENGTH, "%s_lock", var_name);
             dspaces_lock_on_write(lock_name, &comm);

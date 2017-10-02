@@ -155,7 +155,7 @@ int main (int argc, char ** argv)
 
     // append file name
     sprintf(filename,"%s/%s.bp", filepath, "atom");
-    ADIOS_FILE * f = adios_read_open (filename, method, comm, ADIOS_LOCKMODE_CURRENT, 0);
+    ADIOS_FILE * f = adios_read_open (filename, method, comm, ADIOS_LOCKMODE_CURRENT, 300);
     //ADIOS_FILE * f = adios_read_open (filename, method, comm, ADIOS_LOCKMODE_NONE, 0);
 
      if (f == NULL)

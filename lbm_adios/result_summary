@@ -1,3 +1,18 @@
+## Oct 2
+JOBS  
+    1811963
+        lbm_dspaces with 4 server procs
+    1811962
+        lbm_dimes with 4 server proces
+    
+    1811831
+        lbm_dimes, with dim=2 and num server proc =1, num_server_proc=1, 155.54s
+    1811698
+        lbm_dspaces correctly run: make dimension =2, num_server_proc=1, 230s
+    1811622
+        add timeout
+    1810366
+        type 1 lock, simulation can run, consumer error
 ## Oct 1
     1810195, lbm_dspaces
     1803867, revisit
