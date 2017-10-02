@@ -1028,9 +1028,8 @@ void run_lbm(char * filepath, int step_stop, int dims_cube[3], MPI_Comm *pcomm)
 
     if(transport_major == ADIOS_STAGING){
         // for staging, each time write to same file
-        //
-        insert_into_adios(filepath, "atom",-1, n, SIZE_ONE , buffer,"w", &comm);
-        /*
+        //insert_into_adios(filepath, "atom",-1, n, SIZE_ONE , buffer,"w", &comm);
+        
         if(step ==0){
             insert_into_adios(filepath, "atom",-1, n, SIZE_ONE , buffer,"w", &comm);
         }
@@ -1038,7 +1037,7 @@ void run_lbm(char * filepath, int step_stop, int dims_cube[3], MPI_Comm *pcomm)
 
             insert_into_adios(filepath, "atom",-1, n, SIZE_ONE , buffer,"a", &comm);
         }
-        */
+        
     }
     else if(transport_major == ADIOS_DISK){
         // for mpiio, each time write different files
@@ -1214,7 +1213,7 @@ int main(int argc, char * argv[]){
       return 1;
     }
     else{
-        printf("Logger init OK");
+      clog_info(CLOG(MY_LOGGER),"Logger init OK");
     }
 
     /*

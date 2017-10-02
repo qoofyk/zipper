@@ -255,11 +255,12 @@ int main (int argc, char ** argv)
     MPI_Barrier (comm);
     adios_read_finalize_method (method);
 
+    clog_info(CLOG(MY_LOGGER),"rank %d: exit\n", rank);
+
   /*
    * close logger
    */
   clog_free(MY_LOGGER);
     MPI_Finalize ();
-    printf("rank %d: exit\n", rank);
     return 0;
 }

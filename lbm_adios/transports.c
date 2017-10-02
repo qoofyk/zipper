@@ -3,6 +3,7 @@
  * @date   2017
  */
 #include "transports.h"
+#include "utility.h"
 
 transport_method_t get_current_transport(){
     uint8_t major, minor; // method id
@@ -18,7 +19,8 @@ transport_method_t get_current_transport(){
      * get the configuration from environment variable
      */
     if((transport_string = getenv("MyTransport")) != NULL){
-        printf("get string %s\n", transport_string);
+        clog_debug(CLOG(MY_LOGGER),"get string %s\n", transport_string);
+
         /*
          * adios-mpiio
          */ 
@@ -65,6 +67,6 @@ transport_method_t get_current_transport(){
 
 
     transport_method_t transport = construct_method(major, minor);
-    printf("[%s]: tranport code %x\n", __func__, transport);
+    clog_debug(CLOG(MY_LOGGER), "tranport code %x\n", transport);
     return transport;
 }

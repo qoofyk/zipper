@@ -7,11 +7,32 @@ TODO
 	* redesigned flexpath
 	* new version of adios
 
-
 	0. use environment variable instead of preprocessor
 	1. nnti in flexpath, not usable.
 	2. dspaces hanging
 	3. ENABLE_TESTING in flexpath conf, enabled
+
+## Oct 2
+	adios-staging didn't specify locktype=2, dspaces default type is 1
+	2-d dimesions as in native dspaces?
+	adios removed lock-size 2
+	
+## Oct 1 
+	should try adios_staging skeletopn code
+	1810216
+		adios_staging with separate output
+			consumer read is not performed
+
+## Sep 29
+	todo:
+	adios_staging:
+		Sep 27, else if fixed, but get blocked:
+		check adios open mode, should it be opened in each step?(w in first step,
+	and a in succeding steps, as in examples/staging/..genarray_stream)
+## Sep 28
+	todo
+		adios_staging
+		larger native_dimes
 
 ## Sep 27
 	changes: 
@@ -32,9 +53,6 @@ TODO
 		
 		56 nodes for producer
 		28 nodes for consumer
-
-		
-	
 
 ## Sep 22
 	in evpath_mpi/results/socket.log & evpath_mpi/results/enet.log

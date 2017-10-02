@@ -129,8 +129,7 @@ int main (int argc, char ** argv)
         exit(-1);
     }
     else{
-        if(rank == 0)
-            clog_info(CLOG(MY_LOGGER),"rank %d: adios read method init complete with %d\n", rank, method);
+        clog_info(CLOG(MY_LOGGER),"adios read method init complete with %d\n", method);
     }
 
 #ifdef HAS_KEEP
@@ -140,11 +139,9 @@ int main (int argc, char ** argv)
     clog_info(CLOG(MY_LOGGER),"rank %d: adios init complete with dataspaces\n", rank);
 #elif defined(USE_DIMES)
   adios_init ("adios_xmls/dbroker_dimes.xml", comm);
-  if(rank ==0)
     clog_info(CLOG(MY_LOGGER),"rank %d: adios init complete with dimes\n", rank);
 #elif defined(USE_FLEXPATH)
   adios_init ("adios_xmls/dbroker_flexpath.xml", comm);
-  if(rank ==0)
     clog_info(CLOG(MY_LOGGER),"rank %d: adios init complete with flexpath\n", rank);
 
 #else 
@@ -199,8 +196,7 @@ int main (int argc, char ** argv)
     int errno_streaming_read = adios_errno;
     //for(timestep = 0; timestep < 10;){
     while(errno_streaming_read != err_end_of_stream){
-        if(rank == 0)
-            clog_info(CLOG(MY_LOGGER),"rank %d: Step %d start\n", rank, timestep);
+        clog_info(CLOG(MY_LOGGER),"rank %d: Step %d start\n", rank, timestep);
            /* Read a subset of the temperature array */
         // 0:not used for strea; 1: must be set in stream
         adios_schedule_read (f, sel, "atom", 0, 1, data);
@@ -210,17 +206,17 @@ int main (int argc, char ** argv)
         // block until read complete
         adios_perform_reads (f, 1);
 
-        if(rank ==0)
-            clog_info(CLOG(MY_LOGGER),"    [DEBUG]:read is performed");
+        clog_debug(CLOG(MY_LOGGER),"    [DEBUG]:read is performed");
         t2 = get_cur_time();
         t_read_1 += t2-t1;
 
         adios_release_step(f);
+
+        clog_debug(CLOG(MY_LOGGER),"previous step released");
         // advance to (1)the next availibale step (2)blocked if not unavailble
         adios_advance_step(f, 0, -1);
 
-        if(rank ==0)
-            clog_info(CLOG(MY_LOGGER),"    [DEBUG]: advanced to next step in stream");
+        clog_debug(CLOG(MY_LOGGER),"successfully step into next available step");
         
         t3 = get_cur_time();
 
@@ -264,8 +260,7 @@ int main (int argc, char ** argv)
         t4 = get_cur_time();
         t_analy += t4-t3;
 
-        if(rank ==0)
-            clog_info(CLOG(MY_LOGGER),"rank %d: Step %d moments calculated, t_read %lf, t_advance %lf, t_analy %lf\n", rank, timestep, t2-t1, t3-t2, t4-t3);
+        clog_info(CLOG(MY_LOGGER),"rank %d: Step %d moments calculated, t_read %lf, t_advance %lf, t_analy %lf\n", rank, timestep, t2-t1, t3-t2, t4-t3);
         timestep ++;
     }
 

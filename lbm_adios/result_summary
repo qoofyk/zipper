@@ -1,8 +1,32 @@
+## Oct 1
+    1810195, lbm_dspaces
+    1803867, revisit
+      server log:obj_put_update_dht()': this should not happen, num_de == 0 ?!
+## Sep 29
+JOBS
+    1804113
+        native_dspaces with 196vs98
+    1803867 adios_dataspaces,change adios_open mode to w(step 0), a(following steps)
+        does this fix the blocking?-> no
+    1803871
+        adios_dimes, with same modifications
+        73 steps
+    
 ## Sep 28
     JOBS:
+    1802199
+        adios_mpiio, 196vs86,
+    1802164
+        adios_mpiio, 8vs4 , 72s, shorter than before.
+    1801850
+        adios_dspaces, err
+    1801851
+        adios_dimes,err
+    1801798,  1802794
+        nativedimes 196vs98: err
     1801744
         native_dspaces 80s
-    1801747
+    1801747, new 1802776
         native_dimes, 63s
 ## Sep 27
     jobs

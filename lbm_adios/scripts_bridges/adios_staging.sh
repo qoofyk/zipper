@@ -11,8 +11,6 @@ BIN_CONSUMER=${BUILD_DIR}/bin/adios_staging_read;
 DS_SERVER=${PBS_O_HOME}/envs/Dataspacesroot/bin/dataspaces_server
 PBS_RESULTDIR=${SCRATCH_DIR}/results
 
-
-
 DS_CLIENT_PROCS=$((${PROCS_PRODUCER} + ${PROCS_CONSUMER}))
 
 echo "${DS_CLIENT_PROCS} clients, $PROCS_SERVER server"
@@ -42,7 +40,7 @@ ndim = 3
 dims = 2, $((DS_LIMIT)), 1
 max_versions = 5
 max_readers = 1
-lock_type = 2
+# lock_type = 2
 " > dataspaces.conf
 echo "DS_LIMIT= $DS_LIMIT"
   
