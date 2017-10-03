@@ -1,0 +1,20 @@
+# Change Log
+All notable changes to this project will be documented in this file.
+The format is based on [Keep a Changelog](http://keepachangelog.com/) 
+and this project adheres to [Semantic Versioning](http://semver.org/).
+TODO
+	see github log
+	* redesigned flexpath
+	* new version of adios
+
+	0. use environment variable instead of preprocessor
+	1. nnti in flexpath, not usable.
+	2. dspaces hanging
+	3. ENABLE_TESTING in flexpath conf, enabled
+
+## Oct 2
+#### added
+- dspace example now runs in stampede2, results to verify
+- dspace/flexpath/adios installed. Note withouth avx flags!
+
+

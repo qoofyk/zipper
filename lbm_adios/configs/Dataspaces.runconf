@@ -45,6 +45,41 @@ if [ `hostname | cut -c 1-2` == "br" ]; then
         --enable-dimes \
         --with-dimes-rdma-buffer-size=1024 \
 
+elif [ `hostname | cut -c 8-16` == "stampede2" ]; then
+    #######################
+    # Stampede #
+    #######################
+    echo "Configure on  stampede2"
+    # if tau is configured 
+    if [[ $1 == tau ]]; then
+        myCC=tau_cc.sh
+        myCXX=tau_cxx.sh
+        myFC=tau_f90.sh
+        myprefix=${HOME}/envs/Dataspacesroot_tau
+    else
+        myCC=mpicc
+        myCXX=mpicxx
+        myFC=mpif90
+        myprefix=${HOME}/envs/Dataspacesroot
+    fi
+
+
+    module list
+
+    #export CFLAGS="-I /usr/src/kernels/3.10.0-514.26.2.el7.x86_64/include/ -g -O3 -fPIC"
+    #export LIBS=" -lpthread -lm"
+    #${SRCDIR}/configure --prefix=${HOME}/envs/Dataspacesroot \
+    ./configure --prefix=${myprefix} \
+        CC=${myCC} \
+        CXX=${myCXX} \
+        FC=${myFC} \
+        CFLAGS="-g -O3 -fPIC" \
+        LIBS="-lpthread -lm" \
+        --enable-dimes \
+        --with-dimes-rdma-buffer-size=1024 \
+
+
+
 elif [ `hostname | cut -c 1-5` == "comet" ]; then
 
     #######################
