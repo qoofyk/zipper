@@ -15,12 +15,24 @@ if [ `hostname | cut -c 1-2` == "br" ]; then
 
 
     if [[ $1 == tau ]]; then
+        echo "using tau compiler and mpi"
         myCC=tau_cc.sh
         myCXX=tau_cxx.sh
         myFC=tau_f90.sh
         myDataspaces=${HOME}/envs/Dataspacesroot_tau
         myprefix=${HOME}/envs/ADIOSroot_tau
+
+    # if use intel compiler/mpi
+    elif [[ $1 == intel ]]; then
+        echo "using intel compiler and mpi"
+        myCC=mpiicc
+        myCXX=mpiicpc
+        myFC=mpiifort
+        myDataspaces=${HOME}/envs/Dataspacesroot_intel
+        myprefix=${HOME}/envs/ADIOSroot_intel
+
     else
+        echo "using gnu compiler with mvapich"
         myCC=mpicc
         myCXX=mpicxx
         myFC=mpif90

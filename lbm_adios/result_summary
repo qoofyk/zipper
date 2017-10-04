@@ -1,9 +1,22 @@
+## Oct 3
+    1814093
+        launcher test with intel mpirun
+        only 1 app has output!
+    1814068
+        ex3 with intel mpi/compiler
+       run: Job step creation temporarily disabled, retrying
+        srun: error: Unable to create job step: Job/step already completing or completed
+        will keep using gnu/mvapich in bridgs
 ## Oct 2
 JOBS  
+    1812258
+        lbm_dimes with 196vs98
+    1812255
+        lbm_dspaces_with 196vs98
+    1812165
+        lbm_dimes with 4 server proces
     1811963
         lbm_dspaces with 4 server procs
-    1811962
-        lbm_dimes with 4 server proces
     
     1811831
         lbm_dimes, with dim=2 and num server proc =1, num_server_proc=1, 155.54s
