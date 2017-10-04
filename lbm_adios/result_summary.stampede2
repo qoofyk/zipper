@@ -1,7 +1,10 @@
 ## Oct 2
 JOBS
-    303356 native_staging of dpsaces
-    303350 mpiio successfully run
+    303418 native staging  196vs 98, rpc bind err
+
+    303396 adios_staging of dspaces works
+    303356 native_staging of dpsaces, works
+    303350 mpiio successfully run, works
 
 
 

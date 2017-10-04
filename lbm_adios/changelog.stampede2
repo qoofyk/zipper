@@ -17,4 +17,8 @@ TODO
 - dspace example now runs in stampede2, results to verify
 - dspace/flexpath/adios installed. Note withouth avx flags!
 
+#### exp
+	small experiments can run,
+	larger experiment need specifiy layout, 
+
 
