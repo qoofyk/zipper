@@ -15,15 +15,16 @@
 CASE_NAME=dataspaces_nokeep
 FILESIZE2PRODUCE=256 # 64*64*256*2*8 = 16MB per proc
 NSTOP=100 # how many steps
-PROCS_SERVER=4 # dspaces server
-PROCS_PRODUCER=8
-PROCS_CONSUMER=$((PROCS_PRODUCER/2))
-num_nodes_server=1
-num_nodes_app1=2
-num_nodes_app2=1
 
-###################################################
-echo "case=$CASE_NAME datasize=$FILESIZE2PRODUCE nstops=$NSTOP procs_server=$PROCS_SERVER procs_producers=$PROCS_PRODUCER procs_consumer=$PROCS_CONSUMER"
+# procs placement
+num_apps=3
+
+# slots used by this app
+procs_this_app=(4 8 4)
+
+# number of nodes used by this app
+nodes_this_app=(1 2 1)
+
 
 PBS_O_HOME=$HOME
 PBS_O_WORKDIR=$(pwd)

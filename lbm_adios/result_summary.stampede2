@@ -1,3 +1,23 @@
+## Oct 5
+JOBS
+    309374
+        8vs4 with mpiio
+    
+    
+    309206
+        196vs98 dspaces_nokeep
+        server cannot init:
+            rdma_bind_addr -1 in rpc_server_init.
+            'rpc_server_init()': failed with -1.
+
+    309158
+        8vs4 dspaces_nokeep
+        use new machinefile layout
+    
+    308648
+        196vs98
+        process layout
+        server procs(28*4 procs are packed into two nodes)
 ## Oct 2
 JOBS
     303418 native staging  196vs 98, rpc bind err

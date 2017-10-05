@@ -12,13 +12,6 @@ TODO
 	2. dspaces hanging
 	3. ENABLE_TESTING in flexpath conf, enabled
 
-## Oct 3
-	* stampded maintainance, will come back to bridges
-	* dsexample cannot run multiple applications with intel mpirun, 1814068:
-		run: Job step creation temporarily disabled, retrying
-	* try launchertest:
-		mpirun has only output for only one app
-
 	
 ## Oct 2
 #### fixing:
