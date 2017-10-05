@@ -129,8 +129,8 @@ void analysis_write_one_file(GV gv, LV lv, int source, int blk_id, char* buffer,
 	//------------------------
 
 	offset = (long)blk_id * (long)gv->block_size;
-	i=0;
-	error=-1;
+	// i=0;
+	// error=-1;
 	while(error!=0){
 		error=fseek(fp, offset, SEEK_SET);
 		i++;
@@ -316,7 +316,7 @@ void analysis_writer_thread(GV gv, LV lv) {
 	// if(my_count!=gv->analysis_writer_blk_num)
 	// 	printf("Analysis Writer my_count error!\n");
 
-	printf("Ana_Proc%04d: Writer%d, T_total=%.3f, T_ana_write=%.3f, T_only_fwrite=%.3f, T_rd_tail=%.3f, T_change_state=%.3f, cnt=%d, empty_wait=%d\n",
+	printf("Ana_Proc%04d: Writer%d, T_total=%.3f, T_ana_write=%.3f, T_fwrite=%.3f, T_rd_tail=%.3f, T_change_state=%.3f, cnt=%d, empty_wait=%d\n",
 		gv->rank[0], lv->tid, t3-t2, lv->write_time, lv->only_fwrite_time, read_tail_wait_time, change_state_time, my_count, lv->wait);
 	fflush(stdout);
 	// printf("Node%d Producer %d Write_Time/Block= %f only_fwrite_time/Block= %f, SPEED= %fKB/s\n",

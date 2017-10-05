@@ -98,8 +98,8 @@ void ana_read_one_file(GV gv, LV lv, int last_gen_rank, int blk_id, char* buffer
   //---------------------------------
 
   offset = (long)blk_id * (long)gv->block_size;
-  i=0;
-  error=-1;
+  // i=0;
+  // error=-1;
 
   while(error!=0){
     error=fseek(fp, offset, SEEK_SET);
@@ -153,7 +153,7 @@ void ana_read_one_file(GV gv, LV lv, int last_gen_rank, int blk_id, char* buffer
   // fclose(fp);
 }
 
-void analysis_reader_thread(GV gv,LV lv) {
+void analysis_reader_thread(GV gv, LV lv) {
 
   int last_gen_rank=0;
   int block_id=0, read_file_cnt=0;
@@ -188,7 +188,7 @@ void analysis_reader_thread(GV gv,LV lv) {
         break;
 
       t0 = MPI_Wtime();
-      pthread_mutex_lock(&gv->lock_recv);
+      pthread_mutex_lock(&gv->lock_recv_disk_id_arr);
       if(gv->recv_avail>0){
         flag = 1;
         //printf("Prefetcher %d read recv_tail = %d\n", lv->tid, gv->recv_tail);
@@ -203,7 +203,7 @@ void analysis_reader_thread(GV gv,LV lv) {
         // gv->prefetch_counter++;
       }
       recv_avail=gv->recv_avail;
-      pthread_mutex_unlock(&gv->lock_recv);
+      pthread_mutex_unlock(&gv->lock_recv_disk_id_arr);
       t1 = MPI_Wtime();
       disk_arr_wait_time += t1 - t0;
 

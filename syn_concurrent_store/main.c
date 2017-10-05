@@ -93,7 +93,7 @@ int main(int argc, char **argv){
 	gv->analysis_writer_num = atoi(argv[4]);
 
 	gv->data_id = 0;
-	gv->mpi_send_progress_counter = 0;
+	// gv->mpi_send_progress_counter = 0;
 
 	gv->block_size = atoi(argv[5])*1024*64; //64K B
 
@@ -199,7 +199,7 @@ int main(int argc, char **argv){
 	    //compute node
 	    if(gv->rank[0]==0 || gv->rank[0]==(gv->compute_process_num-1)){
 	    	printf("Comp_Proc%04d of %d on %s: produce %.1fMB, cpt_total_blks=%d, writer_blk#=%d, sender_blk#=%d, \
-PRB %.3fGB, size=%d member\n",
+PRB %.3fGB, size=%d\n",
 			gv->rank[0], gv->size[1], gv->processor_name, gv->total_file, gv->cpt_total_blks, gv->writer_blk_num, gv->sender_blk_num,
 			PRODUCER_RINGBUFFER_TOTAL_MEMORY/(1024.0*1024.0*1024.0), gv->producer_rb_p->bufsize);
 		    fflush(stdout);
@@ -222,8 +222,8 @@ PRB %.3fGB, size=%d member\n",
 	 //    fflush(stdout);
 
 		//init lock
-		pthread_mutex_init(&gv->lock_block_id,NULL);
-	    pthread_mutex_init(&gv->lock_writer_progress, NULL);
+		pthread_mutex_init(&gv->lock_block_id, NULL);
+	    pthread_mutex_init(&gv->lock_disk_id_arr, NULL);
 	    pthread_mutex_init(&gv->lock_writer_done, NULL);
 //--------------------------------------------------------------------------------------------//
 
@@ -267,7 +267,7 @@ PRB %.3fGB, size=%d member\n",
 		gv->analysis_writer_blk_num = gv->ana_total_blks - gv->reader_blk_num;
 
 		//ana_receiver, ana_reader <--> ana_writer, ana_consumer
-    	int num_total_thrds= gv->analysis_reader_num+gv->analysis_writer_num+1+1;
+    	int num_total_thrds= gv->analysis_reader_num+gv->analysis_writer_num+2;
 		lvs   = (LV) malloc(sizeof(*lvs)*num_total_thrds);
 		thrds = (pthread_t*) malloc(sizeof(pthread_t)*num_total_thrds);
 		attrs = (pthread_attr_t*) malloc(sizeof(pthread_attr_t)*num_total_thrds);
@@ -299,8 +299,8 @@ CRB %.3fGB, size=%d\n",
 	    	fflush(stdout);
 	    }
 
-		gv->mpi_recv_progress_counter = 0;
-	    gv->org_recv_buffer = (char *) malloc(gv->compute_data_len); //long message+
+		// gv->mpi_recv_progress_counter = 0;
+	    gv->org_recv_buffer = (char *) malloc(gv->compute_data_len); //max length MIX_MSG
 	    check_malloc(gv->org_recv_buffer);
 
 	    // prfetch threads 1+1:cid+blkid
@@ -333,7 +333,7 @@ CRB %.3fGB, size=%d\n",
 	    // fflush(stdout);
 
 	    //initialize lock
-	    pthread_mutex_init(&gv->lock_recv, NULL);
+	    pthread_mutex_init(&gv->lock_recv_disk_id_arr, NULL);
 	    // pthread_mutex_init(&gv->lock_prefetcher_progress, NULL);
 
 	    t0=MPI_Wtime();

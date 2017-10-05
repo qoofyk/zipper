@@ -15,7 +15,7 @@ void recv_ring_buffer_put(GV gv, LV lv, char* buffer, int* num_avail_elements){
     fflush(stdout);
 #endif //DEBUG_PRINT
 
-      rb->head = (rb->head + 1) % rb->bufsize;
+      rb->head = (rb->head+1) % rb->bufsize;
       *num_avail_elements = ++rb->num_avail_elements;
 
       pthread_cond_broadcast(rb->empty);
@@ -60,8 +60,8 @@ void make_prefetch_id(GV gv, int src, int num_int, int* tmp_int_ptr){
     // }
 
     // if(temp2[i]==0){
-    //   printf("Ana_Proc%d: Receiver Get a MIX_msg! In make_prefetch_id, temp2[i]=%d, gv->mpi_recv_progress_counter=%d\n",
-    //       gv->rank[0], temp2[i], gv->mpi_recv_progress_counter);
+    //   printf("Ana_Proc%d: Receiver Get a MIX_msg! In make_prefetch_id, temp2[i]=%d, prog=%d\n",
+    //       gv->rank[0], temp2[i], prog);
     //   fflush(stdout);
     // }
 
@@ -76,14 +76,14 @@ void make_prefetch_id(GV gv, int src, int num_int, int* tmp_int_ptr){
 
 void analysis_receiver_thread(GV gv,LV lv){
   int recv_int=0, block_id=0, source=0;
-  double t0=0, t1=0, t2=0, t3=0, t4=0, t5=0, mkidarr_time=0, recv_put_time=0;
+  double t0=0, t1=0, t2=0, t3=0, t4=0, t5=0, mkidarr_time=0;
   double receive_time=0;
   MPI_Status status;
   int errorcode, long_msg_id=0, mix_msg_id=0, disk_id=0;
   int* tmp_int_ptr;
   char* new_buffer=NULL;
   int num_exit_flag = 0;
-  int num_avail_elements=0, full=0;
+  int num_avail_elements=0, full=0, prog=0;
 
   // printf("Analysis Process %d Receiveing thread %d Start receive!\n",gv->rank[0], lv->tid);
   // fflush(stdout);
@@ -163,7 +163,7 @@ void analysis_receiver_thread(GV gv,LV lv){
   t0 = MPI_Wtime();
   while(1){
 
-    if ((num_exit_flag >= gv->computer_group_size) && (gv->mpi_recv_progress_counter>=gv->ana_total_blks)) {
+    if ((num_exit_flag >= gv->computer_group_size) && (prog>=gv->ana_total_blks)) {
       gv->ana_reader_done=1;
       break;
     }
@@ -194,22 +194,21 @@ void analysis_receiver_thread(GV gv,LV lv){
       // fflush(stdout);
       // #endif //DEBUG_PRINT
       /***************************receive a long_msg***************************************/
-      // pthread_mutex_lock(&gv->lock_recv);
+      // pthread_mutex_lock(&gv->lock_recv_disk_id_arr);
       // gv->prefetch_counter++;
-      // pthread_mutex_unlock(&gv->lock_recv);
+      // pthread_mutex_unlock(&gv->lock_recv_disk_id_arr);
 
       // if(long_messageind%3000==0)
-      //   printf("LONG!____Node %d Receive thread %d mpi_recv_progress_counter=%ld, long_messageind= %ld, short_messageind=%ld\n", gv->rank[0], lv->tid, gv->mpi_recv_progress_counter,long_messageind,short_messageind);
+      //   printf("LONG!____Node %d Receive thread %d mpi_recv_progress_counter=%ld, long_messageind= %ld, short_messageind=%ld\n", gv->rank[0], lv->tid, prog,long_messageind,short_messageind);
 
-      gv->mpi_recv_progress_counter++;
+      prog++;
       long_msg_id++;
 
+#ifdef DEBUG_PRINT
       int count;
       MPI_Get_count(&status, MPI_CHAR, &count);
-
-#ifdef DEBUG_PRINT
-      printf("Ana_Proc%d: Receiver *LONG MSG* --src=%d-- num_long_msg=%d, gv->mpi_recv_prog_cnt=%d, get_cnt=%d\n",
-        gv->rank[0], status.MPI_SOURCE, long_msg_id, gv->mpi_recv_progress_counter, count);
+      printf("Ana_Proc%d: Receiver *LONG MSG* --src=%d-- num_long_msg=%d, prog=%d, get_cnt=%d\n",
+        gv->rank[0], status.MPI_SOURCE, long_msg_id, prog, count);
       fflush(stdout);
 #endif //DEBUG_PRINT
 
@@ -229,8 +228,8 @@ void analysis_receiver_thread(GV gv,LV lv){
 
 #ifdef DEBUG_PRINT
       if(tmp_int_ptr[4]==0){
-        printf("Ana_Proc%d: Receiver%d Get a Long_msg! block_id=%d, gv->mpi_recv_progress_counter=%d tmp_int_ptr[4]==%d\n",
-          gv->rank[0], lv->tid, block_id, gv->mpi_recv_progress_counter, tmp_int_ptr[4]);
+        printf("Ana_Proc%d: Receiver%d Get a Long_msg! block_id=%d, prog=%d tmp_int_ptr[4]==%d\n",
+          gv->rank[0], lv->tid, block_id, prog, tmp_int_ptr[4]);
         fflush(stdout);
       }
 #endif //DEBUG_PRINT
@@ -238,7 +237,7 @@ void analysis_receiver_thread(GV gv,LV lv){
       t4 = MPI_Wtime();
       recv_ring_buffer_put(gv, lv, new_buffer, &num_avail_elements);
       t5 = MPI_Wtime();
-      recv_put_time += t5-t4;
+      lv->ring_buffer_put_time += t5-t4;
 
 
       if(num_avail_elements == gv->consumer_rb_p->bufsize)
@@ -256,20 +255,20 @@ void analysis_receiver_thread(GV gv,LV lv){
       recv_int=*((int *)(tmp_int_ptr));
       disk_id += recv_int;
       mix_msg_id++;
-      gv->mpi_recv_progress_counter += recv_int+1;
+      prog += recv_int+1;
 
       // #ifdef DEBUG_PRINT
-      // printf("mix_msg_id:- recv_int=%d,gv->mpi_recv_progress_counter=%d,tmp_int_ptr[1]=%d\n",
-      //   recv_int,gv->mpi_recv_progress_counter,tmp_int_ptr[1]);
+      // printf("mix_msg_id:- recv_int=%d,prog=%d,tmp_int_ptr[1]=%d\n",
+      //   recv_int,prog,tmp_int_ptr[1]);
       // fflush(stdout);
       // #endif //DEBUG_PRINT
 
       // statistic !!!!!!!!
       t4 = MPI_Wtime();
-      pthread_mutex_lock(&gv->lock_recv);
+      pthread_mutex_lock(&gv->lock_recv_disk_id_arr);
       // gv->prefetch_counter++;
       make_prefetch_id(gv, status.MPI_SOURCE, recv_int, tmp_int_ptr+1);
-      pthread_mutex_unlock(&gv->lock_recv);
+      pthread_mutex_unlock(&gv->lock_recv_disk_id_arr);
       t5 = MPI_Wtime();
       mkidarr_time += t5-t4;
 
@@ -283,8 +282,8 @@ void analysis_receiver_thread(GV gv,LV lv){
       tmp_int_ptr[3] = NOT_CALC;
 
       // #ifdef DEBUG_PRINT
-      // printf("Analysis Process %d Receiver %d Get a MIX msg! long_messageind=%d,gv->mpi_recv_progress_counter=%d,block_id=%d\n",
-      //   gv->rank[0], lv->tid, mix_msg_id,gv->mpi_recv_progress_counter,block_id);
+      // printf("Analysis Process %d Receiver %d Get a MIX msg! long_messageind=%d,prog=%d,block_id=%d\n",
+      //   gv->rank[0], lv->tid, mix_msg_id,prog,block_id);
       // fflush(stdout);
       // #endif //DEBUG_PRINT
 
@@ -292,8 +291,8 @@ void analysis_receiver_thread(GV gv,LV lv){
 
 #ifdef DEBUG_PRINT
       if(tmp_int_ptr[4]==0){ //first real data
-        printf("Ana_Proc%d: Receiver%d Get a MIX_msg! block_id=%d, gv->mpi_recv_progress_counter=%d tmp_int_ptr[4]==%d\n",
-          gv->rank[0], lv->tid, block_id, gv->mpi_recv_progress_counter, tmp_int_ptr[4]);
+        printf("Ana_Proc%d: Receiver%d Get a MIX_msg! block_id=%d, prog=%d tmp_int_ptr[4]==%d\n",
+          gv->rank[0], lv->tid, block_id, prog, tmp_int_ptr[4]);
         fflush(stdout);
       }
 #endif //DEBUG_PRINT
@@ -301,8 +300,7 @@ void analysis_receiver_thread(GV gv,LV lv){
       t4 = MPI_Wtime();
       recv_ring_buffer_put(gv, lv, new_buffer, &num_avail_elements);
       t5 = MPI_Wtime();
-      recv_put_time += t5-t4;
-
+      lv->ring_buffer_put_time += t5-t4;
 
       if(num_avail_elements == gv->consumer_rb_p->bufsize)
         full++;
@@ -315,7 +313,7 @@ void analysis_receiver_thread(GV gv,LV lv){
       disk_id += recv_int;
 
       printf("PURE_DISK_MSG:- recv_int=%d, prog=%d\n",
-        recv_int,gv->mpi_recv_progress_counter);
+        recv_int,prog);
       fflush(stdout);
 
       tmp_int_ptr=(int*)gv->org_recv_buffer;
@@ -325,7 +323,7 @@ void analysis_receiver_thread(GV gv,LV lv){
       // }
       // printf("\n");
       t4 = MPI_Wtime();
-      pthread_mutex_lock(&gv->lock_recv);
+      pthread_mutex_lock(&gv->lock_recv_disk_id_arr);
       make_prefetch_id(gv, status.MPI_SOURCE, recv_int, tmp_int_ptr);
       // tmp_int_ptr=(int*) gv->prefetch_id_array;
       // for(int i=0;i<gv->recv_tail;i++){
@@ -333,11 +331,11 @@ void analysis_receiver_thread(GV gv,LV lv){
       //   fflush(stdout);
       // }
       // printf("\n");
-      pthread_mutex_unlock(&gv->lock_recv);
+      pthread_mutex_unlock(&gv->lock_recv_disk_id_arr);
       t5 = MPI_Wtime();
       mkidarr_time += t5-t4;
 
-      gv->mpi_recv_progress_counter += recv_int;
+      prog += recv_int;
     }
     else if (status.MPI_TAG == EXIT_MSG_TAG){
 
@@ -360,8 +358,7 @@ void analysis_receiver_thread(GV gv,LV lv){
       t4 = MPI_Wtime();
       recv_ring_buffer_put(gv, lv, new_buffer, &num_avail_elements);
       t5 = MPI_Wtime();
-      recv_put_time += t5-t4;
-
+      lv->ring_buffer_put_time += t5-t4;
 
       if(num_avail_elements == gv->consumer_rb_p->bufsize)
         full++;
@@ -410,7 +407,7 @@ void analysis_receiver_thread(GV gv,LV lv){
 
   printf("Ana_Proc%04d: Receiver%d T_total=%.3f, prog=%d, \
 T_recv_wait=%.3f, T_put=%.3f, T_mkidarr=%.3f, M_long=%d, M_mix=%d, disk=%d, full_wait=%d\n",
-     gv->rank[0], lv->tid, t1 - t0, gv->mpi_recv_progress_counter,
-     receive_time, recv_put_time, mkidarr_time, long_msg_id, mix_msg_id, disk_id, lv->wait);
+     gv->rank[0], lv->tid, t1 - t0, prog,
+     receive_time, lv->ring_buffer_put_time, mkidarr_time, long_msg_id, mix_msg_id, disk_id, lv->wait);
   fflush(stdout);
 }

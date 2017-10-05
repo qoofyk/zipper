@@ -1,19 +1,19 @@
 #!/bin/bash
-#SBATCH --job-name="784KeepSyn"
-#SBATCH --output="results/Syn.Keep.784v392.%j.out"
+#SBATCH --job-name="28SynKeep"
+#SBATCH --output="results/Syn.Keep.28v14.%j.out"
 #SBATCH --partition=RM
-#SBATCH --nodes=84
+#SBATCH --nodes=3
 #SBATCH --ntasks-per-node=28
 #SBATCH --export=ALL
 # mail alert at start, end and abortion of execution
 #SBATCH --mail-type=ALL
 # send mail to this address
 #SBATCH --mail-user=qoofyk@gmail.com
-#SBATCH -t 0:05:00
+#SBATCH -t 0:20:00
 
 #RM-shared / RM
 ##################parameter setting#################################################
-directory="0784v0392"
+directory="0028v0014"
 nproc_per_mac=14
 
 CASE_NAME=Syn_DataBroker_concurrent_Keep
@@ -24,7 +24,7 @@ analysis_reader_num=1
 analysis_writer_num=1
 
 compute_group_size=2
-num_comp_proc=784
+num_comp_proc=28
 num_ana_proc=$((${num_comp_proc} / ${compute_group_size}))
 total_proc=$((${num_comp_proc} + ${num_ana_proc}))
 
@@ -59,12 +59,11 @@ lp=1 #verification computation repeat times in ana_consumer_thread
 
 #concurrent_IO_exp
 # n->1, nlgn->2(8cores), n^3/2(64cores)
-#computation_lp=(1 2 5)
-computation_lp=(1)
-#block_size1=(128 128 128) #1->64KB, 2->128KB, 4->256KB, 8->512KB, 16->1MB, 32->2MB, 64->4MB, 128->8MB, 256->16MB
-#cpt_total_blks1=(500 500 500)
-block_size1=(128) #1->64KB, 2->128KB, 4->256KB, 8->512KB, 16->1MB, 32->2MB, 64->4MB, 128->8MB, 256->16MB
-cpt_total_blks1=(500)
+computation_lp=(1 2 5)
+# computation_lp=(1)
+block_size1=(128 128 128) #1->64KB, 2->128KB, 4->256KB, 8->512KB, 16->1MB, 32->2MB, 64->4MB, 128->8MB, 256->16MB
+cpt_total_blks1=(500 500 500)
+
 
 #sepfile
 # utime2=(5000 4500 14000 12000) #sleep for microseconds
@@ -76,11 +75,11 @@ cpt_total_blks1=(500)
 # cpt_total_blks2=(2000 2000 2000 1000 1000 1000 500 500 500)
 
 
-#writer_thousandth=(0 999)
-#writer_prb_thousandth=(1000 1000)
+writer_thousandth=(0 999)
+writer_prb_thousandth=(1000 1000)
 
-writer_thousandth=(999)
-writer_prb_thousandth=(1000)
+# writer_thousandth=(999)
+# writer_prb_thousandth=(1000)
 
 tune_stripe_count=-1
 ####################################################################################

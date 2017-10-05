@@ -8,8 +8,8 @@ char* producer_ring_buffer_get(GV gv, LV lv, int* num_avail_elements){
   pthread_mutex_lock(rb->lock_ringbuffer);
   while(1) {
   	if(gv->flag_sender_get_finalblk==1){
-			pthread_mutex_unlock(rb->lock_ringbuffer);
-			return NULL;
+		pthread_mutex_unlock(rb->lock_ringbuffer);
+		return NULL;
 	}
 
     // if (rb->num_avail_elements > 0) {
@@ -192,10 +192,10 @@ void compute_writer_thread(GV gv, LV lv) {
 #endif //DEBUG_PRINT
 
 					//add to disk_id_array
-					pthread_mutex_lock(&gv->lock_writer_progress);
+					pthread_mutex_lock(&gv->lock_disk_id_arr);
 					gv->written_id_array[gv->send_tail] = block_id;
 					gv->send_tail++;
-					pthread_mutex_unlock(&gv->lock_writer_progress);
+					pthread_mutex_unlock(&gv->lock_disk_id_arr);
 
 					free(buffer);
 				}
@@ -240,18 +240,18 @@ void compute_writer_thread(GV gv, LV lv) {
 
 			if(my_exit_flag==1){
 
-				/*In case at last: sender exit and writer never get lock_writer_progress */
+				/*In case at last: sender exit and writer never get lock_disk_id_arr */
 				if(gv->flag_sender_get_finalblk==1){
 
 					int remain_disk_id=0, errorcode=0;
 					int dest = gv->rank[0]/gv->computer_group_size + gv->compute_process_num;
 
-					pthread_mutex_lock(&gv->lock_writer_progress);
+					pthread_mutex_lock(&gv->lock_disk_id_arr);
 					if (gv->send_tail>0){
 						remain_disk_id = gv->send_tail;
 						gv->send_tail=0;
 					}
-					pthread_mutex_unlock(&gv->lock_writer_progress);
+					pthread_mutex_unlock(&gv->lock_disk_id_arr);
 
 					if(remain_disk_id>0){
 						errorcode = MPI_Send(gv->written_id_array, remain_disk_id*sizeof(int), MPI_CHAR, dest, DISK_TAG, MPI_COMM_WORLD);
@@ -262,7 +262,6 @@ void compute_writer_thread(GV gv, LV lv) {
 					}
 				}
 
-
 				break;
 			}
 
@@ -271,7 +270,7 @@ void compute_writer_thread(GV gv, LV lv) {
 
 	t3 = MPI_Wtime();
 
-	printf("Comp_Proc%04d: Writer%d T_total=%.3f, T_comp_write=%.3f, T_only_fwrite=%.3f, cnt=%d, overlap=%d, wait=%d, Ov%%=%.1f\n",
+	printf("Comp_Proc%04d: Writer%d T_total=%.3f, T_comp_write=%.3f, T_fwrite=%.3f, cnt=%d, overlap=%d, wait=%d, Ov%%=%.1f\n",
 		gv->rank[0], lv->tid, t3-t2, lv->write_time, lv->only_fwrite_time, my_count, overlap, lv->wait, 100.0*overlap/gv->cpt_total_blks);
 	fflush(stdout);
 	// printf("Node%d Producer %d Write_Time/Block= %f only_fwrite_time/Block= %f, SPEED= %fKB/s\n",

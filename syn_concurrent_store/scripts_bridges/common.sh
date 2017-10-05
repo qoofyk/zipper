@@ -15,13 +15,13 @@ lfs setstripe --stripe-size 1m --stripe-count ${tune_stripe_count} ${PBS_RESULTD
 # done
 
 #generate hostfile
-HOST_DIR=$PBS_RESULTDIR/hosts
+HOST_DIR=$SCRATCH_DIR/hosts
 mkdir -pv $HOST_DIR
 rm -f $HOST_DIR/hostfile*
 #all tasks run the following command
 srun -o $HOST_DIR/hostfile-dup hostname
 cat $HOST_DIR/hostfile-dup | sort | uniq | sed "s/$/:${nproc_per_mac}/" >$HOST_DIR/hostfile-all
-cd ${PBS_RESULTDIR}
+# cd ${PBS_RESULTDIR}
 
 #SET TOTAL MPI PROC
 export SLURM_NTASKS=$total_proc
@@ -40,15 +40,15 @@ echo "SLURM_TASKS_PER_NODE=$SLURM_TASKS_PER_NODE"
 # echo "TPN=$TPN"
 # # find number of CPU cores per node
 echo "SLURM_JOB_CPUS_PER_NODE=$SLURM_JOB_CPUS_PER_NODE"
-# PPN=`echo $SLURM_JOB_CPUS_PER_NODE | cut -d '(' -f 1`
-# echo "PPN=$PPN"
+PPN=`echo $SLURM_JOB_CPUS_PER_NODE | cut -d '(' -f 1`
+echo "PPN=$PPN"
 # THREADS=$(( PPN / TPN ))
 # export OMP_NUM_THREADS=$THREADS
 
 # echo "TPN=$TPN, PPN=$PPN, THREADS=$THREADS, lp=$lp, SLURM_NTASKS=$SLURM_NTASKS"
 
 #
-export OMP_NUM_THREADS=$((${SLURM_JOB_CPUS_PER_NODE}/${num_comp_proc}))
+export OMP_NUM_THREADS=$(( PPN / num_comp_proc ))
 # export OMP_NUM_THREADS=2
 echo "OMP_NUM_THREADS=$OMP_NUM_THREADS, lp=$lp, SLURM_NTASKS=$SLURM_NTASKS"
 
@@ -132,7 +132,7 @@ for((i=0;i<${#block_size1[@]};i++));do
 	done
 done
 
-rm *cid*
+# $my_del_exp2 ${PBS_RESULTDIR}
 
 
 # echo

@@ -16,7 +16,7 @@ void init_lv(LV lv, int tid, GV gv) {
   lv->calc_time = 0.0;
   lv->ring_buffer_put_time = 0.0;
   lv->ring_buffer_get_time = 0.0;
-  lv->wait = 0.0;
+  lv->wait = 0;
   //printf("init mutex done!\n");
 }
 
@@ -34,15 +34,15 @@ void* compute_node_do_thread(void* v) {
 
   if(tid <= (gv->compute_generator_num-1)) {
       //generator
-      compute_generator_thread(gv,lv);
+      compute_generator_thread(gv, lv);
   }
   else if(tid >= gv->compute_generator_num && tid<=(gv->compute_generator_num + gv->compute_writer_num-1)){
       //mpi_send_thread
-      compute_sender_thread(gv,lv);
+      compute_sender_thread(gv, lv);
   }
   else{
       //writer_thread
-      compute_writer_thread(gv,lv);
+      compute_writer_thread(gv, lv);
   }
 
   return NULL;

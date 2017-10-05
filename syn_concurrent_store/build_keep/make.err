@@ -1,7 +1,3 @@
-../analysis_writer.c: In function ‘analysis_write_one_file’:
-../analysis_writer.c:92:48: warning: unused parameter ‘source’ [-Wunused-parameter]
- void analysis_write_one_file(GV gv, LV lv, int source, int blk_id, char* buffer, int nbytes, FILE *fp){
-                                                ^
 ../analysis_consumer.c: In function ‘simple_verify’:
 ../analysis_consumer.c:7:30: warning: unused parameter ‘lv’ [-Wunused-parameter]
  void simple_verify(GV gv, LV lv, char* buffer, int nbytes, int source, int block_id, int* consumer_state_p, int* wrong){
@@ -20,3 +16,7 @@
 ../analysis_consumer.c:146:7: warning: variable ‘remaining_elements’ set but not used [-Wunused-but-set-variable]
    int remaining_elements;
        ^
+../analysis_writer.c: In function ‘analysis_write_one_file’:
+../analysis_writer.c:92:48: warning: unused parameter ‘source’ [-Wunused-parameter]
+ void analysis_write_one_file(GV gv, LV lv, int source, int blk_id, char* buffer, int nbytes, FILE *fp){
+                                                ^

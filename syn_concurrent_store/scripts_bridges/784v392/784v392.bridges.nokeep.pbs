@@ -1,5 +1,5 @@
 #!/bin/bash
-#SBATCH --job-name="Syn_NoKeep_784v392"
+#SBATCH --job-name="784NoKeepSyn"
 #SBATCH --output="results/Syn.NoKeep.784v392.%j.out"
 #SBATCH --partition=RM
 #SBATCH --nodes=84
@@ -9,7 +9,7 @@
 #SBATCH --mail-type=ALL
 # send mail to this address
 #SBATCH --mail-user=qoofyk@gmail.com
-#SBATCH -t 0:30:00
+#SBATCH -t 0:20:00
 
 #RM-shared / RM
 ##################parameter setting#################################################
@@ -45,19 +45,24 @@ lp=1 #verification computation repeat times in ana_consumer_thread
 #O(n^3/2) 4MB-- 2^10 =1024, 512, 256, 128,64,  32,  16
 #O(nlogn) 4MB- 		    20,  10,   5,  2,  1,
 
-#O(n^3/2) 8MB--2^10.5=1448, 724, 362, 181, 90, 45,  22  72(20cores)
+#O(n^3/2) 8MB--2^10.5=1448, 724, 362, 181, 90, 45,  22  72(20cores) 65(22cores)
 #O(nlogn) 8MB- 		    21,  11,   5,  2,  1,
 
-computation_lp=(1 18 64 1 19 60 1 20 64 1 21 72)
+#model_exp
+# computation_lp=(1 18 64 1 19 60 1 20 64 1 21 72)
 # computation_lp=(1 18 1 19 1 20 1 21)
 
 #one_file
 # utime1=(5000 7000 500 1000) #sleep for microseconds
-# block_size1=(16 16 32 32 64 64 128 128) #1->64KB, 2->128KB, 4->256KB, 8->512KB, 16->1MB, 32->2MB, 64->4MB, 128->8MB, 256->16MB
-# cpt_total_blks1=(4000 4000 2000 2000 1000 1000 500 500)
+# block_size1=(16 16 16 32 32 32 64 64 64 128 128 128) #1->64KB, 2->128KB, 4->256KB, 8->512KB, 16->1MB, 32->2MB, 64->4MB, 128->8MB, 256->16MB
+# cpt_total_blks1=(4000 4000 4000 2000 2000 2000 1000 1000 1000 500 500 500)
 
-block_size1=(16 16 16 32 32 32 64 64 64 128 128 128) #1->64KB, 2->128KB, 4->256KB, 8->512KB, 16->1MB, 32->2MB, 64->4MB, 128->8MB, 256->16MB
-cpt_total_blks1=(4000 4000 4000 2000 2000 2000 1000 1000 1000 500 500 500)
+#concurrent_IO_exp
+# n->1, nlgn->2(8cores), n^3/2(64cores)
+computation_lp=(1 2 5)
+# computation_lp=(1)
+block_size1=(128 128 128) #1->64KB, 2->128KB, 4->256KB, 8->512KB, 16->1MB, 32->2MB, 64->4MB, 128->8MB, 256->16MB
+cpt_total_blks1=(500 500 500)
 
 
 #sepfile
@@ -70,8 +75,8 @@ cpt_total_blks1=(4000 4000 4000 2000 2000 2000 1000 1000 1000 500 500 500)
 # cpt_total_blks2=(2000 2000 2000 1000 1000 1000 500 500 500)
 
 
-writer_thousandth=(0)
-writer_prb_thousandth=(1000)
+writer_thousandth=(0 999)
+writer_prb_thousandth=(1000 1000)
 
 # writer_thousandth=(999)
 # writer_prb_thousandth=(1000)

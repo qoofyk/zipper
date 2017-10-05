@@ -37,7 +37,7 @@ void compute_sender_thread(GV gv,LV lv){
 	double mix_send_time=0, pure_mpi_send_time=0;
 	int disk_msg_flag=0;
 	char exit_flag = 0;
-	int block_id;
+	int block_id, prog=0;
 	char my_exit_flag=0;
 	// int num_avail_elements=0, remain=0;
 	// printf("Compute %d Sender %d start running!\n", gv->rank[0], lv->tid);
@@ -137,7 +137,7 @@ void compute_sender_thread(GV gv,LV lv){
 				// fflush(stdout);
 
 				//check disk_id_array
-				pthread_mutex_lock(&gv->lock_writer_progress);
+				pthread_mutex_lock(&gv->lock_disk_id_arr);
 				if (gv->send_tail>0){
 					//printf("Compute %d send a message send_counter=%d\n", gv->rank[0], send_counter);
 					// fflush(stdout);
@@ -150,7 +150,7 @@ void compute_sender_thread(GV gv,LV lv){
 					tmp_int_ptr[0] = send_counter;
 					gv->send_tail = 0;
 				}
-				pthread_mutex_unlock(&gv->lock_writer_progress);
+				pthread_mutex_unlock(&gv->lock_disk_id_arr);
 
 				// MIX_MSG
 				if (send_counter > 0){
@@ -168,7 +168,7 @@ void compute_sender_thread(GV gv,LV lv){
 					mix_msg_id++;
 					disk_id += send_counter;
 
-					gv->mpi_send_progress_counter += send_counter+1;
+					prog += send_counter+1;
 					send_counter = 0;
 					free(buffer);
 
@@ -187,7 +187,7 @@ void compute_sender_thread(GV gv,LV lv){
 					t1 = MPI_Wtime();
 					pure_mpi_send_time += t1 - t0;
 
-					gv->mpi_send_progress_counter++;
+					prog++;
 					long_msg_id++;
 					free(buffer);
 
@@ -227,13 +227,13 @@ void compute_sender_thread(GV gv,LV lv){
 
 			int remain_disk_id=0;
 
-			pthread_mutex_lock(&gv->lock_writer_progress);
+			pthread_mutex_lock(&gv->lock_disk_id_arr);
 			if (gv->send_tail>0){
 				disk_msg_flag = 1;
 				remain_disk_id = gv->send_tail;
-				gv->send_tail=0;
+				gv->send_tail = 0;
 			}
-			pthread_mutex_unlock(&gv->lock_writer_progress);
+			pthread_mutex_unlock(&gv->lock_disk_id_arr);
 
 			if (disk_msg_flag == 0){
 
@@ -307,11 +307,9 @@ void compute_sender_thread(GV gv,LV lv){
 #endif //ADD_PAPI
 
 
-
-
 	printf("Comp_Proc%04d: Sender%d T_total=%.3f, prog=%d, \
 T_mix=%.3f, T_long=%.3f, T_total_send=%.3f, M_mix=%d, disk=%d, M_long=%d, empty_wait=%d\n",
-    gv->rank[0], lv->tid, t3-t2, gv->mpi_send_progress_counter,
+    gv->rank[0], lv->tid, t3-t2, prog,
     mix_send_time, pure_mpi_send_time, mix_send_time+pure_mpi_send_time, mix_msg_id, disk_id, long_msg_id, lv->wait);
   fflush(stdout);
 

@@ -37,8 +37,8 @@ void producer_ring_buffer_put(GV gv, LV lv, char * buffer, int* num_avail_elemen
       //gen_check_blk(gv, rb->buffer[rb->head],gv->block_size);
       rb->head = (rb->head + 1) % rb->bufsize;
       *num_avail_elements = ++rb->num_avail_elements;
-      // pthread_cond_broadcast(rb->empty);
-      pthread_cond_signal(rb->empty);
+      pthread_cond_broadcast(rb->empty);
+      // pthread_cond_signal(rb->empty);
       pthread_mutex_unlock(rb->lock_ringbuffer);
       return;
     } else {

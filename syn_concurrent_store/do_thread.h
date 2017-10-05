@@ -2,6 +2,9 @@
 Copyright YUANKUN FU
 Brief desc of the file: Header
 ********************************************************/
+#ifndef DO_THREAD_H
+#define DO_THREAD_H
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
@@ -27,7 +30,7 @@ Brief desc of the file: Header
   #define CONSUMER_RINGBUFFER_TOTAL_MEMORY 8*1024*1024*1024L
 #else
   #define CONSUMER_RINGBUFFER_TOTAL_MEMORY 512*1024*1024L
-#endif //CONSUMER_RB_4GB
+#endif //CONSUMER_RB_8GB
 
 
 #define OPEN_USLEEP 500
@@ -75,7 +78,7 @@ typedef struct lv_t {
   double ring_buffer_put_time;
   double ring_buffer_get_time;
 
-  int wait;
+  int   wait;
   void  *gv;
 }* LV;
 
@@ -105,7 +108,7 @@ typedef struct gv_t {
   int block_size;
   double total_file;
 
-  int utime;
+  // int utime;
   int lp;
   int computation_lp;
 
@@ -114,7 +117,7 @@ typedef struct gv_t {
 
   //sender
   int sender_all_done;
-  int mpi_send_progress_counter;  //currently how many file blocks have been sent
+  // int mpi_send_progress_counter;  //currently how many file blocks have been sent
   // int id_get;
 
   //writer
@@ -125,23 +128,23 @@ typedef struct gv_t {
 
   // receiver_thread
   char* org_recv_buffer;
-  int mpi_recv_progress_counter; // how many blocks are received
+  // int mpi_recv_progress_counter; // how many blocks are received
 
   //prefetcher thread
   // int prefetch_counter;  //currently how many file blocks have been read
   int recv_head;
   int recv_tail;
   int recv_avail;
-  int * prefetch_id_array;
+  int *prefetch_id_array;
   int ana_reader_done;
   int ana_writer_done;
 
   int calc_counter;
 
   pthread_mutex_t lock_block_id;
-  pthread_mutex_t lock_writer_progress;
+  pthread_mutex_t lock_disk_id_arr;
   pthread_mutex_t lock_writer_done;
-  pthread_mutex_t lock_recv;
+  pthread_mutex_t lock_recv_disk_id_arr;
   // pthread_mutex_t lock_prefetcher_progress;
 
 #ifdef WRITE_ONE_FILE
@@ -172,3 +175,5 @@ void analysis_reader_thread(GV gv,LV lv);
 void analysis_consumer_thread(GV gv,LV lv);
 
 void msleep(double milisec);
+
+#endif
