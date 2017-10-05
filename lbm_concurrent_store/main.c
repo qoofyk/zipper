@@ -1274,8 +1274,8 @@ computer_group_size, num_analysis_nodes, cubex, cubez, step_stop, lp, filesize2p
 	    //gv->producer_rb_p = rb_init(gv,PRODUCER_RINGBUFFER_TOTAL_MEMORY,&producer_rb);
 	    //compute node
 	    if(gv->rank[0]==0 || gv->rank[0]==(gv->compute_process_num-1)){
-	    	printf("Comp_Proc%04d of %d on %s: Gen %.1fMB, cpt_total_blks=%d, Hint:(writer_blk#=%d, sender_blk#=%d), \
-PRB %.3fGB, size=%d, block_size=%d, cube_size=%d double\n",
+	    	printf("Comp_Proc%04d of %d on %s: Gen %.1fMB, cpt_total_blks=%d, H_writer_blk#=%d, sender_blk#=%d, \
+PRB %.3fGB, size=%d, blk_size=%d, cube_size=%d double\n",
 			gv->rank[0], gv->size[1], gv->processor_name, gv->total_file, gv->cpt_total_blks, gv->writer_blk_num, gv->sender_blk_num,
 			PRODUCER_RINGBUFFER_TOTAL_MEMORY/(1024.0*1024.0*1024.0), gv->producer_rb_p->bufsize,
 			gv->block_size, gv->cubex*gv->cubey*gv->cubez*2);
