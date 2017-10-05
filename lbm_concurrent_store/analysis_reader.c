@@ -133,12 +133,19 @@ void analysis_reader_thread(GV gv,LV lv) {
     while(1){
       flag = 0;
 
-      if ( (gv->ana_reader_done == 1) && (recv_avail==0))
-        break;
+      if(gv->ana_reader_done == 1){
+        pthread_mutex_lock(&gv->lock_recv_disk_id_arr);
+        recv_avail=gv->recv_avail;
+        pthread_mutex_unlock(&gv->lock_recv_disk_id_arr);
+
+        if(recv_avail==0)
+          break;
+      }
+
 
       t0 = MPI_Wtime();
       pthread_mutex_lock(&gv->lock_recv_disk_id_arr);
-      if(gv->recv_tail>0){
+      if(gv->recv_avail>0){
         flag = 1;
         //printf("Prefetcher %d read recv_tail = %d\n", lv->tid, gv->recv_tail);
         last_gen_rank = gv->prefetch_id_array[gv->recv_tail]; // get a snapshot of which block has been generated
@@ -151,7 +158,7 @@ void analysis_reader_thread(GV gv,LV lv) {
         //printf("Now, Node %d Prefetcher %d minus tail=%d\n", gv->rank[0],lv->tid,gv->recv_tail);
         // gv->prefetch_counter++;
       }
-      recv_avail=gv->recv_avail;
+      // recv_avail=gv->recv_avail;
       pthread_mutex_unlock(&gv->lock_recv_disk_id_arr);
       t1 = MPI_Wtime();
       disk_arr_wait_time += t1 - t0;
@@ -183,9 +190,11 @@ void analysis_reader_thread(GV gv,LV lv) {
         read_file_cnt++;
 
 #ifdef DEBUG_PRINT
-        printf("Ana_Proc%d: Reader%d finish read src%d blk_id%d\n",
-          gv->rank[0], lv->tid, last_gen_rank, block_id);
-        fflush(stdout);
+        if(read_file_cnt%10==0){
+          printf("Ana_Proc%d: Reader%d finish read src%d blk_id%d\n",
+            gv->rank[0], lv->tid, last_gen_rank, block_id);
+          fflush(stdout);
+        }
 #endif //DEBUG_PRINT
 
         t0 = MPI_Wtime();
@@ -202,7 +211,9 @@ void analysis_reader_thread(GV gv,LV lv) {
 
 
   t3 = MPI_Wtime();
-  printf("Ana_Proc%04d: Reader%d T_total=%.3f, T_ana_read=%.3f, T_fread=%.3f, T_put=%.3f, T_Darr_wt=%.3f, cnt=%d, wait=%d\n",
-    gv->rank[0], lv->tid, t3 - t2, lv->read_time, lv->only_fread_time, lv->ring_buffer_put_time, disk_arr_wait_time, read_file_cnt, lv->wait);
+  printf("Ana_Proc%04d: Reader%d T_total=%.3f, T_ana_read=%.3f, T_fread=%.3f, \
+T_put=%.3f, T_Darr_wt=%.3f, cnt=%d, wait=%d, recv_avail=%d\n",
+    gv->rank[0], lv->tid, t3 - t2, lv->read_time, lv->only_fread_time,
+    lv->ring_buffer_put_time, disk_arr_wait_time, read_file_cnt, lv->wait, recv_avail);
   fflush(stdout);
 }

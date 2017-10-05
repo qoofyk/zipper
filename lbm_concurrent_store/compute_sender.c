@@ -123,11 +123,11 @@ void compute_sender_thread(GV gv,LV lv){
 				}
 			}
 			else{//Get exit flag msg
-#ifdef DEBUG_PRINT
-				printf("Comp_Proc%d: Sender%d Get exit flag msg and prepare to quit\n",
-					gv->rank[0], lv->tid);
+// #ifdef DEBUG_PRINT
+				printf("Comp_Proc%d: Sender%d Get exit flag msg and prepare to quit, prog=%d\n",
+					gv->rank[0], lv->tid, prog);
 				fflush(stdout);
-#endif //DEBUG_PRINT
+// #endif //DEBUG_PRINT
 
 				pthread_mutex_lock(rb->lock_ringbuffer);
 				gv->flag_sender_get_finalblk = 1;
@@ -143,11 +143,11 @@ void compute_sender_thread(GV gv,LV lv){
 		}
 		else{//writer get the final msg.
 
-#ifdef DEBUG_PRINT
+// #ifdef DEBUG_PRINT
 			printf("Comp_Proc%d: Sender%d *Discover* *Writer* Get exit flag msg and prepare to quit\n",
 					gv->rank[0], lv->tid);
 			fflush(stdout);
-#endif //DEBUG_PRINT
+// #endif //DEBUG_PRINT
 
 			my_exit_flag=1;
 		}
@@ -180,17 +180,18 @@ void compute_sender_thread(GV gv,LV lv){
 			// Special case: sender finish its job early and wait for writer to finish
 			if (disk_msg_flag == 1){
 
-#ifdef DEBUG_PRINT
-				printf("Comp_Proc%d: ---Special case--- Sender%d wait for Writer and send the last msg with %d blocks!!!!---###---\n",
+// #ifdef DEBUG_PRINT
+				printf("Comp_Proc%04d: ---Special case--- Sender%d wait for Writer and send the last msg with %d blocks!!!!---###---\n",
 					gv->rank[0], lv->tid, remain_disk_id);
 				fflush(stdout);
-#endif //DEBUG_PRINT
+// #endif //DEBUG_PRINT
 
 				num_send_char = remain_disk_id*sizeof(int);
 				errorcode = MPI_Send(gv->written_id_array, num_send_char, MPI_CHAR, dest, DISK_TAG, MPI_COMM_WORLD);
 				check_MPI_success(gv, errorcode);
 
 				disk_id += remain_disk_id;
+				prog += remain_disk_id;
 
 				//send EXIT msg
 				errorcode = MPI_Send(&exit_flag, 1, MPI_CHAR, dest, EXIT_MSG_TAG, MPI_COMM_WORLD);

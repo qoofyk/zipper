@@ -253,9 +253,10 @@ void analysis_receiver_thread(GV gv, LV lv){
 
       MPI_Get_count(&status, MPI_CHAR, &recv_int);
       recv_int=recv_int/sizeof(int);
+      prog += recv_int;
 
-      printf("pure_disk_msg:- recv_int=%d, prog=%d\n",
-        recv_int, prog);
+      printf("Ana_Proc%04d: pure_disk_msg:- recv_int=%d, prog=%d\n",
+        gv->rank[0], recv_int, prog);
       fflush(stdout);
 
       tmp_int_ptr=(int*)gv->org_recv_buffer;
@@ -267,7 +268,6 @@ void analysis_receiver_thread(GV gv, LV lv){
       t5 = MPI_Wtime();
       mkidarr_time += t5-t4;
 
-      prog += recv_int;
     }
     else if (status.MPI_TAG == EXIT_MSG_TAG){
 
@@ -305,8 +305,8 @@ void analysis_receiver_thread(GV gv, LV lv){
   t1 = MPI_Wtime();
 
   printf("Ana_Proc%04d: Receiver%d T_total=%.3f, prog=%d, \
-T_recv_wait=%.3f, T_put=%.3f, T_mkidarr=%.3f, M_long=%d, M_mix=%d, disk=%d, full_wait=%d\n",
+T_recv_wait=%.3f, T_put=%.3f, T_mkidarr=%.3f, M_long=%d, M_mix=%d, disk=%d, full_wait=%d, #_exit=%d\n",
      gv->rank[0], lv->tid, t1-t0, prog,
-     receive_time, lv->ring_buffer_put_time, mkidarr_time, long_msg_id, mix_msg_id, disk_id, lv->wait);
+     receive_time, lv->ring_buffer_put_time, mkidarr_time, long_msg_id, mix_msg_id, disk_id, lv->wait, num_exit_flag);
   fflush(stdout);
 }

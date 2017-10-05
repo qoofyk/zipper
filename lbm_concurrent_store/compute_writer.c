@@ -13,7 +13,7 @@ char* producer_ring_buffer_get(GV gv, LV lv, int* num_avail_elements){
 		}
 
 		// if (rb->num_avail_elements > 0) {
-		if (rb->num_avail_elements >= writer_on) {
+		if ( (rb->num_avail_elements>0) && (rb->num_avail_elements >= writer_on) ) {
 		  pointer = rb->buffer[rb->tail];
 		  rb->tail = (rb->tail + 1) % rb->bufsize;
 		  *num_avail_elements = --rb->num_avail_elements;
@@ -168,7 +168,7 @@ void compute_writer_thread(GV gv, LV lv) {
 				else{
 					// Get exit flag msg and quit
 
-					printf("Comp_Proc%d: Writer%d Get --EXIT-- flag msg and quit!\n",
+					printf("Comp_Proc%04d: Writer%d Get --EXIT-- flag msg and quit!\n",
 						gv->rank[0], lv->tid);
 					fflush(stdout);
 
@@ -206,7 +206,7 @@ void compute_writer_thread(GV gv, LV lv) {
 
 			if(my_exit_flag==1){
 
-				/*In case at last: sender exit and writer never get lock_disk_id_arr */
+				/*In case at last: sender has exit and writer never get lock_disk_id_arr */
 				if(gv->flag_sender_get_finalblk==1){
 
 					int remain_disk_id=0, errorcode=0;

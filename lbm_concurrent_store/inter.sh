@@ -22,8 +22,11 @@ NSTOP=100 # how many steps
 
 cubex=(32 32 64 64)
 cubez=(64 128 64 128)
-writer_thousandth=(0 999) #upper_limit_hint
-writer_prb_thousandth=(1000 1000)
+# writer_thousandth=(0 999) #upper_limit_hint
+# writer_prb_thousandth=(1000 1000)
+
+writer_thousandth=(999) #upper_limit_hint
+writer_prb_thousandth=(0)
 
 tune_stripe_count=-1
 ####################################################################################

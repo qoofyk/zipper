@@ -57,7 +57,7 @@ Brief desc of the file: Header
 #define TRYNUM 200
 
 #define WRITER_COUNT 5000
-#define ANALSIS_COUNT 5000
+#define ANALSIS_COUNT 1000
 
 #define EXIT_BLK_ID -1
 

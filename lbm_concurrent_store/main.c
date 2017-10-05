@@ -1070,8 +1070,8 @@ void run_lbm(GV gv, int dims_cube[3], MPI_Comm *pcomm){
 
 	// gv->compute_all_done = 1;
 	// printf("$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$\n");
-	printf("Comp_Proc%04d on %s: LBM simulation Done! T_Only_LBM=%.3f, T_SIM/Blk=%.3fus, T_total_SIM=%.3f, T_LBM_send_recv=%.3f, full=%d\n",
-		gv->rank[0], gv->processor_name, only_lbm_time, (t3-t2)*1000000/gv->cpt_total_blks, t3-t2, mpi_sendrecv_time, full);
+	printf("Comp_Proc%04d on %s: LBM_Sim Done! T_Only_LBM=%.3f, T_SIM/Blk=%.3fus, T_total_SIM=%.3f, T_LBM_SDRCV=%.3f, cnt=%d, full=%d\n",
+		gv->rank[0], gv->processor_name, only_lbm_time, (t3-t2)*1000000/gv->cpt_total_blks, t3-t2, mpi_sendrecv_time, gv->data_id, full);
 	fflush(stdout);
 	//------------------------------------------------END OF LBM--------------------------------------------------------
 
