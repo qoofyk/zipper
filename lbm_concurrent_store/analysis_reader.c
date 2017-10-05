@@ -18,6 +18,7 @@ void ring_buffer_put(GV gv, LV lv, char* buffer){
       pthread_mutex_unlock(rb->lock_ringbuffer);
       return;
     } else {
+      lv->wait++;
       pthread_cond_wait(rb->full, rb->lock_ringbuffer);
     }
   }
@@ -44,14 +45,14 @@ void read_blk_per_file(GV gv, LV lv, int last_gen_rank, int blk_id, char* buffer
       }
 
       i++;
-      usleep(1000);
+      usleep(OPEN_USLEEP);
     }
   }
 
   if(fp != NULL){
-    t0 = get_cur_time();
+    t0 = MPI_Wtime();
     fread(buffer, nbytes, 1, fp);
-    t1 = get_cur_time();
+    t1 = MPI_Wtime();
     lv->only_fread_time += t1 - t0;
   }
   else{
@@ -71,28 +72,33 @@ void ana_read_one_file(GV gv, LV lv, int last_gen_rank, int blk_id, char* buffer
 
   offset = (long)blk_id * (long)gv->block_size;
 
-  while((error==-1) && (i<TRYNUM)){
+  while(error!=0){
     error=fseek(fp, offset, SEEK_SET);
-      if(error==-1){
-        if(i==TRYNUM-1){
-          printf("Ana_Proc%d: Reader fseek error src=%d, block_id=%d, fp=%p\n",
-            gv->rank[0], last_gen_rank, blk_id, (void *)fp);
-          fflush(stdout);
-        }
-        i++;
-        usleep(1000);
-      }
+    i++;
+    // usleep(OPEN_USLEEP);
+    if(i>TRYNUM){
+      printf("Ana_Proc%d: Reader fseek error src=%d, block_id=%d, fp=%p\n",
+        gv->rank[0], last_gen_rank, blk_id, (void *)fp);
+      fflush(stdout);
+      break;
+    }
   }
 
 
-  t0 = get_cur_time();
+  t0 = MPI_Wtime();
   fread(buffer, nbytes, 1, fp);
-  if(ferror(fp)==-1){
-    perror("fread error:");
+
+  if(feof(fp)){
+    perror("Ana_Reader EOF:");
     fflush(stdout);
   }
 
-  t1 = get_cur_time();
+  if(ferror (fp)){
+    perror("Ana_Reader error:");
+    fflush(stdout);
+  }
+
+  t1 = MPI_Wtime();
   lv->only_fread_time += t1 - t0;
 }
 
@@ -107,45 +113,56 @@ void analysis_reader_thread(GV gv,LV lv) {
   char* new_buffer=NULL;
   char flag=0;
 
+  int recv_avail=0;
+  double disk_arr_wait_time=0;
+
   // printf("Analysis Node %d Reader thread %d is running!\n",gv->rank[0], lv->tid);
   // fflush(stdout);
 
-  t2 = get_cur_time();
+  t2 = MPI_Wtime();
 
   if(gv->reader_blk_num==0){
-    printf("Ana_Proc%d: Reader%d is turned off\n", gv->rank[0], lv->tid);
-    fflush(stdout);
+
+    if(gv->rank[0]==gv->compute_process_num || gv->rank[0]==(gv->compute_process_num+gv->analysis_process_num-1)){
+      printf("Ana_Proc%d: Reader%d is turned off\n", gv->rank[0], lv->tid);
+      fflush(stdout);
+    }
+
   }
   else{
     while(1){
       flag = 0;
 
-      if (gv->ana_reader_done == 1)
+      if ( (gv->ana_reader_done == 1) && (recv_avail==0))
         break;
 
-      pthread_mutex_lock(&gv->lock_recv);
+      t0 = MPI_Wtime();
+      pthread_mutex_lock(&gv->lock_recv_disk_id_arr);
       if(gv->recv_tail>0){
         flag = 1;
         //printf("Prefetcher %d read recv_tail = %d\n", lv->tid, gv->recv_tail);
-        last_gen_rank = gv->prefetch_id_array[gv->recv_tail-2]; // get a snapshot of which block has been generated
-        block_id = gv->prefetch_id_array[gv->recv_tail-1];
+        last_gen_rank = gv->prefetch_id_array[gv->recv_tail]; // get a snapshot of which block has been generated
+        block_id = gv->prefetch_id_array[gv->recv_tail+1];
 
         // if(gv->prefetch_counter%1000==0)
         //   printf("!!!!!!!!!Node %d Prefetcher %d get lock, prefetch_counter=%ld, last_gen_rank = %d, step = %d, CI=%d, CJ=%d, CK=%d\n", gv->rank[0], lv->tid, gv->prefetch_counter,last_gen_rank, step, CI, CJ, CK);
-        gv->recv_tail-=2;
+        gv->recv_tail+=2;
+        gv->recv_avail-=2;
         //printf("Now, Node %d Prefetcher %d minus tail=%d\n", gv->rank[0],lv->tid,gv->recv_tail);
         // gv->prefetch_counter++;
       }
-      pthread_mutex_unlock(&gv->lock_recv);
-
+      recv_avail=gv->recv_avail;
+      pthread_mutex_unlock(&gv->lock_recv_disk_id_arr);
+      t1 = MPI_Wtime();
+      disk_arr_wait_time += t1 - t0;
 
       if(flag == 1){
 
         new_buffer = (char *) malloc(gv->analysis_data_len);
         check_malloc(new_buffer);
 
-        ((int*)new_buffer)[0]=last_gen_rank;
-        ((int*)new_buffer)[1]=block_id;
+        ((int*)new_buffer)[0] = last_gen_rank;
+        ((int*)new_buffer)[1] = block_id;
         ((int*)new_buffer)[2] = ON_DISK;
         ((int*)new_buffer)[3] = NOT_CALC;
 
@@ -155,13 +172,13 @@ void analysis_reader_thread(GV gv,LV lv) {
         fflush(stdout);
 #endif //DEBUG_PRINT
 
-        t0 = get_cur_time();
+        t0 = MPI_Wtime();
 #ifdef WRITE_ONE_FILE
-        ana_read_one_file(gv, lv, last_gen_rank, block_id, new_buffer+4*sizeof(int), gv->ana_fp[last_gen_rank%gv->computer_group_size], gv->block_size);
+        ana_read_one_file(gv, lv, last_gen_rank, block_id, new_buffer+4*sizeof(int), gv->ana_read_fp[last_gen_rank%gv->computer_group_size], gv->block_size);
 #else
         read_blk_per_file(gv, lv, last_gen_rank, block_id, new_buffer+4*sizeof(int), gv->block_size);    //read file block to buffer memory
 #endif //WRITE_ONE_FILE
-        t1 = get_cur_time();
+        t1 = MPI_Wtime();
         lv->read_time += t1 - t0;
         read_file_cnt++;
 
@@ -171,9 +188,9 @@ void analysis_reader_thread(GV gv,LV lv) {
         fflush(stdout);
 #endif //DEBUG_PRINT
 
-        t0 = get_cur_time();
-        ring_buffer_put(gv,lv,new_buffer);
-        t1 = get_cur_time();
+        t0 = MPI_Wtime();
+        ring_buffer_put(gv, lv, new_buffer);
+        t1 = MPI_Wtime();
         lv->ring_buffer_put_time += t1 - t0;
 
       }
@@ -184,8 +201,8 @@ void analysis_reader_thread(GV gv,LV lv) {
   }
 
 
-  t3 = get_cur_time();
-  printf("Ana_Proc%04d: Reader%d T_total=%.3f, T_ana_read=%.3f, T_only_fread=%.3f with %d blocks\n",
-    gv->rank[0], lv->tid, t3 - t2, lv->read_time, lv->only_fread_time, read_file_cnt);
+  t3 = MPI_Wtime();
+  printf("Ana_Proc%04d: Reader%d T_total=%.3f, T_ana_read=%.3f, T_fread=%.3f, T_put=%.3f, T_Darr_wt=%.3f, cnt=%d, wait=%d\n",
+    gv->rank[0], lv->tid, t3 - t2, lv->read_time, lv->only_fread_time, lv->ring_buffer_put_time, disk_arr_wait_time, read_file_cnt, lv->wait);
   fflush(stdout);
 }

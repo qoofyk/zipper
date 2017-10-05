@@ -36,6 +36,7 @@ char* analysis_writer_ring_buffer_read_tail(GV gv, LV lv, int* source_p, int* bl
 		fflush(stdout);
 #endif //DEBUG_PRINT
 
+		lv->wait++;
 		pthread_cond_wait(rb->empty, rb->lock_ringbuffer);
 
 #ifdef DEBUG_PRINT
@@ -69,14 +70,14 @@ void analysis_write_blk_per_file(GV gv, LV lv, int source, int blk_id, char* buf
 			}
 
 		  i++;
-		  usleep(10000);
+		  usleep(OPEN_USLEEP);
 		}
 	}
 
 	if(fp!=NULL){
-		t0 = get_cur_time();
+		t0 = MPI_Wtime();
 		fwrite(buffer, nbytes, 1, fp);
-		t1 = get_cur_time();
+		t1 = MPI_Wtime();
 		lv->only_fwrite_time += t1 - t0;
 	}
 	else{
@@ -97,30 +98,31 @@ void analysis_write_one_file(GV gv, LV lv, int source, int blk_id, char* buffer,
 
 	offset = (long)blk_id * (long)gv->block_size;
 
-	while((error==-1) && (i<TRYNUM)){
+	// i=0;
+	// error=-1;
+	while(error!=0){
 		error=fseek(fp, offset, SEEK_SET);
-  		if(error==-1){
-  			if(i==TRYNUM-1){
-  				printf("Ana_Proc%d: Writer Fatal Error--fseek error block_id=%d, offset=%ld,*fp=%p\n",
-  					gv->rank[0], blk_id, offset, (void*)fp);
-  				fflush(stdout);
-  			}
-  			i++;
-            usleep(1000);
-  		}
+		i++;
+        // usleep(OPEN_USLEEP);
+		if(i>TRYNUM){
+			printf("Ana_Proc%d: Writer Fatal Error--fseek error block_id=%d, offset=%ld,*fp=%p\n",
+				gv->rank[0], blk_id, offset, (void*)fp);
+			fflush(stdout);
+			break;
+		}
 	}
 
 
-	t0 = get_cur_time();
+	t0 = MPI_Wtime();
 	error=fwrite(buffer, nbytes, 1, fp);
 	fflush(fp);
 
-	if(error==0){
-		perror("Write error:");
+	if(ferror(fp)){
+		perror("Ana_Write error:");
 		fflush(stdout);
 	}
 
-	t1 = get_cur_time();
+	t1 = MPI_Wtime();
 	lv->only_fwrite_time += t1 - t0;
 }
 
@@ -131,6 +133,7 @@ void analysis_writer_thread(GV gv, LV lv) {
 	double t0=0, t1=0, t2=0, t3=0;
 	char* pointer=NULL;
 	int writer_state;
+	double read_tail_wait_time=0, change_state_time=0;
 
 	ring_buffer *rb = gv->consumer_rb_p;
 
@@ -139,7 +142,7 @@ void analysis_writer_thread(GV gv, LV lv) {
 	// printf("Ana_Proc%d: Writer%d is running!\n", gv->rank[0], lv->tid);
 	// fflush(stdout);
 
-	t2 = get_cur_time();
+	t2 = MPI_Wtime();
 
 	while(1){
 
@@ -150,8 +153,10 @@ void analysis_writer_thread(GV gv, LV lv) {
 // #endif //NOKEEP
 
 		//get pointer from PRB
-
+		t0 = MPI_Wtime();
     	pointer = analysis_writer_ring_buffer_read_tail(gv, lv, &source, &block_id, &writer_state);
+    	t1 = MPI_Wtime();
+    	read_tail_wait_time += t1-t0;
 
 		if(pointer!=NULL){
 
@@ -166,11 +171,11 @@ void analysis_writer_thread(GV gv, LV lv) {
 
 				if(writer_state==NOT_ON_DISK){
 
-					t0 = get_cur_time();
+					t0 = MPI_Wtime();
 #ifdef KEEP
 #ifdef WRITE_ONE_FILE
 					if(block_id>=0){
-						analysis_write_one_file(gv, lv, source, block_id, pointer+sizeof(int)*4, gv->block_size, gv->ana_fp[source%gv->computer_group_size]);
+						analysis_write_one_file(gv, lv, source, block_id, pointer+sizeof(int)*4, gv->block_size, gv->ana_write_fp[source%gv->computer_group_size]);
 					}
 					else{
 						printf("Ana_Proc%d: Writer%d ***GET A WRONG pointer*** write source=%d block_id=%d, my_count=%d\n",
@@ -181,7 +186,7 @@ void analysis_writer_thread(GV gv, LV lv) {
 					analysis_write_blk_per_file(gv, lv, source, block_id, pointer+sizeof(int)*4, gv->block_size);
 #endif //WRITE_ONE_FILE
 #endif //KEEP
-					t1 = get_cur_time();
+					t1 = MPI_Wtime();
 					lv->write_time += t1 - t0;
 					my_count++;
 
@@ -192,10 +197,13 @@ void analysis_writer_thread(GV gv, LV lv) {
 					fflush(stdout);
 #endif //DEBUG_PRINT
 
+					t0 = MPI_Wtime();
 					pthread_mutex_lock(rb->lock_ringbuffer);
 					((int*)pointer)[2] = ON_DISK;
 					pthread_cond_wait(rb->new_tail, rb->lock_ringbuffer);
 					pthread_mutex_unlock(rb->lock_ringbuffer);
+					t1 = MPI_Wtime();
+    				change_state_time += t1-t0;
 
 #ifdef DEBUG_PRINT
 					if(my_count%WRITER_COUNT==0)
@@ -258,15 +266,10 @@ void analysis_writer_thread(GV gv, LV lv) {
 		}
 	}
 
-	t3 = get_cur_time();
+	t3 = MPI_Wtime();
 
-	// if(my_count!=gv->analysis_writer_blk_num)
-	// 	printf("Analysis Writer my_count error!\n");
-
-	printf("Ana_Proc%04d: Writer%d T_ana_write=%.3f, T_only_fwrite=%.3f, T_total=%.3f, my_count=%d\n",
-		gv->rank[0], lv->tid, lv->write_time, lv->only_fwrite_time, t3 - t2, my_count);
+	printf("Ana_Proc%04d: Writer%d, T_total=%.3f, T_ana_write=%.3f, T_fwrite=%.3f, T_rd_tail=%.3f, T_change_state=%.3f, cnt=%d, empty_wait=%d\n",
+		gv->rank[0], lv->tid, t3-t2, lv->write_time, lv->only_fwrite_time, read_tail_wait_time, change_state_time, my_count, lv->wait);
 	fflush(stdout);
-	// printf("Node%d Producer %d Write_Time/Block= %f only_fwrite_time/Block= %f, SPEED= %fKB/s\n",
-	//   gv->rank[0], lv->tid,  lv->write_time/gv->total_blks, lv->only_fwrite_time/gv->total_blks, gv->total_file/(lv->write_time));
 
 }

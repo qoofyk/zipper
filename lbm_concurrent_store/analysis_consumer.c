@@ -15,7 +15,7 @@ void simple_verify(GV gv, LV lv, char* buffer, int nbytes, int* consumer_state_p
   int base;
 
   for(base=0;base<gv->cubex*gv->cubey*gv->cubez/(CACHE*CACHE*CACHE);base++)
-    for(loop=0;loop<gv->lp;loop++){
+    for(loop=0;loop<gv->n_moments;loop++){
       count=0;
       for(i=0;i<CACHE;i++)
         for(j=0;j<CACHE;j++)
@@ -73,7 +73,7 @@ void calc_n_moments(GV gv, LV lv, char* buffer, int* consumer_state_p){
   //calc_n_momnents
 
   for(base=0; base<gv->cubex*gv->cubey*gv->cubez; base+=4){
-      for(loop=1;loop<=gv->lp;loop++){
+      for(loop=1;loop<=gv->n_moments;loop++){
         u=((double *)buffer)[base];
         v=((double *)buffer)[base+1];
         u1=((double *)buffer)[base+2];
@@ -88,7 +88,7 @@ void calc_n_moments(GV gv, LV lv, char* buffer, int* consumer_state_p){
     }
   }
 
-  for(loop=1;loop<=gv->lp;loop++){
+  for(loop=1;loop<=gv->n_moments;loop++){
     sum_u[loop-1]=sum_u[loop-1]/(gv->cubex*gv->cubey*gv->cubez);
     sum_v[loop-1]=sum_v[loop-1]/(gv->cubex*gv->cubey*gv->cubez);
   }
@@ -116,6 +116,7 @@ char* consumer_ring_buffer_read_tail(GV gv, LV lv, int* consumer_state_p){
     fflush(stdout);
 #endif //DEBUG_PRINT
 
+      lv->wait++;
       pthread_cond_wait(rb->empty, rb->lock_ringbuffer);
 
 #ifdef DEBUG_PRINT
@@ -147,7 +148,7 @@ void consumer_ring_buffer_move_tail(GV gv, LV lv, int* flag_p, char* pointer){
               gv->rank[0], lv->tid, ((int*)pointer)[0], ((int*)pointer)[1], ((int*)pointer)[2], ((int*)pointer)[3], rb->tail, rb->num_avail_elements);
             fflush(stdout);
 #endif //DEBUG_PRINT
-            pthread_cond_signal(rb->full);      //wake up receiver put
+            pthread_cond_broadcast(rb->full);      //wake up receiver put and reader put
             pthread_cond_signal(rb->new_tail);  //wake up ana_writer
             pthread_mutex_unlock(rb->lock_ringbuffer);
 
@@ -185,13 +186,13 @@ void analysis_consumer_thread(GV gv,LV lv){
   // printf("Analysis Process %d consumer thread %d is running!\n",gv->rank[0], lv->tid);
   // fflush(stdout);
 
-  t2 = get_cur_time();
+  t2 = MPI_Wtime();
   while(1) {
     flag=0;
 
-    t0 = get_cur_time();
+    t0 = MPI_Wtime();
     pointer = consumer_ring_buffer_read_tail(gv, lv, &consumer_state);
-    t1 = get_cur_time();
+    t1 = MPI_Wtime();
     read_tail_wait_time += t1-t0;
 
     if(pointer != NULL) {
@@ -224,10 +225,10 @@ step=%d, i=%d, j=%d, k=%d, gv->calc_counter=%d, consumer_state=%d\n",
           }
 // #endif //DEBUG_PRINT
 
-          t0 = get_cur_time();
+          t0 = MPI_Wtime();
           // simple_verify(gv, lv, pointer, gv->block_size, &consumer_state);
           calc_n_moments(gv, lv, pointer+sizeof(int)*8, &consumer_state);
-          t1 = get_cur_time();
+          t1 = MPI_Wtime();
           lv->calc_time += t1 - t0;
           gv->calc_counter++;
 
@@ -246,9 +247,9 @@ step=%d, i=%d, j=%d, k=%d, gv->calc_counter=%d, consumer_state=%d\n",
           fflush(stdout);
 #endif //DEBUG_PRINT
 
-          t0 = get_cur_time();
+          t0 = MPI_Wtime();
           consumer_ring_buffer_move_tail(gv, lv, &flag, pointer);
-          t1 = get_cur_time();
+          t1 = MPI_Wtime();
           move_tail_wait_time += t1-t0;
 
 #ifdef DEBUG_PRINT
@@ -292,9 +293,9 @@ step=%d, i=%d, j=%d, k=%d, gv->calc_counter=%d, consumer_state=%d\n",
         fflush(stdout);
 #endif //DEBUG_PRINT
 
-        t0 = get_cur_time();
+        t0 = MPI_Wtime();
         consumer_ring_buffer_move_tail(gv, lv, &flag, pointer);
-        t1 = get_cur_time();
+        t1 = MPI_Wtime();
         move_tail_wait_time += t1-t0;
 
         free(pointer);
@@ -312,7 +313,7 @@ step=%d, i=%d, j=%d, k=%d, gv->calc_counter=%d, consumer_state=%d\n",
       printf("Ana_Proc%d: Consumer Error -- Get a NULL pointer\n", gv->rank[0]);
     }
 
-    if (num_exit_flag >= gv->computer_group_size){
+    if ( (num_exit_flag >= gv->computer_group_size) && (gv->calc_counter >= gv->ana_total_blks) ){
 
 #ifdef DEBUG_PRINT
       printf("Ana_Proc%d: Consumer prepare to exit!\n", gv->rank[0]);
@@ -337,10 +338,10 @@ step=%d, i=%d, j=%d, k=%d, gv->calc_counter=%d, consumer_state=%d\n",
       break;
     }
   }
-  t3 = get_cur_time();
+  t3 = MPI_Wtime();
 
-  printf("Ana_Proc%04d: Consumer T_total_consumer=%.3f, \
-T_calc=%.3f, T_read_tail_wait=%.3f, T_move_tail_wait=%.3f, my_count=%d, free_count=%d, num_avail_elements=%d\n",
-       gv->rank[0], t3 - t2, lv->calc_time, read_tail_wait_time, move_tail_wait_time, gv->calc_counter, free_count, remaining_elements);
+  printf("Ana_Proc%04d: Consumer%d T_total=%.3f, T_calc=%.3f, T_rd_tail_wt=%.3f, \
+T_mv_tail_wt=%.3f, calc_cnt=%d, empty_wait=%d\n",
+       gv->rank[0], lv->tid, t3-t2, lv->calc_time, read_tail_wait_time, move_tail_wait_time, gv->calc_counter, lv->wait);
   fflush(stdout);
 }
