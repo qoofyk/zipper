@@ -134,8 +134,8 @@ typedef struct gv_t {
   //writer
   int *written_id_array;
   int send_tail;
-  volatile int flag_sender_get_finalblk;
-  volatile int flag_writer_get_finalblk;
+  int flag_sender_get_finalblk;
+  int flag_writer_get_finalblk;
   volatile int writer_exit;
   // pthread_mutex_t lock_writer_exit;
   // pthread_cond_t writer_exit;
