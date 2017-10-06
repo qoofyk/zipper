@@ -220,10 +220,12 @@ void compute_sender_thread(GV gv,LV lv){
 			fflush(stdout);
 #endif //DEBUG_PRINT
 
-			my_exit_flag=1;
+			my_exit_flag=2;
 		}
 
-		if(my_exit_flag==1){
+		if(my_exit_flag!=0){
+
+			while(gv->writer_exit==0);
 
 			int remain_disk_id=0;
 
@@ -261,6 +263,7 @@ void compute_sender_thread(GV gv,LV lv){
 				check_MPI_success(gv, errorcode);
 
 				disk_id += remain_disk_id;
+				prog += remain_disk_id;
 
 				//send EXIT msg
 				errorcode = MPI_Send(&exit_flag, sizeof(char), MPI_CHAR, dest, EXIT_MSG_TAG, MPI_COMM_WORLD);

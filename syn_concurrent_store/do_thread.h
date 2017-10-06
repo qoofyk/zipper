@@ -57,9 +57,9 @@ Brief desc of the file: Header
 typedef struct {
   char** buffer; //array of pointers
   int bufsize; //num of buffer in ringbuffer
-  volatile int head;
-  volatile int tail;
-  volatile int num_avail_elements;
+  int head;
+  int tail;
+  int num_avail_elements;
   pthread_mutex_t *lock_ringbuffer;
   pthread_cond_t *full;
   pthread_cond_t *empty;
@@ -125,6 +125,7 @@ typedef struct gv_t {
   int send_tail;
   int flag_sender_get_finalblk;
   int flag_writer_get_finalblk;
+  volatile int writer_exit;
 
   // receiver_thread
   char* org_recv_buffer;
@@ -136,8 +137,10 @@ typedef struct gv_t {
   int recv_tail;
   int recv_avail;
   int *prefetch_id_array;
-  int ana_reader_done;
-  int ana_writer_done;
+
+  volatile int recv_exit;
+  volatile int reader_exit;
+  volatile int ana_writer_exit;
 
   int calc_counter;
 

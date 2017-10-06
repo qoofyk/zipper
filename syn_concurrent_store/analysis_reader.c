@@ -179,13 +179,24 @@ void analysis_reader_thread(GV gv, LV lv) {
       fflush(stdout);
     }
 
+    gv->reader_exit=1;
+
   }
   else{
     while(1){
       flag = 0;
 
-      if ( (gv->ana_reader_done==1) && (recv_avail==0))
-        break;
+      if(gv->recv_exit == 1){
+        pthread_mutex_lock(&gv->lock_recv_disk_id_arr);
+        recv_avail=gv->recv_avail;
+        pthread_mutex_unlock(&gv->lock_recv_disk_id_arr);
+
+        if(recv_avail==0){
+          gv->reader_exit=1;
+          break;
+        }
+
+      }
 
       t0 = MPI_Wtime();
       pthread_mutex_lock(&gv->lock_recv_disk_id_arr);

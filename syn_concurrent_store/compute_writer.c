@@ -13,7 +13,7 @@ char* producer_ring_buffer_get(GV gv, LV lv, int* num_avail_elements){
 	}
 
     // if (rb->num_avail_elements > 0) {
-	if (rb->num_avail_elements >= writer_on) {
+	if ( (rb->num_avail_elements>0) && (rb->num_avail_elements >= writer_on) ) {
 		pointer = rb->buffer[rb->tail];
 		rb->tail = (rb->tail + 1) % rb->bufsize;
 		*num_avail_elements = --rb->num_avail_elements;
@@ -154,6 +154,8 @@ void compute_writer_thread(GV gv, LV lv) {
 			fflush(stdout);
 		}
 
+		gv->writer_exit = 1;
+
 	}
 	else{
 		while(1){
@@ -240,27 +242,29 @@ void compute_writer_thread(GV gv, LV lv) {
 
 			if(my_exit_flag==1){
 
-				/*In case at last: sender exit and writer never get lock_disk_id_arr */
-				if(gv->flag_sender_get_finalblk==1){
+				// /*In case at last: sender exit and writer never get lock_disk_id_arr */
+				// if(gv->flag_sender_get_finalblk==1){
 
-					int remain_disk_id=0, errorcode=0;
-					int dest = gv->rank[0]/gv->computer_group_size + gv->compute_process_num;
+				// 	int remain_disk_id=0, errorcode=0;
+				// 	int dest = gv->rank[0]/gv->computer_group_size + gv->compute_process_num;
 
-					pthread_mutex_lock(&gv->lock_disk_id_arr);
-					if (gv->send_tail>0){
-						remain_disk_id = gv->send_tail;
-						gv->send_tail=0;
-					}
-					pthread_mutex_unlock(&gv->lock_disk_id_arr);
+				// 	pthread_mutex_lock(&gv->lock_disk_id_arr);
+				// 	if (gv->send_tail>0){
+				// 		remain_disk_id = gv->send_tail;
+				// 		gv->send_tail=0;
+				// 	}
+				// 	pthread_mutex_unlock(&gv->lock_disk_id_arr);
 
-					if(remain_disk_id>0){
-						errorcode = MPI_Send(gv->written_id_array, remain_disk_id*sizeof(int), MPI_CHAR, dest, DISK_TAG, MPI_COMM_WORLD);
-						check_MPI_success(gv, errorcode);
-						printf("Comp_Proc%04d: Writer%d send remain_disk_id=%d\n",
-							gv->rank[0], lv->tid, remain_disk_id);
-						fflush(stdout);
-					}
-				}
+				// 	if(remain_disk_id>0){
+				// 		errorcode = MPI_Send(gv->written_id_array, remain_disk_id*sizeof(int), MPI_CHAR, dest, DISK_TAG, MPI_COMM_WORLD);
+				// 		check_MPI_success(gv, errorcode);
+				// 		printf("Comp_Proc%04d: Writer%d send remain_disk_id=%d\n",
+				// 			gv->rank[0], lv->tid, remain_disk_id);
+				// 		fflush(stdout);
+				// 	}
+				// }
+
+				gv->writer_exit = 1;
 
 				break;
 			}

@@ -15,13 +15,13 @@ lfs setstripe --stripe-size 1m --stripe-count ${tune_stripe_count} ${PBS_RESULTD
 # done
 
 #generate hostfile
-HOST_DIR=$SCRATCH_DIR/hosts
-mkdir -pv $HOST_DIR
-rm -f $HOST_DIR/hostfile*
-#all tasks run the following command
-srun -o $HOST_DIR/hostfile-dup hostname
-cat $HOST_DIR/hostfile-dup | sort | uniq | sed "s/$/:${nproc_per_mac}/" >$HOST_DIR/hostfile-all
-# cd ${PBS_RESULTDIR}
+# HOST_DIR=$SCRATCH_DIR/hosts
+# mkdir -pv $HOST_DIR
+# rm -f $HOST_DIR/hostfile*
+# #all tasks run the following command
+# srun -o $HOST_DIR/hostfile-dup hostname
+# cat $HOST_DIR/hostfile-dup | sort | uniq | sed "s/$/:${nproc_per_mac}/" >$HOST_DIR/hostfile-all
+# # cd ${PBS_RESULTDIR}
 
 #SET TOTAL MPI PROC
 export SLURM_NTASKS=$total_proc
@@ -58,10 +58,10 @@ echo "Block size input =	   1   ,2    ,4    ,8    ,16 ,32 ,64 ,128"
 # my_run_exp1="mpirun -genv OMP_NUM_THREADS $OMP_NUM_THREADS -genv MV2_ENABLE_AFFINITY 0 -genv SLURM_NTASKS $total_proc -genvall -n $total_proc $EXE1"
 # my_run_exp2="mpirun -genv OMP_NUM_THREADS $OMP_NUM_THREADS -genv MV2_ENABLE_AFFINITY 0 -genv KMP_AFFINITY verbose,granularity=core,compact,1,0 -np $total_proc $EXE2"
 
-LAUNCHER="mpirun_rsh"
-my_run_exp1="$LAUNCHER -export -hostfile $HOST_DIR/hostfile-all -np $total_proc $BIN1"
-# LAUNCHER="mpirun"
-# my_run_exp1="$LAUNCHER -np $total_proc $BIN1"
+# LAUNCHER="mpirun_rsh"
+# my_run_exp1="$LAUNCHER -export -hostfile $HOST_DIR/hostfile-all -np $total_proc $BIN1"
+LAUNCHER="mpirun"
+my_run_exp1="$LAUNCHER -np $total_proc $BIN1"
 my_del_exp2="time rsync -a --delete-before ${EMPTY_DIR} "
 
 

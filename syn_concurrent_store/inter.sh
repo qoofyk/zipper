@@ -37,15 +37,15 @@ lp=5 #verification computation repeat times in ana_consumer_thread
 #O(nlogn) 8MB- 		    21,  11,   5,  2,  1,
 
 # computation_lp=(1 18 64 1 19 60 1 20 64 1 21 72)
-computation_lp=(1 19 1 20 1 21)
+computation_lp=(1 1 1 1)
 
 #one_file
 # utime1=(5000 7000 500 1000) #sleep for microseconds
 # block_size1=(16 16 32 32 64 64 128 128) #1->64KB, 2->128KB, 4->256KB, 8->512KB, 16->1MB, 32->2MB, 64->4MB, 128->8MB, 256->16MB
 # cpt_total_blks1=(4000 4000 2000 2000 1000 1000 500 500)
 
-block_size1=(16) #1->64KB, 2->128KB, 4->256KB, 8->512KB, 16->1MB, 32->2MB, 64->4MB, 128->8MB, 256->16MB
-cpt_total_blks1=(4000)
+block_size1=(16 32 64 128) #1->64KB, 2->128KB, 4->256KB, 8->512KB, 16->1MB, 32->2MB, 64->4MB, 128->8MB, 256->16MB
+cpt_total_blks1=(4000 2000 1000 500)
 
 #sepfile
 # utime2=(5000 4500 14000 12000) #sleep for microseconds
@@ -57,8 +57,8 @@ cpt_total_blks1=(4000)
 # cpt_total_blks2=(2000 2000 2000 1000 1000 1000 500 500 500)
 
 
-writer_thousandth=(400)
-writer_prb_thousandth=(1000)
+writer_thousandth=(999)
+writer_prb_thousandth=(0)
 
 # writer_thousandth=(400 999)
 # writer_prb_thousandth=(1000 1000)

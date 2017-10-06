@@ -163,10 +163,10 @@ void analysis_receiver_thread(GV gv,LV lv){
   t0 = MPI_Wtime();
   while(1){
 
-    if ((num_exit_flag >= gv->computer_group_size) && (prog>=gv->ana_total_blks)) {
-      gv->ana_reader_done=1;
-      break;
-    }
+    // if ((num_exit_flag >= gv->computer_group_size) && (prog>=gv->ana_total_blks)) {
+    //   gv->ana_reader_done=1;
+    //   break;
+    // }
 
     // #ifdef DEBUG_PRINT
     // printf("Prepare to receive!\n");
@@ -312,8 +312,8 @@ void analysis_receiver_thread(GV gv,LV lv){
       recv_int=recv_int/sizeof(int);
       disk_id += recv_int;
 
-      printf("PURE_DISK_MSG:- recv_int=%d, prog=%d\n",
-        recv_int,prog);
+      printf("Ana_Proc%d: PURE_DISK_MSG:- recv_int=%d, prog=%d\n",
+        gv->rank[0], recv_int, prog);
       fflush(stdout);
 
       tmp_int_ptr=(int*)gv->org_recv_buffer;
@@ -354,6 +354,26 @@ void analysis_receiver_thread(GV gv,LV lv){
         gv->rank[0], lv->tid, ((int*)new_buffer)[0], ((int*)new_buffer)[1], num_exit_flag);
       fflush(stdout);
 #endif //DEBUG_PRINT
+
+      if(num_exit_flag==gv->computer_group_size){
+
+#ifdef DEBUG_PRINT
+        printf("Ana_Proc%04d: Receiver%d Ready to put the last EXIT, num_exit_flag=%d\n",
+          gv->rank[0], lv->tid, num_exit_flag);
+        fflush(stdout);
+#endif //DEBUG_PRINT
+
+        gv->recv_exit = 1;
+        while(gv->reader_exit==0);
+
+        t4 = MPI_Wtime();
+        recv_ring_buffer_put(gv, lv, new_buffer, &num_avail_elements);
+        t5 = MPI_Wtime();
+        lv->ring_buffer_put_time += t5-t4;
+
+        break;
+      }
+
 
       t4 = MPI_Wtime();
       recv_ring_buffer_put(gv, lv, new_buffer, &num_avail_elements);
