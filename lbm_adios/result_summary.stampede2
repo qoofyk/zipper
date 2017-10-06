@@ -1,5 +1,24 @@
+## Oct 6
+JOBS
+    310980
+    run native-adios 196 with mvapich dspaces built, still has rdma_bind_addr
+    
+    310961
+    using mvapich in stampded with with-infiband-interface=ib0
+        app cp is full.
+        'dsrpc_cn_register()' failed with -12.
+    * solved: add DATASPACES as an auument
+
+
 ## Oct 5
 JOBS
+    310262
+        196vs98 with native_dspace
+    310256
+        8vs4 with native_dspaces
+
+    above starts using new lanucher with machinefile
+    --------------------------------
     
     309374
         8vs4 with mpiio
@@ -27,6 +46,4 @@ JOBS
     303396 adios_staging of dspaces works
     303356 native_staging of dpsaces, works
     303350 mpiio successfully run, works
-
-
 

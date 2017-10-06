@@ -1,0 +1,89 @@
+#!/bin/bash  
+#SBATCH -J "ds_test"  
+#SBATCH -o "results/ds_test_%j.out"  
+#SBATCH -p development
+#SBATCH -N 3
+#SBATCH --ntasks-per-node=32
+#SBATCH -t 00:1:00  
+#SBATCH --mail-type=BEGIN
+# send mail to this address
+#SBATCH --mail-user=lifen@iupui.edu
+
+#This job runs with 1 nodes, 6 cores per node for a total of 6 cores.  
+#ibrun in verbose mode will give binding detail  
+
+module list 
+
+# procs placement
+num_apps=3
+
+# slots used by this app
+procs_this_app=(2 32 16)
+
+# number of nodes used by this app
+nodes_this_app=(1 1 1)
+
+###################################################
+
+PBS_O_HOME=$HOME
+PBS_O_WORKDIR=$(pwd)
+export SCRATCH_DIR=${SCRATCH}/ds_test/${SLURM_JOBID}
+
+DS_BIN=${WORK}/envs/Dataspacesroot/bin
+PBS_RESULTDIR=${SCRATCH_DIR}/results
+
+mkdir -pv ${PBS_RESULTDIR}
+mkdir -pv ${SCRATCH_DIR}
+
+cd ${SCRATCH_DIR}
+
+## Clean up
+rm -f conf *.log srv.lck
+rm -f dataspaces.conf
+
+
+## Create dataspaces configuration file
+echo "## Config file for DataSpaces
+ndim = 3
+dims = 256,256,256
+max_versions = 1
+max_readers = 1
+lock_type = 2
+" > dataspaces.conf
+
+echo "launching server"
+
+# this scripts is avaliable at
+GENERATE_HOST_SCRIPT=${HOME}/Downloads/LaucherTest/generate_hosts.sh
+if [ -a $GENERATE_HOST_SCRIPT ]; then
+    source $GENERATE_HOST_SCRIPT
+else
+    echo "generate_hosts.sh should downloaded from:"
+    echo "https://github.iu.edu/lifen/LaucherTest/blob/master/generate_hosts.sh"
+fi
+
+LAUNCHER="mpiexec.hydra"
+
+
+
+## Run DataSpaces servers
+${LAUNCHER}  -n 4 -machinefile $HOST_DIR/machinefile-app0 ${DS_BIN}/dataspaces_server -s 4 -c 48  >& $PBS_RESULTDIR/server.log &
+## Give some time for the servers to load and startup
+while [ ! -f conf ]; do
+    sleep 1s
+done
+sleep 5s  # wait server to fill up the conf file
+
+echo "launching produer"
+
+THIS_TRANSPORT=DATASPACES
+
+## Run writer application
+${LAUNCHER}  -n 32 -machinefile $HOST_DIR/machinefile-app1 ${DS_BIN}/test_writer ${THIS_TRANSPORT} 32 3 2 4 4 128 64 64 20 1 >& $PBS_RESULTDIR/put.log &
+
+echo "launching consumer"
+## Run reader application
+${LAUNCHER}  -n 16 -machinefile $HOST_DIR/machinefile-app2  ${DS_BIN}/test_reader ${THIS_TRANSPORT} 16 3 2 2 4 128 128 64 20 2 >& $PBS_RESULTDIR/get.log &
+
+## Wait for the entire workflow to finish
+wait

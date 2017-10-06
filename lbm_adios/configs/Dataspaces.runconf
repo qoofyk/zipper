@@ -89,6 +89,8 @@ elif [ `hostname | cut -c 8-16` == "stampede2" ]; then
         LIBS="-lpthread -lrdmacm -lm" \
         --enable-dimes \
         --with-dimes-rdma-buffer-size=1024 \
+        --with-ib-interface=ib0 \
+ 
 
 
 elif [ `hostname | cut -c 1-5` == "comet" ]; then
