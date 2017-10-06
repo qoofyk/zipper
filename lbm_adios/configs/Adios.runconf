@@ -99,7 +99,7 @@ elif [ `hostname | cut -c 8-16` == "stampede2" ]; then
         --disable-timer-events \
         --with-dataspaces=${myDataspaces} \
         --with-dimes=${myDataspaces}  \
-        --with-flexpath=${HOME}/envs/Flexpath \
+        --with-flexpath=${WORK}/envs/Flexpath \
 
 
 
