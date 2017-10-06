@@ -105,7 +105,7 @@ void compute_sender_thread(GV gv,LV lv){
 				else{
 
 					if(block_id<0){
-						printf("Comp_Proc%d: Sender%d prepare to send *LONG_MSG* blkid=%d\n", gv->rank[0], lv->tid, block_id);
+						printf("Comp_Proc%04d: Sender%d prepare to send *LONG_MSG* blkid=%d\n", gv->rank[0], lv->tid, block_id);
 						fflush(stdout);
 					}
 
@@ -123,11 +123,11 @@ void compute_sender_thread(GV gv,LV lv){
 				}
 			}
 			else{//Get exit flag msg
-// #ifdef DEBUG_PRINT
-				printf("Comp_Proc%d: Sender%d Get exit flag msg and prepare to quit, prog=%d\n",
+#ifdef DEBUG_PRINT
+				printf("Comp_Proc%04d: Sender%d Get exit flag msg and prepare to quit, prog=%d\n",
 					gv->rank[0], lv->tid, prog);
 				fflush(stdout);
-// #endif //DEBUG_PRINT
+#endif //DEBUG_PRINT
 
 				pthread_mutex_lock(rb->lock_ringbuffer);
 				gv->flag_sender_get_finalblk = 1;
@@ -143,16 +143,52 @@ void compute_sender_thread(GV gv,LV lv){
 		}
 		else{//writer get the final msg.
 
-// #ifdef DEBUG_PRINT
-			printf("Comp_Proc%d: Sender%d *Discover* *Writer* Get exit flag msg and prepare to quit\n",
+#ifdef DEBUG_PRINT
+			printf("Comp_Proc%04d: Sender%d *Discover* *Writer* Get exit flag msg and prepare to quit\n",
 					gv->rank[0], lv->tid);
 			fflush(stdout);
-// #endif //DEBUG_PRINT
+#endif //DEBUG_PRINT
 
-			my_exit_flag=1;
+			my_exit_flag=2;
 		}
 
-		if(my_exit_flag==1){
+		if(my_exit_flag!=0){
+
+			// printf("Comp_Proc%04d: Sender%d EXITING...\n",
+			// 		gv->rank[0], lv->tid);
+			// fflush(stdout);
+
+			//wait for writer to exit; force EXIT be the last message
+			while(gv->writer_exit==0);
+            // while(1){
+            //     if(gv->writer_exit==1){
+            //        break;
+            //     }
+            //     else{
+            //     //    printf("writer_exit=%d", gv->writer_exit);
+            //     //    fflush(stdout);
+            //     }
+            // }
+			// while(1){
+			// 	pthread_mutex_lock(&gv->lock_writer_exit);
+			// 	if(gv->writer_exit==1){
+			// 		pthread_mutex_unlock(&gv->lock_writer_exit);
+			// 		break;
+			// 	}
+			// 	pthread_mutex_unlock(&gv->lock_writer_exit);
+			// }
+
+			// if(my_exit_flag==1){
+			// 	if(gv->writer_blk_num != 0){
+			// 		pthread_mutex_lock(&gv->lock_writer_exit);
+			// 		pthread_cond_wait(&gv->writer_exit, &gv->lock_writer_exit);
+			// 		pthread_mutex_unlock(&gv->lock_writer_exit);
+			// 	}
+			// }
+
+			// printf("Comp_Proc%04d: Sender%d PASS WHILE...\n",
+			// 		gv->rank[0], lv->tid);
+			// fflush(stdout);
 
 			int remain_disk_id=0;
 

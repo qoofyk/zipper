@@ -96,10 +96,10 @@ void analysis_receiver_thread(GV gv, LV lv){
   t0 = MPI_Wtime();
   while(1){
 
-    if ((num_exit_flag >= gv->computer_group_size) && (prog>=gv->ana_total_blks)) {
-      gv->ana_reader_done=1;
-      break;
-    }
+    // if ((num_exit_flag >= gv->computer_group_size) && (prog>=gv->ana_total_blks)) {
+    //   gv->ana_reader_done=1;
+    //   break;
+    // }
 
     // #ifdef DEBUG_PRINT
     // printf("Prepare to receive!\n");
@@ -281,11 +281,44 @@ void analysis_receiver_thread(GV gv, LV lv){
       ((int*)new_buffer)[2] = ON_DISK;
       ((int*)new_buffer)[3] = CALC_DONE;
 
-#ifdef DEBUG_PRINT
-      printf("Ana_Proc%d: Receiver%d get a *EXIT_MSG_TAG* from src=%d with block_id=%d, num_exit_flag=%d\n",
+// #ifdef DEBUG_PRINT
+      printf("Ana_Proc%04d: Receiver%d get a *EXIT_MSG_TAG* from src=%d with block_id=%d, num_exit_flag=%d\n",
         gv->rank[0], lv->tid, ((int*)new_buffer)[0], ((int*)new_buffer)[1], num_exit_flag);
       fflush(stdout);
-#endif //DEBUG_PRINT
+// #endif //DEBUG_PRINT
+
+      if(num_exit_flag==gv->computer_group_size){
+        printf("Ana_Proc%04d: Receiver%d Ready to put the last EXIT, num_exit_flag=%d\n",
+          gv->rank[0], lv->tid, num_exit_flag);
+        fflush(stdout);
+
+        gv->recv_exit = 1;
+        // if(gv->reader_blk_num != 0){
+        //   pthread_mutex_lock(&gv->lock_reader_exit);
+        //   pthread_cond_wait(&gv->reader_exit, &gv->lock_reader_exit);
+        //   pthread_mutex_unlock(&gv->lock_reader_exit);
+        // }
+        while(gv->reader_exit==0);
+        // while(1){
+        //   pthread_mutex_lock(&gv->lock_reader_exit);
+        //   if(gv->reader_exit==1){
+        //     pthread_mutex_unlock(&gv->lock_reader_exit);
+        //     break;
+        //   }
+        //   pthread_mutex_unlock(&gv->lock_reader_exit);
+        // }
+
+        // printf("Ana_Proc%04d: Receiver%d PASS WHILE\n",
+        //   gv->rank[0], lv->tid);
+        // fflush(stdout);
+
+        t4 = MPI_Wtime();
+        recv_ring_buffer_put(gv, lv, new_buffer, &num_avail_elements);
+        t5 = MPI_Wtime();
+        lv->ring_buffer_put_time += t5-t4;
+
+        break;
+      }
 
       t4 = MPI_Wtime();
       recv_ring_buffer_put(gv, lv, new_buffer, &num_avail_elements);

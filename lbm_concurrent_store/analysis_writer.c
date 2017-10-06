@@ -10,7 +10,7 @@ char* analysis_writer_ring_buffer_read_tail(GV gv, LV lv, int* source_p, int* bl
 
   while(1) {
 
-  	if(gv->ana_writer_done==1){
+  	if(gv->ana_writer_exit==1){
 		pthread_mutex_unlock(rb->lock_ringbuffer);
 		return NULL;
 	}
@@ -261,7 +261,7 @@ void analysis_writer_thread(GV gv, LV lv) {
 			break;
 		}
 
-		if (gv->ana_writer_done==1) {
+		if (gv->ana_writer_exit==1) {
 			break;
 		}
 	}

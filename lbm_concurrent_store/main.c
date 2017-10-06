@@ -1287,6 +1287,9 @@ PRB %.3fGB, size=%d, blk_size=%d, cube_size=%d double\n",
 
 		gv->flag_sender_get_finalblk = 0;
 		gv->flag_writer_get_finalblk = 0;
+		gv->writer_exit = 0;
+		// pthread_mutex_init(&gv->lock_writer_exit, NULL);
+		// pthread_cond_init(&gv->writer_exit, NULL);
 
 #ifdef WRITE_ONE_FILE
 		//init gv->fp
@@ -1381,12 +1384,16 @@ CRB %.3fGB, size=%d\n",
 	    check_malloc(gv->org_recv_buffer);
 
 	    // prfetch threads 1+1:cid+blkid
-	    gv->ana_reader_done=0;
-	    gv->ana_writer_done = 0;
+	    gv->recv_exit 		= 0;
+	    gv->reader_exit 	= 0;
+	    // pthread_mutex_init(&gv->lock_reader_exit, NULL);
+	    // pthread_cond_init(&gv->reader_exit, NULL);
+	    gv->ana_writer_exit = 0;
+
 	    gv->prefetch_id_array = (int *) malloc(sizeof(int)*2*gv->reader_blk_num); //2: src, blk_id
-	    gv->recv_head = 0;
-	    gv->recv_tail = 0;
-	    gv->recv_avail = 0;
+	    gv->recv_head 		= 0;
+	    gv->recv_tail 		= 0;
+	    gv->recv_avail 		= 0;
 	    check_malloc(gv->prefetch_id_array);
 
 #ifdef WRITE_ONE_FILE

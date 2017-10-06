@@ -313,7 +313,7 @@ step=%d, i=%d, j=%d, k=%d, gv->calc_counter=%d, consumer_state=%d\n",
       printf("Ana_Proc%d: Consumer Error -- Get a NULL pointer\n", gv->rank[0]);
     }
 
-    if ( (num_exit_flag >= gv->computer_group_size) && (gv->calc_counter >= gv->ana_total_blks) ){
+    if(num_exit_flag >= gv->computer_group_size){
 
 #ifdef DEBUG_PRINT
       printf("Ana_Proc%d: Consumer prepare to exit!\n", gv->rank[0]);
@@ -321,7 +321,7 @@ step=%d, i=%d, j=%d, k=%d, gv->calc_counter=%d, consumer_state=%d\n",
 #endif //DEBUG_PRINT
 
       //set ana_writer exit
-      gv->ana_writer_done=1;
+      gv->ana_writer_exit=1;
 
       pthread_mutex_lock(rb->lock_ringbuffer);
       remaining_elements=rb->num_avail_elements;

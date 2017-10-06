@@ -128,14 +128,17 @@ typedef struct gv_t {
   int analysis_data_len;
 
   //sender
-  int sender_all_done;
+  // int sender_all_done;
   // int mpi_send_progress_counter;  //currently how many file blocks have been sent
 
   //writer
   int *written_id_array;
   int send_tail;
-  int flag_sender_get_finalblk;
-  int flag_writer_get_finalblk;
+  volatile int flag_sender_get_finalblk;
+  volatile int flag_writer_get_finalblk;
+  volatile int writer_exit;
+  // pthread_mutex_t lock_writer_exit;
+  // pthread_cond_t writer_exit;
 
   // receiver_thread
   char *org_recv_buffer;
@@ -147,8 +150,12 @@ typedef struct gv_t {
   int recv_tail;
   int recv_avail;
   int *prefetch_id_array;
-  int ana_reader_done;
-  int ana_writer_done;
+
+  volatile int recv_exit;
+  volatile int reader_exit;
+  // pthread_mutex_t lock_reader_exit;
+  // pthread_cond_t  reader_exit;
+  volatile int ana_writer_exit;
 
   int calc_counter;
 

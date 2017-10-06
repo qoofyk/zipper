@@ -128,18 +128,29 @@ void analysis_reader_thread(GV gv,LV lv) {
       fflush(stdout);
     }
 
+    // pthread_mutex_lock(&gv->lock_reader_exit);
+    gv->reader_exit=1;
+    // pthread_mutex_unlock(&gv->lock_reader_exit);
+
   }
   else{
     while(1){
       flag = 0;
 
-      if(gv->ana_reader_done == 1){
+      if(gv->recv_exit == 1){
         pthread_mutex_lock(&gv->lock_recv_disk_id_arr);
         recv_avail=gv->recv_avail;
         pthread_mutex_unlock(&gv->lock_recv_disk_id_arr);
 
-        if(recv_avail==0)
+        if(recv_avail==0){
+          gv->reader_exit=1;
+          // pthread_cond_signal(&gv->reader_exit);
+          // pthread_mutex_lock(&gv->lock_reader_exit);
+          // gv->reader_exit=1;
+          // pthread_mutex_unlock(&gv->lock_reader_exit);
           break;
+        }
+
       }
 
 

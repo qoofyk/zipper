@@ -120,6 +120,10 @@ void compute_writer_thread(GV gv, LV lv) {
 			printf("Comp_Proc%d: Writer%d is turned off\n", gv->rank[0], lv->tid);
 			fflush(stdout);
 		}
+
+		// pthread_mutex_lock(&gv->lock_writer_exit);
+		gv->writer_exit=1;
+		// pthread_mutex_unlock(&gv->lock_writer_exit);
 	}
 	else{
 		while(1){
@@ -196,7 +200,7 @@ void compute_writer_thread(GV gv, LV lv) {
 			else{
 
 #ifdef DEBUG_PRINT
-			printf("Comp_Proc%d: Writer%d Know that Sender Get exit flag msg and let it quit!\n",
+			printf("Comp_Proc%04d: Writer%d Know that Sender Get exit flag msg and let it quit!\n",
 					gv->rank[0], lv->tid);
 			fflush(stdout);
 #endif //DEBUG_PRINT
@@ -206,27 +210,33 @@ void compute_writer_thread(GV gv, LV lv) {
 
 			if(my_exit_flag==1){
 
-				/*In case at last: sender has exit and writer never get lock_disk_id_arr */
-				if(gv->flag_sender_get_finalblk==1){
+				// printf("Comp_Proc%04d: Writer%d EXITING...\n", gv->rank[0], lv->tid);
+				// fflush(stdout);
 
-					int remain_disk_id=0, errorcode=0;
-					int dest = gv->rank[0]/gv->computer_group_size + gv->compute_process_num;
+				// /*In case at last: sender has exit and writer never get lock_disk_id_arr */
+				// if(gv->flag_sender_get_finalblk==1){
 
-					pthread_mutex_lock(&gv->lock_disk_id_arr);
-					if (gv->send_tail>0){
-						remain_disk_id = gv->send_tail;
-						gv->send_tail=0;
-					}
-					pthread_mutex_unlock(&gv->lock_disk_id_arr);
+				// 	int remain_disk_id=0, errorcode=0;
+				// 	int dest = gv->rank[0]/gv->computer_group_size + gv->compute_process_num;
 
-					if(remain_disk_id>0){
-						errorcode = MPI_Send(gv->written_id_array, remain_disk_id*sizeof(int), MPI_CHAR, dest, DISK_TAG, MPI_COMM_WORLD);
-						check_MPI_success(gv, errorcode);
-						printf("Comp_Proc%04d: Writer%d send remain_disk_id=%d\n",
-							gv->rank[0], lv->tid, remain_disk_id);
-						fflush(stdout);
-					}
-				}
+				// 	pthread_mutex_lock(&gv->lock_disk_id_arr);
+				// 	if (gv->send_tail>0){
+				// 		remain_disk_id = gv->send_tail;
+				// 		gv->send_tail=0;
+				// 	}
+				// 	pthread_mutex_unlock(&gv->lock_disk_id_arr);
+
+				// 	if(remain_disk_id>0){
+				// 		errorcode = MPI_Send(gv->written_id_array, remain_disk_id*sizeof(int), MPI_CHAR, dest, DISK_TAG, MPI_COMM_WORLD);
+				// 		check_MPI_success(gv, errorcode);
+				// 		printf("Comp_Proc%04d: Writer%d send remain_disk_id=%d\n",
+				// 			gv->rank[0], lv->tid, remain_disk_id);
+				// 		fflush(stdout);
+				// 	}
+				// }
+
+
+				gv->writer_exit=1;
 
 				break;
 			}
@@ -236,10 +246,11 @@ void compute_writer_thread(GV gv, LV lv) {
 
 	t3 = MPI_Wtime();
 
-	printf("Comp_Proc%04d: Writer%d T_total=%.3f, T_comp_write=%.3f, T_fwrite=%.3f, cnt=%d, overlap=%d, wait=%d\n",
-		gv->rank[0], lv->tid, lv->write_time, lv->only_fwrite_time, t3-t2, my_count, overlap, lv->wait);
+	printf("Comp_Proc%04d: Writer%d T_total=%.3f, T_comp_write=%.3f, T_fwrite=%.3f, cnt=%d, overlap=%d, wait=%d, exit=%d\n",
+		gv->rank[0], lv->tid, lv->write_time, lv->only_fwrite_time, t3-t2, my_count, overlap, lv->wait, gv->writer_exit);
 	fflush(stdout);
-	// printf("Node%d Producer %d Write_Time/Block= %f only_fwrite_time/Block= %f, SPEED= %fKB/s\n",
-	//   gv->rank[0], lv->tid,  lv->write_time/gv->total_blks, lv->only_fwrite_time/gv->total_blks, gv->total_file/(lv->write_time));
+	// printf("Comp_Proc%04d: Writer%d T_total=%.3f, T_comp_write=%.3f, T_fwrite=%.3f, cnt=%d, overlap=%d, wait=%d\n",
+	// 	gv->rank[0], lv->tid, lv->write_time, lv->only_fwrite_time, t3-t2, my_count, overlap, lv->wait);
+	// fflush(stdout);
 
 }
