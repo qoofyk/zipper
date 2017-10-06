@@ -1,302 +1,319 @@
 #include "do_thread.h"
 
-char* sender_ring_buffer_get(GV gv,LV lv){
+char* sender_ring_buffer_get(GV gv, LV lv){
   char* pointer;
   ring_buffer *rb = gv->producer_rb_p;
 
   pthread_mutex_lock(rb->lock_ringbuffer);
   while(1) {
+  	if(gv->flag_writer_get_finalblk==1){
+		pthread_mutex_unlock(rb->lock_ringbuffer);
+		return NULL;
+	}
+
     if (rb->num_avail_elements > 0) {
-      pointer = rb->buffer[rb->tail];
-      rb->tail = (rb->tail + 1) % rb->bufsize;
-      rb->num_avail_elements--;
-      pthread_cond_signal(rb->full);
-      pthread_mutex_unlock(rb->lock_ringbuffer);
-      return pointer;
+		pointer = rb->buffer[rb->tail];
+		rb->tail = (rb->tail + 1) % rb->bufsize;
+		// *num_avail_elements = --rb->num_avail_elements;
+		--rb->num_avail_elements;
+		pthread_cond_signal(rb->full);
+		pthread_mutex_unlock(rb->lock_ringbuffer);
+		return pointer;
     } else {
-      pthread_cond_wait(rb->empty, rb->lock_ringbuffer);
+    	lv->wait++;
+      	pthread_cond_wait(rb->empty, rb->lock_ringbuffer);
     }
   }
 }
 
 void compute_sender_thread(GV gv,LV lv){
 
-	int dest = gv->rank[0]/gv->computer_group_size + gv->computer_group_size*gv->analysis_process_num;
-	int my_count=0,send_counter=0,i;
-	double t0=0,t1=0,t2=0,t3=0;
+	int dest = gv->rank[0]/gv->computer_group_size + gv->compute_process_num;
+	int my_count=0, send_counter=0, i;
+	double t0=0, t1=0, t2=0,t3=0;
 	char* buffer=NULL;
-	int* temp_int_pointer;
-	int mix_cnt=0,errorcode,long_msg_id=0,mix_msg_id=0;
-	double mix_send_time=0, only_mpi_send_time=0;
-	int writer_done_flag=0,disk_msg_flag=0;
-	int current_id=0;
-	char* disk_msg;
-	// disk_msg = (char*) malloc (sizeof(int)*gv->writer_blk_num);
+	int* tmp_int_ptr;
+	int mix_cnt=0, errorcode=0, long_msg_id=0, mix_msg_id=0, disk_id=0;
+	double mix_send_time=0, pure_mpi_send_time=0;
+	int disk_msg_flag=0;
+	char exit_flag = 0;
+	int block_id, prog=0;
+	char my_exit_flag=0;
+	// int num_avail_elements=0, remain=0;
 	// printf("Compute %d Sender %d start running!\n", gv->rank[0], lv->tid);
 	// fflush(stdout);
 
-	t2 = get_cur_time();
+#ifdef ADD_PAPI
+	int retval,cid,numcmp;
+    int EventSet = PAPI_NULL;
+    long long *values = 0;
+    int *codes = 0;
+    char *names = 0;
+    int code;
+    int total_events=0;
+    int r;
+    const PAPI_component_info_t *cmpinfo = NULL;
+
+	numcmp = PAPI_num_components();
+
+    for(cid=0; cid<numcmp; cid++) {
+
+        if ( (cmpinfo = PAPI_get_component_info(cid)) == NULL) {
+            test_fail(__FILE__, __LINE__,"PAPI_get_component_info failed\n",-1);
+        }
+
+        if (!TESTS_QUIET) {
+            printf("Proc%d: Component %d - %d events - %s\n", gv->rank[0], cid,
+                cmpinfo->num_native_events, cmpinfo->name);
+        }
+
+        if ( strstr(cmpinfo->name, "infiniband") == NULL) {
+            continue;
+        }
+        if (cmpinfo->disabled) {
+            test_skip(__FILE__,__LINE__,"Component infiniband is disabled", 0);
+            continue;
+        }
+
+        values = (long long*) malloc(sizeof(long long) * cmpinfo->num_native_events);
+        codes = (int*) malloc(sizeof(int) * cmpinfo->num_native_events);
+        names = (char*) malloc(PAPI_MAX_STR_LEN * cmpinfo->num_native_events);
+
+        EventSet = PAPI_NULL;
+
+        retval = PAPI_create_eventset( &EventSet );
+        if (retval != PAPI_OK) {
+            test_fail(__FILE__, __LINE__, "PAPI_create_eventset()", retval);
+        }
+
+        code = PAPI_NATIVE_MASK;
+
+        r = PAPI_enum_cmp_event( &code, PAPI_ENUM_FIRST, cid );
+        i = 0;
+        while ( r == PAPI_OK ) {
+
+            retval = PAPI_event_code_to_name( code, &names[i*PAPI_MAX_STR_LEN] );
+            if ( retval != PAPI_OK ) {
+                test_fail( __FILE__, __LINE__, "PAPI_event_code_to_name", retval );
+            }
+            codes[i] = code;
+
+            retval = PAPI_add_event( EventSet, code );
+            if (retval != PAPI_OK) {
+                test_fail(__FILE__, __LINE__, "PAPI_add_event()", retval);
+            }
+
+            total_events++;
+
+            r = PAPI_enum_cmp_event( &code, PAPI_ENUM_EVENTS, cid );
+            i += 1;
+        }
+
+        retval = PAPI_start( EventSet );
+        if (retval != PAPI_OK) {
+            test_fail(__FILE__, __LINE__, "PAPI_start()", retval);
+        }
+#endif //ADD_PAPI
+
+
+	ring_buffer *rb = gv->producer_rb_p;
+
+	t2 = MPI_Wtime();
 	while(1){
 
-		//get pointer from PRB
-		pthread_mutex_lock(&gv->lock_id_get);
-    	gv->id_get++;
-    	if(gv->id_get > gv->cpt_total_blks){
-			pthread_mutex_unlock(&gv->lock_id_get);
-			break;
-		}
-    	pthread_mutex_unlock(&gv->lock_id_get);
+		buffer = sender_ring_buffer_get(gv, lv);
 
-		buffer = sender_ring_buffer_get(gv,lv);
-		temp_int_pointer = (int*)(buffer+sizeof(char)*gv->block_size);
-		my_count++;
-		send_counter=0;
+		if(buffer != NULL){
+			tmp_int_ptr = (int*)(buffer + sizeof(char)*gv->block_size);
+			my_count++;
 
-		// printf("Compute %d Sender %d start to make %d\n", gv->rank[0], lv->tid, block_id);
-		// fflush(stdout);
-		//check disk_id_array
-		pthread_mutex_lock(&gv->lock_writer_progress);
-	    if(gv->send_tail>0){
-	  //   	printf("Compute %d send a message send_counter=%d\n", gv->rank[0], send_counter);
-			// fflush(stdout);
-			for(i=0;i<gv->send_tail;i++){
-				temp_int_pointer[i+1]=gv->written_id_array[i];
-				// printf("Sender: temp_int_pointer[i+1]=%d\n", temp_int_pointer[i+1]);
+			block_id = ((int*)buffer)[0];
+
+			if (block_id != EXIT_BLK_ID){
+
+				// if(num_avail_elements>0) remain++;
+
+				// printf("Comp_Proc%d: Sender%d get block_id %d\n", gv->rank[0], lv->tid, block_id);
 				// fflush(stdout);
-				send_counter++;
-			}
-			temp_int_pointer[0]=send_counter;
-			gv->send_tail = 0;
-	    }
-	    pthread_mutex_unlock(&gv->lock_writer_progress);
 
-	    // Mix_msg
-	    if(send_counter > 0){
-			// printf("Compute %d Sender send a MIX message send_counter=%d\n", gv->rank[0], send_counter);
-			// fflush(stdout);
-
-			t0 = get_cur_time();
-			mix_cnt = sizeof(char)*gv->block_size+sizeof(int)*(send_counter+1);
-			errorcode = MPI_Ssend(buffer,mix_cnt,MPI_CHAR,dest,MIX_MPI_DISK_TAG,MPI_COMM_WORLD);
-			check_MPI_success(gv, errorcode);
-			t1 = get_cur_time();
-			mix_send_time += t1-t0;
-			mix_msg_id++;
-			gv->disk_id += send_counter;
-
-			gv->mpi_send_progress_counter += send_counter+1;
-			send_counter = 0;
-			free(buffer);
-			// if(gv->mpi_send_progress_counter>=gv->cpt_total_blks)
-			// 	break;
-	    }
-	    // Long_msg
-	    else{
-		    t0 = get_cur_time();
-		    errorcode = MPI_Ssend(buffer,gv->block_size,MPI_CHAR,dest,MPI_MSG_TAG,MPI_COMM_WORLD);
-		    check_MPI_success(gv, errorcode);
-		    t1 = get_cur_time();
-		    only_mpi_send_time += t1-t0;
-
-		 	//printf("Compute %d Sender %d finish sending %d\n", gv->rank[0], lv->tid, block_id);
-			// fflush(stdout);
-
-		    gv->mpi_send_progress_counter++;
-		    long_msg_id++;
-		    free(buffer);
-	      	// if(gv->mpi_send_progress_counter>=gv->cpt_total_blks)
-	      	// 	break;
-	    }
-
-	    if(my_count >= gv->sender_blk_num){
-
-			pthread_mutex_lock(&gv->lock_writer_done);
-			writer_done_flag=gv->writer_done;
-			if(writer_done_flag==0)
-				gv->writer_done=1;
-			pthread_mutex_unlock(&gv->lock_writer_done);
-
-			// Normal case: writer set writer_done_flag=1
-			if(writer_done_flag==1){
-				pthread_mutex_lock(&gv->lock_writer_progress);
-				if(gv->send_tail>0){
-		  			disk_msg_flag=1;
-		  			disk_msg = (char*) malloc (sizeof(int)*gv->send_tail);
-		  			temp_int_pointer = (int*) disk_msg;
-		  			for(i=0;i<gv->send_tail;i++){
-						temp_int_pointer[i]=gv->written_id_array[i];
+				//check disk_id_array
+				pthread_mutex_lock(&gv->lock_disk_id_arr);
+				if (gv->send_tail>0){
+					//printf("Compute %d send a message send_counter=%d\n", gv->rank[0], send_counter);
+					// fflush(stdout);
+					for (i=0; i<gv->send_tail; i++){
+						tmp_int_ptr[i+1] = gv->written_id_array[i];
+						// printf("Sender: tmp_int_ptr[i+1]=%d\n", tmp_int_ptr[i+1]);
+						// fflush(stdout);
 						send_counter++;
 					}
+					tmp_int_ptr[0] = send_counter;
 					gv->send_tail = 0;
-		    	}
-		    	pthread_mutex_unlock(&gv->lock_writer_progress);
-
-		    	if(disk_msg_flag==0){
-		    		printf("---###---Compute Process %d Normal case: Sender && writer Quit ---###---\n",
-		    			gv->rank[0]);
-					fflush(stdout);
-		    	}
-
-				// Normal case: sender finish its job early and wait for writer to finish
-				if(disk_msg_flag==1){
-					printf("---###---Compute Process %d Normal case: Writer send Last Disk Msg with %d blocks, block_id=%d!!!!---###---\n",
-					gv->rank[0], send_counter, temp_int_pointer[0]);
-					fflush(stdout);
-					errorcode = MPI_Ssend(disk_msg,send_counter*sizeof(int),MPI_CHAR,dest,DISK_TAG,MPI_COMM_WORLD);
-		    		check_MPI_success(gv, errorcode);
-		    		gv->mpi_send_progress_counter = gv->mpi_send_progress_counter + send_counter;
-		    		gv->disk_id = gv->disk_id + send_counter;
-		    		free(disk_msg);
 				}
+				pthread_mutex_unlock(&gv->lock_disk_id_arr);
 
+				// MIX_MSG
+				if (send_counter > 0){
+
+					// printf("Compute %d Sender send a MIX message send_counter=%d\n", gv->rank[0], send_counter);
+					// fflush(stdout);
+
+					t0 = MPI_Wtime();
+					mix_cnt = gv->block_size + sizeof(int)*(send_counter+1);
+					errorcode = MPI_Send(buffer, mix_cnt, MPI_CHAR, dest, MIX_MPI_DISK_TAG, MPI_COMM_WORLD);
+					check_MPI_success(gv, errorcode);
+					t1 = MPI_Wtime();
+
+					mix_send_time += t1 - t0;
+					mix_msg_id++;
+					disk_id += send_counter;
+
+					prog += send_counter+1;
+					send_counter = 0;
+					free(buffer);
+
+				}
+				// LONG_MSG
+				else{
+
+					if(block_id<0){
+						printf("Comp_Proc%d: Sender%d prepare to send *LONG_MSG* blkid=%d\n", gv->rank[0], lv->tid, block_id);
+						fflush(stdout);
+					}
+
+					t0 = MPI_Wtime();
+					errorcode = MPI_Send(buffer, gv->block_size, MPI_CHAR, dest, MPI_MSG_TAG, MPI_COMM_WORLD);
+					check_MPI_success(gv, errorcode);
+					t1 = MPI_Wtime();
+					pure_mpi_send_time += t1 - t0;
+
+					prog++;
+					long_msg_id++;
+					free(buffer);
+
+				}
+			}
+			else{
+#ifdef DEBUG_PRINT
+				printf("Comp_Proc%d: Sender%d Get exit flag msg and prepare to quit\n",
+					gv->rank[0], lv->tid);
+				fflush(stdout);
+#endif //DEBUG_PRINT
+
+				pthread_mutex_lock(rb->lock_ringbuffer);
+				gv->flag_sender_get_finalblk = 1;
+				rb->tail = (rb->tail + 1) % rb->bufsize;
+      			rb->num_avail_elements--;
+				pthread_cond_signal(rb->empty);
+				pthread_mutex_unlock(rb->lock_ringbuffer);
+
+				free(buffer);
+
+				my_exit_flag=1;
+			}
+		}
+		else{//writer get the final msg.
+
+#ifdef DEBUG_PRINT
+			printf("Comp_Proc%d: Sender%d *Discover* *Writer* Get exit flag msg and prepare to quit\n",
+					gv->rank[0], lv->tid);
+			fflush(stdout);
+#endif //DEBUG_PRINT
+
+			my_exit_flag=2;
+		}
+
+		if(my_exit_flag!=0){
+
+			while(gv->writer_exit==0);
+
+			int remain_disk_id=0;
+
+			pthread_mutex_lock(&gv->lock_disk_id_arr);
+			if (gv->send_tail>0){
+				disk_msg_flag = 1;
+				remain_disk_id = gv->send_tail;
+				gv->send_tail = 0;
+			}
+			pthread_mutex_unlock(&gv->lock_disk_id_arr);
+
+			if (disk_msg_flag == 0){
+
+#ifdef DEBUG_PRINT
+				printf("Comp_Proc%d: ---Normal case--- Sender%d longer than writer !!!!---###---\n",
+					gv->rank[0], lv->tid);
+				fflush(stdout);
+#endif //DEBUG_PRINT
+
+				//send EXIT msg
+				errorcode = MPI_Send(&exit_flag, sizeof(char), MPI_CHAR, dest, EXIT_MSG_TAG, MPI_COMM_WORLD);
+				check_MPI_success(gv, errorcode);
 			}
 
-			// Robbing case: sender set writer_done_flag=1
-			if(writer_done_flag==0){
-				printf("---###---Compute Process %d Sender Start Robbing---###---\n",
-		    			gv->rank[0]);
+			// Special case: sender finish its job early and wait for writer to finish
+			if (disk_msg_flag == 1){
+
+#ifdef DEBUG_PRINT
+				printf("Comp_Proc%d: ---Special case--- Sender%d wait for Writer and send the last msg with %d blocks!!!!---###---\n",
+					gv->rank[0], lv->tid, remain_disk_id);
 				fflush(stdout);
-				while(1){
-					//get pointer from PRB
-					pthread_mutex_lock(&gv->lock_id_get);
-			    	gv->id_get++;
-			    	current_id = gv->id_get;
-			    	if(gv->id_get > gv->cpt_total_blks){
-						pthread_mutex_unlock(&gv->lock_id_get);
+#endif //DEBUG_PRINT
 
-						printf("---###---Compute Process %d Sender prepare to Quit and get current_id=%d---###---\n",
-		    				gv->rank[0],current_id);
-						fflush(stdout);
+				errorcode = MPI_Send(gv->written_id_array, remain_disk_id*sizeof(int), MPI_CHAR, dest, DISK_TAG, MPI_COMM_WORLD);
+				check_MPI_success(gv, errorcode);
 
-						while(1){
-							pthread_mutex_lock(&gv->lock_writer_quit);
-							if(gv->writer_quit==1){
-								send_counter=0;
-								pthread_mutex_unlock(&gv->lock_writer_quit);
+				disk_id += remain_disk_id;
+				prog += remain_disk_id;
 
-								// printf("---###---Compute Process %d Sender Began to Quit!\n",
-				    // 				gv->rank[0]);
-								// fflush(stdout);
-
-								pthread_mutex_lock(&gv->lock_writer_progress);
-								if(gv->send_tail>0){
-						  			disk_msg_flag=1;
-						  			disk_msg = (char*) malloc (sizeof(int)*gv->send_tail);
-						  			temp_int_pointer = (int*) disk_msg;
-						  			for(i=0;i<gv->send_tail;i++){
-										temp_int_pointer[i]=gv->written_id_array[i];
-										send_counter++;
-									}
-									gv->send_tail = 0;
-						    	}
-						    	pthread_mutex_unlock(&gv->lock_writer_progress);
-
-						    	if(disk_msg_flag==0){
-						    		printf("---###---Compute Process %d Robbing case: Sender && writer Quit ---###---\n",
-						    			gv->rank[0]);
-									fflush(stdout);
-						    	}
-
-								// Robbing case
-								if(disk_msg_flag==1){
-									printf("---###---Compute Process%d Robbing case: Sender %d send Last Disk Msg with %d blocks, block_id=%d!!!!---###---\n",
-									gv->rank[0], lv->tid, send_counter, temp_int_pointer[0]);
-									fflush(stdout);
-									errorcode = MPI_Ssend(disk_msg,send_counter*sizeof(int),MPI_CHAR,dest,DISK_TAG,MPI_COMM_WORLD);
-						    		check_MPI_success(gv, errorcode);
-						    		gv->mpi_send_progress_counter = gv->mpi_send_progress_counter + send_counter;
-						    		gv->disk_id = gv->disk_id + send_counter;
-						    		free(disk_msg);
-								}
-
-								break;
-							}
-							pthread_mutex_unlock(&gv->lock_writer_quit);
-						}
-
-						break;
-					}
-			    	pthread_mutex_unlock(&gv->lock_id_get);
-
-			  		//printf("---###---Compute Process %d Sender get current_id=%d---###---\n",
-		   				//gv->rank[0],current_id);
-					//fflush(stdout);
-
-					buffer = sender_ring_buffer_get(gv,lv);
-					temp_int_pointer = (int*)(buffer+sizeof(char)*gv->block_size);
-					my_count++;
-					// if(my_count%100==0){
-						// printf("Compute Process %d Sender get current_id=%d, my_count=%d\n",
-		    // 			gv->rank[0], current_id, my_count);
-						// fflush(stdout);
-					// }
-
-					send_counter=0;
-
-					//check disk_id_array
-					pthread_mutex_lock(&gv->lock_writer_progress);
-				    if(gv->send_tail>0){
-				  		// printf("Compute %d send a message send_counter=%d\n", gv->rank[0], send_counter);
-						// fflush(stdout);
-						for(i=0;i<gv->send_tail;i++){
-							temp_int_pointer[i+1]=gv->written_id_array[i];
-							// printf("Sender: temp_int_pointer[i+1]=%d\n", temp_int_pointer[i+1]);
-							// fflush(stdout);
-							send_counter++;
-						}
-						temp_int_pointer[0]=send_counter;
-						gv->send_tail = 0;
-				    }
-				    pthread_mutex_unlock(&gv->lock_writer_progress);
-
-				    // Mix_msg
-				    if(send_counter > 0){
-						// printf("Compute %d Sender send a MIX message send_counter=%d\n", gv->rank[0], send_counter);
-						// fflush(stdout);
-
-						t0 = get_cur_time();
-						mix_cnt = sizeof(char)*gv->block_size+sizeof(int)*(send_counter+1);
-						errorcode = MPI_Ssend(buffer,mix_cnt,MPI_CHAR,dest,MIX_MPI_DISK_TAG,MPI_COMM_WORLD);
-						check_MPI_success(gv, errorcode);
-						t1 = get_cur_time();
-						mix_send_time += t1-t0;
-						mix_msg_id++;
-						gv->disk_id += send_counter;
-
-						gv->mpi_send_progress_counter += send_counter+1;
-						// send_counter = 0;
-						free(buffer);
-
-				    }
-				    // Long_msg
-				    else{
-					    t0 = get_cur_time();
-					    errorcode = MPI_Ssend(buffer,gv->block_size,MPI_CHAR,dest,MPI_MSG_TAG,MPI_COMM_WORLD);
-					    check_MPI_success(gv, errorcode);
-					    t1 = get_cur_time();
-					    only_mpi_send_time += t1-t0;
-
-					 	//printf("Compute %d Sender %d finish sending %d\n", gv->rank[0], lv->tid, block_id);
-						// fflush(stdout);
-
-					    gv->mpi_send_progress_counter++;
-					    long_msg_id++;
-					    free(buffer);
-
-				    }
-
-				}
+				//send EXIT msg
+				errorcode = MPI_Send(&exit_flag, sizeof(char), MPI_CHAR, dest, EXIT_MSG_TAG, MPI_COMM_WORLD);
+				check_MPI_success(gv, errorcode);
 			}
 
 			break;
 		}
 	}
-	t3 = get_cur_time();
+	t3 = MPI_Wtime();
 
-	printf("Comp%d Sender%d total_time=%f, prog=%d, \
-Mix_send_time=%f, MPI_send_time=%f, mix_id=%d, disk_id=%d, long_id=%d, T_send=%f\n",
-    gv->rank[0], lv->tid, t3-t2, gv->mpi_send_progress_counter,
-    mix_send_time, only_mpi_send_time, mix_msg_id, gv->disk_id, long_msg_id, mix_send_time+only_mpi_send_time);
+#ifdef ADD_PAPI
+	retval = PAPI_stop( EventSet, values);
+        if (retval != PAPI_OK) {
+            test_fail(__FILE__, __LINE__, "PAPI_stop()", retval);
+        }
+
+        printf("Papi Stop: I am Proc%d, TESTS_QUIET=%d\n", gv->rank[0], TESTS_QUIET);
+        fflush(stdout);
+
+        if (!TESTS_QUIET) {
+           for (i=0 ; i<cmpinfo->num_native_events ; ++i)
+               printf("Proc%d: %#x %-24s = %lld\n", gv->rank[0], codes[i], names+i*PAPI_MAX_STR_LEN, values[i]);
+        }
+
+        retval = PAPI_cleanup_eventset( EventSet );
+        if (retval != PAPI_OK) {
+            test_fail(__FILE__, __LINE__, "PAPI_cleanup_eventset()", retval);
+        }
+
+        retval = PAPI_destroy_eventset( &EventSet );
+        if (retval != PAPI_OK) {
+            test_fail(__FILE__, __LINE__, "PAPI_destroy_eventset()", retval);
+        }
+
+        free(names);
+        free(codes);
+        free(values);
+    }
+
+    if (total_events==0) {
+        test_skip(__FILE__,__LINE__,"No infiniband events found", 0);
+    }
+#endif //ADD_PAPI
+
+
+	printf("Comp_Proc%04d: Sender%d T_total=%.3f, prog=%d, \
+T_mix=%.3f, T_long=%.3f, T_total_send=%.3f, M_mix=%d, disk=%d, M_long=%d, empty_wait=%d\n",
+    gv->rank[0], lv->tid, t3-t2, prog,
+    mix_send_time, pure_mpi_send_time, mix_send_time+pure_mpi_send_time, mix_msg_id, disk_id, long_msg_id, lv->wait);
   fflush(stdout);
 
 

@@ -2,6 +2,9 @@
 Copyright YUANKUN FU
 Brief desc of the file: Header
 ********************************************************/
+#ifndef DO_THREAD_H
+#define DO_THREAD_H
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
@@ -14,40 +17,42 @@ Brief desc of the file: Header
 #include <unistd.h>
 #include <sys/types.h>
 #include <errno.h>
+#include <stdint.h>
 
-#define PRODUCER_RINGBUFFER_TOTAL_MEMORY 1024*1024*1024L //1G Byte
-#define CONSUMER_RINGBUFFER_TOTAL_MEMORY 1024*1024*1024L
+#ifdef ADD_PAPI
+#include <papi.h>
+#include "papi_test.h"
+#endif //ADD_PAPI
 
-// #define DEBUG_PRINT
-#define TOTAL_FILE2PRODUCE_1GB 1024*1024*1024L
-// #define ADDRESS "/N/dc2/scratch/fuyuan/microbenchmark/cid%02dthread%dblk%d.d"
-#define ADDRESS "/N/dc2/scratch/fuyuan/store/syn_concurrent_store/mbexp%03dvs%03d/cid%03d/cid%03dblk%d.d"
-// /N/dc2/scratch/fuyuan//concurrent/v1/mbexp001vs001/cid000
+#define PRODUCER_RINGBUFFER_TOTAL_MEMORY 512*1024*1024L //1G Byte, 512MB
+
+#ifdef CONSUMER_RB_8GB
+  #define CONSUMER_RINGBUFFER_TOTAL_MEMORY 8*1024*1024*1024L
+#else
+  #define CONSUMER_RINGBUFFER_TOTAL_MEMORY 512*1024*1024L
+#endif //CONSUMER_RB_8GB
+
+
+#define OPEN_USLEEP 500
 
 #define MPI_MSG_TAG 49
 #define MIX_MPI_DISK_TAG 50
 #define DISK_TAG 51
-
-// #define BLANK 99
-// #define READ_DONE 90
-
-// #define BLANK_CALC_DONE 80
-// #define READ_CALC_DONE 70
-// #define ANALYSIS_WRITTEN_DONE 60
-// #define CALC_ANALYSIS_WRITTEN_BOTH_DONE 50
-// #define DELETED 40
-
-#define WRITER_COUNT 2000
-#define ANALSIS_COUNT 1000
-
-#define CACHE 4
-#define TRYNUM 100
+#define EXIT_MSG_TAG 99
 
 #define NOT_ON_DISK 0
 #define ON_DISK 1
 
 #define NOT_CALC 0
 #define CALC_DONE 1
+
+#define CACHE 4
+#define TRYNUM 200
+
+#define WRITER_COUNT 2000
+#define ANALSIS_COUNT 1000
+
+#define EXIT_BLK_ID -1
 
 typedef struct {
   char** buffer; //array of pointers
@@ -58,6 +63,7 @@ typedef struct {
   pthread_mutex_t *lock_ringbuffer;
   pthread_cond_t *full;
   pthread_cond_t *empty;
+  pthread_cond_t *new_tail;
 } ring_buffer;
 
 typedef struct lv_t {
@@ -71,14 +77,17 @@ typedef struct lv_t {
   double calc_time;
   double ring_buffer_put_time;
   double ring_buffer_get_time;
+
+  int   wait;
   void  *gv;
 }* LV;
 
 typedef struct gv_t {
+  char* filepath;
   int rank[2], size[2], namelen, color;
   char processor_name[128];
-  int computer_group_size,analysis_process_num,compute_process_num; //Num in each Compute Group, Num of Analysis Node
-  int computeid;
+  int computer_group_size, analysis_process_num, compute_process_num; //Num in each Compute Group, Num of Analysis Node
+
   ring_buffer* producer_rb_p;
   ring_buffer* consumer_rb_p;
 
@@ -92,49 +101,60 @@ typedef struct gv_t {
   int ana_total_blks;
   int writer_thousandth;
   int writer_blk_num;
+  int writer_prb_thousandth;
   int reader_blk_num;
   int sender_blk_num;
   int analysis_writer_blk_num;
   int block_size;
-  long total_file;
+  double total_file;
+
+  // int utime;
   int lp;
-  // double msleep;
+  int computation_lp;
 
   int compute_data_len;
   int analysis_data_len;
 
   //sender
   int sender_all_done;
-  int mpi_send_progress_counter;  //currently how many file blocks have been sent
-  int id_get;
+  // int mpi_send_progress_counter;  //currently how many file blocks have been sent
+  // int id_get;
 
   //writer
   int* written_id_array;
   int send_tail;
-  int writer_done;
-  int disk_id;
-  int writer_quit;
+  int flag_sender_get_finalblk;
+  int flag_writer_get_finalblk;
+  volatile int writer_exit;
 
   // receiver_thread
-  char * org_recv_buffer;
-  int mpi_recv_progress_counter; // how many blocks are received
+  char* org_recv_buffer;
+  // int mpi_recv_progress_counter; // how many blocks are received
+
   //prefetcher thread
   // int prefetch_counter;  //currently how many file blocks have been read
+  int recv_head;
   int recv_tail;
-  int * prefetch_id_array;
-  int ana_progress;
+  int recv_avail;
+  int *prefetch_id_array;
+
+  volatile int recv_exit;
+  volatile int reader_exit;
+  volatile int ana_writer_exit;
 
   int calc_counter;
 
-  int utime;
-
   pthread_mutex_t lock_block_id;
-  pthread_mutex_t lock_id_get;
-  pthread_mutex_t lock_writer_progress;
+  pthread_mutex_t lock_disk_id_arr;
   pthread_mutex_t lock_writer_done;
-  pthread_mutex_t lock_writer_quit;
-  pthread_mutex_t lock_recv;
+  pthread_mutex_t lock_recv_disk_id_arr;
   // pthread_mutex_t lock_prefetcher_progress;
+
+#ifdef WRITE_ONE_FILE
+  FILE *fp;       //compute_proc open 1 bigfile
+  FILE **ana_read_fp;  //analysis_proc reader open bigfile
+  FILE **ana_write_fp;  //analysis_proc reader open bigfile
+#endif //WRITE_ONE_FILE
 
   LV  all_lvs;
 }* GV;
@@ -143,10 +163,9 @@ void* compute_node_do_thread(void* v);
 void* analysis_node_do_thread(void* v);
 
 void init_lv(LV lv, int tid, GV gv);
-void mark(char* buffer, int nbytes, int block_id);
+// void mark(char* buffer, int nbytes, int block_id);
 double get_cur_time();
 void debug_print(int myrank);
-void create_blk(char* buffer,  int nbytes, int last_gen);
 void check_malloc(void * pointer);
 void check_MPI_success(GV gv, int errorcode);
 
@@ -157,6 +176,7 @@ void analysis_writer_thread(GV gv,LV lv);
 void analysis_receiver_thread(GV gv,LV lv);
 void analysis_reader_thread(GV gv,LV lv);
 void analysis_consumer_thread(GV gv,LV lv);
+
 void msleep(double milisec);
 
-// void simple_verify(GV gv, LV lv, char* buffer,  int nbytes);
+#endif
