@@ -216,11 +216,11 @@ void compute_sender_thread(GV gv,LV lv){
 			// Special case: sender finish its job early and wait for writer to finish
 			if (disk_msg_flag == 1){
 
-// #ifdef DEBUG_PRINT
+#ifdef DEBUG_PRINT
 				printf("Comp_Proc%04d: ---Special case--- Sender%d wait for Writer and send the last msg with %d blocks!!!!---###---\n",
 					gv->rank[0], lv->tid, remain_disk_id);
 				fflush(stdout);
-// #endif //DEBUG_PRINT
+#endif //DEBUG_PRINT
 
 				num_send_char = remain_disk_id*sizeof(int);
 				errorcode = MPI_Send(gv->written_id_array, num_send_char, MPI_CHAR, dest, DISK_TAG, MPI_COMM_WORLD);

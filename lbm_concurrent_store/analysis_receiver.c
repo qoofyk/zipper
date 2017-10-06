@@ -281,16 +281,19 @@ void analysis_receiver_thread(GV gv, LV lv){
       ((int*)new_buffer)[2] = ON_DISK;
       ((int*)new_buffer)[3] = CALC_DONE;
 
-// #ifdef DEBUG_PRINT
+#ifdef DEBUG_PRINT
       printf("Ana_Proc%04d: Receiver%d get a *EXIT_MSG_TAG* from src=%d with block_id=%d, num_exit_flag=%d\n",
         gv->rank[0], lv->tid, ((int*)new_buffer)[0], ((int*)new_buffer)[1], num_exit_flag);
       fflush(stdout);
-// #endif //DEBUG_PRINT
+#endif //DEBUG_PRINT
 
       if(num_exit_flag==gv->computer_group_size){
+
+#ifdef DEBUG_PRINT
         printf("Ana_Proc%04d: Receiver%d Ready to put the last EXIT, num_exit_flag=%d\n",
           gv->rank[0], lv->tid, num_exit_flag);
         fflush(stdout);
+#endif //DEBUG_PRINT
 
         gv->recv_exit = 1;
         // if(gv->reader_blk_num != 0){
