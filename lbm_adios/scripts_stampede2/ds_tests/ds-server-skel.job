@@ -1,10 +1,10 @@
 #!/bin/bash  
 #SBATCH -J "ds_test"  
 #SBATCH -o "results/ds_test_%j.out"  
-#SBATCH -p development
-#SBATCH -N 3
+#SBATCH -p normal
+#SBATCH -N 24
 #SBATCH --ntasks-per-node=32
-#SBATCH -t 00:1:00  
+#SBATCH -t 00:3:00  
 #SBATCH --mail-type=BEGIN
 # send mail to this address
 #SBATCH --mail-user=lifen@iupui.edu
@@ -14,14 +14,18 @@
 
 module list 
 
+# multiplier in each dim, 2 means it will totally use 8xprocess with 8x node
+MUL_PER_DIM=2
+STEP=10
+MUL=$(($MUL_PER_DIM*$MUL_PER_DIM*$MUL_PER_DIM)) 
 # procs placement
 num_apps=3
 
 # slots used by this app
-procs_this_app=(2 32 16)
+procs_this_app=($((MUL*4)) $((MUL*32)) $((MUL*16)))
 
 # number of nodes used by this app
-nodes_this_app=(1 1 1)
+nodes_this_app=($((MUL*1)) $((MUL*1)) $((MUL*1)))
 
 ###################################################
 
@@ -45,7 +49,7 @@ rm -f dataspaces.conf
 ## Create dataspaces configuration file
 echo "## Config file for DataSpaces
 ndim = 3
-dims = 256,256,256
+dims = $(($MUL_PER_DIM*256)),$(($MUL_PER_DIM*256)),$(($MUL_PER_DIM*256))
 max_versions = 1
 max_readers = 1
 lock_type = 2
@@ -58,8 +62,9 @@ GENERATE_HOST_SCRIPT=${HOME}/Downloads/LaucherTest/generate_hosts.sh
 if [ -a $GENERATE_HOST_SCRIPT ]; then
     source $GENERATE_HOST_SCRIPT
 else
-    echo "generate_hosts.sh should downloaded from:"
+    echo "generate_hosts.sh should be downloadeded from:"
     echo "https://github.iu.edu/lifen/LaucherTest/blob/master/generate_hosts.sh"
+    exit -1
 fi
 
 LAUNCHER="mpiexec.hydra"
@@ -67,7 +72,9 @@ LAUNCHER="mpiexec.hydra"
 
 
 ## Run DataSpaces servers
-${LAUNCHER}  -n 4 -machinefile $HOST_DIR/machinefile-app0 ${DS_BIN}/dataspaces_server -s 4 -c 48  >& $PBS_RESULTDIR/server.log &
+CMD_SERVER="${LAUNCHER}  -n ${procs_this_app[0]} -machinefile $HOST_DIR/machinefile-app0 ${DS_BIN}/dataspaces_server -s ${procs_this_app[0]} -c $((${procs_this_app[1]}+${procs_this_app[2]}))"
+$CMD_SERVER >& $PBS_RESULTDIR/server.log &
+echo "server applciation lauched: $CMD_SERVER"
 ## Give some time for the servers to load and startup
 while [ ! -f conf ]; do
     sleep 1s
@@ -79,11 +86,16 @@ echo "launching produer"
 THIS_TRANSPORT=DATASPACES
 
 ## Run writer application
-${LAUNCHER}  -n 32 -machinefile $HOST_DIR/machinefile-app1 ${DS_BIN}/test_writer ${THIS_TRANSPORT} 32 3 2 4 4 128 64 64 20 1 >& $PBS_RESULTDIR/put.log &
+CMD_PRODUCER="${LAUNCHER}  -n ${procs_this_app[1]} -machinefile $HOST_DIR/machinefile-app1 ${DS_BIN}/test_writer ${THIS_TRANSPORT} ${procs_this_app[1]} 3 $(($MUL_PER_DIM*2)) $(($MUL_PER_DIM*4)) $(($MUL_PER_DIM*4)) 128 64 64 ${STEP} 1"
+$CMD_PRODUCER >& $PBS_RESULTDIR/put.log &
+echo "producer applciation lauched: $CMD_PRODUCER"
 
 echo "launching consumer"
 ## Run reader application
-${LAUNCHER}  -n 16 -machinefile $HOST_DIR/machinefile-app2  ${DS_BIN}/test_reader ${THIS_TRANSPORT} 16 3 2 2 4 128 128 64 20 2 >& $PBS_RESULTDIR/get.log &
+CMD_CONSUMER="${LAUNCHER}  -n ${procs_this_app[2]} -machinefile $HOST_DIR/machinefile-app2  ${DS_BIN}/test_reader ${THIS_TRANSPORT} ${procs_this_app[2]}  3 $(($MUL_PER_DIM*2)) $(($MUL_PER_DIM*2)) $(($MUL_PER_DIM*4)) 128 128 64 ${STEP} 2"
+$CMD_CONSUMER >& $PBS_RESULTDIR/get.log &
+echo " consumer applciation lauched $CMD_CONSUMER"
 
 ## Wait for the entire workflow to finish
 wait
+

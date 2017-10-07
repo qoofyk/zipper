@@ -1,5 +1,15 @@
 ## Oct 6
 JOBS
+    311613
+        development queue can run
+
+    311586
+        normal queue cannot run
+
+    using impi again
+    --------------------------------------
+    311147
+    dataspaces shipped test program, with 8 server nodes, rdma_bind_addr
     310980
     run native-adios 196 with mvapich dspaces built, still has rdma_bind_addr
     
@@ -9,11 +19,10 @@ JOBS
         'dsrpc_cn_register()' failed with -12.
     * solved: add DATASPACES as an auument
 
-
 ## Oct 5
 JOBS
     310262
-        196vs98 with native_dspace
+        196vs98 with native_dspace, rdma_bind_addr err
     310256
         8vs4 with native_dspaces
 
