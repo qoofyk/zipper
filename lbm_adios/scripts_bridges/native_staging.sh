@@ -4,7 +4,6 @@ BUILD_DIR=${PBS_O_WORKDIR}/build
 
 BIN_PRODUCER=${BUILD_DIR}/bin/run_lbm;
 BIN_CONSUMER=${BUILD_DIR}/bin/native_staging_read;
-
 #This job runs with 3 nodes  
 #ibrun in verbose mode will give binding detail  #BUILD=${PBS_O_WORKDIR}/build_dspaces/bin
 DS_SERVER=${PBS_O_HOME}/envs/Dataspacesroot/bin/dataspaces_server

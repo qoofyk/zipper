@@ -1,0 +1,58 @@
+## Oct 6
+JOBS
+    311613
+        development queue can run
+
+    311586
+        normal queue cannot run
+
+    using impi again
+    --------------------------------------
+    311147
+    dataspaces shipped test program, with 8 server nodes, rdma_bind_addr
+    310980
+    run native-adios 196 with mvapich dspaces built, still has rdma_bind_addr
+    
+    310961
+    using mvapich in stampded with with-infiband-interface=ib0
+        app cp is full.
+        'dsrpc_cn_register()' failed with -12.
+    * solved: add DATASPACES as an auument
+
+## Oct 5
+JOBS
+    310262
+        196vs98 with native_dspace, rdma_bind_addr err
+    310256
+        8vs4 with native_dspaces
+
+    above starts using new lanucher with machinefile
+    --------------------------------
+    
+    309374
+        8vs4 with mpiio
+        correctly run
+    
+    
+    309206
+        196vs98 dspaces_nokeep
+        server cannot init:
+            rdma_bind_addr -1 in rpc_server_init.
+            'rpc_server_init()': failed with -1.
+
+    309158
+        8vs4 dspaces_nokeep
+        use new machinefile layout
+    
+    308648
+        196vs98
+        process layout
+        server procs(28*4 procs are packed into two nodes)
+## Oct 2
+JOBS
+    303418 native staging  196vs 98, rpc bind err
+
+    303396 adios_staging of dspaces works
+    303356 native_staging of dpsaces, works
+    303350 mpiio successfully run, works
+

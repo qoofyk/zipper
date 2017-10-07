@@ -1,109 +1,52 @@
-directory="LBMcon001vs001"
-date
+SLURM_JOBID=111
+##################parameter setting#################################################
+directory="0008v0004"
+nproc_per_mac=14
 
+CASE_NAME=LBM_DataBroker_concurrent_Keep
+
+FILESIZE2PRODUCE=256 # 64*64*256*2*8 = 16MB per proc
 compute_generator_num=1
 compute_writer_num=1
 analysis_reader_num=1
 analysis_writer_num=1
-writer_thousandth=300
-computer_group_size=1
-num_compute_nodes=1
-num_analysis_nodes=1
-total_nodes=2
-maxp=1
+# writer_thousandth=300
+compute_group_size=2
+num_comp_proc=8
+num_ana_proc=$((${num_comp_proc} / ${compute_group_size}))
+total_proc=$((${num_comp_proc} + ${num_ana_proc}))
 
-echo "------LBM_concurrent_store---------------"
-echo "L-S code"
-echo "Usage: %s $compute_writer_num $analysis_reader_num $analysis_writer_num $analysis_reader_num $cpt_total_blks ${writer_thousandth[k]} $computer_group_size $num_analysis_nodes"
-echo "Block size starting from 64KB,128KB,256KB,512KB,1MB,2MB,4MB,8MB"
-echo "Block size input =	   1   ,2    ,4    ,8    ,16 ,32 ,64 ,128"
-my_run_exp2="aprun -n $total_nodes -N 2 -d 16 /N/u/fuyuan/BigRed2/Openfoam/20160302_test/lbm_concurrent_store/lbm_concurrent_store"
-my_del_exp2='time rsync -a --delete-before  /N/dc2/scratch/fuyuan/empty/ '
+maxp=1 #control how many times to run each configuration
+n_moments=4   #n_moment
+NSTOP=100 # how many steps
 
-# rm -rf /N/dc2/scratch/fuyuan/concurrent/syn/$directory/
-mkdir /N/dc2/scratch/fuyuan/LBMconcurrentstore/$directory/
-echo "remove all subdirectories"
-$my_del_exp2  /N/dc2/scratch/fuyuan/LBMconcurrentstore/$directory/
-echo "mkdir new"
-for ((m=0;m<$num_compute_nodes; m++)); do
-	mkdir $(printf "/N/dc2/scratch/fuyuan/LBMconcurrentstore/$directory/cid%03g " $m)
-	lfs setstripe --count 4 -o -1 $(printf "/N/dc2/scratch/fuyuan/LBMconcurrentstore/$directory/cid%03g " $m)
-done
-# "/N/dc2/scratch/fuyuan/mb/lbmmix/mbexp%03dvs%03d/cid%03d/cid%03dthrd%02dblk%d.d"
-echo "-----------Delete files-----------------"
-for ((m=0;m<$num_compute_nodes;m++)); do
-    $my_del_exp2 $(printf "/N/dc2/scratch/fuyuan/LBMconcurrentstore/$directory/cid%03g" $m)
-done
-echo "-----------End Delete files-------------"
+cubex=(32 32 64 64)
+cubez=(64 128 64 128)
+# writer_thousandth=(0 999) #upper_limit_hint
+# writer_prb_thousandth=(1000 1000)
 
-echo
-echo
-echo "####### Simulate $num_compute_nodes Compute Parallel Write vs $num_analysis_nodes Analysis Parallel Read ########"
+writer_thousandth=(999) #upper_limit_hint
+writer_prb_thousandth=(0)
 
-echo "@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@"
-echo "***********$num_compute_nodes Compute Write*******************************"
-echo "Each compute node has 1 thread, each thread will write according to NUM_ITER and num_blks"
-echo "Block size starting from 64KB,128KB,256KB,512KB,1MB,2MB,4MB,8MB"
-echo "cubex =	   			   16  ,16   ,16   ,32   ,32 ,32 ,64 ,64"
-echo "cubez =	   			   16  ,32   ,64   ,32   ,64 ,128,64 ,128"
-echo "@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@"
-echo
-echo "@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@"
-echo "*********************$num_analysis_nodes Analysis Read**********************"
-echo "Each Analysis node has 1 thread, each thread will read according to NUM_ITER and num_blks"
-echo "Block size starting from 64KB,128KB,256KB,512KB,1MB,2MB,4MB,8MB"
-echo "@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@"
+tune_stripe_count=-1
+####################################################################################
 
-cubex=32
-cubez=32
-step_stop=5
-writer_thousandth=50
-lp=1
-val=`expr $cubex \* $cubex \* $cubez \* 16 / 1024`
-echo "********************************************************************"
-echo "Exp2 $val KB, $writer_thousandth/10% PRB"
-echo "********************************************************************"
-$my_run_exp2 $compute_generator_num $compute_writer_num $analysis_reader_num $analysis_writer_num $writer_thousandth $computer_group_size $num_analysis_nodes $cubex $cubez $step_stop $lp
-echo "-----------Start Deleting files-------------"
-for ((m=0;m<$num_compute_nodes;m++)); do
-    $my_del_exp2 $(printf "/N/dc2/scratch/fuyuan/LBMconcurrentstore/$directory/cid%03g" $m)
-done
-echo "-----------End Delete files-------------"
+echo "-----------case=$CASE_NAME---------------"
+echo "datasize=$FILESIZE2PRODUCE nstops=$NSTOP num_comp_proc=$num_comp_proc num_ana_proc=$num_ana_proc n_moments=$n_moments NSTOP=$NSTOP stripe_count=$tune_stripe_count"
 
-# cubex=32
-# step_stop=6
-# writer_thousandth=(0 50 100 200 300)
-# lp=1
-# for((;cubex<=64;cubex=cubex*2));do
-# 	for ((t=1; t<=4; t=t*2)); do
-# 		cubez=`expr  $cubex \* $t`
-# 		val=`expr $cubex \* $cubex \* $cubez \* 16 / 1024`
+PBS_O_HOME=$HOME
+PBS_O_WORKDIR=$(pwd)
 
-# 		if [ $val -eq 16384 ]
-#    		then
-#       		break
-#    		fi
+# comet
+# SCRATCH_DIR=/oasis/scratch/comet/qoofyk/temp_project/lbm
 
-# 		for ((k=0; k<${#writer_thousandth[@]}; k++)); do
-# 			echo
-# 			echo
-# 			echo "*************************************************************************************"
-# 			echo "---LBM_concurrent_store $val KB, ${writer_thousandth[k]}/10%------"
-# 			echo "*************************************************************************************"
-# 			# if [ $val -eq 64 ] && [ $val -eq 128 ] && [ $val -eq 16384 ]
-# 			#  		then
-# 			#     		break
-# 			#fi
-# 			for ((p=0; p<$maxp; p++)); do
-# 				echo "=============Loop $p==============="
-# 				$my_run_exp2 $compute_generator_num $compute_writer_num $analysis_reader_num $analysis_writer_num ${writer_thousandth[k]} $computer_group_size $num_analysis_nodes $cubex $cubez $step_stop $lp
-# 				echo "-----------Start Deleting files-------------"
-# 				for ((m=0;m<$num_compute_nodes;m++)); do
-# 				    $my_del_exp2 $(printf "/N/dc2/scratch/fuyuan/LBMconcurrentstore/$directory/cid%03g" $m)
-# 				done
-# 				echo "-----------End Delete files-------------"
-# 				echo
-# 			done
-# 		done
-# 	done
-# done
+# bridges
+groupname=$(id -Gn)
+export SCRATCH_DIR=/pylon5/cc4s86p/qoofyk/lbm/${SLURM_JOBID}
+EMPTY_DIR=/pylon5/cc4s86p/qoofyk/empty/
+
+BIN1=${PBS_O_HOME}/General_Data_Broker/lbm_concurrent_store/build_keep/lbm_concurrent_keep_onefile
+BIN2=${PBS_O_HOME}/General_Data_Broker/lbm_concurrent_store/build_keep/lbm_concurrent_keep_sep_file
+
+source ${PBS_O_WORKDIR}/scripts_bridges/common.sh
+

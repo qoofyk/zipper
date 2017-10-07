@@ -8,11 +8,15 @@ void init_lv(LV lv, int tid, GV gv) {
   lv->tid   = tid;
   lv->gv    = gv;
 
-  lv->read_time = 0;
-  lv->write_time = 0;
-  lv->only_fwrite_time = 0;
-  lv->only_fread_time = 0;
-  lv->calc_time = 0;
+  lv->gen_time    = 0.0;
+  lv->read_time   = 0.0;
+  lv->write_time  = 0.0;
+  lv->only_fwrite_time = 0.0;
+  lv->only_fread_time = 0.0;
+  lv->calc_time = 0.0;
+  lv->ring_buffer_put_time = 0.0;
+  lv->ring_buffer_get_time = 0.0;
+  lv->wait = 0;
   //printf("init mutex done!\n");
 }
 
@@ -28,17 +32,17 @@ void* compute_node_do_thread(void* v) {
   // printf("Compute %d Thread %d starts running...\n", gv->rank[0], tid);
   // fflush(stdout);
 
-  if(tid <= (gv->compute_generator_num - 1)) {
+  if(tid <= (gv->compute_generator_num-1)) {
       //generator
-      compute_generator_thread(gv,lv);
+      compute_generator_thread(gv, lv);
   }
   else if(tid >= gv->compute_generator_num && tid<=(gv->compute_generator_num + gv->compute_writer_num-1)){
-      //writer_thread
-      compute_writer_thread(gv,lv);
+      //mpi_send_thread
+      compute_sender_thread(gv, lv);
   }
   else{
-      //mpi_send_thread
-      compute_sender_thread(gv,lv);
+      //writer_thread
+      compute_writer_thread(gv, lv);
   }
 
   return NULL;
@@ -59,7 +63,7 @@ void* analysis_node_do_thread(void* v) {
      //prefetching thread
       analysis_reader_thread(gv,lv);
     }
-  else if(tid >= gv->analysis_reader_num && tid<=(gv->analysis_reader_num + gv->analysis_writer_num-1)){
+  else if(tid >= gv->analysis_reader_num && tid<=(gv->analysis_reader_num + gv->analysis_writer_num - 1)){
       //writer_thread
       analysis_writer_thread(gv,lv);
   }
@@ -114,6 +118,12 @@ void check_malloc(void * pointer){
     perror("Malloc error!\n");
     fprintf (stderr, "at %s, line %d.\n", __FILE__, __LINE__);
     exit(1);
+  }
+
+  //check is aligned on 8 byte count
+  if((uintptr_t)pointer%8 != 0){
+    printf("Pointer %p is NOT ALIGNED!!!!\n", pointer);
+    fflush(stdout);
   }
 }
 

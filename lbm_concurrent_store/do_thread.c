@@ -8,13 +8,14 @@ void init_lv(LV lv, int tid, GV gv) {
   lv->tid   = tid;
   lv->gv    = gv;
 
-  lv->read_time = 0;
-  lv->write_time = 0;
-  lv->only_fwrite_time = 0;
-  lv->only_fread_time = 0;
-  lv->calc_time = 0;
-  lv->ring_buffer_put_time = 0;
-  lv->ring_buffer_get_time = 0;
+  lv->read_time   = 0.0;
+  lv->write_time  = 0.0;
+  lv->only_fwrite_time = 0.0;
+  lv->only_fread_time = 0.0;
+  lv->calc_time = 0.0;
+  lv->ring_buffer_put_time = 0.0;
+  lv->ring_buffer_get_time = 0.0;
+  lv->wait = 0;
   //printf("init mutex done!\n");
 }
 
@@ -50,14 +51,14 @@ void* analysis_node_do_thread(void* v) {
   lv = (LV) v;
   gv = (GV) lv->gv;
   tid = lv->tid;
-  // printf("Ana %d Thread %d starts running...\n", gv->rank[0], tid);
+  // printf("Ana_Proc%d: Thread %d starts running...\n", gv->rank[0], tid);
   // fflush(stdout);
 
   if(tid<=(gv->analysis_reader_num-1)) {
      //prefetching thread
       analysis_reader_thread(gv,lv);
     }
-  else if(tid >= gv->analysis_reader_num && tid<=(gv->analysis_reader_num + gv->analysis_writer_num-1)){
+  else if(tid >= gv->analysis_reader_num && tid<=(gv->analysis_reader_num + gv->analysis_writer_num - 1)){
       //writer_thread
       analysis_writer_thread(gv,lv);
   }
@@ -108,10 +109,16 @@ void msleep(double milisec){
 }
 
 void check_malloc(void * pointer){
-  if (pointer == NULL) {
+  if(pointer == NULL) {
     perror("Malloc error!\n");
     fprintf (stderr, "at %s, line %d.\n", __FILE__, __LINE__);
     exit(1);
+  }
+
+  //check is aligned on 8 byte count
+  if((uintptr_t)pointer%8 != 0){
+    printf("Pointer %p is NOT ALIGNED!!!!\n", pointer);
+    fflush(stdout);
   }
 }
 

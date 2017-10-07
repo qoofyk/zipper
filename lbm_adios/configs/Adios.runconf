@@ -60,6 +60,49 @@ if [ `hostname | cut -c 1-2` == "br" ]; then
         --with-dimes=${myDataspaces}  \
         --with-flexpath=${HOME}/envs/Flexpath \
 
+elif [ `hostname | cut -c 8-16` == "stampede2" ]; then
+    #######################
+    # Stampede #
+    #######################
+    echo "Configure on  stampede2"
+    
+    if [[ $1 == tau ]]; then
+        myCC=tau_cc.sh
+        myCXX=tau_cxx.sh
+        myFC=tau_f90.sh
+        myDataspaces=${WORK}/envs/Dataspacesroot_tau
+        myprefix=${WORK}/envs/ADIOSroot_tau
+    else
+        myCC=mpicc
+        myCXX=mpicxx
+        myFC=mpif90
+        myCFLAGS="-xCORE-AVX2 -axMIC-AVX512"
+        myDataspaces=${WORK}/envs/Dataspacesroot
+        myprefix=${WORK}/envs/ADIOSroot
+    fi
+    module list
+
+    #rdmacm_root=~/envs/rdmacm/
+
+    ./configure --prefix=${myprefix} \
+        CC=${myCC} \
+        CXX=${myCXX} \
+        FC=${myFC} \
+        MPICC=${myCC} \
+        MPICXX=${myCXX} \
+        MPIFC=${myFC} \
+        CFLAGS="-g -O3 -fPIC ${myCFLAGS}" \
+        LIBS="-lrdmacm -libverbs -lpthread -lm" \
+        --enable-dependency-tracking \
+        --enable-timers \
+        --disable-fortran \
+        --disable-timer-events \
+        --with-dataspaces=${myDataspaces} \
+        --with-dimes=${myDataspaces}  \
+        --with-flexpath=${WORK}/envs/Flexpath \
+
+
+
 elif [ `hostname | cut -c 1-5` == "comet" ]; then
 
     #######################
