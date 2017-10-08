@@ -1,3 +1,10 @@
+## Oct 7
+JOBS:
+    1826779
+       ds_test with 3nodes, intel compiler/mpi
+    1826784
+        ds_test with 7 nodes, intel compiler/mpi
+     
 ## Oct 3
     1814093
         launcher test with intel mpirun
