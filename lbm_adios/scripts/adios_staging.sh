@@ -11,7 +11,7 @@ BIN_CONSUMER=${BUILD_DIR}/bin/adios_staging_read;
 
 #This job runs with 3 nodes  
 #ibrun in verbose mode will give binding detail  #BUILD=${PBS_O_WORKDIR}/build_dspaces/bin
-DS_SERVER=${WORK}/envs/Dataspacesroot/bin/dataspaces_server
+DS_SERVER=${WORK}/envs/Dataspacesroot_intel/bin/dataspaces_server
 PBS_RESULTDIR=${SCRATCH_DIR}/results
 
 

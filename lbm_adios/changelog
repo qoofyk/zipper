@@ -12,8 +12,9 @@ TODO
 	2. dspaces hanging
 	3. ENABLE_TESTING in flexpath conf, enabled
 ## Oct 8
-	impi works, using bridges default
+	impi works, using bridges default, use intel packages for all softwares
 	i can also use more processes pernode
+	all scripts/CMakeLists use new path with _intel
 
 	
 ## Oct 2

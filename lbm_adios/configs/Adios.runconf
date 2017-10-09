@@ -29,6 +29,7 @@ if [ `hostname | cut -c 1-2` == "br" ]; then
         myCXX=mpiicpc
         myFC=mpiifort
         myDataspaces=${HOME}/envs/Dataspacesroot_intel
+        myFlexpath=${HOME}/envs/Flexpath_intel
         myprefix=${HOME}/envs/ADIOSroot_intel
 
     else
@@ -37,6 +38,7 @@ if [ `hostname | cut -c 1-2` == "br" ]; then
         myCXX=mpicxx
         myFC=mpif90
         myDataspaces=${HOME}/envs/Dataspacesroot
+        myFlexpath=${HOME}/envs/Flexpath
         myprefix=${HOME}/envs/ADIOSroot
     fi
     module list
@@ -58,7 +60,7 @@ if [ `hostname | cut -c 1-2` == "br" ]; then
         --disable-timer-events \
         --with-dataspaces=${myDataspaces} \
         --with-dimes=${myDataspaces}  \
-        --with-flexpath=${HOME}/envs/Flexpath \
+        --with-flexpath=${myFlexpath} \
 
 elif [ `hostname | cut -c 8-16` == "stampede2" ]; then
     #######################

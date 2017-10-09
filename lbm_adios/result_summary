@@ -1,8 +1,22 @@
+## Oct 8
+JOBS: 
+    1830825
+        native_dspaces_nokeep, 196
+    1830826
+        adios_dspaces_nokeep, 196
+
 ## Oct 7
 JOBS:
+    cannot find evpath lib, add it to LD_LIBRARY_PATH
+    fli5@br005:~/Workspaces/General_Data_Broker/lbm_adiossbatch scripts/bridges/196vs98/native_dspaces_nokeep.job
+Submitted batch job 1828445
+fli5@br005:~/Workspaces/General_Data_Broker/lbm_adiossbatch scripts/bridges/196vs98/adios_dspaces_nokeep.job
+Submitted batch job 1828446
+
+    
     1826779
        ds_test with 3nodes, intel compiler/mpi
-    1826784
+    1826784 no problem: works!
         ds_test with 7 nodes, intel compiler/mpi
      
 ## Oct 3

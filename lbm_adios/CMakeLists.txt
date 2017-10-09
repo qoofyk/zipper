@@ -12,9 +12,9 @@ include_directories(${MPI_INCLUDE_PATH} ${CMAKE_SOURCE_DIR})
 
 set(EXECUTABLE_OUTPUT_PATH "${CMAKE_BINARY_DIR}/bin")
 
-set(DS_DIR "$ENV{WORK}/envs/Dataspacesroot" CACHE PATH "The path to dataspaces.")
-set(ADIOS_DIR "$ENV{WORK}/envs/ADIOSroot" CACHE PATH "The path to adios.")
-set(FLEXPATH_DIR "$ENV{WORK}/envs/Flexpath" CACHE PATH "The path to flexpath.")
+set(DS_DIR "$ENV{WORK}/envs/Dataspacesroot_intel" CACHE PATH "The path to dataspaces.")
+set(ADIOS_DIR "$ENV{WORK}/envs/ADIOSroot_intel" CACHE PATH "The path to adios.")
+set(FLEXPATH_DIR "$ENV{WORK}/envs/Flexpath_intel" CACHE PATH "The path to flexpath.")
 
 include_directories(${DS_DIR}/include ${ADIOS_DIR}/include ${FLEXPATH_DIR}/include)
 
