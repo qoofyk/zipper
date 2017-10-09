@@ -1,7 +1,7 @@
 #!/bin/bash
 #SBATCH --job-name="adios_dspaces_nokeep"
 #SBATCH --output="results/%j.out"
-#SBATCH --partition=normal
+#SBATCH --partition=development
 #SBATCH --nodes=4
 #SBATCH --ntasks-per-node=4
 #SBATCH -t 00:5:00

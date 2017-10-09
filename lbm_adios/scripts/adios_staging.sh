@@ -11,7 +11,7 @@ BIN_CONSUMER=${BUILD_DIR}/bin/adios_staging_read;
 
 #This job runs with 3 nodes  
 #ibrun in verbose mode will give binding detail  #BUILD=${PBS_O_WORKDIR}/build_dspaces/bin
-DS_SERVER=${WORK}/envs/Dataspacesroot_intel/bin/dataspaces_server
+DS_SERVER=${WORK}/envs/Dataspacesroot/bin/dataspaces_server
 PBS_RESULTDIR=${SCRATCH_DIR}/results
 
 
@@ -58,21 +58,28 @@ LAUNCHER="mpiexec.hydra"
 
 echo "use transport method $CMTransport with CMTransportVerbose=$CMTransportVerbose"
 
+appid=0
 ## Run DataSpaces servers
-CMD_SERVER="$LAUNCHER -np ${procs_this_app[0]} -machinefile $HOST_DIR/machinefile-app0 ${DS_SERVER} -s ${procs_this_app[0]} -c $((procs_this_app[1]+procs_this_app[2]))"
-$CMD_SERVER  &> ${PBS_RESULTDIR}/server.log &
-echo "server applciation lauched: $CMD_SERVER"
-## Give some time for the servers to load and startup
-while [ ! -f conf ]; do
-    sleep 1s
-done
-sleep 5s  # wait server to fill up the conf file
+if [ $MyTransport != ADIOS_STAGING_FLEXPATH ]; then
+    CMD_SERVER="$LAUNCHER -np ${procs_this_app[0]} -machinefile $HOST_DIR/machinefile-app0 ${DS_SERVER} -s ${procs_this_app[0]} -c $((procs_this_app[1]+procs_this_app[2]))"
+    $CMD_SERVER  &> ${PBS_RESULTDIR}/server.log &
+    echo "server applciation lauched: $CMD_SERVER"
+    ## Give some time for the servers to load and startup
+    while [ ! -f conf ]; do
+        sleep 1s
+    done
+    appid=$((appid+1))
+    sleep 5s  # wait server to fill up the conf file
 
-CMD_PRODUCER="$LAUNCHER -np ${procs_this_app[1]} -machinefile $HOST_DIR/machinefile-app1  ${BIN_PRODUCER} ${NSTOP} ${FILESIZE2PRODUCE}"
+fi
+
+CMD_PRODUCER="$LAUNCHER -np ${procs_this_app[$appid]} -machinefile $HOST_DIR/machinefile-app${appid}  ${BIN_PRODUCER} ${NSTOP} ${FILESIZE2PRODUCE}"
 $CMD_PRODUCER  &> ${PBS_RESULTDIR}/producer.log &
 echo "producer applciation lauched: $CMD_PRODUCER"
 
-CMD_CONSUMER="$LAUNCHER -np ${procs_this_app[2]} -machinefile $HOST_DIR/machinefile-app2 ${BIN_CONSUMER}"
+appid=$((appid+1))
+
+CMD_CONSUMER="$LAUNCHER -np ${procs_this_app[$appid]} -machinefile $HOST_DIR/machinefile-app${appid} ${BIN_CONSUMER}"
 $CMD_CONSUMER  &> ${PBS_RESULTDIR}/consumer.log &
 echo " consumer applciation lauched $CMD_CONSUMER"
 

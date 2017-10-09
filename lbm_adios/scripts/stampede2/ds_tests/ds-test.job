@@ -1,10 +1,10 @@
 #!/bin/bash  
 #SBATCH -J "ds_test"  
 #SBATCH -o "results/ds_test_%j.out"  
-#SBATCH -p normal
-#SBATCH -N 24
+#SBATCH -p development
+#SBATCH -N 3
 #SBATCH --ntasks-per-node=32
-#SBATCH -t 00:3:00  
+#SBATCH -t 00:1:00  
 #SBATCH --mail-type=BEGIN
 # send mail to this address
 #SBATCH --mail-user=lifen@iupui.edu
@@ -15,7 +15,7 @@
 module list 
 
 # multiplier in each dim, 2 means it will totally use 8xprocess with 8x node
-MUL_PER_DIM=2
+MUL_PER_DIM=1
 STEP=10
 
 MUL=$(($MUL_PER_DIM*$MUL_PER_DIM*$MUL_PER_DIM))

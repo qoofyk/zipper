@@ -1,3 +1,21 @@
+## Oct 8
+JOBS libfabrics
+
+    318997
+        flexpath, slower than disk!!
+    
+    318996
+        mpiio
+    ------------------------------------------------
+    above has 512/256, see google doc for more details
+
+	318948
+		flexpath 196
+	318892
+		flexpath now use same adios_staging with dspaces
+		correct
+
+    
 ## Oct 6
 JOBS
     311613
