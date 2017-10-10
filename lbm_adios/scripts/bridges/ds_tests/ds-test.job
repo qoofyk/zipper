@@ -36,7 +36,7 @@ PBS_O_WORKDIR=$(pwd)
 export SCRATCH_DIR=${SCRATCH}/ds_test/${SLURM_JOBID}
 export WORK=$HOME
 
-DS_BIN=${WORK}/envs/Dataspacesroot_intel/bin
+DS_BIN=${WORK}/envs/Dataspacesroot/bin
 PBS_RESULTDIR=${SCRATCH_DIR}/results
 
 mkdir -pv ${PBS_RESULTDIR}

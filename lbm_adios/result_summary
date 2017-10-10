@@ -1,9 +1,16 @@
-## Oct 8
+## Oct 10
 JOBS: 
-    1830825
+    1834179
+        native_dspaces with 28 14
+    1834174
+        dstests with 256vs128, all right
+## Oct 8
+    1830825(application should be built with icc), new 1834144
         native_dspaces_nokeep, 196
-    1830826
+        cannot finish initialization
+    1830826(application should be built with icc), new 1834145
         adios_dspaces_nokeep, 196
+        canot finish initialization
 
 ## Oct 7
 JOBS:

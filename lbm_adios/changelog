@@ -11,6 +11,8 @@ TODO
 	1. nnti in flexpath, not usable.
 	2. dspaces hanging
 	3. ENABLE_TESTING in flexpath conf, enabled
+## Oct 10
+	build flexpath
 ## Oct 8
 	impi works, using bridges default, use intel packages for all softwares
 	i can also use more processes pernode

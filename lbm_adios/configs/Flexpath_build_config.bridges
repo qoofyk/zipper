@@ -6,7 +6,7 @@
 %	$HOME  -- the $HOME environment variable value during the build
 %	$project  --  the project name (like "ffs", "evpath", etc.)
 %	$repository  --  like "kaos" or "github"
-INSTALL_DIRECTORY=/home/fli5/envs/Flexpath_intel
+INSTALL_DIRECTORY=/home/fli5/envs/Flexpath
 
 %   VERSION_TAG  -  various values, including "development", "stable", etc.
 %

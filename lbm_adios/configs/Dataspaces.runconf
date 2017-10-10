@@ -31,14 +31,14 @@ if [ `hostname | cut -c 1-2` == "br" ]; then
         myCC=mpiicc
         myCXX=mpiicpc
         myFC=mpiifort
-        myprefix=${HOME}/envs/Dataspacesroot_intel
+        myprefix=${HOME}/envs/Dataspacesroot
 
     else
         echo "using gnu compiler with mvapich"
         myCC=mpicc
         myCXX=mpicxx
         myFC=mpif90
-        myprefix=${HOME}/envs/Dataspacesroot
+        myprefix=${HOME}/envs/Dataspacesroot_gnu_mvapich
     fi
 
 

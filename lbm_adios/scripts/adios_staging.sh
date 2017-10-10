@@ -39,7 +39,7 @@ echo "total number of lines is $DS_LIMIT"
 echo "## Config file for DataSpaces
 ndim = 2
 dims = 2, $((DS_LIMIT))
-max_versions = 5
+max_versions = 1
 max_readers = 1
 # lock_type = 2
 " > dataspaces.conf
