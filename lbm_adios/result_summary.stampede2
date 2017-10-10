@@ -1,3 +1,21 @@
+## Oct 10
+# conclusion
+    1. rpc_bind_addr always happens in normal queue
+    2. 
+continue address the normal queue
+    321133
+        ds-test-tense with 8 nodes, each with 64 procs, normal, rdma_bind_addr err in server!
+    321122
+        ds-test-tense with 8 nodes, each with 64 procs, rpc_connect error, development
+   
+
+NOTE: same  scripts of ds-test.skel, sometimes with rpc_connect erro
+    321035
+        development with 3 nodes, 
+    320983
+        development queue, fine
+    320997
+        normal queue, rdma err
 ## Oct 8
 JOBS libfabrics
 
