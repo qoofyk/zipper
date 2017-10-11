@@ -3,7 +3,7 @@
 #SBATCH --output="results/%j.out"
 #SBATCH --partition=normal
 #SBATCH --nodes=3
-#SBATCH --ntasks-per-node=4
+#SBATCH --ntasks-per-node=68
 #SBATCH -t 00:5:00
 
 #This job runs with 2 nodes, 24 cores per node for a total of 48 cores.
@@ -16,7 +16,7 @@ NSTOP=100 # how many steps
 num_apps=2
 
 # slots used by this app
-procs_this_app=(8 4)
+procs_this_app=(68 34)
 
 # number of nodes used by this app
 nodes_this_app=(2 1)
