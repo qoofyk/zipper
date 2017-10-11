@@ -1,3 +1,22 @@
+## Oct 11
+JOBS
+    use idev interactive session:
+        *. dev queue
+            1. run the server with
+                mpiexec.hydra  -n 4 /work/04446/tg837458/stampede2/envs/Dataspacesroot/bin/dataspaces_server -s 4 -c 48 &> results/dev_server.log &
+            2. run writer with
+                mpiexec.hydra  -n 32 /work/04446/tg837458/stampede2/envs/Dataspacesroot/bin/test_writer DATASPACES 32 3 2 4 4 128 64 64 10 1 &> results/dev_writer.log  &
+            3. run the reader with
+                mpiexec.hydra  -n 16 /work/04446/tg837458/stampede2/envs/Dataspacesroot/bin/test_reader DATASPACES 16  3 2 2 4 128 128 64 10 2 &> results/dev_reader.log &
+        * compute queue, run the server with 
+            mpiexec.hydra  -n 4 /work/04446/tg837458/stampede2/envs/Dataspacesroot/bin/dataspaces_server -s 4 -c 48 &> results/compute_server.log &
+                rdma_bind_addr error imediately 
+
+    324279:
+       development queue with output ldd info
+    324337:
+        normal queue with output ldd info
+    
 ## Oct 10
 # conclusion
     1. rpc_bind_addr always happens in normal queue
