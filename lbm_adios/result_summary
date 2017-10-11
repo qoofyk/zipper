@@ -1,7 +1,27 @@
 ## Oct 10
 JOBS: 
-    1834179
-        native_dspaces with 28 14
+    1838800
+        mppio with 672vs386
+    1838801
+        flexpath with 672vs386
+    1832732
+        mpiio 56vs28
+            143.55s
+    1832733
+        flexpath
+         56vs28
+            5min 84step
+            
+
+------------------------meeting--------------------------------------
+    1834262
+        ds dim 16x16, all producer initialized, consumer none.
+    1834218
+        decrease dimension to 256x256, prod 0,3,12 not initialized, consumer all not init
+    1834200
+        use dimention=3 still same err
+    1834184
+        native_dspaces with 28 14, four node cannout initialize
     1834174
         dstests with 256vs128, all right
 ## Oct 8
