@@ -1,3 +1,14 @@
+## Oct 12
+experiment
+    328792
+        flexpath with 272vs136, stopped at step 97, see consumer_32.clog
+    328263
+        use stripe size=-1, and rerun 68vs34 mpiio
+JOBS
+    327488
+        development queue with env variables in env_dev.log
+    327475
+        normal queue with envriables output in env_normal.log
 ## Oct 11
 JOBS
     use idev interactive session:

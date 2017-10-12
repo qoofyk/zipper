@@ -5,6 +5,8 @@
 #SBATCH --nodes=6
 #SBATCH --ntasks-per-node=68
 #SBATCH -t 00:10:00
+#SBATCH --mail-type=BEGIN
+#SBATCH --mail-user=lifen@iupui.edu
 
 #This job runs with 2 nodes, 24 cores per node for a total of 48 cores.
 #ibrun in verbose mode will give binding detail ##################parameter setting#################

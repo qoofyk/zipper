@@ -2,9 +2,9 @@
 #SBATCH --job-name="mpiio"
 #SBATCH --output="results/%j.out"
 #SBATCH --partition=normal
-#SBATCH --nodes=24
+#SBATCH --nodes=96
 #SBATCH --ntasks-per-node=68
-#SBATCH -t 00:40:00
+#SBATCH -t 02:00:00
 #SBATCH --mail-type=BEGIN
 #SBATCH --mail-user=lifen@iupui.edu
 
@@ -18,10 +18,10 @@ NSTOP=100 # how many steps
 num_apps=2
 
 # slots used by this app
-procs_this_app=(544 272)
+procs_this_app=(2176 1088)
 
 # number of nodes used by this app
-nodes_this_app=(16 8)
+nodes_this_app=(64 32)
 
 PBS_O_HOME=$HOME
 PBS_O_WORKDIR=$(pwd)
