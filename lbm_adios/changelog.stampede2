@@ -13,6 +13,7 @@ TODO
 	3. ENABLE_TESTING in flexpath conf, enabled
 ## Oct 12
 	stripe size=-1 not obvious 
+	flexpath is slow at first but has good scalibility
 ## Oct 10
 	stampede2 is not stable in stampede2.
 ## Oct 8

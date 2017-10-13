@@ -13,8 +13,8 @@ PBS_RESULTDIR=${SCRATCH_DIR}/results
 
 
 mkdir -pv ${PBS_RESULTDIR}
-#tune_stripe_count=-1
-#lfs setstripe --stripe-size 1m --stripe-count ${tune_stripe_count} ${PBS_RESULTDIR}
+tune_stripe_count=-1
+lfs setstripe --stripe-size 1m --stripe-count ${tune_stripe_count} ${PBS_RESULTDIR}
 mkdir -pv ${SCRATCH_DIR}
 
 cd ${SCRATCH_DIR}

@@ -1,7 +1,8 @@
 ####################################################
 # common commands for all experiments
 
-echo "case=$CASE_NAME datasize=$FILESIZE2PRODUCE nstops=$NSTOP"
+echo "case=$CASE_NAME datasize=$FILESIZE2PRODUCE nstops=$NSTOP, HASKEEP=${HAS_KEEP}"
+
 echo "procs is \[ ${procs_this_app[*]}\], nodes is \[${nodes_this_app[*]}\]"
 
 BUILD_DIR=${PBS_O_WORKDIR}/build
@@ -15,6 +16,8 @@ DS_SERVER=${WORK}/envs/Dataspacesroot/bin/dataspaces_server
 PBS_RESULTDIR=${SCRATCH_DIR}/results
 
 mkdir -pv ${PBS_RESULTDIR}
+tune_stripe_count=-1
+lfs setstripe --stripe-size 1m --stripe-count ${tune_stripe_count} ${PBS_RESULTDIR}
 mkdir -pv ${SCRATCH_DIR}
 
 ## traces
