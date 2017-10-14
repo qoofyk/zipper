@@ -1,7 +1,40 @@
+##
+## Oct 12
+JOBS
+    1850818
+        use mpiexec.mpirun_rsh
+    interactive jobs: excede job mem slurmstepd: 
+    error: Step 1849005.2 exceeded memory limit (4525508 > 4505600), being killed
+    1848728
+        change bin_dirtory to dataspaceroot_gnu_nvapich
+    1848719
+        disable mv_cpu_affinity and show binding details 
+    1848678
+        use gcc/mvapich intead, cpu affinity erro, 
+    1848652
+        ds_test with 28vs14, rpc connection error, use mvapich/gnu?, more waiting time
+    1848615
+        28vs14 with native_dspaces_nokeep, again
+    to many logfiles?
+    1848477
+        mpiio  672vs 386 
+    1848478
+        flexpath 672vs386
+## Oct 11
+dimensions
+JOBS
+    1840361
+        flexpath with 672vs386
+    1847971
+        mpiio 56vs28, 147.7s
+    1847972
+        flexpath 56vs28 72 steps
+    
 ## Oct 10
 JOBS: 
     1838800
         mppio with 672vs386
+        330.73s, check consumer log
     1838801
         flexpath with 672vs386
     1832732

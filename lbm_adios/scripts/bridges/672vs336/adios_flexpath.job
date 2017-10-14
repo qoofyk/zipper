@@ -14,6 +14,7 @@
 #ibrun in verbose mode will give binding detail ##################parameter setting#################
 CASE_NAME=dataspaces_nokeep
 FILESIZE2PRODUCE=256 # 64*64*256*2*8 = 16MB per proc NSTOP=100 # how many steps
+NSTOP=100 # how many steps
 
 # procs placement
 num_apps=2

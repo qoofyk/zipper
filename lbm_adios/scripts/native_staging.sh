@@ -46,9 +46,10 @@ DS_LIMIT=$((${FILESIZE2PRODUCE}*${FILESIZE2PRODUCE}*${FILESIZE2PRODUCE}*${procs_
 
 echo "total number of lines is $DS_LIMIT"
 
+#dims = 16,16
 echo "## Config file for DataSpaces
 ndim = 2
-dims = 2, $((DS_LIMIT)) 
+dims = 2, $((DS_LIMIT))
 max_versions = 1
 max_readers = 1
 lock_type = 2
