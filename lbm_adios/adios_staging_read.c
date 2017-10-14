@@ -62,6 +62,8 @@ int main (int argc, char ** argv)
     int         rank, size;
     MPI_Comm    comm = MPI_COMM_WORLD;
 
+    int has_keep=0;
+
     //enum ADIOS_READ_METHOD method = ADIOS_READ_METHOD_DIMES;
     //enum ADIOS_READ_METHOD method = ADIOS_READ_METHOD_BP;
     ADIOS_SELECTION * sel;
@@ -132,6 +134,35 @@ int main (int argc, char ** argv)
         clog_info(CLOG(MY_LOGGER),"adios read method init complete with %d\n", method);
     }
 
+    char * env_string; //input from user
+    if((env_string = getenv("HAS_KEEP")) != NULL){
+        if(strcmp(env_string, "1") == 0){
+            clog_info(CLOG(MY_LOGGER),"adios read method init complete with %d\n", method);
+            has_keep=1;
+        }
+    }
+    if(has_keep ==1){
+        if(transport_minor == DSPACES){
+            adios_init ("adios_xmls/dbroker_dataspaces.xml", comm);
+        }
+
+        else if(transport_minor == DIMES){
+            adios_init ("adios_xmls/dbroker_dimes.xml", comm);
+        }
+
+        else if(transport_minor == FLEXPATH){
+            adios_init ("adios_xmls/dbroker_flexpath.xml", comm);
+        }
+        else{
+            printf("rank %d: adios init complete restart file\n", rank);
+            MPI_Abort(comm, -2);
+        }
+        clog_info(CLOG(MY_LOGGER),"rank %d: adios init complete restart file\n", rank);
+    }
+
+
+
+/*
 #ifdef HAS_KEEP
 #if defined(USE_DATASPACES)
   adios_init ("adios_xmls/dbroker_dataspaces.xml", comm);
@@ -148,6 +179,7 @@ int main (int argc, char ** argv)
 #error("define stating transport method");
 #endif
 #endif
+*/
 
     int timestep = 0;
 
@@ -245,15 +277,15 @@ int main (int argc, char ** argv)
 
         errno_streaming_read = adios_errno;
 
-// keep 
-#ifdef HAS_KEEP
-        if(timestep == 0)
-            insert_into_adios(filepath, "restart",-1, slice_size, v->dims[1], data,"w", &comm);
-        else
-            insert_into_adios(filepath, "restart", -1, slice_size, v->dims[1], data,"a", &comm);
-        if(rank ==0)
-            printf("rank %d: Step %d data kept\n", rank, timestep);
-#endif
+        if(has_keep == 1){
+            if(timestep == 0)
+                insert_into_adios(filepath, "restart",-1, slice_size, v->dims[1], data,"w", &comm);
+            else
+                insert_into_adios(filepath, "restart", -1, slice_size, v->dims[1], data,"a", &comm);
+
+            if(rank ==0)
+                clog_info(CLOG(MY_LOGGER),"Step %d data kept\n", rank, timestep);
+        }
 
         // analysis
         run_analysis(data, slice_size, lp );
@@ -279,11 +311,16 @@ int main (int argc, char ** argv)
 
     MPI_Barrier (comm);
     adios_read_finalize_method (method);
-#ifdef HAS_KEEP
-  adios_finalize (rank);
-  if(rank == 0)
-  printf("rank %d: adios finalize complete\n", rank); 
-#endif
+    clog_info(CLOG(MY_LOGGER),"adios read finalized");
+
+    /*
+     * finalize restart writing
+     */
+    /*if(has_keep == 1){*/
+      /*adios_finalize (rank);*/
+      /*if(rank == 0)*/
+      /*clog_info(CLOG(MY_LOGGER),"adiod finalized");*/
+    /*}*/
 
     /*
     * close logger

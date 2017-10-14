@@ -11,6 +11,9 @@ TODO
 	1. nnti in flexpath, not usable.
 	2. dspaces hanging
 	3. ENABLE_TESTING in flexpath conf, enabled
+## Oct 12
+	stripe size=-1 not obvious 
+	flexpath is slow at first but has good scalibility
 ## Oct 10
 	stampede2 is not stable in stampede2.
 ## Oct 8
