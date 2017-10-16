@@ -1,6 +1,10 @@
 ## Oct 16
 JOBS
 -------------------------------------------------------
+    342100
+        rerun
+    342042
+        flexpath with IMPI  respect placement, flexpath error, remove this
     272vs136 544vs272 are running together, should run applications separatedly
 flexpath experiments
     340403

@@ -1,6 +1,6 @@
 #################################################### 
 # common commands for all experiments 
-export  I_MPI_JOB_RESPECT_PROCESS_PLACEMENT=0
+#export  I_MPI_JOB_RESPECT_PROCESS_PLACEMENT=0
 
 export HAS_KEEP=0
 #export CMTransport=fabric

@@ -1,7 +1,8 @@
 ####################################################
 # common commands for all experiments
+module list
 
-export  I_MPI_JOB_RESPECT_PROCESS_PLACEMENT=0
+#export  I_MPI_JOB_RESPECT_PROCESS_PLACEMENT=0
 
 echo "case=$CASE_NAME datasize=$FILESIZE2PRODUCE nstops=$NSTOP, HASKEEP=${HAS_KEEP}"
 
