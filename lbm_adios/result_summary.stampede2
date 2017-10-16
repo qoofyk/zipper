@@ -1,4 +1,72 @@
+## Oct 16
+JOBS
+-------------------------------------------------------
+    272vs136 544vs272 are running together, should run applications separatedly
+flexpath experiments
+    340403
+        flexpath 136vs68 with ib0 impi
+    
+    flexpath with greg's suggestion
+    
+    stick with socket+ib0
+--------------------------------------------------------
+retry libfabric
+    34175
+        memory corruption in fabric, not portable enough
+
+    340164
+        remove interface=ib0
+        still with blocking
+    340154
+        with impi, rerun transport=ib and interface=ib0
+            CMSelect blocking select
+
+
+------------------------------------
+    those are using mvapich, i should use impi!
+    rerun CM_INTERFACE=ib0 with 272vs136
+    340130
+        use CMTransport=fabric with libfabric library, memory corruption ; use CM_INTERFACE=ib0, segmentation fault..
+    340013
+        use CM_INTERFACE=ib0, rerun 68vs34, faster then default, 542s for 68vs34
+    340000
+        CM_INTERFACE=ib0
+        works!
+
+## Oct 13
+    333392
+        68vs34, ib, cannot start
+
+    333397
+        68vs34, this is using fabric, back to socket
+-----------------------------------------
+    332778
+        8vs4 with CM_NETWORK=ib0
+    332636
+        CMTransport=nonsense
+        can detect
+    332609
+        CMTransport=ib
+        now sockets seem load ib module
+    332595
+        CMTransport=nnti
+        cm nnti not found back to default
+
+   332667
+        CMTransport=fabric
+        cannot find library
+        error is libpsm_infinipath.so.1: cannot open shared object file: No such file or directory
+
+--------------------------------------------
+        
+   332067
+        flexpath with verbose info
 ## Oct 12
+tweak tranport
+    332740
+        fabric, 
+    332743
+        ib
 experiment
     328792
         flexpath with 272vs136, stopped at step 97, see consumer_32.clog

@@ -1,7 +1,19 @@
 #################################################### 
 # common commands for all experiments 
+export  I_MPI_JOB_RESPECT_PROCESS_PLACEMENT=0
 
-export HAS_KEEP=1
+export HAS_KEEP=0
+#export CMTransport=fabric
+export CM_INTERFACE=ib0
+#export CMTransport=fabric
+#export CMTransportVerbose=1
+
+env|grep '^CM'
+
+#module load libfabric
+module list
+
+
 
 echo "case=$CASE_NAME datasize=$FILESIZE2PRODUCE nstops=$NSTOP, HASKEEP=${HAS_KEEP}"
 echo "procs is \[ ${procs_this_app[*]}\], nodes is \[${nodes_this_app[*]}\]"
@@ -58,7 +70,7 @@ else
     echo "https://github.iu.edu/lifen/LaucherTest/blob/master/generate_hosts.sh"
 fi
 
-LAUNCHER="mpiexec.hydra"
+LAUNCHER="mpiexec.hydra -l"
 
 echo "use transport method $CMTransport with CMTransportVerbose=$CMTransportVerbose"
 
