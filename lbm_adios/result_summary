@@ -1,4 +1,53 @@
 ##
+## Oct 14
+JOBS
+    1861636
+        8vs4 flexpath with ib0
+    1861460
+        server set to 2, rerun 28vs14
+
+    1854240, intel mvapich
+
+
+    1854126
+    1853970,1853977
+    1853466
+        print by rank
+    1853464
+        1 server?
+        
+    1853449
+        rerun dataspaces_gcc with dimes
+    1853445
+        rerun dataspaces_gcc with ds_test
+    1853439
+        run with dataspaces_gcc,, without cflags using gcc4.8 with impi
+
+---------------------------
+    this is using dsroot_mvapich_ by mistake
+    1853958& 1853955
+        export I_MPI, and use mpirun
+        
+    1853938
+        run applications
+    1853926
+        add export=ALL
+    1853483
+        use 1.6.1 version, no luck
+    1853365
+        check why peer ip are different! in gcc/icc, I can try higher version of gcc!
+        rerun dimes, rpc_connect(Connection Rejected peer# 0 (0.0.0.0)  to peer# 0 (0.0.0.0))
+        1853449 with dataspace_gcc, (Connection Rejected peer# 0 (10.4.119.58)  to peer# 0 (10.4.119.58)., reproduce with 1853525, 1853546)
+        1853543
+    1853358
+        dimes works
+    1853290
+        rerun ds-test.job, rpc_connect, random err?
+    interactive jobs:
+        rpc_connect error
+    1853268
+        relaunch ds-test.job
+        works as usual
 ## Oct 12
 JOBS
     1850818

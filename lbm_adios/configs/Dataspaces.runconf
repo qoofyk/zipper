@@ -34,11 +34,13 @@ if [ `hostname | cut -c 1-2` == "br" ]; then
         myprefix=${HOME}/envs/Dataspacesroot
 
     else
-        echo "using gnu compiler with mvapich"
-        myCC=mpicc
-        myCXX=mpicxx
-        myFC=mpif90
-        myprefix=${HOME}/envs/Dataspacesroot_gnu_mvapich
+        echo "using intel compiler with mvapich"
+        myCC="mpicc"
+        myCXX="mpicxx"
+        myFC="mpif90"
+        myCFLAGS="-lifcore"
+        myFCFLAGS="-lifcore"
+        myprefix=${HOME}/envs/Dataspacesroot_intel_mvapich
     fi
 
 
@@ -51,7 +53,8 @@ if [ `hostname | cut -c 1-2` == "br" ]; then
         CC=${myCC} \
         CXX=${myCXX} \
         FC=${myFC} \
-        CFLAGS="-g -O3 -fPIC" \
+        CFLAGS="${myCFLAGS}" \
+        FCFLAGS="${myFCFLAGS}" \
         LIBS="-lpthread -lm" \
         --enable-dimes \
         --with-dimes-rdma-buffer-size=1024 \

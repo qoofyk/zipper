@@ -2,10 +2,11 @@
 #SBATCH -J "ds_test"  
 #SBATCH -o "results/ds_test_%j.out"  
 #SBATCH -p RM
-#SBATCH -N 24
+#SBATCH -N 3
 #SBATCH --ntasks-per-node=28
 #SBATCH -t 00:3:00  
 #SBATCH --mail-type=BEGIN
+#SBATCH --export=ALL
 # send mail to this address
 #SBATCH --mail-user=lifen@iupui.edu
 
@@ -15,7 +16,7 @@
 module list 
 
 # multiplier in each dim, 2 means it will totally use 8xprocess with 8x node
-MUL_PER_DIM=2
+MUL_PER_DIM=1
 STEP=10
 
 MUL=$(($MUL_PER_DIM*$MUL_PER_DIM*$MUL_PER_DIM))
@@ -35,6 +36,8 @@ PBS_O_HOME=$HOME
 PBS_O_WORKDIR=$(pwd)
 export SCRATCH_DIR=${SCRATCH}/ds_test/${SLURM_JOBID}
 export WORK=$HOME
+# from bridges: 
+export I_MPI_JOB_RESPECT_PROCESS_PLACEMENT=0
 
 DS_BIN=${WORK}/envs/Dataspacesroot/bin
 PBS_RESULTDIR=${SCRATCH_DIR}/results
@@ -69,7 +72,7 @@ else
     echo "https://github.iu.edu/lifen/LaucherTest/blob/master/generate_hosts.sh"
 fi
 
-LAUNCHER="mpiexec.hydra"
+LAUNCHER="mpirun -l"
 
 
 
@@ -86,6 +89,7 @@ sleep 5s  # wait server to fill up the conf file
 echo "launching produer"
 
 THIS_TRANSPORT=DATASPACES
+#THIS_TRANSPORT=DIMES
 
 ## Run writer application
 CMD_PRODUCER="${LAUNCHER}  -n ${procs_this_app[1]} -machinefile $HOST_DIR/machinefile-app1 ${DS_BIN}/test_writer ${THIS_TRANSPORT} ${procs_this_app[1]} 3 $(($MUL_PER_DIM*2)) $(($MUL_PER_DIM*4)) $(($MUL_PER_DIM*4)) 128 64 64 ${STEP} 1"
