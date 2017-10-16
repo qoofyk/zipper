@@ -70,6 +70,12 @@ elif [ `hostname | cut -c 8-16` == "stampede2" ]; then
         myCXX=tau_cxx.sh
         myFC=tau_f90.sh
         myprefix=${WORK}/envs/Dataspacesroot_tau
+    elif [[ $1 == mvapich ]]; then
+        myCC=mpicc
+        myCXX=mpicxx
+        myFC=mpif90
+        myprefix=${WORK}/envs/Dataspacesroot_mvapich
+
     else
         myCC=mpicc
         myCXX=mpicxx
@@ -88,11 +94,13 @@ elif [ `hostname | cut -c 8-16` == "stampede2" ]; then
         CC=${myCC} \
         CXX=${myCXX} \
         FC=${myFC} \
-        CFLAGS="-g -O3 -fPIC ${myCFLAGS}" \
-        LIBS="-lpthread -lrdmacm -lm" \
+        CFLAGS="${myCFLAGS}" \
+        LIBS="-lpthread -lm" \
         --enable-dimes \
         --with-dimes-rdma-buffer-size=1024 \
         --with-ib-interface=ib0 \
+        --with-infiniband-timeout=300 \
+
  
 
 
