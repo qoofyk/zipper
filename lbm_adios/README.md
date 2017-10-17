@@ -4,4 +4,9 @@ see [this wiki](https://github.iu.edu/IUPUI-CS-HPC/data_broker_lammps/wiki) for 
 
 written by Feng Li at 2017
 
+run keep 
+    HAS_KEEP=1 sbatch scripts/stampede2/scaling_exp/flexpath/68vs34.job
+run with tau
+    HAS_TRACE=1 sbatch scripts/stampede2/scaling_exp/flexpath/68vs34.job
+
 

@@ -3,7 +3,7 @@
 #SBATCH --output="results/%j.out"
 #SBATCH --partition=development
 #SBATCH --nodes=4
-#SBATCH --ntasks-per-node=4
+#SBATCH --ntasks-per-node=68
 #SBATCH -t 00:5:00
 
 #SBATCH --mail-type=BEGIN

@@ -1,6 +1,21 @@
+## Oct 17
+JOBS
+    344553
+    traces
 ## Oct 16
 JOBS
 -------------------------------------------------------
+    343476
+        343476, using 2 node for 8 server with 16vs8, erro
+    343471
+        8vs4 ok
+    343468
+        16vs8 err
+    343466
+        24vs12 native dspaces, err
+
+    342994
+        2176vs1088 again
     342100
         rerun
     342042

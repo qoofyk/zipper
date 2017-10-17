@@ -1,5 +1,6 @@
 #export  I_MPI_JOB_RESPECT_PROCESS_PLACEMENT=0
 
+env|grep '^HAS' # trace enabled?
 module list
 echo "case=$CASE_NAME datasize=$FILESIZE2PRODUCE nstops=$NSTOP"
 echo "procs is \[ ${procs_this_app[*]}\], nodes is \[${nodes_this_app[*]}\]"
