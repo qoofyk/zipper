@@ -1,14 +1,15 @@
 #################################################### 
 # common commands for all experiments 
-export  I_MPI_JOB_RESPECT_PROCESS_PLACEMENT=0
+#export  I_MPI_JOB_RESPECT_PROCESS_PLACEMENT=0
 
-export HAS_KEEP=0
+#export HAS_KEEP=0
 #export CMTransport=fabric
 export CM_INTERFACE=ib0
 #export CMTransport=fabric
 #export CMTransportVerbose=1
 
 env|grep '^CM'
+env|grep '^HAS' # trace enabled?
 
 #module load libfabric
 module list
@@ -18,7 +19,22 @@ module list
 echo "case=$CASE_NAME datasize=$FILESIZE2PRODUCE nstops=$NSTOP, HASKEEP=${HAS_KEEP}"
 echo "procs is \[ ${procs_this_app[*]}\], nodes is \[${nodes_this_app[*]}\]"
 
-BUILD_DIR=${PBS_O_WORKDIR}/build
+if [ x"$HAS_TRACE" == "x" ];then
+    BUILD_DIR=${PBS_O_WORKDIR}/build
+else
+    echo "TRACE ENABLED"
+    BUILD_DIR=${PBS_O_WORKDIR}/build_tau
+    #enable trace
+    export TAU_TRACE=1
+    # set trace dir
+    export ALL_TRACES=${SCRATCH_DIR}/trace
+    mkdir -pv $ALL_TRACES/app0
+    mkdir -pv $ALL_TRACES/app1
+    mkdir -pv $ALL_TRACES/app2
+
+    module load tau
+
+fi
 
 BIN_PRODUCER=${BUILD_DIR}/bin/run_lbm;
 BIN_CONSUMER=${BUILD_DIR}/bin/adios_staging_read;
@@ -70,14 +86,20 @@ else
     echo "https://github.iu.edu/lifen/LaucherTest/blob/master/generate_hosts.sh"
 fi
 
-LAUNCHER="mpiexec.hydra -l"
+if [ x"$HAS_TRACE" == "x" ];then
+    LAUNCHER="mpiexec.hydra"
+else
+    #export LD_PRELOAD=libVT.so 
+    #LAUNCHER="mpiexec.hydra -trace"
+    LAUNCHER="mpiexec.hydra"
+fi
 
 echo "use transport method $CMTransport with CMTransportVerbose=$CMTransportVerbose"
 
 appid=0
 ## Run DataSpaces servers
 if [ $MyTransport != ADIOS_STAGING_FLEXPATH ]; then
-    CMD_SERVER="$LAUNCHER -np ${procs_this_app[0]} -machinefile $HOST_DIR/machinefile-app0 ${DS_SERVER} -s ${procs_this_app[0]} -c $((procs_this_app[1]+procs_this_app[2]))"
+    CMD_SERVER="$LAUNCHER -np ${procs_this_app[0]} -machinefile $HOST_DIR/machinefile-app0 -env TRACEDIR=${ALL_TRACES}/app${appid} ${DS_SERVER} -s ${procs_this_app[0]} -c $((procs_this_app[1]+procs_this_app[2]))"
     $CMD_SERVER  &> ${PBS_RESULTDIR}/server.log &
     echo "server applciation lauched: $CMD_SERVER"
     ## Give some time for the servers to load and startup
@@ -89,13 +111,13 @@ if [ $MyTransport != ADIOS_STAGING_FLEXPATH ]; then
 
 fi
 
-CMD_PRODUCER="$LAUNCHER -np ${procs_this_app[$appid]} -machinefile $HOST_DIR/machinefile-app${appid}  ${BIN_PRODUCER} ${NSTOP} ${FILESIZE2PRODUCE}"
+CMD_PRODUCER="$LAUNCHER -np ${procs_this_app[$appid]} -machinefile $HOST_DIR/machinefile-app${appid} -env TRACEDIR=${ALL_TRACES}/app${appid}  ${BIN_PRODUCER} ${NSTOP} ${FILESIZE2PRODUCE}"
 $CMD_PRODUCER  &> ${PBS_RESULTDIR}/producer.log &
 echo "producer applciation lauched: $CMD_PRODUCER"
 
 appid=$((appid+1))
 
-CMD_CONSUMER="$LAUNCHER -np ${procs_this_app[$appid]} -machinefile $HOST_DIR/machinefile-app${appid} ${BIN_CONSUMER}"
+CMD_CONSUMER="$LAUNCHER -np ${procs_this_app[$appid]} -machinefile $HOST_DIR/machinefile-app${appid} -env TRACEDIR=${ALL_TRACES}/app${appid} ${BIN_CONSUMER}"
 $CMD_CONSUMER  &> ${PBS_RESULTDIR}/consumer.log &
 echo " consumer applciation lauched $CMD_CONSUMER"
 

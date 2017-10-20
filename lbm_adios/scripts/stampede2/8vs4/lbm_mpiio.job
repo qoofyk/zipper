@@ -1,9 +1,9 @@
 #!/bin/bash
 #SBATCH --job-name="mpiio"
 #SBATCH --output="results/%j.out"
-#SBATCH --partition=normal
+#SBATCH --partition=development
 #SBATCH --nodes=3
-#SBATCH --ntasks-per-node=4
+#SBATCH --ntasks-per-node=68
 #SBATCH -t 00:5:00
 
 #This job runs with 2 nodes, 24 cores per node for a total of 48 cores.

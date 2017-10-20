@@ -1,13 +1,29 @@
 ####################################################
 # common commands for all experiments
+env|grep '^HAS' # trace enabled?
+module list
 
-export  I_MPI_JOB_RESPECT_PROCESS_PLACEMENT=0
+#export  I_MPI_JOB_RESPECT_PROCESS_PLACEMENT=0
 
 echo "case=$CASE_NAME datasize=$FILESIZE2PRODUCE nstops=$NSTOP, HASKEEP=${HAS_KEEP}"
 
 echo "procs is \[ ${procs_this_app[*]}\], nodes is \[${nodes_this_app[*]}\]"
+if [ x"$HAS_TRACE" == "x" ];then
+    BUILD_DIR=${PBS_O_WORKDIR}/build
+else
+    echo "TRACE ENABLED"
+    BUILD_DIR=${PBS_O_WORKDIR}/build_tau
+    #enable trace
+    export TAU_TRACE=1
+    # set trace dir
+    export ALL_TRACES=${SCRATCH_DIR}/trace
 
-BUILD_DIR=${PBS_O_WORKDIR}/build
+    mkdir -pv $ALL_TRACES/app0
+    mkdir -pv $ALL_TRACES/app1
+    mkdir -pv $ALL_TRACES/app2
+    module load tau
+
+fi
 
 BIN_PRODUCER=${BUILD_DIR}/bin/run_lbm;
 BIN_CONSUMER=${BUILD_DIR}/bin/native_staging_read;
@@ -70,10 +86,18 @@ else
     echo "https://github.iu.edu/lifen/LaucherTest/blob/master/generate_hosts.sh"
 fi
 
-LAUNCHER="mpiexec.hydra"
+if [ x"$HAS_TRACE" == "x" ];then
+    LAUNCHER="mpiexec.hydra"
+else
+    #export LD_PRELOAD=libVT.so 
+    #LAUNCHER="mpiexec.hydra -trace"
+    LAUNCHER="mpiexec.hydra"
+fi
+
+
 
 ## Run DataSpaces servers
-CMD_SERVER="$LAUNCHER -np ${procs_this_app[0]} -machinefile $HOST_DIR/machinefile-app0 ${DS_SERVER} -s ${procs_this_app[0]} -c $((procs_this_app[1]+procs_this_app[2]))"
+CMD_SERVER="$LAUNCHER -np ${procs_this_app[0]} -machinefile $HOST_DIR/machinefile-app0 -env TRACEDIR=${ALL_TRACES}/app0 ${DS_SERVER} -s ${procs_this_app[0]} -c $((procs_this_app[1]+procs_this_app[2]))"
 $CMD_SERVER  &> ${PBS_RESULTDIR}/server.log &
 echo "server applciation lauched: $CMD_SERVER"
 ## Give some time for the servers to load and startup
@@ -82,11 +106,11 @@ while [ ! -f conf ]; do
 done
 sleep 5s  # wait server to fill up the conf file
 
-CMD_PRODUCER="$LAUNCHER -np ${procs_this_app[1]} -machinefile $HOST_DIR/machinefile-app1  ${BIN_PRODUCER} ${NSTOP} ${FILESIZE2PRODUCE}"
+CMD_PRODUCER="$LAUNCHER -np ${procs_this_app[1]} -machinefile $HOST_DIR/machinefile-app1 -env TRACEDIR=${ALL_TRACES}/app1 ${BIN_PRODUCER} ${NSTOP} ${FILESIZE2PRODUCE}"
 $CMD_PRODUCER  &> ${PBS_RESULTDIR}/producer.log &
 echo "producer applciation lauched: $CMD_PRODUCER"
 
-CMD_CONSUMER="$LAUNCHER -np ${procs_this_app[2]} -machinefile $HOST_DIR/machinefile-app2 ${BIN_CONSUMER} ${NSTOP} ${FILESIZE2PRODUCE} ${procs_this_app[1]}"
+CMD_CONSUMER="$LAUNCHER -np ${procs_this_app[2]} -machinefile $HOST_DIR/machinefile-app2 -env TRACEDIR=${ALL_TRACES}/app2 ${BIN_CONSUMER} ${NSTOP} ${FILESIZE2PRODUCE} ${procs_this_app[1]}"
 $CMD_CONSUMER  &> ${PBS_RESULTDIR}/consumer.log &
 echo " consumer applciation lauched $CMD_CONSUMER"
 

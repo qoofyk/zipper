@@ -11,6 +11,28 @@ TODO
 	1. nnti in flexpath, not usable.
 	2. dspaces hanging
 	3. ENABLE_TESTING in flexpath conf, enabled
+## Oct 16
+add trace support
+	HAS_TRACE=1 then submit jobs
+	343400 is an example
+	
+This version generates the results for performance comparsion(8vs4)
+	adios_dspaces:137.4
+	adios_dimes:111.2
+	adios_mpiio:96.38
+	adios_flexpath:43.95
+	native_dspaces:80.52
+	native_dimes:51.27
+	zipper:34.8
+	lbm only: 33.5
+
+	flexpath has much better performance when there are less processes in each
+	node:
+	using 3 node, if the processes are
+	8vs4: 43.95s
+	34vs17 220.76s
+	68vs34 511.4s
+
 ## Oct 12
 	stripe size=-1 not obvious 
 	flexpath is slow at first but has good scalibility
