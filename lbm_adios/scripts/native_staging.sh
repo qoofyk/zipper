@@ -78,7 +78,7 @@ lock_type = 2
 echo "DS_LIMIT= $DS_LIMIT"
 
 # this scripts is avaliable at
-GENERATE_HOST_SCRIPT=${HOME}/Downloads/LaucherTest/generate_hosts.sh
+GENERATE_HOST_SCRIPT=${HOME}/Workspaces/General_Data_Broker/lbm_adios/scripts/generate_hosts.sh
 if [ -a $GENERATE_HOST_SCRIPT ]; then
     source $GENERATE_HOST_SCRIPT
 else
