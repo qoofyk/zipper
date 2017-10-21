@@ -39,7 +39,7 @@ export WORK=$HOME
 # from bridges: 
 export I_MPI_JOB_RESPECT_PROCESS_PLACEMENT=0
 
-DS_BIN=${WORK}/envs/Dataspacesroot/bin
+DS_BIN=${WORK}/envs/gcc_mvapich/Dataspacesroot/bin
 PBS_RESULTDIR=${SCRATCH_DIR}/results
 
 mkdir -pv ${PBS_RESULTDIR}
@@ -72,7 +72,9 @@ else
     echo "https://github.iu.edu/lifen/LaucherTest/blob/master/generate_hosts.sh"
 fi
 
-LAUNCHER="mpirun -l"
+LAUNCHER="mpiexec.hydra"
+export MV2_ENABLE_AFFINITY=0 
+export MV2_USE_BLOCKING=1
 
 
 

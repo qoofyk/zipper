@@ -1225,6 +1225,9 @@ int main(int argc, char * argv[]){
     clog_info(CLOG(MY_LOGGER),"%s:I am rank %d of %d, tranport code %x-%x\n",
             nodename, rank, nprocs,
             get_major(transport), get_minor(transport) );
+    if(rank == 0){
+      clog_info(CLOG(MY_LOGGER),"stat: Producer start at %lf \n", MPI_Wtime());
+    }
 
 
   if(transport_major == ADIOS_DISK || transport_major == ADIOS_STAGING){

@@ -95,6 +95,9 @@ else
     LAUNCHER="mpiexec.hydra"
 fi
 
+export MV2_ENABLE_AFFINITY=0 
+export MV2_USE_BLOCKING=1
+
 #-env I_MPI_FABRICS tcp
 
 

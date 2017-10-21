@@ -95,6 +95,12 @@ int main (int argc, char ** argv)
       return 1;
     }
 
+
+    if(rank == 0){
+      clog_info(CLOG(MY_LOGGER),"stat: Consumer start at %lf \n", MPI_Wtime());
+    }
+
+
     int timestep = -1;
     
     /**** use index file to keep track of current step *****/
