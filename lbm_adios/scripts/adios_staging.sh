@@ -21,7 +21,7 @@ echo "procs is \[ ${procs_this_app[*]}\], nodes is \[${nodes_this_app[*]}\]"
 
 if [ x"$HAS_TRACE" == "x" ];then
     BUILD_DIR=${PBS_O_WORKDIR}/build
-    DS_SERVER=${WORK}/envs/Dataspacesroot/bin/dataspaces_server
+    DS_SERVER=${WORK}/envs/gcc_mvapich/Dataspacesroot/bin/dataspaces_server
 else
     echo "TRACE ENABLED"
     BUILD_DIR=${PBS_O_WORKDIR}/build_tau
