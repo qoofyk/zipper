@@ -94,6 +94,7 @@ else
     LAUNCHER="mpiexec.hydra"
 fi
 
+#-env I_MPI_FABRICS tcp
 
 
 ## Run DataSpaces servers

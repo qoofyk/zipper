@@ -21,9 +21,11 @@ echo "procs is \[ ${procs_this_app[*]}\], nodes is \[${nodes_this_app[*]}\]"
 
 if [ x"$HAS_TRACE" == "x" ];then
     BUILD_DIR=${PBS_O_WORKDIR}/build
+    DS_SERVER=${WORK}/envs/Dataspacesroot/bin/dataspaces_server
 else
     echo "TRACE ENABLED"
     BUILD_DIR=${PBS_O_WORKDIR}/build_tau
+    DS_SERVER=${WORK}/envs/Dataspacesroot_tau/bin/dataspaces_server
     #enable trace
     export TAU_TRACE=1
     # set trace dir
@@ -41,7 +43,6 @@ BIN_CONSUMER=${BUILD_DIR}/bin/adios_staging_read;
 
 #This job runs with 3 nodes  
 #ibrun in verbose mode will give binding detail  #BUILD=${PBS_O_WORKDIR}/build_dspaces/bin
-DS_SERVER=${WORK}/envs/Dataspacesroot/bin/dataspaces_server
 PBS_RESULTDIR=${SCRATCH_DIR}/results
 
 

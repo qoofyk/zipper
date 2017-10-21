@@ -5,6 +5,7 @@
 #SBATCH --nodes=3
 #SBATCH --ntasks-per-node=28
 #SBATCH -t 00:5:00
+#SBATCH --export=ALL
 
 #SBATCH --mail-type=BEGIN
 # send mail to this address

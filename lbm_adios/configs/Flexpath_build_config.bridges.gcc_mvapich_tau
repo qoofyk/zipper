@@ -6,7 +6,7 @@
 %	$HOME  -- the $HOME environment variable value during the build
 %	$project  --  the project name (like "ffs", "evpath", etc.)
 %	$repository  --  like "kaos" or "github"
-INSTALL_DIRECTORY=/home/fli5/envs/Flexpath_intel
+INSTALL_DIRECTORY=/home/fli5/envs/Flexpath_gcc_mvapich_tau
 
 %   VERSION_TAG  -  various values, including "development", "stable", etc.
 %
@@ -45,10 +45,10 @@ DISABLE_TESTING
 %ENABLE_DEBUG_BUILD
 
 %  uncomment below to set results files dir (default /tmp)
-RESULTS_FILES_DIR=/home/fli5/Downloads/flexpath/flexpath_adios_1_12_intel/build_results
+RESULTS_FILES_DIR=/home/fli5/Downloads/flexpath/flexpath_adios_1_12_gnu_mvapich_tau/build_results
 
 %  build master directory specificiation
-BUILD_AREA=/home/fli5/Downloads/flexpath/flexpath_adios_1_12_intel/build_area
+BUILD_AREA=/home/fli5/Downloads/flexpath/flexpath_adios_1_12_gnu_mvapich_tau/build_area
 
 %CONFIGURE/CMAKE ARGUMENTS
 %
@@ -61,16 +61,17 @@ BUILD_AREA=/home/fli5/Downloads/flexpath/flexpath_adios_1_12_intel/build_area
 %	$HOME  -- the $HOME environment variable value during the build
 %	$project  --  the project name (like "ffs", "evpath", etc.)
 %	$repository  --  like "kaos" or "github"
-%kaos configure
-%kaos cmake
+% kaos configure
+% kaos cmake
 %
 %
 %   The entries below are often useful on HPC machines that require/desire static linking.
 %	To use, comment out the kaos and korvogithub lines above and uncomment those below.
 %       If you use these, comment out everything after 'evpath' in the 'BUILDLIST' above.
 %
-kaos configure CC=icc CXX=icpc
-kaos cmake -DCMAKE_C_COMPILER=icc -DCMAKE_CXX_COMPILER=icpc  -DCMAKE_C_FLAGS=-fPIC
+kaos configure CC=tau_cc.sh CXX=tau_cxx.sh
+kaos cmake -DCMAKE_C_COMPILER=tau_cc.sh -DCMAKE_CXX_COMPILER=tau_cxx.sh -DCMAKE_C_FLAGS=-fPIC 
+
 % korvogithub configure --disable-shared CC=cc CXX=CC
 % korvogithub cmake -DCMAKE_C_COMPILER=cc -DCMAKE_CXX_COMPILER=CC -DBUILD_SHARED_STATIC=STATIC -DCMAKE_C_FLAGS=-fPIC -DCMAKE_CXX_FLAGS=-fPIC -DTARGET_CNL=1
 %
