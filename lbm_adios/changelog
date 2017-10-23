@@ -22,6 +22,10 @@ versions
 	raw_dspacesraw_gcc_mvapich
 ----------------------------------------------------------------------------------
 ----------------------------------------------------------------------------------
+
+## Oct 22
+	don't laod default tau module in bridges,
+	added trace support for simonly
 ## Oct 20
 	https://github.iu.edu/IUPUI-CS-HPC/data_broker_lammps/wiki/compile&linking
 

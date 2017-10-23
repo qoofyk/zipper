@@ -34,7 +34,10 @@ else
     mkdir -pv $ALL_TRACES/app1
     mkdir -pv $ALL_TRACES/app2
 
-    module load tau
+    if [ -z $TAU_MAKEFILE ]; then
+        module load tau
+        echo "LOAD TAU!"
+    fi
 
 fi
 
@@ -95,6 +98,10 @@ else
     #LAUNCHER="mpiexec.hydra -trace"
     LAUNCHER="mpiexec.hydra"
 fi
+
+
+export MV2_ENABLE_AFFINITY=0 
+export MV2_USE_BLOCKING=1
 
 echo "use transport method $CMTransport with CMTransportVerbose=$CMTransportVerbose"
 

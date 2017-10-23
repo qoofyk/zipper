@@ -23,7 +23,11 @@ else
     mkdir -pv $ALL_TRACES/app0
     mkdir -pv $ALL_TRACES/app1
     mkdir -pv $ALL_TRACES/app2
-    module load tau
+
+    if [ -z $TAU_MAKEFILE ]; then
+        module load tau
+        echo "LOAD TAU!"
+    fi
 
 fi
 
