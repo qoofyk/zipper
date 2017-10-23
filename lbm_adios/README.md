@@ -40,38 +40,10 @@ written by Feng Li at Fall 2017
         * HOWTO:
             ```shell
             sbatch scripts/stampede2/scaling_exp/flexpath/272vs136.job
-            111
+
+            # run with
+            HAS_KEEP=1 sbatch scripts/stampede2/scaling_exp/flexpath/68vs34.job
             ```
             * switch stampede2 to bridges to use another machine
             * switch flexpath to mpiio to use different transport
             * 272v136, change to other avaible scripts for different size of experiments
-            
-
-        
-        
-
-        
-
-        
-        
-        
-    
-
-
-
-
-        
-                 
-
-    
-
-
-
-
-Scalibility Experiments:
-run keep 
-    HAS_KEEP=1 sbatch scripts/stampede2/scaling_exp/flexpath/68vs34.job
-run with tau
-    HAS_TRACE=1 sbatch scripts/stampede2/scaling_exp/flexpath/68vs34.job
-
-
