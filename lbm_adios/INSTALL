@@ -1,0 +1,77 @@
+
+see [this wiki](https://github.iu.edu/IUPUI-CS-HPC/data_broker_lammps/wiki) for more details
+
+## Environment settings in Bridges:
+* 
+1. modules
+    Currently Loaded Modulefiles:
+        1) psc_path/1.1      2) slurm/17.02.5     3) git/2.10.2        4) mpi/gcc_mvapich
+2. other softwares
+    * tau:(include tau-2.26.3 and pdtoolkit)
+        * path
+            built manually(gcc+mvapich) at "~/Downloads/tau_bundle/"
+            installed at ~/env/tau_bundle
+        * environment varaibles
+
+            export TAU_MAKEFILE=/home/fli5/envs/tau_bundle/tau/x86_64/lib/Makefile.tau-papi-ompt-mpi-pdt-openmp
+            export TAU_OPTIONS="-optRevert"
+            export PATH="/home/fli5/envs/tau_bundle/tau/x86_64/bin:/home/fli5/envs/tau_bundle/pdt/x86_64/bin:/home/lifeng/tools/anaconda/bin:$PATH"
+    * transport libraries
+        * path 
+            built in ~/Downloads/transport_bundle_gcc_mvapich/
+            install at ~/envs/gcc_mvapich(this will include ADIOSroot, Dataspaceroot, Flexpath)
+
+        * binaries
+            a full-feattured binary copy is here: https://github.iu.edu/lifen/transport_binaries
+            cp the 3 folders(ADIOSroot, Dataspaceroot Flexpath) to ~/envs/gcc_mvapich, 
+
+    * transport libraries buit using tau
+        * path
+            built in ~/Downloads/transport_bundle_gcc_mvapich
+
+            installed in "$ENV{WORK}/envs/transports_tau/ 
+
+            this is installed in yuankun's machine,
+            (the working version in my machine, I use my machine to get the result) are still scattered to 
+                Dataspacesroot_gnu_mvapich
+                Flexpath_gnu_mvapich
+                ADIOSroot_gnu_mvapioch
+
+        
+        * note
+            currently I cannot build ADIOS+FLEXPATH+application+DATASPACE all with tau_cc.ssh
+            a workaround is for use unstructed Flexpath and build all the other with taucc.
+            Somehow instructed ADIOS cannot recoganize instructed ADIOS. But we didn;t show the
+            trace to ADIOS/DIMES, this should be fine
+             
+
+
+
+## build
+    if buiding for Stampede2, please add corresponding avx CFLAGS
+    if getting warning of not finding libraries evpath,ffs,atl,dill, cercs_env, please append Flexpath library path to LD_LIBRARY_PATH
+    
+    * uninstructed build:
+        * prepare CMakeList.txt
+            modify CMakeList.txt, set DS_DIR, ADIOS_DIR, FLEXPATH_DIR as
+                set(DS_DIR "$ENV{WORK}/envs/gcc_mvapich/Dataspacesroot" CACHE PATH "The path to dataspaces.")
+        * make
+            ```shell
+            mkdir build & cd build
+            # using CC=icc CXX=icpc WORK=$HOME cmake .. if need intel compiler
+            # we use gcc+mvapich in all bridges experiments in IPDPS
+            WORK=$HOME cmake ..
+            make
+            ```
+    * instructed build(with tau)
+        * prepare CMakeList.txt
+            modify CMakeList.txt, set DS_DIR, ADIOS_DIR, FLEXPATH_DIR as
+                set(DS_DIR "$ENV{WORK}/envs/tau_bundle/Dataspacesroot" CACHE PATH "The path to dataspaces.")
+        * make
+            ```shell
+            mkdir build & cd build
+            # Bridges doesn't provide tau conf for gcc+mvapich, so don't load the tau module
+            # configure tau as in "Envrinment Settings in Bridges"
+            CC=tau_cc.sh CXX=tau_cxx.sh WORK=$HOME cmake .
+            make
+            ```

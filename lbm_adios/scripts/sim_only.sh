@@ -5,10 +5,30 @@ module list
 echo "case=$CASE_NAME datasize=$FILESIZE2PRODUCE nstops=$NSTOP"
 echo "procs is \[ ${procs_this_app[*]}\], nodes is \[${nodes_this_app[*]}\]"
 
-BUILD_DIR=${PBS_O_WORKDIR}/build
+if [ x"$HAS_TRACE" == "x" ];then
+    BUILD_DIR=${PBS_O_WORKDIR}/build
+    DS_SERVER=${WORK}/envs/gcc_mvapich/Dataspacesroot/bin/dataspaces_server
+else
+    echo "TRACE ENABLED"
+    BUILD_DIR=${PBS_O_WORKDIR}/build_tau
+    DS_SERVER=${WORK}/envs/Dataspacesroot_tau/bin/dataspaces_server
+    #enable trace
+    export TAU_TRACE=1
+    # set trace dir
+    export ALL_TRACES=${SCRATCH_DIR}/trace
+    mkdir -pv $ALL_TRACES/app0
+    mkdir -pv $ALL_TRACES/app1
+    mkdir -pv $ALL_TRACES/app2
+
+    if [ -z $TAU_MAKEFILE ]; then
+        module load tau
+        echo "LOAD TAU!"
+    fi
+
+fi
+
 
 BIN_PRODUCER=${BUILD_DIR}/bin/run_lbm;
-BIN_CONSUMER=${BUILD_DIR}/bin/adios_disk_read;
 
 #This job runs with 3 nodes  
 #ibrun in verbose mode will give binding detail  
@@ -47,7 +67,6 @@ fi
 
 LAUNCHER="mpiexec.hydra"
 
-
 export MV2_ENABLE_AFFINITY=0 
 export MV2_USE_BLOCKING=1
 
@@ -59,9 +78,4 @@ CMD_PRODUCER="$LAUNCHER -np ${procs_this_app[0]} -machinefile $HOST_DIR/machinef
 $CMD_PRODUCER  &> ${PBS_RESULTDIR}/producer.log &
 echo "producer applciation lauched: $CMD_PRODUCER"
 
-CMD_CONSUMER="$LAUNCHER -np ${procs_this_app[1]} -machinefile $HOST_DIR/machinefile-app1 ${BIN_CONSUMER} ${NSTOP}"
-$CMD_CONSUMER  &> ${PBS_RESULTDIR}/consumer.log &
-echo " consumer applciation lauched $CMD_CONSUMER"
-
-## Wait for the entire workflow to finish
 wait

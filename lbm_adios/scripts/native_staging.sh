@@ -10,9 +10,11 @@ echo "case=$CASE_NAME datasize=$FILESIZE2PRODUCE nstops=$NSTOP, HASKEEP=${HAS_KE
 echo "procs is \[ ${procs_this_app[*]}\], nodes is \[${nodes_this_app[*]}\]"
 if [ x"$HAS_TRACE" == "x" ];then
     BUILD_DIR=${PBS_O_WORKDIR}/build
+    DS_SERVER=${WORK}/envs/gcc_mvapich/Dataspacesroot/bin/dataspaces_server
 else
     echo "TRACE ENABLED"
     BUILD_DIR=${PBS_O_WORKDIR}/build_tau
+    DS_SERVER=${WORK}/envs/Dataspacesroot_tau/bin/dataspaces_server
     #enable trace
     export TAU_TRACE=1
     # set trace dir
@@ -21,7 +23,11 @@ else
     mkdir -pv $ALL_TRACES/app0
     mkdir -pv $ALL_TRACES/app1
     mkdir -pv $ALL_TRACES/app2
-    module load tau
+
+    if [ -z $TAU_MAKEFILE ]; then
+        module load tau
+        echo "LOAD TAU!"
+    fi
 
 fi
 
@@ -30,7 +36,6 @@ BIN_CONSUMER=${BUILD_DIR}/bin/native_staging_read;
 
 #This job runs with 3 nodes  
 #ibrun in verbose mode will give binding detail  #BUILD=${PBS_O_WORKDIR}/build_dspaces/bin
-DS_SERVER=${WORK}/envs/Dataspacesroot/bin/dataspaces_server
 PBS_RESULTDIR=${SCRATCH_DIR}/results
 
 mkdir -pv ${PBS_RESULTDIR}
@@ -67,17 +72,18 @@ DS_LIMIT=$((${FILESIZE2PRODUCE}*${FILESIZE2PRODUCE}*${FILESIZE2PRODUCE}*${procs_
 
 echo "total number of lines is $DS_LIMIT"
 
+#dims = 16,16
 echo "## Config file for DataSpaces
 ndim = 2
-dims = 2, $((DS_LIMIT)) 
-max_versions = 20
+dims = 2, $((DS_LIMIT))
+max_versions = 1
 max_readers = 1
 lock_type = 2
 " > dataspaces.conf
 echo "DS_LIMIT= $DS_LIMIT"
 
 # this scripts is avaliable at
-GENERATE_HOST_SCRIPT=${HOME}/Downloads/LaucherTest/generate_hosts.sh
+GENERATE_HOST_SCRIPT=${HOME}/Workspaces/General_Data_Broker/lbm_adios/scripts/generate_hosts.sh
 if [ -a $GENERATE_HOST_SCRIPT ]; then
     source $GENERATE_HOST_SCRIPT
 else
@@ -93,6 +99,10 @@ else
     LAUNCHER="mpiexec.hydra"
 fi
 
+export MV2_ENABLE_AFFINITY=0 
+export MV2_USE_BLOCKING=1
+
+#-env I_MPI_FABRICS tcp
 
 
 ## Run DataSpaces servers

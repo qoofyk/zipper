@@ -11,10 +11,39 @@ TODO
 	1. nnti in flexpath, not usable.
 	2. dspaces hanging
 	3. ENABLE_TESTING in flexpath conf, enabled
+
+-------------------------------------------------------------------------------
+versions
+	adios is configured in 
+		~/Downloads/adios/adios-1.12-gcc-mvapich-taufull
+		instructed dspaces cannot recognized
+	flexpath_gcc_mvapich:~/Downloads/flexpath/flexpath_adios_1_12_gnu_mvapich
+		~/Downloads/flexpath/flexpath_adios_1_12_gnu_mvapich_tauperl chaos_bootstrap.pl adios-1.12 $HOME/envs/Flexpath_gcc_mvapich_tau &> config.lifen.log
+	raw_dspacesraw_gcc_mvapich
+----------------------------------------------------------------------------------
+----------------------------------------------------------------------------------
+
+## Oct 22
+	don't laod default tau module in bridges,
+	added trace support for simonly
+## Oct 20
+	https://github.iu.edu/IUPUI-CS-HPC/data_broker_lammps/wiki/compile&linking
+
+tau with adios and dataspaces
+	now use old version in 
+	$ENV{WORK}/envs/Dataspacesroot_tau, install from
+	/home/fli5/Downloads/dataspaces/dataspaces-1.6.2-gcc-mvapich-tau
+	$ENV{WORK}/envs/backup/ADIOSroot_tau_1.11
+
+## Oct 10
+	build flexpath
 ## Oct 8
 	impi works, using bridges default, use intel packages for all softwares
 	i can also use more processes pernode
 	all scripts/CMakeLists use new path with _intel
+
+## Oct 14
+	https://software.intel.com/en-us/forums/intel-clusters-and-hpc-technology/topic/702213
 
 	
 ## Oct 2

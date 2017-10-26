@@ -1,9 +1,178 @@
-## Oct 8
+##
+## Oct 20
+#
+#
+    1878136
+        relaunch dimes tau without tcp,
+
+    1878061
+        dimes with full traces, this is with I_MPI_FABRIC = tcp
+
+     /pylon5/cc4s86p/fli5/data_broker_adios/1878061/trace/app1/merge.err
+        tau2slog2 error:
+                Reached end of trace file.
+        Getting YMap, Maxnode: 7, Maxthread: 1
+        java.lang.IllegalArgumentException: Comparison method violates its general contract!
+                at java.util.TimSort.mergeLo(TimSort.java:777)
+                at java.util.TimSort.mergeAt(TimSort.java:514)
+                at java.util.TimSort.mergeForceCollapse(TimSort.java:457)
+                at java.util.TimSort.sort(TimSort.java:254)
+                at java.util.Arrays.sort(Arrays.java:1438)
+                at base.drawable.Shadow.writeObject(Shadow.java:477)
+                at logformat.slog2.BufForShadows.writeObject(BufForShadows.java:297)
+                at logformat.slog2.output.TreeNode.writeObject(TreeNode.java:259)
+                at logformat.slog2.output.OutputLog.writeTreeNode(OutputLog.java:126)
+                at logformat.slog2.output.TreeTrunk.flushToFile(TreeTrunk.java:160)
+                at edu.uoregon.tau.Tau2Slog2.main(Tau2Slog2.java:202)
+        Exception in thread "main" java.lang.NullPointerException
+                at logformat.slog2.LineIDMapList.writeObject(LineIDMapList.java:33)
+                at logformat.slog2.output.OutputLog.writeFilePart(OutputLog.java:163)
+                at logformat.slog2.output.OutputLog.writeLineIDMapList(OutputLog.java:192)
+                at edu.uoregon.tau.Tau2Slog2.main(Tau2Slog2.java:213)
+
+--------------------------------------------------
+adios not instructed, dspaces instructed
+---------------------------------------------
+
+    1877032
+       28v14 tcp
+        'ds_boot_master()': all the peer are registered.44 42
+        'ds_alloc()': init ok.
+        rdma_resolve_addr -1 in rpc_connect.
+        'rpc_connect()': failed with -1.
+
+===================================================================================
+
+    1876982
+        28vs 14 native dspaces with shm:dapl
+        ds_boot now sucess 
+traces
+    1876980
+        dimes with traces, 8vs4
+traces
+    1876896
+        flexpath with traces, 8v4
+    
+
+## Oct 14
+JOBS
+    1861851
+        8vs4 dimes
+    1861836
+        8vs4 dspaces
+    
+    1861636
+        8vs4 flexpath with ib0
+    1861460
+        server set to 2, rerun 28vs14
+
+    1854240, intel mvapich
+
+
+    1854126
+    1853970,1853977
+    1853466
+        print by rank
+    1853464
+        1 server?
+        
+    1853449
+        rerun dataspaces_gcc with dimes
+    1853445
+        rerun dataspaces_gcc with ds_test
+    1853439
+        run with dataspaces_gcc,, without cflags using gcc4.8 with impi
+
+---------------------------
+    this is using dsroot_mvapich_ by mistake
+    1853958& 1853955
+        export I_MPI, and use mpirun
+        
+    1853938
+        run applications
+    1853926
+        add export=ALL
+    1853483
+        use 1.6.1 version, no luck
+    1853365
+        check why peer ip are different! in gcc/icc, I can try higher version of gcc!
+        rerun dimes, rpc_connect(Connection Rejected peer# 0 (0.0.0.0)  to peer# 0 (0.0.0.0))
+        1853449 with dataspace_gcc, (Connection Rejected peer# 0 (10.4.119.58)  to peer# 0 (10.4.119.58)., reproduce with 1853525, 1853546)
+        1853543
+    1853358
+        dimes works
+    1853290
+        rerun ds-test.job, rpc_connect, random err?
+    interactive jobs:
+        rpc_connect error
+    1853268
+        relaunch ds-test.job
+        works as usual
+## Oct 12
+JOBS
+    1850818
+        use mpiexec.mpirun_rsh
+    interactive jobs: excede job mem slurmstepd: 
+    error: Step 1849005.2 exceeded memory limit (4525508 > 4505600), being killed
+    1848728
+        change bin_dirtory to dataspaceroot_gnu_nvapich
+    1848719
+        disable mv_cpu_affinity and show binding details 
+    1848678
+        use gcc/mvapich intead, cpu affinity erro, 
+    1848652
+        ds_test with 28vs14, rpc connection error, use mvapich/gnu?, more waiting time
+    1848615
+        28vs14 with native_dspaces_nokeep, again
+    to many logfiles?
+    1848477
+        mpiio  672vs 386 
+    1848478
+        flexpath 672vs386
+## Oct 11
+dimensions
+JOBS
+    1840361
+        flexpath with 672vs386
+    1847971
+        mpiio 56vs28, 147.7s
+    1847972
+        flexpath 56vs28 72 steps
+    
+## Oct 10
 JOBS: 
-    1830825
+    1838800
+        mppio with 672vs386
+        330.73s, check consumer log
+    1838801
+        flexpath with 672vs386
+    1832732
+        mpiio 56vs28
+            143.55s
+    1832733
+        flexpath
+         56vs28
+            5min 84step
+            
+
+------------------------meeting--------------------------------------
+    1834262
+        ds dim 16x16, all producer initialized, consumer none.
+    1834218
+        decrease dimension to 256x256, prod 0,3,12 not initialized, consumer all not init
+    1834200
+        use dimention=3 still same err
+    1834184
+        native_dspaces with 28 14, four node cannout initialize
+    1834174
+        dstests with 256vs128, all right
+## Oct 8
+    1830825(application should be built with icc), new 1834144
         native_dspaces_nokeep, 196
-    1830826
+        cannot finish initialization
+    1830826(application should be built with icc), new 1834145
         adios_dspaces_nokeep, 196
+        canot finish initialization
 
 ## Oct 7
 JOBS:

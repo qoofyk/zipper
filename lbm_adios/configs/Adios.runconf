@@ -16,11 +16,17 @@ if [ `hostname | cut -c 1-2` == "br" ]; then
 
     if [[ $1 == tau ]]; then
         echo "using tau compiler and mpi"
+        #myCC=tau_cc.sh
+        #myCXX=tau_cxx.sh
+        #myFC=tau_f90.sh
+        # run with make CC=tau_cc.sh
+        ## tau  is instructed with gcc, instaled by Feng Li in env
         myCC=tau_cc.sh
         myCXX=tau_cxx.sh
         myFC=tau_f90.sh
         myDataspaces=${HOME}/envs/Dataspacesroot_tau
-        myprefix=${HOME}/envs/ADIOSroot_tau
+        myFlexpath=${HOME}/envs/Flexpath_gcc_mvapich_tau/
+        myprefix=${HOME}/envs/ADIOSroot_gcc_mvapich_tau
 
     # if use intel compiler/mpi
     elif [[ $1 == intel ]]; then
@@ -28,18 +34,22 @@ if [ `hostname | cut -c 1-2` == "br" ]; then
         myCC=mpiicc
         myCXX=mpiicpc
         myFC=mpiifort
-        myDataspaces=${HOME}/envs/Dataspacesroot_intel
-        myFlexpath=${HOME}/envs/Flexpath_intel
-        myprefix=${HOME}/envs/ADIOSroot_intel
+        myDataspaces=${HOME}/envs/Dataspacesroot
+        myFlexpath=${HOME}/envs/Flexpath
+        myprefix=${HOME}/envs/ADIOSroot
 
+
+        
     else
         echo "using gnu compiler with mvapich"
         myCC=mpicc
         myCXX=mpicxx
         myFC=mpif90
-        myDataspaces=${HOME}/envs/Dataspacesroot
-        myFlexpath=${HOME}/envs/Flexpath
-        myprefix=${HOME}/envs/ADIOSroot
+        myDataspaces=${HOME}/envs/gcc_mvapich/Dataspacesroot
+        myFlexpath=${HOME}/envs/gcc_mvapich/Flexpath
+        myprefix=${HOME}/envs/gcc_mvapich/ADIOSroot
+
+        
     fi
     module list
 
