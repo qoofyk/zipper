@@ -3,7 +3,7 @@
 #SBATCH -o "results/ds_test_%j.out"  
 #SBATCH -p development
 #SBATCH -N 3
-#SBATCH --ntasks-per-node=32
+#SBATCH --ntasks-per-node=68
 #SBATCH -t 00:1:00  
 #SBATCH --mail-type=BEGIN
 # send mail to this address
@@ -24,7 +24,7 @@ MUL=$(($MUL_PER_DIM*$MUL_PER_DIM*$MUL_PER_DIM))
 num_apps=3
 
 # slots used by this app
-procs_this_app=($((MUL*4)) $((MUL*32)) $((MUL*16)))
+procs_this_app=($((MUL*4)) $((MUL*8)) $((MUL*4)))
 
 # number of nodes used by this app
 nodes_this_app=($((MUL*1)) $((MUL*1)) $((MUL*1)))
