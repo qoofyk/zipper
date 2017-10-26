@@ -50,28 +50,30 @@ see [this wiki](https://github.iu.edu/IUPUI-CS-HPC/data_broker_lammps/wiki) for 
 ## build
     if buiding for Stampede2, please add corresponding avx CFLAGS
     if getting warning of not finding libraries evpath,ffs,atl,dill, cercs_env, please append Flexpath library path to LD_LIBRARY_PATH
+
+    *added in Oct 26
+        now compiler and transport library path are automatically confgiured using CMAKE_BUILD_TYPE
+
+    to build in stampede:
+    ```
+    mkdir build && cd build
+    cmake ..
+    ```
+
+    build with tau trace support
+    ```
+    mkdir build_tau && cd build_tau
+    cmake -DCMAKE_BUILD_TYPE=Stampede_TAU ..
+    ```
+
+    build in bridges
+    ```
+    mkdir build && cd build
+    cmake -DCMAKE_BUILD_TYPE=Bridges ..
+    ```
+            
+
     
-    * uninstructed build:
-        * prepare CMakeList.txt
-            modify CMakeList.txt, set DS_DIR, ADIOS_DIR, FLEXPATH_DIR as
-                set(DS_DIR "$ENV{WORK}/envs/gcc_mvapich/Dataspacesroot" CACHE PATH "The path to dataspaces.")
-        * make
-            ```shell
-            mkdir build & cd build
-            # using CC=icc CXX=icpc WORK=$HOME cmake .. if need intel compiler
-            # we use gcc+mvapich in all bridges experiments in IPDPS
-            WORK=$HOME cmake ..
-            make
-            ```
-    * instructed build(with tau)
-        * prepare CMakeList.txt
-            modify CMakeList.txt, set DS_DIR, ADIOS_DIR, FLEXPATH_DIR as
-                set(DS_DIR "$ENV{WORK}/envs/tau_bundle/Dataspacesroot" CACHE PATH "The path to dataspaces.")
-        * make
-            ```shell
-            mkdir build & cd build
-            # Bridges doesn't provide tau conf for gcc+mvapich, so don't load the tau module
-            # configure tau as in "Envrinment Settings in Bridges"
-            CC=tau_cc.sh CXX=tau_cxx.sh WORK=$HOME cmake .
-            make
-            ```
+    
+    
+

@@ -1,4 +1,5 @@
 cmake_minimum_required(VERSION 2.8 FATAL_ERROR)
+include(${CMAKE_SOURCE_DIR}/mk/common.cmake)
 set(CMAKE_C_FLAGS "-O3 ${ADD_FLAGS}" CACHE STRING "cflags")
 
 project("lbm_adios")
@@ -12,9 +13,9 @@ include_directories(${MPI_INCLUDE_PATH} ${CMAKE_SOURCE_DIR})
 
 set(EXECUTABLE_OUTPUT_PATH "${CMAKE_BINARY_DIR}/bin")
 
-set(DS_DIR "$ENV{WORK}/envs/gcc_mvapich/Dataspacesroot" CACHE PATH "The path to dataspaces.")
-set(ADIOS_DIR "$ENV{WORK}/envs/gcc_mvapich/ADIOSroot" CACHE PATH "The path to adios.")
-set(FLEXPATH_DIR "$ENV{WORK}/envs/gcc_mvapich/Flexpath" CACHE PATH "The path to flexpath.")
+set(DS_DIR "${TRANSPORT_LIB}/Dataspacesroot" CACHE PATH "The path to dataspaces.")
+set(ADIOS_DIR "${TRANSPORT_LIB}/ADIOSroot" CACHE PATH "The path to adios.")
+set(FLEXPATH_DIR "${TRANSPORT_LIB}/Flexpath" CACHE PATH "The path to flexpath.")
 
 include_directories(${DS_DIR}/include ${ADIOS_DIR}/include ${FLEXPATH_DIR}/include)
 

@@ -5,6 +5,11 @@ see [this wiki](https://github.iu.edu/IUPUI-CS-HPC/data_broker_lammps/wiki) for 
 
 written by Feng Li at Fall 2017
 
+## What is new
+    now all compiler/tranport library path is set automatically in cmake
+    see mk/common.cmake and INSTALL:#build for more details
+   
+
 ## What is done
     performace analysis
         traces collection for all transports in 8vs4
