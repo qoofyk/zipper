@@ -48,7 +48,7 @@ add_executable(native_staging_read native_staging_read.c run_analysis.c)
 SET(myTARGET run_lbm adios_staging_read adios_disk_read native_staging_read)
 foreach(item ${myTARGET})
 
-    target_link_libraries(${item} adaptor)
+    target_link_libraries(${item} adaptor m)
 
     if(MPI_COMPILE_FLAGS)
         set_target_properties(${item} PROPERTIES COMPILE_FLAGS "${MPI_C_COMPILE_FLAGS}")

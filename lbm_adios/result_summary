@@ -1,7 +1,14 @@
-##
+## Nov 28
+ 1999830   
+    relaunch 64v32
+        402s
+
+## Nov 7
+ 1940009
+    relaunch native dsaces with 96v48
+ 1941004
+    relaunch native dspaces with 64v32
 ## Oct 20
-#
-#
     1878136
         relaunch dimes tau without tcp,
 

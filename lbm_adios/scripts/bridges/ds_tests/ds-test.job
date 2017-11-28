@@ -2,7 +2,7 @@
 #SBATCH -J "ds_test"  
 #SBATCH -o "results/ds_test_%j.out"  
 #SBATCH -p RM
-#SBATCH -N 3
+#SBATCH -N 4
 #SBATCH --ntasks-per-node=28
 #SBATCH -t 00:3:00  
 #SBATCH --mail-type=BEGIN
@@ -28,7 +28,7 @@ num_apps=3
 procs_this_app=($((MUL*4)) $((MUL*32)) $((MUL*16)))
 
 # number of nodes used by this app
-nodes_this_app=($((MUL*1)) $((MUL*1)) $((MUL*1)))
+nodes_this_app=($((MUL*1)) $((MUL*2)) $((MUL*1)))
 
 ###################################################
 
