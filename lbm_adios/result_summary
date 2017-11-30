@@ -1,3 +1,15 @@
+## Nov 30
+#### jobs submitted:
+    use dependency list
+          2006967        RM native_d     fli5 PD       0:00     64 (Priority)
+           2006968        RM native_d     fli5 PD       0:00     64 (Dependency)
+           2006969        RM adios_ds     fli5 PD       0:00     64 (Dependency)
+           2006970        RM adios_di     fli5 PD       0:00     64 (Dependency)
+           2006971        RM    mpiio     fli5 PD       0:00     48 (Dependency)
+           2006972        RM adios_fl     fli5 PD       0:00     48 (Dependency)
+           2006973        RM sim_only     fli5 PD       0:00     32 (Dependency)
+
+
 ## Nov 28
 #### jobs
  2000405
