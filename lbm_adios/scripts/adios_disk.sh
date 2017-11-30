@@ -25,16 +25,6 @@ cd ${SCRATCH_DIR}
 cp -R ${PBS_O_WORKDIR}/adios_xmls ${SCRATCH_DIR}
 
 
-## Create dataspaces configuration file
-# note that we now have 400 regions
-
-#dims = 5, 300000, 10
-#dims = 2, 1500000, 1
-# 64*64*256 will generate 1048576 lines
-DS_LIMIT=$((${FILESIZE2PRODUCE}*${FILESIZE2PRODUCE}*${FILESIZE2PRODUCE}/16)) # make sure dspaces can hold all data
-
-echo "total number of lines is $DS_LIMIT"
-
 # this scripts is avaliable at
 GENERATE_HOST_SCRIPT=${HOME}/Workspaces/General_Data_Broker/lbm_adios/scripts/generate_hosts.sh
 #GENERATE_HOST_SCRIPT=${HOME}/Downloads/LaucherTest/generate_hosts.sh

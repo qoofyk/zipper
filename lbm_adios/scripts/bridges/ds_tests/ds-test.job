@@ -37,7 +37,7 @@ PBS_O_WORKDIR=$(pwd)
 export SCRATCH_DIR=${SCRATCH}/ds_test/${SLURM_JOBID}
 export WORK=$HOME
 # from bridges: 
-export I_MPI_JOB_RESPECT_PROCESS_PLACEMENT=0
+#export I_MPI_JOB_RESPECT_PROCESS_PLACEMENT=0
 
 DS_BIN=${WORK}/envs/gcc_mvapich/Dataspacesroot/bin
 PBS_RESULTDIR=${SCRATCH_DIR}/results
