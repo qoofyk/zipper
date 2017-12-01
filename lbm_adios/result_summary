@@ -1,22 +1,36 @@
 ## Dec 1
+
+dspaces/dimes 128v64
+           2008140        RM native_d     fli5 PD       0:00     16 (Priority), works
+           2008141        RM native_d     fli5 PD       0:00     16 (Dependency), works
+           2008142        RM adios_ds     fli5 PD       0:00     16 (Dependency), works
+           2008165        RM adios_di     fli5 PD       0:00     16 (Dependency), works, (serv crash 2008143)
+           2008144        RM    mpiio     fli5 PD       0:00     12 (Dependency) , works,
+           2008145        RM adios_fl     fli5 PD       0:00     12 (Dependency), works
+           2008146        RM sim_only     fli5 PD       0:00      8 (Dependency), works
+
+
 dspaces/dimes  64v32 using  hash2
     2008071 dspaces, works,(server crashed: 2008051)
     2008053 dimes, works
     2008054 adios/dspaces, works
     2008072 adios/dimes,works (server crashed: 2008055)
+    2008169 mpiio
+    2008170 adios_flexpath
+    2008171 sim only
     
 #### jobs submitted
-           2008034        RM native_d     fli5 PD       0:00     32 (Priority)
-           2008035        RM native_d     fli5 PD       0:00     32 (Dependency)
-           2008036        RM adios_ds     fli5 PD       0:00     32 (Dependency)
-           2008037        RM adios_di     fli5 PD       0:00     32 (Dependency)
-           2008038        RM    mpiio     fli5 PD       0:00     24 (Dependency)
-           2008039        RM adios_fl     fli5 PD       0:00     24 (Dependency)
-           2008040        RM sim_only     fli5 PD       0:00     16 (Dependency)
+           2008034        RM native_d     fli5 PD       0:00     32 (Priority),works
+           2008194        RM native_d     fli5 PD       0:00     32 (Dependency)works, (serv crash 2008035)
+           2008036        RM adios_ds     fli5 PD       0:00     32 (Dependency), works
+           2008037        RM adios_di     fli5 PD       0:00     32 (Dependency), works
+           2008038        RM    mpiio     fli5 PD       0:00     24 (Dependency), works
+           2008039        RM adios_fl     fli5 PD       0:00     24 (Dependency), works
+           2008040        RM sim_only     fli5 PD       0:00     16 (Dependency), works
 
 
 ## Nov 30
-#### jobs submitted 64 nodes:
+#### jobs submitted 64 nodes(512v128)
     use dependency list
            2006967        RM native_d     fli5 PD       0:00     64 (Priority), producer srun warning (canceled)
            2006968        RM native_d     fli5 PD       0:00     64 (Dependency) (canceled)

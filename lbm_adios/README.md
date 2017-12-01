@@ -33,6 +33,10 @@ written by Feng Li at Fall 2017
 ## Environment settings and Build
     se INSTALL for more details
 
+## Important Note
+ - use dependency-enabled job to submit all the tasks, record whether they are success in summary.txt
+ - record all the results in exp_brideges.excel PerfBridges_Large
+
 
 
 

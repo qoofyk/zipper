@@ -1,7 +1,7 @@
 #! /bin/bash
 
 # first job - no dependencies
-CaseName="bridges/256v128"
+CaseName="bridges/128v64"
 jid1=$(sbatch scripts/${CaseName}/native_dspaces_nokeep.job|awk '{print $NF}')
 
 jid2=$(sbatch --dependency=afterany:$jid1 scripts/${CaseName}/native_dimes_nokeep.job|awk '{print $NF}')
