@@ -1,13 +1,38 @@
+## Dec 1
+dspaces/dimes  64v32 using  hash2
+    2008071 dspaces, works,(server crashed: 2008051)
+    2008053 dimes, works
+    2008054 adios/dspaces, works
+    2008072 adios/dimes,works (server crashed: 2008055)
+    
+#### jobs submitted
+           2008034        RM native_d     fli5 PD       0:00     32 (Priority)
+           2008035        RM native_d     fli5 PD       0:00     32 (Dependency)
+           2008036        RM adios_ds     fli5 PD       0:00     32 (Dependency)
+           2008037        RM adios_di     fli5 PD       0:00     32 (Dependency)
+           2008038        RM    mpiio     fli5 PD       0:00     24 (Dependency)
+           2008039        RM adios_fl     fli5 PD       0:00     24 (Dependency)
+           2008040        RM sim_only     fli5 PD       0:00     16 (Dependency)
+
+
 ## Nov 30
-#### jobs submitted:
+#### jobs submitted 64 nodes:
     use dependency list
-          2006967        RM native_d     fli5 PD       0:00     64 (Priority)
-           2006968        RM native_d     fli5 PD       0:00     64 (Dependency)
+           2006967        RM native_d     fli5 PD       0:00     64 (Priority), producer srun warning (canceled)
+           2006968        RM native_d     fli5 PD       0:00     64 (Dependency) (canceled)
            2006969        RM adios_ds     fli5 PD       0:00     64 (Dependency)
            2006970        RM adios_di     fli5 PD       0:00     64 (Dependency)
            2006971        RM    mpiio     fli5 PD       0:00     48 (Dependency)
            2006972        RM adios_fl     fli5 PD       0:00     48 (Dependency)
            2006973        RM sim_only     fli5 PD       0:00     32 (Dependency)
+
+a job left from dspaces_debug branch
+    2005318
+        512v256 ds_test
+        Warning: can't honor --ntasks-per-node set to 28 which doesn't match the requested tasks 32 with the number of requested nodes 32, same as 2004217
+
+    2005299
+        256v128 ds_test
 
 
 ## Nov 28
