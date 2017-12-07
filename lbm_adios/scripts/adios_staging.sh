@@ -1,6 +1,7 @@
 #################################################### 
 # common commands for all experiments 
 #export  I_MPI_JOB_RESPECT_PROCESS_PLACEMENT=0
+export OMP_NUM_THREADS=4
 
 #export HAS_KEEP=0
 #export CMTransport=fabric
@@ -10,6 +11,7 @@ export CM_INTERFACE=ib0
 
 env|grep '^CM'
 env|grep '^HAS' # trace enabled?
+env|grep '^OMP' # trace enabled?
 
 #module load libfabric
 module list
@@ -133,5 +135,5 @@ echo " consumer applciation lauched $CMD_CONSUMER"
 ## Wait for the entire workflow to finish
 wait
 
-
+ls
 

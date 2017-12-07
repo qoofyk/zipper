@@ -1,3 +1,33 @@
+## Dec 7
+JOBS 
+    494003
+    flexpath 1088v544, 96G memory, same as 342994
+    494049
+    2096v1088
+
+    
+
+## Nov 27
+JOBS
+    460462
+        use minimal dspaces configurations
+## Nov 13
+JOBS 
+   424429
+    move all applications in one node
+   424386
+    reproduce the dspaces problem in normal queue
+    
+    
+## Oct 26
+   165316
+       in normal queue, still rdma binding erro
+       
+	361833
+	rerun flexpath with 2176vs1088 with LBM
+		consumer malloc failed.
+    xml interger?
+
 ## Oct 17
 JOBS
     344553

@@ -11,6 +11,16 @@ TODO
 	1. nnti in flexpath, not usable.
 	2. dspaces hanging
 	3. ENABLE_TESTING in flexpath conf, enabled
+
+## Oct 28
+		cm_blocking read
+		INT_CMstart_read_thread
+		use_read_thread
+## Oct 27
+	366616
+		rerun flexpthpath 34v17, 
+	365308
+		8vs4 development, correct
 ## Oct 16
 add trace support
 	HAS_TRACE=1 then submit jobs
