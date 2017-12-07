@@ -49,9 +49,10 @@ cd ${SCRATCH_DIR}
 ## Clean up
 rm -f conf *.log srv.lck
 rm -f dataspaces.conf
-
 FILESIZE2PRODUCE=256 # 64*64*256*2*8 = 16MB per proc
 
+
+echo "slurm path is $(which srun)"
 
 NUM_ELEM=$((FILESIZE2PRODUCE*FILESIZE2PRODUCE*FILESIZE2PRODUCE*procs_this_app[1]/8)) # make sure dspaces can hold all data, *2/16
 

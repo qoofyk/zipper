@@ -1,6 +1,27 @@
 ## Dec 1
+perhaps a problem with slurm?
+    https://www.mail-archive.com/slurm-dev@schedmd.com/msg09223.html
+tried to use 
+    run: Warning: can't honor --ntasks-per-node set to 28 which doesn't match the requested tasks 32 with the number of requested nodes 32. Ignoring --ntasks-per-node 
+2008410
 
-dspaces/dimes 128v64
+
+ds_test 512v256-degbug
+
+#### jobs submitted(512v256)
+                  RM native_d     fli5 PD       0:00     32 (Priority), 
+                    (2008384, remove --nnumtask, still error)
+                    (2008355,srun warning )
+           2008356        RM native_d     fli5 PD       0:00     32 (Dependency)
+           2008357        RM adios_ds     fli5 PD       0:00     32 (Dependency)
+           2008358        RM adios_di     fli5 PD       0:00     32 (Dependency)
+           2008359        RM    mpiio     fli5 PD       0:00     24 (Dependency), works
+           2008360        RM adios_fl     fli5 PD       0:00     24 (Dependency), works
+           2008361        RM sim_only     fli5 PD       0:00     16 (Dependency), works
+
+
+
+#### dspaces/dimes 128v64
            2008140        RM native_d     fli5 PD       0:00     16 (Priority), works
            2008141        RM native_d     fli5 PD       0:00     16 (Dependency), works
            2008142        RM adios_ds     fli5 PD       0:00     16 (Dependency), works
@@ -18,7 +39,7 @@ dspaces/dimes  64v32 using  hash2
     2008169 mpiio
     2008170 adios_flexpath
     2008171 sim only
-    
+
 #### jobs submitted
            2008034        RM native_d     fli5 PD       0:00     32 (Priority),works
            2008194        RM native_d     fli5 PD       0:00     32 (Dependency)works, (serv crash 2008035)
@@ -29,11 +50,13 @@ dspaces/dimes  64v32 using  hash2
            2008040        RM sim_only     fli5 PD       0:00     16 (Dependency), works
 
 
+    
+
 ## Nov 30
-#### jobs submitted 64 nodes(512v128)
+#### jobs submitted 64 nodes(512v256), not run, all canceled, later rerun using reservation.
     use dependency list
-           2006967        RM native_d     fli5 PD       0:00     64 (Priority), producer srun warning (canceled)
-           2006968        RM native_d     fli5 PD       0:00     64 (Dependency) (canceled)
+           2008346        RM native_d     fli5 PD       0:00     64 (Priority), 2006967,producer srun warning (canceled)
+           2008347        RM native_d     fli5 PD       0:00     64 (Dependency) (2008968,canceled)
            2006969        RM adios_ds     fli5 PD       0:00     64 (Dependency)
            2006970        RM adios_di     fli5 PD       0:00     64 (Dependency)
            2006971        RM    mpiio     fli5 PD       0:00     48 (Dependency)
