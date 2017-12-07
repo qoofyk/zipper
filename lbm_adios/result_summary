@@ -1,7 +1,135 @@
-##
+## Dec 1
+perhaps a problem with slurm?
+    https://www.mail-archive.com/slurm-dev@schedmd.com/msg09223.html
+tried to use 
+    run: Warning: can't honor --ntasks-per-node set to 28 which doesn't match the requested tasks 32 with the number of requested nodes 32. Ignoring --ntasks-per-node 
+2008410
+
+
+ds_test 512v256-degbug
+
+#### jobs submitted(512v256)
+                  RM native_d     fli5 PD       0:00     32 (Priority), 
+                    (2008384, remove --nnumtask, still error)
+                    (2008355,srun warning )
+           2008356        RM native_d     fli5 PD       0:00     32 (Dependency)
+           2008357        RM adios_ds     fli5 PD       0:00     32 (Dependency)
+           2008358        RM adios_di     fli5 PD       0:00     32 (Dependency)
+           2008359        RM    mpiio     fli5 PD       0:00     24 (Dependency), works
+           2008360        RM adios_fl     fli5 PD       0:00     24 (Dependency), works
+           2008361        RM sim_only     fli5 PD       0:00     16 (Dependency), works
+
+
+
+#### dspaces/dimes 128v64
+           2008140        RM native_d     fli5 PD       0:00     16 (Priority), works
+           2008141        RM native_d     fli5 PD       0:00     16 (Dependency), works
+           2008142        RM adios_ds     fli5 PD       0:00     16 (Dependency), works
+           2008165        RM adios_di     fli5 PD       0:00     16 (Dependency), works, (serv crash 2008143)
+           2008144        RM    mpiio     fli5 PD       0:00     12 (Dependency) , works,
+           2008145        RM adios_fl     fli5 PD       0:00     12 (Dependency), works
+           2008146        RM sim_only     fli5 PD       0:00      8 (Dependency), works
+
+
+dspaces/dimes  64v32 using  hash2
+    2008071 dspaces, works,(server crashed: 2008051)
+    2008053 dimes, works
+    2008054 adios/dspaces, works
+    2008072 adios/dimes,works (server crashed: 2008055)
+    2008169 mpiio
+    2008170 adios_flexpath
+    2008171 sim only
+
+#### jobs submitted
+           2008034        RM native_d     fli5 PD       0:00     32 (Priority),works
+           2008194        RM native_d     fli5 PD       0:00     32 (Dependency)works, (serv crash 2008035)
+           2008036        RM adios_ds     fli5 PD       0:00     32 (Dependency), works
+           2008037        RM adios_di     fli5 PD       0:00     32 (Dependency), works
+           2008038        RM    mpiio     fli5 PD       0:00     24 (Dependency), works
+           2008039        RM adios_fl     fli5 PD       0:00     24 (Dependency), works
+           2008040        RM sim_only     fli5 PD       0:00     16 (Dependency), works
+
+
+    
+
+## Nov 30
+#### jobs submitted 64 nodes(512v256), not run, all canceled, later rerun using reservation.
+    use dependency list
+           2008346        RM native_d     fli5 PD       0:00     64 (Priority), 2006967,producer srun warning (canceled)
+           2008347        RM native_d     fli5 PD       0:00     64 (Dependency) (2008968,canceled)
+           2006969        RM adios_ds     fli5 PD       0:00     64 (Dependency)
+           2006970        RM adios_di     fli5 PD       0:00     64 (Dependency)
+           2006971        RM    mpiio     fli5 PD       0:00     48 (Dependency)
+           2006972        RM adios_fl     fli5 PD       0:00     48 (Dependency)
+           2006973        RM sim_only     fli5 PD       0:00     32 (Dependency)
+
+a job left from dspaces_debug branch
+    2005318
+        512v256 ds_test
+        Warning: can't honor --ntasks-per-node set to 28 which doesn't match the requested tasks 32 with the number of requested nodes 32, same as 2004217
+
+    2005299
+        256v128 ds_test
+
+
+## Nov 28
+#### jobs
+ 2000405
+    * 64v32
+        24840 max pages 
+ 2000326,
+    * 28v14, give more time, still seg fault
+    * 2000398, also tried 32v16, using 4 server procs, no luck
+    * 2000428, 32v16, return 11
+
+ 2000282
+    * 28v14
+        only 2 server instances, timeout with segfault
+    
+ 2000099
+    * this is larger experiment, 196v98
+        memory limitation: dspaces init alone uses all memory
+
+    fli5@br005:~/Workspaces/General_Data_Broker/lbm_adiossacct -o JobID,ReqMem,MaxVMSize,MaxRSS,MaxRSSTask,State,NodeList,NNodes,MaxPages,AveVMSize,AvePages,AveRss -j 2000099
+           JobID     ReqMem  MaxVMSize     MaxRSS MaxRSSTask      State        NodeList   NNodes MaxPages  AveVMSize   AvePages     AveRSS
+    ------------ ---------- ---------- ---------- ---------- ---------- --------------- -------- -------- ---------- ---------- ----------
+    2000099        123200Mn                                  CANCELLED+ r[121,127,129,+       28
+    2000099.bat+   123200Mn   2769260K     26464K          0  CANCELLED            r121        1      11K   2769260K        11K     26464K
+    2000099.ext+   123200Mn    157860K      1084K         24  COMPLETED r[121,127,129,+       28       4K    107892K      1.82K    584.14K
+    2000099.0      123200Mn  85040108K  84322920K          6     FAILED r[121,127,129,+        7      64K   6890900K     58.57K 6173022.8+
+    2000099.1      123200Mn 131367252K 127289904K          3     FAILED r[667,669-672,+        7     505K 108934906+       216K 105393809+
+    2000099.2      123200Mn 131131520K 127176972K          9 CANCELLED+ r[159,167,175,+       14     263K 87040152.+    170.36K  83697796K
+
+    * even with 64v32, a lot page fault happens:
+
+    fli5@br005:~/Workspaces/General_Data_Broker/lbm_adiossacct -o JobID,ReqMem,MaxVMSize,MaxRSS,MaxRSSTask,State,NodeList,NNodes,MaxPages -j 2000081
+           JobID     ReqMem  MaxVMSize     MaxRSS MaxRSSTask      State        NodeList   NNodes MaxPages 
+    ------------ ---------- ---------- ---------- ---------- ---------- --------------- -------- -------- 
+    2000081        123200Mn                                   COMPLETED r[037,040,045,+        8          
+    2000081.bat+   123200Mn   1437220K     25504K          0  COMPLETED            r037        1      22K 
+    2000081.ext+   123200Mn    158080K      1076K          0  COMPLETED r[037,040,045,+        8       4K 
+    2000081.0      123200Mn  27237520K  26461676K          0  COMPLETED      r[037,040]        2      67K 
+    2000081.1      123200Mn 105285972K 101686660K          0  COMPLETED r[045,051,054-+        4     166K 
+    2000081.2      123200Mn 105270000K 101683368K          1  COMPLETED      r[057,060]        2     153K 
+
+
+ 2000081
+    ** previously its correct, simulation starts is not producer starts(402s contains 190s )
+    
+ 2000002
+    relaunch 64v32 after module load intel in launching login node
+        not compatible, should load intel  then mvapich
+ 1999830   
+    relaunch 64v32
+        402s, previously intel module is loaded
+        diff results/1999830.out  results/1879747.out
+
+## Nov 7
+ 1940009
+    relaunch native dsaces with 96v48
+ 1941004
+    relaunch native dspaces with 64v32
 ## Oct 20
-#
-#
     1878136
         relaunch dimes tau without tcp,
 

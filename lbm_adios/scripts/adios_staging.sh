@@ -70,13 +70,14 @@ cp -R ${PBS_O_WORKDIR}/adios_xmls ${SCRATCH_DIR}
 #dims = 2, 1500000, 1
 # 64*64*256 will generate 1048576 lines
 echo "total number of lines is being calculated"
-DS_LIMIT=$((${FILESIZE2PRODUCE}*${FILESIZE2PRODUCE}*${FILESIZE2PRODUCE}*${procs_this_app[1]}/16)) # make sure dspaces can hold all data
+DS_LIMIT=$((FILESIZE2PRODUCE*FILESIZE2PRODUCE*FILESIZE2PRODUCE*procs_this_app[1]/16)) # make sure dspaces can hold all data
 
 echo "total number of lines is $DS_LIMIT"
 
 echo "## Config file for DataSpaces
 ndim = 2
 dims = 2, $((DS_LIMIT))
+hash_version = 2
 max_versions = 1
 max_readers = 1
 # lock_type = 2

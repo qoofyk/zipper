@@ -6,6 +6,8 @@ see [this wiki](https://github.iu.edu/IUPUI-CS-HPC/data_broker_lammps/wiki) for 
 written by Feng Li at Fall 2017
 
 ## What is new
+    dont use $ in $(()), see dspaces_debug, though output look the same.
+    use hash_version=2 in dataspaces to reduce memory usage, Nov29, see dspaces_debug branch
     now all compiler/tranport library path is set automatically in cmake
     see mk/common.cmake and INSTALL:#build for more details
    
@@ -30,6 +32,11 @@ written by Feng Li at Fall 2017
 
 ## Environment settings and Build
     se INSTALL for more details
+
+## Important Note
+ - use dependency-enabled job to submit all the tasks, record whether they are success in summary.txt
+ - record all the results in exp_brideges.excel PerfBridges_Large
+
 
 
 

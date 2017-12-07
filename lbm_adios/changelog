@@ -23,6 +23,24 @@ versions
 ----------------------------------------------------------------------------------
 ----------------------------------------------------------------------------------
 
+## Dec 1
+	now updated 64v32 diagram
+
+## Nov 30 use dependency list
+
+## Nov 28
+#### Note
+	- 28v14 using two server procs, seg fault in server
+	- 64v32 max rss is  105G, producer max page fault 166k, consumer 153k
+	- 196v98 max rss is 131G, producer max fault is 263k, consumer max page fault 505k
+	
+
+	create seperate fork
+	Q: large memory use:
+		1. tools to detect
+		2. clog dynamic?
+		3. use LM
+
 ## Oct 22
 	don't laod default tau module in bridges,
 	added trace support for simonly
