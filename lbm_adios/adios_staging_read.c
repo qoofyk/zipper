@@ -191,7 +191,7 @@ int main (int argc, char ** argv)
 
     // append file name
     sprintf(filename,"%s/%s.bp", filepath, "atom");
-    ADIOS_FILE * f = adios_read_open (filename, method, comm, ADIOS_LOCKMODE_CURRENT, 300);
+    ADIOS_FILE * f = adios_read_open (filename, method, comm, ADIOS_LOCKMODE_CURRENT, -1);
     //ADIOS_FILE * f = adios_read_open (filename, method, comm, ADIOS_LOCKMODE_NONE, 0);
 
      if (f == NULL)
@@ -199,11 +199,12 @@ int main (int argc, char ** argv)
         printf ("rank %d, %s\n",rank, adios_errmsg());
         return -1;
     }
-    
-    if(rank ==0)
-        clog_info(CLOG(MY_LOGGER),"reader opened the stream\n");
 
     ADIOS_VARINFO * v = adios_inq_var (f, "atom");
+    
+    if(rank ==0)
+        clog_info(CLOG(MY_LOGGER),"reader opened the stream, dims = %ld, %ld\n", v->dims[0], v->dims[1]);
+
 
     /* Using less readers to read the global array back, i.e., non-uniform */
     uint64_t slice_size = v->dims[0]/size;

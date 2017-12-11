@@ -14,7 +14,7 @@
                type="string"/>
   </adios-group>
 
-  <method group="atom" method="FLEXPATH">QUEUE_SIZE=100;</method>
+  <method group="atom" method="FLEXPATH">QUEUE_SIZE=10;</method>
 
   <adios-group name="restart" stats="On">
     <var name="NX" type="integer"/>
