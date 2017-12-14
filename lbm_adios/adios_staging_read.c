@@ -49,6 +49,8 @@ int main (int argc, char ** argv)
 
     int lp = 4;
 
+    double sum_vx[NMOMENT], sum_vy[NMOMENT];
+
     /******************** configuration stop ***********/
 
 #ifdef ENABLE_TIMING
@@ -293,7 +295,7 @@ int main (int argc, char ** argv)
         }
 
         // analysis
-        run_analysis(data, slice_size, lp );
+        run_analysis(data, slice_size, lp, sum_vx,sum_vy);
         t4 = get_cur_time();
         t_analy += t4-t3;
 
