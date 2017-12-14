@@ -26,7 +26,7 @@ extern "C"{
  *      block_size, number of positions(each position will have two double values)
  *      nl: number of moments
  */
-void run_analysis(double* buf_blk, int block_size ,int lp);
+void run_analysis(double* buf_blk, int block_size ,int lp,double *sum_vx, double *sum_vy);
 
 
 #ifdef __cplusplus

@@ -145,11 +145,11 @@ void run_lbm(char * filepath, int step_stop, int dims_cube[3], MPI_Comm *pcomm)
 
 		p_bb=0.03;
 
-		depth=3.0e-5; /*30 microns */
+        //Yuankun Modify, fluid grid x:y:z=1:1:4, 64*64*256
+        depth=25.6e-5; /*256 microns */
+        width=depth/4;  /* unit: cm i.e. 64 micron*/
+        length=width*nprocs; //gv->size[1] = num_compute_process
 
-		width=3.0e-2;  /* unit: cm i.e. 300 micron*/
-
-		length=width*2.0;
 
 		u_e=0.616191358; /* cm/sec */
 

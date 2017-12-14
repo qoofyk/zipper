@@ -46,6 +46,7 @@ int main (int argc, char ** argv)
     int nstop = atoi(argv[1]);
 
     int lp = 4;
+    double sum_vx[NMOMENT], sum_vy[NMOMENT];
 
     /******************** configuration stop ***********/
 #ifdef ENABLE_TIMING
@@ -226,7 +227,7 @@ int main (int argc, char ** argv)
             if(rank ==0)
                 clog_info(CLOG(MY_LOGGER),"Step %d read\n", timestep);
             // analysis
-            run_analysis(data, slice_size, lp);
+            run_analysis(data, slice_size, lp, sum_vx,sum_vy);
 
             t4 = MPI_Wtime();
             t_analy += t4-t3;
