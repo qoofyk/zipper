@@ -16,8 +16,6 @@ env|grep '^OMP' # trace enabled?
 #module load libfabric
 module list
 
-
-
 echo "case=$CASE_NAME datasize=$FILESIZE2PRODUCE nstops=$NSTOP, HASKEEP=${HAS_KEEP}"
 echo "procs is \[ ${procs_this_app[*]}\], nodes is \[${nodes_this_app[*]}\]"
 
@@ -95,7 +93,7 @@ else
 fi
 
 if [ x"$HAS_TRACE" == "x" ];then
-    LAUNCHER="mpiexec.hydra"
+    LAUNCHER="mpirun -l"
 else
     #export LD_PRELOAD=libVT.so 
     #LAUNCHER="mpiexec.hydra -trace"
@@ -103,8 +101,11 @@ else
 fi
 
 
-export MV2_ENABLE_AFFINITY=0 
-export MV2_USE_BLOCKING=1
+if [ `hostname | cut -c 1-2` == "br" ]; then
+    export MV2_ENABLE_AFFINITY=0
+    export MV2_USE_BLOCKING=1
+fi
+
 
 echo "use transport method $CMTransport with CMTransportVerbose=$CMTransportVerbose"
 

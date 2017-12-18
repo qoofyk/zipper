@@ -12,6 +12,21 @@ TODO
 	2. dspaces hanging
 	3. ENABLE_TESTING in flexpath conf, enabled
 
+## Dec 18
+	new commit:
+		* add avx wall flags, consistent with yuankun's exp
+		* clean anaylsis code
+		* add flexpath debug
+
+## Dec 15
+	need to use ddt to look into :
+		https://software.intel.com/en-us/forums/intel-clusters-and-hpc-technology/topic/329053
+	use flexpath_debug
+
+## Dec 14
+	using flexpath 1.13 fixing memory usage
+	but integrating 1.13 with my app, consumer had issue
+
 ## Oct 28
 		cm_blocking read
 		INT_CMstart_read_thread

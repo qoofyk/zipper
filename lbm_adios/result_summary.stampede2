@@ -1,3 +1,19 @@
+## Dec 15
+    consumer only?
+        518908 flex_skel, consumer no output
+        518928 adios_lbm, consumer
+        
+        
+    how about luanch producer only?
+        517570 flex_skel get blocked
+        517588 lbm? man in the middle
+        
+    517224, rm flexpath queue_size, producer not blocked..
+    517218, malloc inside the loop no effect,
+    517144, use avx
+## Dec 14
+    514835, adios_1_13, stopped?
+    514818, adios_1_12, ok
 ## Dec 9
     ~/Workspaces/LaucherTest/launcher_simple.job
 ## Dec 8
