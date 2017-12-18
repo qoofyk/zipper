@@ -251,11 +251,6 @@ int main (int argc, char ** argv)
 
         adios_release_step(f);
 
-        clog_debug(CLOG(MY_LOGGER),"previous step released");
-        // advance to (1)the next availibale step (2)blocked if not unavailble
-        adios_advance_step(f, 0, -1);
-
-        clog_debug(CLOG(MY_LOGGER),"successfully step into next available step");
         
         t3 = get_cur_time();
 
@@ -282,7 +277,6 @@ int main (int argc, char ** argv)
 #endif
         //printf("rank %d: Step %d read\n", rank, timestep);
 
-        errno_streaming_read = adios_errno;
 
         if(has_keep == 1){
             if(timestep == 0)
@@ -298,6 +292,14 @@ int main (int argc, char ** argv)
         run_analysis(data, slice_size, lp, sum_vx,sum_vy);
         t4 = get_cur_time();
         t_analy += t4-t3;
+
+        clog_debug(CLOG(MY_LOGGER),"previous step released");
+        // advance to (1)the next availibale step (2)blocked if not unavailble
+        adios_advance_step(f, 0, -1);
+        errno_streaming_read = adios_errno;
+
+        clog_debug(CLOG(MY_LOGGER),"successfully step into next available step");
+
 
         clog_info(CLOG(MY_LOGGER),"rank %d: Step %d moments calculated, t_read %lf, t_advance %lf, t_analy %lf\n", rank, timestep, t2-t1, t3-t2, t4-t3);
         timestep ++;

@@ -9,9 +9,6 @@
        <var name="atom" gwrite="t" type="double" dimensions="n,size_one" 
             transform="none"/>
     </global-bounds>
-    <attribute name="atom/description" 
-               value="Global array written from 'size' processes" 
-               type="string"/>
   </adios-group>
 
   <method group="atom" method="FLEXPATH">QUEUE_SIZE=10;</method>
