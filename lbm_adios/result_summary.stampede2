@@ -1,3 +1,92 @@
+## Dec 15
+    consumer only?
+        518908 flex_skel, consumer no output
+        518928 adios_lbm, consumer
+        
+        
+    how about luanch producer only?
+        517570 flex_skel get blocked
+        517588 lbm? man in the middle
+        
+    517224, rm flexpath queue_size, producer not blocked..
+    517218, malloc inside the loop no effect,
+    517144, use avx
+## Dec 14
+    514835, adios_1_13, stopped?
+    514818, adios_1_12, ok
+## Dec 9
+    ~/Workspaces/LaucherTest/launcher_simple.job
+## Dec 8
+    497798
+        use sim_only for 2176v1088, see memory usage
+    497792
+        sim_only 68v34
+ try 68 v34: why use so much memory
+        flexpath_version =10    
+    496665
+        2176v1088, with queue_size=10
+        producer crash at step 10
+    496657
+        increase (back)the walltime to 20  mins, more steps use more memory?
+                not, 2176 crash in the beginnnig
+    496621
+        nstop=100 again, now the queue size seems useful, consumer is after 10 steps
+        54G 50 steps.
+    496593, 496581 
+        nstops=10, no memory usage shown
+    496555
+        nstops=100
+            46G
+## Dec 7
+JOBS 
+    496520
+        print the dims
+    496474
+        use LOCK_MODE_CURRENT
+        read_open_timeout changed to -1
+        read side num_of_lines corrupted
+            grep 'count':
+                count:( 16954728007073792, 2)
+    494391
+
+    494380
+        lock mode all
+        queeu_size 1
+    494187
+        1088 again with -lm
+        sim start3223, sim stop 3415, con stop: 3927
+    494003
+    flexpath 1088v544, 96G memory, same as 342994
+        700s+, not linked with -m
+    494049
+        2096v1088
+
+
+## Nov 27
+JOBS
+    460462
+        use minimal dspaces configurations
+## Nov 13
+JOBS 
+   424429
+    move all applications in one node
+   424386
+    reproduce the dspaces problem in normal queue
+    
+    
+## Oct 26
+    flexpath queue_size?
+   494330
+    change queueu size to 1
+        
+   165316
+       in normal queue, still rdma binding erro
+       
+	361833
+	rerun flexpath with 2176vs1088 with LBM
+		consumer malloc failed.
+    xml interger?
+
 ## Oct 17
 JOBS
     344553

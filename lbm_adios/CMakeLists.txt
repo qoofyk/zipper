@@ -1,9 +1,8 @@
 cmake_minimum_required(VERSION 2.8 FATAL_ERROR)
 include(${CMAKE_SOURCE_DIR}/mk/common.cmake)
-set(CMAKE_C_FLAGS "-O3 ${ADD_FLAGS}" CACHE STRING "cflags")
 
 project("lbm_adios")
-add_definitions ("-DENABLE_TIMING -Wall -Wextra")
+add_definitions ("-DENABLE_TIMING")
 #add_definitions ("-DUSE_DATASPACES -DENABLE_TIMING -Wall -Wextra")
 #add_definitions ("-DUSE_DATASPACES -DHAS_KEEP -DENABLE_TIMING -Wall -Wextra")
 #add_definitions ("-DUSE_DIMES -DENABLE_TIMING -Wall -Wextra")
