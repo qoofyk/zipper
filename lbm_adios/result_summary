@@ -1,3 +1,30 @@
+## Dec 14
+Relaunch with fixing analysis
+fli5@br005:~/Workspaces/General_Data_Broker/lbm_adiossqueue -u $USER
+             JOBID PARTITION     NAME     USER ST       TIME  NODES NODELIST(REASON)
+           2065830        RM native_d     fli5 PD       0:00     32 (None)
+           2064053        RM native_d     fli5 PD       0:00     32 (Dependency)
+           2064054        RM adios_ds     fli5 PD       0:00     32 (Dependency)
+           2064055        RM adios_di     fli5 PD       0:00     32 (Dependency)
+           2064056        RM    mpiio     fli5 PD       0:00     24 (Dependency)
+           2067366        RM adios_fl     fli5 PD       0:00     24 (Dependency)
+           2064058        RM sim_only     fli5 PD       0:00     16 (Dependency)
+
+
+## Dec 13
+Jobs
+    2058252
+        flexpath 64v32 in 6 nodes, with remora
+        all see increasing memory usage
+## Dec 12
+#   need to check memory usage
+#       64v32
+    2056461
+        flexpath
+
+    2056462
+        sim-only
+
 ## Dec 1
 perhaps a problem with slurm?
     https://www.mail-archive.com/slurm-dev@schedmd.com/msg09223.html
@@ -40,7 +67,7 @@ dspaces/dimes  64v32 using  hash2
     2008170 adios_flexpath
     2008171 sim only
 
-#### jobs submitted
+#### jobs submitted(256v512)
            2008034        RM native_d     fli5 PD       0:00     32 (Priority),works
            2008194        RM native_d     fli5 PD       0:00     32 (Dependency)works, (serv crash 2008035)
            2008036        RM adios_ds     fli5 PD       0:00     32 (Dependency), works

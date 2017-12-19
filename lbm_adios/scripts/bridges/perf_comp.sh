@@ -1,8 +1,9 @@
 #! /bin/bash
 
-USE_RES="--reservation=fli5"
+#USE_RES="--reservation=fli5"
+unset USE_RES # do not use reservation
 # first job - no dependencies
-CaseName="bridges/512v256"
+CaseName="bridges/256v128"
 jid1=$(sbatch ${USE_RES} scripts/${CaseName}/native_dspaces_nokeep.job|awk '{print $NF}')
 
 jid2=$(sbatch ${USE_RES} --dependency=afterany:$jid1 scripts/${CaseName}/native_dimes_nokeep.job|awk '{print $NF}')
