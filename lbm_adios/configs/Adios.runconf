@@ -62,7 +62,7 @@ if [ `hostname | cut -c 1-2` == "br" ]; then
         MPICC=${myCC} \
         MPICXX=${myCXX} \
         MPIFC=${myFC} \
-        CFLAGS="-g -O3 -fPIC"\
+        CFLAGS="-O3 -fPIC"\
         LIBS="-lrdmacm -libverbs -lpthread -lm" \
         --enable-dependency-tracking \
         --enable-timers \
@@ -103,7 +103,7 @@ elif [ `hostname | cut -c 8-16` == "stampede2" ]; then
         MPICC=${myCC} \
         MPICXX=${myCXX} \
         MPIFC=${myFC} \
-        CFLAGS="-g -O3 -fPIC ${myCFLAGS}" \
+        CFLAGS="-O3 -fPIC ${myCFLAGS}" \
         LIBS="-lrdmacm -libverbs -lpthread -lm" \
         --enable-dependency-tracking \
         --enable-timers \
