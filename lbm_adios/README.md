@@ -6,9 +6,12 @@ see [this wiki](https://github.iu.edu/IUPUI-CS-HPC/data_broker_lammps/wiki) for 
 written by Feng Li at Fall 2017
 
 ## What is new
-    dont use $ in $(()), see dspaces_debug, though output look the same.
-    use hash_version=2 in dataspaces to reduce memory usage, Nov29, see dspaces_debug branch
-    now all compiler/tranport library path is set automatically in cmake
+[Dec18]: flexpath segfault, data description for group should be removed for v1.13 flexpath, see https://github.iu.edu/lifen/flexpath_skel/commit/59cea72ad6715c91220ac3bc4ab72aeb7a47b579
+[Dec14]:  flexpath memory leak fixed in v1.13
+[Dataspaces large memory footprint]: even the mpiio method use 40GB memory each node
+[macro]: dont use $ in $(()), see dspaces_debug, though output look the same.
+   *  use hash_version=2 in dataspaces to reduce memory usage, Nov29, see dspaces_debug branch
+   * now all compiler/tranport library path is set automatically in cmake
     see mk/common.cmake and INSTALL:#build for more details
    
 

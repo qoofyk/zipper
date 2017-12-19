@@ -11,6 +11,38 @@ TODO
 	1. nnti in flexpath, not usable.
 	2. dspaces hanging
 	3. ENABLE_TESTING in flexpath conf, enabled
+
+## Dec 18
+	flexpath fixed: remove data description, otherwise seg fault(didn't happen
+	in 1.12)
+		see flex_debug2 to see more details
+	todo:
+		1. use 3d dimension and sliced 
+		2. try skeleton code check timing, 400s!
+## Dec 16
+	new commit:
+		* add avx wall flags, consistent with yuankun's exp
+		* clean anaylsis code
+		* add flexpath debug
+
+## Dec 15
+	need to use ddt to look into :
+		https://software.intel.com/en-us/forums/intel-clusters-and-hpc-technology/topic/329053
+	use flexpath_debug
+
+## Dec 14
+	using flexpath 1.13 fixing memory usage
+	but integrating 1.13 with my app, consumer had issue
+
+## Oct 28
+		cm_blocking read
+		INT_CMstart_read_thread
+		use_read_thread
+## Oct 27
+	366616
+		rerun flexpthpath 34v17, 
+	365308
+		8vs4 development, correct
 ## Oct 16
 add trace support
 	HAS_TRACE=1 then submit jobs
