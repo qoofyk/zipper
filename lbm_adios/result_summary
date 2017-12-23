@@ -1,3 +1,33 @@
+## Dec 20
+    10 steps
+    2080510 flexpath 8v4 8.9s
+        flexpath  
+    2082464 flexpath 24v12 15.7s
+    2082476 flexpath 12v
+256v128
+5@br005:~/Workspaces/General_Data_Broker/lbm_adiossqueue -u $USER
+             JOBID PARTITION     NAME     USER ST       TIME  NODES NODELIST(REASON)
+           2080107        RM native_d     fli5 PD       0:00     32 (Resources), works
+           2080108        RM native_d     fli5 PD       0:00     32 (Dependency)
+           2080109        RM adios_ds     fli5 PD       0:00     32 (Dependency)
+           2080110        RM adios_di     fli5 PD       0:00     32 (Dependency)
+           2080111        RM    mpiio     fli5 PD       0:00     24 (Dependency)
+           2080112        RM adios_fl     fli5 PD       0:00     24 (Dependency)
+           2080113        RM sim_only     fli5 PD       0:00     16 (Dependency)
+
+## Dec 18
+
+512v256(srun)
+@br005:~/Workspaces/General_Data_Broker/lbm_adiossqueue -u $USER
+             JOBID PARTITION     NAME     USER ST       TIME  NODES NODELIST(REASON)
+           2076355        RM native_d     fli5 PD       0:00     64 (Priority)
+           2076356        RM native_d     fli5 PD       0:00     64 (Dependency)
+           2076357        RM adios_ds     fli5 PD       0:00     64 (Dependency)
+           2076358        RM adios_di     fli5 PD       0:00     64 (Dependency)
+           2076359        RM    mpiio     fli5 PD       0:00     48 (Dependency)
+           2076360        RM adios_fl     fli5 PD       0:00     48 (Dependency)
+           2076361        RM sim_only     fli5 PD       0:00     32 (Dependency)
+
 ## Dec 14
 Relaunch with fixing analysis
 fli5@br005:~/Workspaces/General_Data_Broker/lbm_adiossqueue -u $USER

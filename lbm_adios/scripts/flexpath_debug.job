@@ -1,10 +1,10 @@
 #!/bin/bash
 #SBATCH --job-name="adios_flexpath_nokeep"
 #SBATCH --output="results/%j.out"
-#SBATCH --partition=normal
-#SBATCH --nodes=2
-#SBATCH --ntasks-per-node=68
-#SBATCH -t 00:5:00
+#SBATCH --partition=RM
+#SBATCH --nodes=3
+#SBATCH --ntasks-per-node=28
+#SBATCH -t 00:2:00
 
 #SBATCH --mail-type=BEGIN
 # send mail to this address
@@ -20,10 +20,10 @@ NSTOP=10 # how many steps
 num_apps=2
 
 # slots used by this app
-procs_this_app=(2 1)
+procs_this_app=(12 6)
 
 # number of nodes used by this app
-nodes_this_app=(1 1)
+nodes_this_app=(2 1)
 
 
 PBS_O_HOME=$HOME
@@ -45,7 +45,7 @@ module list
 
 echo "procs is \[ ${procs_this_app[*]}\], nodes is \[${nodes_this_app[*]}\]"
 
-BUILD_DIR=${PBS_O_WORKDIR}/build_debug
+BUILD_DIR=${PBS_O_WORKDIR}/build
 
 BIN_PRODUCER=${BUILD_DIR}/bin/run_lbm;
 BIN_CONSUMER=${BUILD_DIR}/bin/adios_staging_read;
@@ -78,7 +78,7 @@ else
 fi
 
 if [ x"$HAS_TRACE" == "x" ];then
-    LAUNCHER="mpirun -l -env I_MPI_DEBUG=5"
+    LAUNCHER="mpirun -l"
 else
     #export LD_PRELOAD=libVT.so 
     #LAUNCHER="mpiexec.hydra -trace"
@@ -90,13 +90,13 @@ echo "use transport method $CMTransport with CMTransportVerbose=$CMTransportVerb
 
 appid=0
 
-CMD_PRODUCER="$LAUNCHER -np ${procs_this_app[$appid]} -machinefile $HOST_DIR/machinefile-app${appid}  ${BIN_PRODUCER} ${NSTOP} ${FILESIZE2PRODUCE}"
+CMD_PRODUCER="remora $LAUNCHER -np ${procs_this_app[$appid]} -machinefile $HOST_DIR/machinefile-app${appid}  ${BIN_PRODUCER} ${NSTOP} ${FILESIZE2PRODUCE}"
 $CMD_PRODUCER  &> ${PBS_RESULTDIR}/producer.log &
 echo "producer applciation lauched: $CMD_PRODUCER"
 
 appid=$((appid+1))
 
-CMD_CONSUMER="remora $LAUNCHER -np ${procs_this_app[$appid]} -machinefile $HOST_DIR/machinefile-app${appid}  ${BIN_CONSUMER}"
+CMD_CONSUMER="$LAUNCHER -np ${procs_this_app[$appid]} -machinefile $HOST_DIR/machinefile-app${appid}  ${BIN_CONSUMER}"
 $CMD_CONSUMER  &> ${PBS_RESULTDIR}/consumer.log &
 echo " consumer applciation lauched $CMD_CONSUMER"
 

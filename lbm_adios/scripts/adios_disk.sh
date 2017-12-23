@@ -38,8 +38,10 @@ fi
 LAUNCHER="mpiexec.hydra"
 
 
-export MV2_ENABLE_AFFINITY=0 
-export MV2_USE_BLOCKING=1
+if [[ `hostname` == *"bridges"* ]];then
+    export MV2_ENABLE_AFFINITY=0 
+    export MV2_USE_BLOCKING=1
+fi
 
 
 #Use ibrun to run the MPI job. It will detect the MPI, generate the hostfile
