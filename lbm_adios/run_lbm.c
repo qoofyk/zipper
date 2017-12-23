@@ -1143,13 +1143,13 @@ void run_lbm(char * filepath, int step_stop, int dims_cube[3], MPI_Comm *pcomm)
         double global_t_cal=0;
         double global_t_write=0;
         double global_t_put=0;
-        MPI_Reduce(&only_lbm_time, &global_t_cal, 1, MPI_DOUBLE, MPI_SUM, 0, comm);
+        MPI_Reduce(&only_lbm_time, &global_t_cal, 1, MPI_DOUBLE, MPI_MAX, 0, comm);
         MPI_Reduce(&t_write, &global_t_write, 1, MPI_DOUBLE, MPI_SUM, 0, comm);
         MPI_Reduce(&t_put, &global_t_put, 1, MPI_DOUBLE, MPI_SUM, 0, comm);
 
         if(rank == 0){
             //printf("t_prepare:%f s, t_cal %f s,t_buffer = %f, t_write %f s, t_put %f s\n", rank,init_lbm_time, only_lbm_time,t_buffer, t_write, t_write_2);
-            clog_info(CLOG(MY_LOGGER),"t_prepare:%f s, t_cal %f s,t_buffer = %f, t_write %f s, t_put %f s\n", init_lbm_time, global_t_cal/nprocs ,t_buffer, global_t_write/nprocs, global_t_put/nprocs);
+            clog_info(CLOG(MY_LOGGER),"t_prepare:%f s, max t_cal %f s,t_buffer = %f, t_write %f s, t_put %f s\n", init_lbm_time, global_t_cal ,t_buffer, global_t_write/nprocs, global_t_put/nprocs);
         }
 
 		// MPI_Barrier(comm1d);

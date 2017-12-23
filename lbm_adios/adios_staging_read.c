@@ -47,7 +47,7 @@ int main (int argc, char ** argv)
         exit(-1);
     }
 
-    int lp = 4;
+    int lp = N_LP;
 
     double sum_vx[NMOMENT], sum_vy[NMOMENT];
 
@@ -311,10 +311,10 @@ int main (int argc, char ** argv)
 
   double global_t_analy=0;
 
-  MPI_Reduce(&t_analy, &global_t_analy, 1, MPI_DOUBLE, MPI_SUM, 0, comm);
+  MPI_Reduce(&t_analy, &global_t_analy, 1, MPI_DOUBLE, MPI_MAX, 0, comm);
   if(rank == 0){
       clog_info(CLOG(MY_LOGGER),"stat:Consumer end  at %lf \n", t_end);
-      clog_info(CLOG(MY_LOGGER),"stat:time for analyst %f s\n",global_t_analy/nprocs );
+      clog_info(CLOG(MY_LOGGER),"stat:max time for analyst %f s\n",global_t_analy);
   }
 #endif 
     free (data);

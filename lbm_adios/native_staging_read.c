@@ -65,7 +65,7 @@ int main (int argc, char ** argv)
     nprocs_producer= atoi(argv[3]);
     
 
-    int lp = 4;
+    int lp = N_LP;
 
     double sum_vx[NMOMENT], sum_vy[NMOMENT];
 
@@ -228,12 +228,12 @@ int main (int argc, char ** argv)
         double global_t_cal=0;
         double global_t_read=0;
         double global_t_get=0;
-        MPI_Reduce(&t_analy, &global_t_cal, 1, MPI_DOUBLE, MPI_SUM, 0, comm);
+        MPI_Reduce(&t_analy, &global_t_cal, 1, MPI_DOUBLE, MPI_MAX, 0, comm);
         MPI_Reduce(&t_read_1, &global_t_read, 1, MPI_DOUBLE, MPI_SUM, 0, comm);
         MPI_Reduce(&t_read_2, &global_t_get, 1, MPI_DOUBLE, MPI_SUM, 0, comm);
     if(rank == 0){
       clog_info(CLOG(MY_LOGGER),"stat:Consumer end  at %lf \n", t_end);
-      clog_info(CLOG(MY_LOGGER),"stat:time for read %f s; time for ds_get %f s; time for analyst %f s\n", global_t_read/nprocs, global_t_get/nprocs, global_t_cal/nprocs);
+      clog_info(CLOG(MY_LOGGER),"stat:time for read %f s; time for ds_get %f s; max time for analyst %f s\n", global_t_read/nprocs, global_t_get/nprocs, global_t_cal);
     }
 
 
