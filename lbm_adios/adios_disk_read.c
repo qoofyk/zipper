@@ -240,8 +240,11 @@ int main (int argc, char ** argv)
     adios_free_varinfo (v);
 
 #ifdef ENABLE_TIMING
+
+    printf("[rank %d]:analysis_time %.3lf \n", rank, t_analy);
     MPI_Barrier(comm);
     double t_end = MPI_Wtime();
+
 
         double global_t_prepare=0;
         double global_t_get=0;

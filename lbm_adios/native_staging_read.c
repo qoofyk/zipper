@@ -220,8 +220,9 @@ int main (int argc, char ** argv)
 
     }
 
-    free (data);
-    MPI_Barrier(comm);
+    printf("[rank %d]:analysis_time %.3lf \n", rank, t_analy);
+
+    free (data); MPI_Barrier(comm);
     double t_end = MPI_Wtime();
 
         double global_t_cal=0;

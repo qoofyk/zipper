@@ -22,6 +22,10 @@ versions
 	raw_dspacesraw_gcc_mvapich
 ----------------------------------------------------------------------------------
 ----------------------------------------------------------------------------------
+## Dec 12
+	fixed:
+		adios staging longer analysis time: 
+
 
 ## Dec 1
 	now updated 64v32 diagram

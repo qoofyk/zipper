@@ -1138,6 +1138,8 @@ void run_lbm(char * filepath, int step_stop, int dims_cube[3], MPI_Comm *pcomm)
 
         }
 
+        printf("[rank %d]:sim_time %.3lf \n", rank, only_lbm_time);
+
         double global_t_cal=0;
         double global_t_write=0;
         double global_t_put=0;
@@ -1240,8 +1242,7 @@ int main(int argc, char * argv[]){
       else{
           if(transport_minor == DSPACES)
                strcpy(trans_method, "dataspaces");
-          else if(transport_minor == DIMES)
-               strcpy(trans_method, "dimes");
+          else if(transport_minor == DIMES) strcpy(trans_method, "dimes");
 
           else if(transport_minor == FLEXPATH)
                strcpy(trans_method, "flexpath");

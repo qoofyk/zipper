@@ -61,7 +61,7 @@ int main (int argc, char ** argv)
     t_analy = 0;
 #endif
 
-    int         rank, size;
+    int         rank, nprocs;
     MPI_Comm    comm = MPI_COMM_WORLD;
 
     int has_keep=0;
@@ -74,7 +74,7 @@ int main (int argc, char ** argv)
 
     MPI_Init (&argc, &argv);
     MPI_Comm_rank (comm, &rank);
-    MPI_Comm_size (comm, &size);
+    MPI_Comm_size (comm, &nprocs);
 
     char nodename[256];
     int nodename_length;
@@ -110,7 +110,7 @@ int main (int argc, char ** argv)
     uint8_t transport_major = get_major(transport);
     uint8_t transport_minor = get_minor(transport);
     clog_info(CLOG(MY_LOGGER),"%s:I am rank %d of %d, tranport code %x-%x\n",
-            nodename, rank, size,
+            nodename, rank, nprocs,
             get_major(transport), get_minor(transport) );
 
     if(rank == 0){
@@ -209,10 +209,10 @@ int main (int argc, char ** argv)
 
 
     /* Using less readers to read the global array back, i.e., non-uniform */
-    uint64_t slice_size = v->dims[0]/size;
+    uint64_t slice_size = v->dims[0]/nprocs;
     start[0] = slice_size * rank;
-    if (rank == size-1) /* last rank may read more lines */
-        slice_size = slice_size + v->dims[0]%size;
+    if (rank == nprocs-1) /* last rank may read more lines */
+        slice_size = slice_size + v->dims[0]%nprocs;
     count[0] = slice_size;
 
     start[1] = 0;
@@ -239,20 +239,18 @@ int main (int argc, char ** argv)
            /* Read a subset of the temperature array */
         // 0:not used for strea; 1: must be set in stream
         adios_schedule_read (f, sel, "atom", 0, 1, data);
-        t1 = get_cur_time();
+        t1 = MPI_Wtime();
 
-        
         // block until read complete
         adios_perform_reads (f, 1);
 
         clog_debug(CLOG(MY_LOGGER),"    [DEBUG]:read is performed");
-        t2 = get_cur_time();
+        t2 = MPI_Wtime();
         t_read_1 += t2-t1;
 
         adios_release_step(f);
 
-        
-        t3 = get_cur_time();
+        t3 = MPI_Wtime();
 
         t_read_2 += t3-t2;
 
@@ -290,7 +288,7 @@ int main (int argc, char ** argv)
 
         // analysis
         run_analysis(data, slice_size, lp, sum_vx,sum_vy);
-        t4 = get_cur_time();
+        t4 = MPI_Wtime();
         t_analy += t4-t3;
 
         clog_debug(CLOG(MY_LOGGER),"previous step released");
@@ -306,11 +304,17 @@ int main (int argc, char ** argv)
     }
 
 #ifdef ENABLE_TIMING
+    printf("[rank %d]:analysis_time %.3lf \n", rank, t_analy);
   MPI_Barrier(comm);
-  double t_end = get_cur_time();
+  double t_end = MPI_Wtime();
+
+
+  double global_t_analy=0;
+
+  MPI_Reduce(&t_analy, &global_t_analy, 1, MPI_DOUBLE, MPI_SUM, 0, comm);
   if(rank == 0){
       clog_info(CLOG(MY_LOGGER),"stat:Consumer end  at %lf \n", t_end);
-      clog_info(CLOG(MY_LOGGER),"stat:time for read %f s; time for advancing step %f s; time for analyst %f s\n", t_read_1, t_read_2, t_analy);
+      clog_info(CLOG(MY_LOGGER),"stat:time for analyst %f s\n",global_t_analy/nprocs );
   }
 #endif 
     free (data);

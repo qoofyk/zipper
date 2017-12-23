@@ -1,3 +1,32 @@
+## Dec 23
+JOBS
+    2098326
+        adios Flexpath
+            lbm:41.5-52.3 avg 45.2
+            analysis 47.9-78.9 
+    2098321
+        native dimes
+            lbm: 40.13-43.76
+            analy:48.5-78.9 avg 
+    2098247
+        analysis time of each procs
+        lbm:
+        max:
+        min:
+
+    analysis:
+        min 50.1: 
+        max:78.9
+rereproduce the results
+
+           2094223        RM native_d     fli5 PD       0:00     32 (Resources)
+           2094224        RM native_d     fli5 PD       0:00     32 (Dependency)
+           2094225        RM adios_ds     fli5 PD       0:00     32 (Dependency)
+           2094226        RM adios_di     fli5 PD       0:00     32 (Dependency)
+           2094227        RM    mpiio     fli5 PD       0:00     24 (Dependency)
+           2094228        RM adios_fl     fli5 PD       0:00     24 (Dependency)
+           2094229        RM sim_only     fli5 PD       0:00     16 (Dependency)
+
 ## Dec 20
     10 steps
     2080510 flexpath 8v4 8.9s
