@@ -3,10 +3,10 @@ JOBS
     use nmonent=3 and use max time as sim and lbm time
             JOBID PARTITION     NAME     USER ST       TIME  NODES NODELIST(REASON)
            2098510(469)        RM native_d     fli5 PD       0:00     32 (Priority)
-           2098470(failed)        RM native_d     fli5 PD       0:00     32 (Dependency)
-           2098471        RM adios_ds     fli5 PD       0:00     32 (Dependency)
-           2098472        RM adios_di     fli5 PD       0:00     32 (Dependency)
-           2098473        RM    mpiio     fli5 PD       0:00     24 (Dependency)
+           2098521(470)        RM native_d     fli5 PD       0:00     32 (Dependency)
+           2098524(471)       RM adios_ds     fli5 PD       0:00     32 (Dependency)
+           2098472(failed)       RM adios_di     fli5 PD       0:00     32 (Dependency)
+           2098473(r330)        RM    mpiio     fli5 PD       0:00     24 (Dependency)
            2098474        RM adios_fl     fli5 PD       0:00     24 (Dependency)
            2098475        RM sim_only     fli5 PD       0:00     16 (Dependency)
 

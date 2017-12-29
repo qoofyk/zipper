@@ -59,6 +59,7 @@ do
         for ((k=0;k<${ppn_this_app};k++)) 
         do
             echo "${nodes[$idx]}" >> $HOST_DIR"/machinefile-app"${j}
+            echo "${nodes[$idx]}" >> $HOST_DIR"/machinefile-all"
         done
         echo "node in app ${j} +1"
         let "idx=idx+1"
