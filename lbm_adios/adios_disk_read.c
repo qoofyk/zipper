@@ -45,7 +45,7 @@ int main (int argc, char ** argv)
     }
     int nstop = atoi(argv[1]);
 
-    int lp = 4;
+    int lp = N_LP;
     double sum_vx[NMOMENT], sum_vy[NMOMENT];
 
     /******************** configuration stop ***********/
@@ -240,8 +240,11 @@ int main (int argc, char ** argv)
     adios_free_varinfo (v);
 
 #ifdef ENABLE_TIMING
+
+    printf("[rank %d]:analysis_time %.3lf \n", rank, t_analy);
     MPI_Barrier(comm);
     double t_end = MPI_Wtime();
+
 
         double global_t_prepare=0;
         double global_t_get=0;
@@ -250,11 +253,11 @@ int main (int argc, char ** argv)
         MPI_Reduce(&t_prepare, &global_t_prepare, 1, MPI_DOUBLE, MPI_SUM, 0, comm);
         MPI_Reduce(&t_get, &global_t_get, 1, MPI_DOUBLE, MPI_SUM, 0, comm);
         MPI_Reduce(&t_close, &global_t_close, 1, MPI_DOUBLE, MPI_SUM, 0, comm);
-        MPI_Reduce(&t_analy, &global_t_analy, 1, MPI_DOUBLE, MPI_SUM, 0, comm);
+        MPI_Reduce(&t_analy, &global_t_analy, 1, MPI_DOUBLE, MPI_MAX, 0, comm);
  
     if(rank == 0){
       clog_info(CLOG(MY_LOGGER),"stat:Consumer end  at %lf \n", t_end);
-      clog_info(CLOG(MY_LOGGER),"stat:time for prepare %fs, read %f s; time for close %f s; time for analy %f s\n",global_t_prepare/nprocs, global_t_get/nprocs, global_t_close/nprocs, global_t_analy/nprocs);
+      clog_info(CLOG(MY_LOGGER),"stat:time for prepare %fs, read %f s; time for close %f s; max time for analy %f s\n",global_t_prepare/nprocs, global_t_get/nprocs, global_t_close/nprocs, global_t_analy);
     }
 #endif
     

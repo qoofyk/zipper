@@ -30,6 +30,7 @@ extern "C" {
 
 #define SIZE_ONE (2)
 
+#define N_LP (3) //nmoment
 
 
 #ifndef STRING_LENGTH

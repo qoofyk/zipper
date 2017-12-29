@@ -101,7 +101,7 @@ else
 fi
 
 
-if [ `hostname | cut -c 1-2` == "br" ]; then
+if [[ `hostname` == *"bridges"* ]];then
     export MV2_ENABLE_AFFINITY=0
     export MV2_USE_BLOCKING=1
 fi

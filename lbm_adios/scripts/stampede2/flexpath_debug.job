@@ -6,6 +6,7 @@
 #SBATCH --ntasks-per-node=68
 #SBATCH -t 00:5:00
 
+
 #SBATCH --mail-type=BEGIN
 # send mail to this address
 #SBATCH --mail-user=lifen@iupui.edu
@@ -21,6 +22,7 @@ num_apps=2
 
 # slots used by this app
 procs_this_app=(68 34)
+
 
 # number of nodes used by this app
 nodes_this_app=(2 1)
@@ -102,5 +104,4 @@ echo " consumer applciation lauched $CMD_CONSUMER"
 
 ## Wait for the entire workflow to finish
 wait
-
 

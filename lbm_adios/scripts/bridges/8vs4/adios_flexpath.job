@@ -4,7 +4,7 @@
 #SBATCH --partition=RM
 #SBATCH --nodes=3
 #SBATCH --ntasks-per-node=28
-#SBATCH -t 00:5:00
+#SBATCH -t 00:2:00
 #SBATCH --export=ALL
 
 #SBATCH --mail-type=BEGIN
@@ -15,7 +15,7 @@
 #ibrun in verbose mode will give binding detail ##################parameter setting#################
 CASE_NAME=flexpath_nokeep
 FILESIZE2PRODUCE=256 # 64*64*256*2*8 = 16MB per proc
-NSTOP=100 # how many steps
+NSTOP=10 # how many steps
 
 # procs placement
 num_apps=2
