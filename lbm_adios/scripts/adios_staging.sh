@@ -93,7 +93,7 @@ else
 fi
 
 if [ x"$HAS_TRACE" == "x" ];then
-    LAUNCHER="mpiexec.hydra"
+    LAUNCHER="mpirun -l"
 else
     #export LD_PRELOAD=libVT.so 
     #LAUNCHER="mpiexec.hydra -trace"

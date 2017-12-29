@@ -1,3 +1,10 @@
+## Dec 18
+  528094:
+        50G free mem (reason, in flexpath_debu use two nodes instead of 3)
+        need to check
+  528080:
+        out of memory again
+    2176v1088
 ## Dec 15
     consumer only?
         518908 flex_skel, consumer no output

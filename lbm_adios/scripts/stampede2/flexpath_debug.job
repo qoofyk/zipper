@@ -1,10 +1,11 @@
 #!/bin/bash
 #SBATCH --job-name="adios_flexpath_nokeep"
 #SBATCH --output="results/%j.out"
-#SBATCH --partition=RM
+#SBATCH --partition=normal
 #SBATCH --nodes=3
-#SBATCH --ntasks-per-node=28
-#SBATCH -t 00:2:00
+#SBATCH --ntasks-per-node=68
+#SBATCH -t 00:5:00
+
 
 #SBATCH --mail-type=BEGIN
 # send mail to this address
@@ -20,7 +21,8 @@ NSTOP=10 # how many steps
 num_apps=2
 
 # slots used by this app
-procs_this_app=(12 6)
+procs_this_app=(68 34)
+
 
 # number of nodes used by this app
 nodes_this_app=(2 1)
@@ -102,7 +104,4 @@ echo " consumer applciation lauched $CMD_CONSUMER"
 
 ## Wait for the entire workflow to finish
 wait
-
-ls
-
 
