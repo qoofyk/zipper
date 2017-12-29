@@ -13,6 +13,7 @@ TODO
 	3. ENABLE_TESTING in flexpath conf, enabled
 
 ## Dec 18
+	
 	flexpath fixed: remove data description, otherwise seg fault(didn't happen
 	in 1.12)
 		see flex_debug2 to see more details
