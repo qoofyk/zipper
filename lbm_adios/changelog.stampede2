@@ -12,6 +12,20 @@ TODO
 	2. dspaces hanging
 	3. ENABLE_TESTING in flexpath conf, enabled
 
+## Dec 29
+	Doing
+		modulize
+	* Lammps and lBM should have been better integrated:
+	- the decaf examples/C/lammps for example:
+		* it uses the lammps library interface
+		* the input file doesn't call "run" and "dump"
+		* this examples gatter all atoms, however it can be better, see
+		lammps_gather_atoms for more
+		details.(https://github.com/lammps/lammps/blob/master/src/lammps.h\c)
+		
+	- lbm code can also be replaced with better architecture.
+
+
 ## Dec 18
 	flexpath fixed: remove data description, otherwise seg fault(didn't happen
 	in 1.12)
