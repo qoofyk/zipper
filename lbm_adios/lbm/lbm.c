@@ -466,42 +466,9 @@ status_t lbm_init(MPI_Comm *pcomm, size_t size_one, double **pbuff){
 
 }
 
-
-status_t lbm_advance_step(MPI_Comm * pcomm, double *buffer){
-
-//void run_lbm(char * filepath, int step_stop, int dims_cube[3], MPI_Comm *pcomm)
-
-
-   
-        // original code
-		//double df1[nx][ny][nz][19],df2[nx][ny][nz][19],df_inout[2][ny][nz][19];
-		//double rho[nx][ny][nz],u[nx][ny][nz],v[nx][ny][nz],w[nx][ny][nz];
-
-
-
-		//int blk_id=0;
-
-		// mark advance_step
-
-		//while (step < step_stop)
-
-		//{
-
-		t5=MPI_Wtime();
-
-		if (myid==0){
-			printf("step = %d   of   %d,rank %d nprocs %d   \n", step, step_stop, rank, nprocs);
-			fflush(stdout);
-		}
-
-
-
-
-
-		s=2;e=n1-2;
-
-
-
+/* collision
+ */
+status_t collision(){
 		/* collision */
 
 		/*for (i=2;i<=n1-2;i++)*/
@@ -569,9 +536,13 @@ status_t lbm_advance_step(MPI_Comm * pcomm, double *buffer){
 		      df1[i][j][k][m]=df1[i][j][k][m]*(1-1/tau)+1/tau*dfeq;
 
 		  }
+        return S_OK;
+} //end of collision
 
-
-
+/*
+ * streaming
+ */
+status_t streaming(){
 		/* streaming */
 
 		/*for (i=2;i<=n1-2;i++) */
@@ -711,8 +682,14 @@ status_t lbm_advance_step(MPI_Comm * pcomm, double *buffer){
 		if (myid==left_most) s=3;
 
 		if (myid==right_most) e=n1-3;
+        
+        return S_OK;
+} // end of streaming
 
-		// MPI_Barrier(comm1d);
+/*
+ * boundry condition
+ */
+status_t boundry(){
 
 		/* boundary conditions */
 
@@ -984,6 +961,62 @@ status_t lbm_advance_step(MPI_Comm * pcomm, double *buffer){
 
 		          {df1[i][j][k][m]=df2[i][j][k][m];}
 
+        return S_OK;
+} //end of boundring condition
+
+
+
+
+
+status_t lbm_advance_step(MPI_Comm * pcomm, double *buffer){
+
+//void run_lbm(char * filepath, int step_stop, int dims_cube[3], MPI_Comm *pcomm)
+
+
+   
+        // original code
+		//double df1[nx][ny][nz][19],df2[nx][ny][nz][19],df_inout[2][ny][nz][19];
+		//double rho[nx][ny][nz],u[nx][ny][nz],v[nx][ny][nz],w[nx][ny][nz];
+
+
+
+		//int blk_id=0;
+
+		// mark advance_step
+
+		//while (step < step_stop)
+
+		//{
+
+		t5=MPI_Wtime();
+
+		if (myid==0){
+			printf("step = %d   of   %d,rank %d nprocs %d   \n", step, step_stop, rank, nprocs);
+			fflush(stdout);
+		}
+
+
+
+
+
+		s=2;e=n1-2;
+
+
+
+
+        /* Collision */
+        collision();
+
+
+
+
+        /* II. streaming */
+        streaming();
+
+		// MPI_Barrier(comm1d);
+
+		/* III. boundary conditions */
+        boundry();
 
 		t6=MPI_Wtime();
 		only_lbm_time+=t6-t5;
@@ -1040,8 +1073,6 @@ status_t lbm_advance_step(MPI_Comm * pcomm, double *buffer){
 
 
 		// MPI_Barrier(comm1d);
-
-
 
 		//}  /* end of while loop */
 
