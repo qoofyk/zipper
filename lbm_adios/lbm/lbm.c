@@ -61,6 +61,9 @@ double t_buffer = 0;
 int         rank, nprocs;
 
 
+
+
+
     
 
 status_t lbm_init(MPI_Comm *pcomm){
@@ -1048,7 +1051,7 @@ status_t lbm_advance_step(MPI_Comm * pcomm){
         return S_OK;
 }
 
-status_t lbm_finalize(MPI_Comm *pcomm, double *buffer){
+status_t lbm_finalize(MPI_Comm *pcomm){
     MPI_Comm comm = *pcomm;
 
 	// from "end of while loop in original code"
@@ -1063,17 +1066,17 @@ status_t lbm_finalize(MPI_Comm *pcomm, double *buffer){
     return S_OK;
 }
 
-
-status_t lbm_alloc_buff(size_t nlocal, size_t size_one, double **pbuff){
+status_t lbm_alloc_buffer(size_t nlocal, size_t size_one, double **pbuff){
 /* alloc io buffer */
 		*pbuff = (double *)malloc(nlocal*sizeof(double)*size_one);
 		if(NULL == *pbuff) return S_FAIL;
 		if(rank == 0){
 			printf("[LBM INFO]: io buffer allocated\n");
 		}
+        return S_OK;
 }
 
-status_t get_buff(double *buffer){		
+status_t lbm_get_buffer(double *buffer){		
 		int count=0;
 
         for(gi = 0; gi < nx; gi++){
@@ -1091,6 +1094,7 @@ status_t get_buff(double *buffer){
 
         t7 = MPI_Wtime();
 		t_buffer+=t7-t6;
+        return S_OK;
 }
 
 status_t lbm_free_buffer(MPI_Comm *pcomm, double *buffer){
@@ -1111,8 +1115,9 @@ status_t lbm_free_buffer(MPI_Comm *pcomm, double *buffer){
 		free(buffer);
 		//printf("io buffer freed\n");
 	}
-
+    return S_OK;
 }
+
 
 
 

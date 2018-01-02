@@ -34,11 +34,7 @@ typedef int status_t;
  * @param size_one number of doubles in each line
  * @param pbuff  the buffer i need to output 
  */
-status_t lbm_init(MPI_Comm *pcomm)
-
-/* feng's
-status_t create_buff(double **buffer);
-status get_buff();	
+status_t lbm_init(MPI_Comm *pcomm);
 
 
 /*
@@ -64,7 +60,7 @@ status_t lbm_io_template(MPI_Comm *pcomm, double *buffer, size_t nlocal, size_t 
     return S_OK;
 }
 
-status_t lbm_alloc_buffer(size_t size_one, double **pbuffer);
+status_t lbm_alloc_buffer(size_t nlines, size_t size_one, double **pbuffer);
 status_t lbm_get_buffer(double *buffer);
 status_t lbm_free_buffer(MPI_Comm *pcomm, double *buffer);
 

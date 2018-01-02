@@ -11,6 +11,9 @@ TODO
 	1. nnti in flexpath, not usable.
 	2. dspaces hanging
 	3. ENABLE_TESTING in flexpath conf, enabled
+
+## Jan 2
+	now buffer is seperated from lbm
 ## Dec 30
 	Use valgrind to debug
 	valgrind --leak-check=yes ./lbm 1 10 &> run.log
