@@ -14,35 +14,40 @@
 #include <sys/types.h>
 #include <errno.h>
 
+#ifndef S_OK
 typedef int status_t;
 #define S_OK (0)
 #define S_FAIL (-1)
+#endif
 
 /*
  * init lbm, allocate space fordf1, df2, df_inout
  * 
  * @param bounds the dimenson each process working on(16x16x64)
  * @param pcomm communicator
- * @param buff  input, should be allocated in advance
+ * @param size_one number of doubles in each line
+ * @param pbuff  the buffer i need to output 
  */
-status_t lbm_init(int bounds[3], MPI_Comm *pcomm, void *buff);
+status_t lbm_init(int bounds[3], MPI_Comm *pcomm, size_t size_one,  double **buffer);
 /*
  * advance lbm
  * 
  * @param 
  */
-status_t lbm_advance_step(MPI_Comm * pcomm, void *buff);
+status_t lbm_advance_step(MPI_Comm * pcomm, double *buffer);
 
 /*
 * example of  io routine
 */
-status_t lbm_io_template(MPI_Comm *pcomm, void *buff);
+status_t lbm_io_template(MPI_Comm *pcomm, double *buffer){
+    return S_OK;
+}
 
 
 /*
  * finalize lbm
  */
-status_t lbm_finalize(MPI_Comm *pcomm, void *buff);
+status_t lbm_finalize(MPI_Comm *pcomm, double *buffer);
 
 
 
@@ -55,15 +60,6 @@ status_t lbm_finalize(MPI_Comm *pcomm, void *buff);
 #define nz TOTAL_FILE2PRODUCE_1GB
 */
 
-/*
- * insert buffer into adios
- * input
- *      n: lines of data, each line contains two double
- *      buf: address of buffer
- *      pcomm: group communicator
- */
-void insert_into_Adios(char *filepath, int n, double * buf, MPI_Comm *pcomm);
-
 // run lbm 
 // input:
 //      step_stop 
@@ -72,9 +68,9 @@ void insert_into_Adios(char *filepath, int n, double * buf, MPI_Comm *pcomm);
 //      there will be  X*Y*Z cubes each has cubex*cubey*cube z elememts,
 //      each cell will have two double values
 //      data is send once for each cube
-void run_lbm(char *filepath, int step_stop, int dims_cube[3], MPI_Comm * pcomm);
+//void run_lbm(char *filepath, int step_stop, int dims_cube[3], MPI_Comm * pcomm);
 
-double get_cur_time();
+//double get_cur_time();
 
-void check_malloc(void * pointer);
+//void check_malloc(void * pointer);
 #endif
