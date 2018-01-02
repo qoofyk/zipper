@@ -840,7 +840,6 @@ status_t lbm_advance_step(MPI_Comm * pcomm, double *buffer){
 		/* compute rho and (u,v) from distribution function */
 
 		/* for (i=3;i<=n1-3;i++) */
-#if 0
 
 		for (i=s;i<=e;i++)
 
@@ -885,7 +884,6 @@ status_t lbm_advance_step(MPI_Comm * pcomm, double *buffer){
 		      w[i][j][k]=s4/s1;
 
 		      }
-#endif
 
 
 
@@ -1152,7 +1150,7 @@ char nodename[256];
 cleanup:
   MPI_Finalize();
   if(rank == 0)
-    printf("exit\n", rank);
+    printf("now exit! \n");
   return 0;
 }
 
