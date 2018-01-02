@@ -28,7 +28,7 @@ else
 fi
 
 
-BIN_PRODUCER=${BUILD_DIR}/bin/run_lbm;
+BIN_PRODUCER=${BUILD_DIR}/bin/lbm;
 
 #This job runs with 3 nodes  
 #ibrun in verbose mode will give binding detail  

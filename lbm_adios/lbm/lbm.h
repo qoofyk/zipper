@@ -14,6 +14,8 @@
 #include <sys/types.h>
 #include <errno.h>
 
+#define SIZE_ONE (2) // two doubles in each line
+
 #ifndef S_OK
 typedef int status_t;
 #define S_OK (0)

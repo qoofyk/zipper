@@ -36,7 +36,7 @@ target_link_libraries(adaptor ${ADIOS} ${DSPACES} ${DSCOMMON} ${DART} ${EVPATH} 
 # add libm if using gcc
 target_link_libraries(adaptor ${MPI_LIBRARIES} pthread rt rdmacm ibverbs)
 
-#add_executable(run_lbm run_lbm.c)
+add_executable(run_lbm run_lbm.c)
 add_subdirectory(lbm)
 add_executable(adios_staging_read adios_staging_read.c run_analysis.c )
 add_executable(adios_disk_read adios_disk_read.c run_analysis.c )

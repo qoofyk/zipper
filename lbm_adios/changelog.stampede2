@@ -11,6 +11,12 @@ TODO
 	1. nnti in flexpath, not usable.
 	2. dspaces hanging
 	3. ENABLE_TESTING in flexpath conf, enabled
+## Dec 30
+	Use valgrind to debug
+	valgrind --leak-check=yes ./lbm 1 10 &> run.log
+	grep -R run.log Invalid, will tell segmenta fault
+
+
 
 ## Dec 29
 	Doing

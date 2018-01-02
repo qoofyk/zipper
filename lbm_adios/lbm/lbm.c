@@ -1,4 +1,4 @@
-#include "run_lbm.h"        
+#include "lbm.h"        
 
 #ifndef STRING_LENGTH
 #define STRING_LENGTH (160)
@@ -16,10 +16,6 @@ int gi, gj, gk, nx,ny,nz;
 int n;
 MPI_Status status;
 
-//double df1[nx][ny][nz][19],df2[nx][ny][nz][19],df_inout[2][ny][nz][19];
-//double rho[nx][ny][nz],u[nx][ny][nz],v[nx][ny][nz],w[nx][ny][nz];
-double ****df1,****df2,****df_inout;
-double ***rho,***u,***v,***w;
 
 double c[19][3],dfeq,pow_2;
 int i,j,k,m,n1,n2,n3,ii,dt,time1,time2,time3;
@@ -40,18 +36,36 @@ int *fp_np,*fp_period;
 // FILE *fp_u, *fp_v, *fp_out;
 FILE *fp_out;
 double t2=0, t3=0,t4=0,t5=0,t6=0,only_lbm_time=0,init_lbm_time=0;
-double t7 = 0, t8 =0;
 int errorcode;
 
+/*
+ * added by Feng 
+ * 
+*/
 
+//double df1[nx][ny][nz][19],df2[nx][ny][nz][19],df_inout[2][ny][nz][19];
+//double rho[nx][ny][nz],u[nx][ny][nz],v[nx][ny][nz],w[nx][ny][nz];
+double ****df1,****df2,****df_inout;
+double ***rho,***u,***v,***w;
+double t7 = 0, t8 =0;
+
+int step; // current step
+int step_stop; //run how many steps
+// timer
+double t_buffer = 0;
+double t_put = 0;
+double t_write = 0;
+
+int         rank, nprocs;
+    
 /*
  * helper funcion, keep assistant with original code
  */
 status_t alloc_4d(double *****pbuff, int d1, int d2, int d3, int d4){
 	int ii, jj, kk, mm;
-	*pbuff = (double ****)malloc(d1* sizeof(double***))
+	*pbuff = (double ****)malloc(d1* sizeof(double***));
 	if(NULL == *pbuff) return S_FAIL;
-	for( ii = 0; ii < d1, ii++){
+	for( ii = 0; ii < d1; ii++){
 		(*pbuff)[ii] = (double ***)malloc(d2 * sizeof(double **));
 		if( NULL == (*pbuff)[ii]) return S_FAIL;
 		for(jj=0 ; jj < d2; jj++){
@@ -82,12 +96,12 @@ status_t free_4d(double *****pbuff, int d1, int d2, int d3, int d4){
  */
 status_t alloc_3d(double ****pbuff, int d1, int d2, int d3){
 	int ii, jj, kk;
-	*pbuff = (double ***)malloc(d1* sizeof(double**))
+	*pbuff = (double ***)malloc(d1* sizeof(double**));
 	if(NULL == *pbuff) return S_FAIL;
-	for( ii = 0; ii < d1, ii++){
+	for( ii = 0; ii < d1; ii++){
 		(*pbuff)[ii] = (double **)malloc(d2 * sizeof(double *));
 		if( NULL == (*pbuff)[ii]) return S_FAIL;
-		for(jj=0  0 ; jj < d2; jj++){
+		for(jj=0; jj < d2; jj++){
 			(*pbuff)[ii][jj] = (double *)malloc(d3 * sizeof(double));
 			if(NULL == (*pbuff)[ii][jj]) return S_FAIL;
 		}
@@ -98,9 +112,25 @@ status_t alloc_3d(double ****pbuff, int d1, int d2, int d3){
 status_t free_3d(double **** pbuff, int d1, int d2, int d3){
 	return S_OK;
 }
+
+status_t check_4d(double *****pbuff, int d1, int d2, int d3, int d4){
+    int ii, jj, kk, mm;
+    for(ii = 0 ; ii < d1; ii++){
+        for(jj = 0; jj < d2; jj++){
+            for(kk = 0; kk < d3; kk++){
+                for(mm = 0; mm <d4; mm++){
+                    (*pbuff)[ii][jj][kk][mm] = 1;
+                }
+            }
+        }
+    }
+    printf("4d check ok\n");
+    return S_OK;
+}
     
 
 status_t lbm_init(int dims_cube[3], MPI_Comm *pcomm, size_t size_one, double **pbuff){
+        MPI_Comm comm = *pcomm;
         nx = dims_cube[0];
         ny = dims_cube[1];
         nz = dims_cube[2];
@@ -115,18 +145,23 @@ status_t lbm_init(int dims_cube[3], MPI_Comm *pcomm, size_t size_one, double **p
 
 		alloc_4d(&df1, nx, ny, nz, 19);
 		alloc_4d(&df2, nx, ny, nz, 19);
-		alloc_4d(&df_inout, nx, ny, nz, 19);
+		alloc_4d(&df_inout, 2, ny, nz, 19);
+
+	    check_4d(&df1, nx, ny, nz, 19);
 
 		alloc_3d(&rho, nx, ny, nz);
 		alloc_3d(&u, nx, ny, nz);
 		alloc_3d(&v, nx, ny, nz);
 		alloc_3d(&w, nx, ny, nz);
 
+
+
+
 		if(rank == 0){
 			printf("[LBM INFO]: df and vvw allocated\n");
 		}
 
-		/* from this line it's just the origin code
+		/* from this line it's just the origin code */
 		n1=nx-1;/* n1,n2,n3 are the last indice in arrays*/
 		n2=ny-1;
 		n3=nz-1;
@@ -259,7 +294,7 @@ status_t lbm_init(int dims_cube[3], MPI_Comm *pcomm, size_t size_one, double **p
 
 		time3=dt;
 
-		int step=0;
+		step=0;
 
 		if (myid==middle) {
 
@@ -515,11 +550,12 @@ status_t lbm_init(int dims_cube[3], MPI_Comm *pcomm, size_t size_one, double **p
 			printf("Init LBM Time=%f\n", init_lbm_time);
 			fflush(stdout);
 		}
+        return S_OK;
 
 }
 
 
-status_t lbm_advance_step(MPI_Comm * pcomm, double *buff){
+status_t lbm_advance_step(MPI_Comm * pcomm, double *buffer){
 
 //void run_lbm(char * filepath, int step_stop, int dims_cube[3], MPI_Comm *pcomm)
 
@@ -1086,7 +1122,7 @@ status_t lbm_advance_step(MPI_Comm * pcomm, double *buff){
 
 #ifdef ENABLE_TIMING
         t8 = MPI_Wtime();
-        printf("rank %d: Step %d t_lbm %lf, t_write %lf, time %lf\n", rank, step, t6-t5,t8-t7, t8);
+        printf("Step %d t_lbm %lf, t_write %lf, time %lf\n",step, t6-t5,t8-t7, t8);
         t_write += t8-t7;
 #endif
 
@@ -1112,10 +1148,12 @@ status_t lbm_advance_step(MPI_Comm * pcomm, double *buff){
 
 		//}  /* end of while loop */
 
+        return S_OK;
 }
 
 
 status_t lbm_finalize(MPI_Comm *pcomm, double *buffer){
+    MPI_Comm comm = *pcomm;
 
 	// from "end of while loop in original code"
 	printf("[rank %d]:sim_time %.3lf \n", rank, only_lbm_time);
@@ -1156,6 +1194,7 @@ status_t lbm_finalize(MPI_Comm *pcomm, double *buffer){
 		printf("io buffer freed\n");
 	}
 
+    return S_OK;
 }
 
 /*
@@ -1169,10 +1208,9 @@ int main(int argc, char * argv[]){
      * @param FILESIZE2PRODUCE
      */
     if(argc !=3){
-        printf("run_lbm nstop total_file_size\n");
+        printf("run_lbm step_stop total_file_size\n");
         exit(-1);
     }
-	int nstop; //run how many steps
 	int i;
 
 	/*those are all the information io libaray need to know about*/
@@ -1180,7 +1218,7 @@ int main(int argc, char * argv[]){
 	int size_one = SIZE_ONE; // each line stores 2 doubles
 	double *buffer; // buffer address
 
-    nstop = atoi(argv[1]);
+    step_stop = atoi(argv[1]);
     int filesize2produce = atoi(argv[2]);
     int dims_cube[3] = {filesize2produce/4,filesize2produce/4,filesize2produce};
     //strcpy(filepath, argv[3]);
@@ -1188,7 +1226,7 @@ int main(int argc, char * argv[]){
 	MPI_Init(&argc, &argv);
 
     MPI_Comm comm = MPI_COMM_WORLD;
-    int         rank, nprocs;
+    //int         rank, nprocs; // now is global
     MPI_Comm_rank (comm, &rank);
     MPI_Comm_size (comm, &nprocs);
 
@@ -1199,7 +1237,7 @@ int main(int argc, char * argv[]){
 	nlocal = dims_cube[0]*dims_cube[1]*dims_cube[2];
 	
 	/* init lbm with dimension info*/
-	if( S_FAIL == lbm_init( dims_cube,&comm, size_one, &buffer){
+	if( S_FAIL == lbm_init( dims_cube,&comm, size_one, &buffer)){
 		printf("[lbm]: init not success, now exit\n");
 		goto cleanup;
 	}
@@ -1208,27 +1246,24 @@ int main(int argc, char * argv[]){
 	if(rank == 0){
 		printf("[lbm]: init with nlocal = %d size_one = %d\n", nlocal, size_one);
 	}
-	for(i = 0; i< nstop; i++){
-		if(S_OK == lbm_advance_step(&comm, buffer){
+	for(i = 0; i< step_stop; i++){
+		if(S_OK == lbm_advance_step(&comm, buffer)){
 			printf("[lbm]: step %d processed\n", i);
 		}
 
 		// replace this line with different i/o libary
-		if(S_OK == lbm_io_template(&comm, buffer){
+		if(S_OK == lbm_io_template(&comm, buffer)){
 			printf("[lbm]: step %d io complete\n", i);
 		}
 	}
 
-	if(S_OK == lbm_finalize(&comm, buffer){
+	if(S_OK == lbm_finalize(&comm, buffer)){
 		printf("[lbm]: finalized\n");
 	}
 
-	// free buff
-	if(buffer){
-		free(buffer);
-	}
-	  //run_lbm(filepath, nstop, dims_cube, &comm);
-  MPI_Barrier(comm);
+	  //run_lbm(filepath, step_stop, dims_cube, &comm);
+    MPI_Barrier(comm);
+    printf("[lbm]: reached the barrier\n");
 
 cleanup:
   MPI_Finalize();
