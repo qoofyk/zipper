@@ -8,13 +8,10 @@
 #define debug
 //#define DEBUG_PRINT
 
-#ifndef filesize2produce
-#define filesize2produce (256)
-#endif
 
 // global variables
 int gi, gj, gk, nx,ny,nz;
-int n;
+//int n;
 MPI_Status status;
 
 
@@ -42,7 +39,11 @@ int errorcode;
 /*
  * added by Feng 
  * 
-*/
+ */
+#ifndef filesize2produce
+#define filesize2produce (256)
+#endif
+
 #define nx (filesize2produce/4)
 #define ny (filesize2produce/4)
 #define nz (filesize2produce)
@@ -58,21 +59,14 @@ int step_stop; //run how many steps
 double t_buffer = 0;
 
 int         rank, nprocs;
+
+
     
 
-status_t lbm_init(MPI_Comm *pcomm, size_t size_one, double **pbuff){
+status_t lbm_init(MPI_Comm *pcomm){
         MPI_Comm comm = *pcomm;
-        n = nx*ny*nz;
 
-		/* alloc io buffer */
-		*pbuff = (double *)malloc(n*sizeof(double)*size_one);
-		if(NULL == *pbuff) return S_FAIL;
-		double *buffer = *pbuff;
-
-		if(rank == 0){
-			printf("[LBM INFO]: io buffer allocated\n");
-		}
-
+		
 		/* from this line it's just the origin code */
 		n1=nx-1;/* n1,n2,n3 are the last indice in arrays*/
 		n2=ny-1;
@@ -968,7 +962,7 @@ status_t boundry(){
 
 
 
-status_t lbm_advance_step(MPI_Comm * pcomm, double *buffer){
+status_t lbm_advance_step(MPI_Comm * pcomm){
 
 //void run_lbm(char * filepath, int step_stop, int dims_cube[3], MPI_Comm *pcomm)
 
@@ -1028,32 +1022,7 @@ status_t lbm_advance_step(MPI_Comm * pcomm, double *buffer){
         fflush(stdout);
 		#endif //DEBUG_PRINT
 
-		/*create_prb_element*/
-		//double * buffer;
-		// FILE *fp;
-		// char file_name[64];
-		int count=0;
 
-        // if use adios, not partioning is required
-        //buffer = (double *) malloc(n*sizeof(double)*2);
-        //check_malloc(buffer);
-
-        // fill the buffer, each line has two double data
-        for(gi = 0; gi < nx; gi++){
-            for(gj = 0; gj < ny; gj++){
-                for(gk = 0; gk < nz; gk++){
-		            *((double *)(buffer+count))=u_r*u[gi][gj][gk];
-		            *((double *)(buffer+count+1))=u_r*v[gi][gj][gk];
-#ifdef debug_1
-                    printf("(%d %d %d), u_r=_%lf u=%lf v= %lf\n", gi, gj, gk, u_r, u[gi][gj][gk],v[gi][gj][gk]);
-#endif
-		            count+=2;
-                }
-            }
-        }
-
-        t7 = MPI_Wtime();
-		t_buffer+=t7-t6;
 
 
 		
@@ -1079,13 +1048,53 @@ status_t lbm_advance_step(MPI_Comm * pcomm, double *buffer){
         return S_OK;
 }
 
-
 status_t lbm_finalize(MPI_Comm *pcomm, double *buffer){
     MPI_Comm comm = *pcomm;
 
 	// from "end of while loop in original code"
 	printf("[rank %d]:sim_time %.3lf \n", rank, only_lbm_time);
 
+
+	MPI_Comm_free(&comm1d);
+	MPI_Type_free(&newtype);
+	MPI_Type_free(&newtype_bt);
+	MPI_Type_free(&newtype_fr);
+
+    return S_OK;
+}
+
+
+status_t lbm_alloc_buff(size_t nlocal, size_t size_one, double **pbuff){
+/* alloc io buffer */
+		*pbuff = (double *)malloc(nlocal*sizeof(double)*size_one);
+		if(NULL == *pbuff) return S_FAIL;
+		if(rank == 0){
+			printf("[LBM INFO]: io buffer allocated\n");
+		}
+}
+
+status_t get_buff(double *buffer){		
+		int count=0;
+
+        for(gi = 0; gi < nx; gi++){
+            for(gj = 0; gj < ny; gj++){
+                for(gk = 0; gk < nz; gk++){
+		            *((double *)(buffer+count))=u_r*u[gi][gj][gk];
+		            *((double *)(buffer+count+1))=u_r*v[gi][gj][gk];
+#ifdef debug_1
+                    printf("(%d %d %d), u_r=_%lf u=%lf v= %lf\n", gi, gj, gk, u_r, u[gi][gj][gk],v[gi][gj][gk]);
+#endif
+		            count+=2;
+                }
+            }
+        }
+
+        t7 = MPI_Wtime();
+		t_buffer+=t7-t6;
+}
+
+status_t lbm_free_buffer(MPI_Comm *pcomm, double *buffer){
+    MPI_Comm comm = *pcomm;
 	double global_t_cal=0;
 	double global_t_write=0;
 	MPI_Reduce(&only_lbm_time, &global_t_cal, 1, MPI_DOUBLE, MPI_MAX, 0, comm);
@@ -1098,18 +1107,14 @@ status_t lbm_finalize(MPI_Comm *pcomm, double *buffer){
 	// MPI_Barrier(comm1d);
 	t3= MPI_Wtime();
 
-	MPI_Comm_free(&comm1d);
-	MPI_Type_free(&newtype);
-	MPI_Type_free(&newtype_bt);
-	MPI_Type_free(&newtype_fr);
-
 	if(buffer){
 		free(buffer);
 		//printf("io buffer freed\n");
 	}
 
-    return S_OK;
 }
+
+
 
 /*
  * test driver for lbm code
@@ -1149,8 +1154,9 @@ char nodename[256];
 
 	nlocal = dims_cube[0]*dims_cube[1]*dims_cube[2];
 	
+	lbm_alloc_buffer(nlocal, size_one, &buffer);
 	/* init lbm with dimension info*/
-	if( S_FAIL == lbm_init(&comm, size_one, &buffer)){
+	if( S_FAIL == lbm_init(&comm)){
 		printf("[lbm]: init not success, now exit\n");
 		goto cleanup;
 	}
@@ -1160,8 +1166,14 @@ char nodename[256];
 		printf("[lbm]: init with nlocal = %d size_one = %d\n", nlocal, size_one);
 	}
 	for(i = 0; i< step_stop; i++){
-		if(S_OK != lbm_advance_step(&comm, buffer)){
+		if(S_OK != lbm_advance_step(&comm)){
 			fprintf(stderr, "[lbm]: err when process step %d\n", i);
+		}
+	
+		// get the buffer
+		if(S_OK != lbm_get_buffer(buffer)){
+			fprintf(stderr, "[lbm]: err when updated buffer at step %d\n", i);
+
 		}
 
 		// replace this line with different i/o libary
@@ -1170,11 +1182,14 @@ char nodename[256];
 		}
 	}
 
-	if(S_OK != lbm_finalize(&comm, buffer)){
+	if(S_OK != lbm_finalize(&comm)){
 		fprintf(stderr, "[lbm]: err when finalized\n");
 	}
+	if(S_OK != lbm_free_buffer(&comm, buffer)){
+		fprintf(stderr, "[lbm]: err when free and summarize\n");
+	}
 
-	  //run_lbm(filepath, step_stop, dims_cube, &comm);
+	//run_lbm(filepath, step_stop, dims_cube, &comm);
     MPI_Barrier(comm);
     //printf("[lbm]: reached the barrier\n");
 
