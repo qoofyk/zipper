@@ -15,7 +15,7 @@ elseif(CMAKE_BUILD_TYPE MATCHES Deb_Stam)
   set(CMAKE_C_COMPILER  icc)
   set(CMAKE_CXX_COMPILER  icpc)
   set(TRANSPORT_LIB "$ENV{WORK}/envs/transports_icc_impi" CACHE PATH "The path to transport libs.")
-  set(CMAKE_C_FLAGS "-O0 -g ${ADD_FLAGS}" CACHE STRING "cflags")
+  set(CMAKE_C_FLAGS "-O0 -g -DEBUG_f${ADD_FLAGS}" CACHE STRING "cflags")
 
 
 elseif(CMAKE_BUILD_TYPE MATCHES Stampede_TAU)

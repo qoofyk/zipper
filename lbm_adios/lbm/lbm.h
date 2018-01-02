@@ -25,12 +25,13 @@ typedef int status_t;
 /*
  * init lbm, allocate space fordf1, df2, df_inout
  * 
- * @param bounds the dimenson each process working on(16x16x64)
+ * //@param bounds the dimenson each process working on(16x16x64), now is preset
  * @param pcomm communicator
  * @param size_one number of doubles in each line
  * @param pbuff  the buffer i need to output 
  */
-status_t lbm_init(int bounds[3], MPI_Comm *pcomm, size_t size_one,  double **buffer);
+status_t lbm_init(MPI_Comm *pcomm, size_t size_one,  double **buffer);
+
 /*
  * advance lbm
  * 
@@ -41,7 +42,7 @@ status_t lbm_advance_step(MPI_Comm * pcomm, double *buffer);
 /*
 * example of  io routine
 */
-status_t lbm_io_template(MPI_Comm *pcomm, double *buffer){
+status_t lbm_io_template(MPI_Comm *pcomm, double *buffer, size_t nlocal, size_t size_one){
     return S_OK;
 }
 
