@@ -14,6 +14,36 @@
 #include <sys/types.h>
 #include <errno.h>
 
+typedef int status_t;
+#define S_OK (0)
+#define S_FAIL (-1)
+
+/*
+ * init lbm, allocate space fordf1, df2, df_inout
+ * 
+ * @param bounds the dimenson each process working on(16x16x64)
+ * @param pcomm communicator
+ * @param buff  input, should be allocated in advance
+ */
+status_t lbm_init(int bounds[3], MPI_Comm *pcomm, void *buff);
+/*
+ * advance lbm
+ * 
+ * @param 
+ */
+status_t lbm_advance_step(MPI_Comm * pcomm, void *buff);
+
+/*
+* example of  io routine
+*/
+status_t lbm_io_template(MPI_Comm *pcomm, void *buff);
+
+
+/*
+ * finalize lbm
+ */
+status_t lbm_finalize(MPI_Comm *pcomm, void *buff);
+
 
 
 // this must be included

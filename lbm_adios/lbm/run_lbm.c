@@ -1,14 +1,12 @@
 #include "run_lbm.h"        
 
-#define CLOG_MAIN
-#include "utility.h"
-//#include "adios_write_global.h"
-#include "adios_adaptor.h"
-#include "adios_error.h"
-#include "ds_adaptor.h"
+#ifndef STRING_LENGTH
+#define STRING_LENGTH (160)
+#endif
 
-#include "transports.h"
-static transport_method_t transport;
+//#include "utility.h"
+//#include "adios_write_global.h"
+
 
 #define debug
 
@@ -21,67 +19,100 @@ static transport_method_t transport;
  */
 static char var_name[STRING_LENGTH];
 static size_t elem_size=sizeof(double);
+
+// global variables
+int gi, gj, gk, nx,ny,nz;
+int n;
+MPI_Status status;
+
+//double df1[nx][ny][nz][19],df2[nx][ny][nz][19],df_inout[2][ny][nz][19];
+//double rho[nx][ny][nz],u[nx][ny][nz],v[nx][ny][nz],w[nx][ny][nz];
+double ***df1[19],***df2[19],***df_inout[19];
+double ***rho,***u,***v,***w;
+
+double c[19][3],dfeq,pow_2;
+int i,j,k,m,n1,n2,n3,ii,dt,time1,time2,time3;
+//int x_mid,y_mid,z_mid,step_wr;
+double width,length,nu_e,tau,rho_e,u_e, Re,time_stop;
+//double cs;
+double length_r,time_r,s1, s2, s3,s4, nu_lb, u_lb, rho_lb, rho_r, u_r;
+//double time_restart;
+double p_bb,depth;
+
+MPI_Comm comm1d;
+MPI_Datatype newtype,newtype_bt,newtype_fr;
+int nbleft,nbright,left_most,right_most,middle;
+int num_data,s,e,myid;
+//int num_data1,nj;
+int np[1],period[1];
+int *fp_np,*fp_period;
+// FILE *fp_u, *fp_v, *fp_out;
+FILE *fp_out;
+double t2=0, t3=0,t4=0,t5=0,t6=0,only_lbm_time=0,init_lbm_time=0;
+double t7 = 0, t8 =0;
+int errorcode;
+
+
+/*
+ * helper funcion, keep assistant with original code
+ */
+status_t alloc_4d(double *****pbuff, int d1, int d2, int d3, int d4){
+	int ii, jj, kk, mm;
+	*pbuff = (double ****)malloc(d1* sizeof(double***))
+	for( ii = 0; ii < d1, ii++){
+		(*pbuff)[ii] = (double ***)malloc(d2 * sizeof(double **));
+		for(jj=0  0 ; jj < d2; jj++){
+			(*pbuff)[ii][jj] = (double **)malloc(d3 * sizeof(double *));
+			for(kk = 0; kk < d3 ; kk++){
+				(*pbuff)[ii][jj][kk] = (double *)malloc(d4 * sizeof(double));
+
+
+			}
+		}
+	}
+	return S_OK;
+}
+
+/*
+ *  free
+ */ 
+
+status_t free_4d()
+
+
+
+/*
+ * helper function
+ */
+status_t alloc_3d(double ****pbuff, int d1, int d2, int d3){
+	int ii, jj, kk;
+	*pbuff = (double ***)malloc(d1* sizeof(double**))
+	for( ii = 0; ii < d1, ii++){
+		(*pbuff)[ii] = (double **)malloc(d2 * sizeof(double *));
+		for(jj=0  0 ; jj < d2; jj++){
+			(*pbuff)[ii][jj] = (double *)malloc(d3 * sizeof(double));
+		}
+	}
+	return S_OK;
+}
     
 
-
-
-void run_lbm(char * filepath, int step_stop, int dims_cube[3], MPI_Comm *pcomm)
-{
-
-// aditional timer for staging
-#ifdef ENABLE_TIMING
-    double t7=0, t8=0;
-    double t_write=0;
-    // actual time by dspaces put
-    double t_put=0;
-    double t_buffer =0;
-#endif
-        int gi, gj, gk, nx,ny,nz;
-
-        int nprocs, rank;
-        int n;
-        MPI_Comm comm = *pcomm;
-		MPI_Comm_size(comm,&nprocs);
-		MPI_Comm_rank(comm,&rank);
-
+status_t lbm_init(int bounds[3], MPI_Comm *pcomm, void *buff){
         nx = dims_cube[0];
         ny = dims_cube[1];
         nz = dims_cube[2];
-        n = nx*ny*nz;
+		n = nx*ny*nz;
+		
+		alloc_4d(&df1, nx, ny, nz, 19);
+		alloc_4d(&df2, nx, ny, nz, 19);
+		alloc_4d(&df_inout, nx, ny, nz, 19);
 
-        // original code
-        MPI_Status status;
-		double df1[nx][ny][nz][19],df2[nx][ny][nz][19],df_inout[2][ny][nz][19];
-		double rho[nx][ny][nz],u[nx][ny][nz],v[nx][ny][nz],w[nx][ny][nz];
-		double c[19][3],dfeq,pow_2;
-		int i,j,k,m,n1,n2,n3,ii,dt,time1,time2,time3;
-		//int x_mid,y_mid,z_mid,step_wr;
-		double width,length,nu_e,tau,rho_e,u_e, Re,time_stop;
-		//double cs;
-		double length_r,time_r,s1, s2, s3,s4, nu_lb, u_lb, rho_lb, rho_r, u_r;
-		//double time_restart;
-		double p_bb,depth;
+		alloc_3d(&rho, nx, ny, nz);
+		alloc_3d(&u, nx, ny, nz);
+		alloc_3d(&v, nx, ny, nz);
+		alloc_3d(&w, nx, ny, nz);
 
-		MPI_Comm comm1d;
-		MPI_Datatype newtype,newtype_bt,newtype_fr;
-		int nbleft,nbright,left_most,right_most,middle;
-		int num_data,s,e,myid;
-		//int num_data1,nj;
-		int np[1],period[1];
-		int *fp_np,*fp_period;
-		// FILE *fp_u, *fp_v, *fp_out;
-		FILE *fp_out;
-		double t2=0, t3=0,t4=0,t5=0,t6=0,only_lbm_time=0,init_lbm_time=0;
-		int errorcode;
-
-
-        /*
-         * get transport method
-         */
-        uint8_t transport_major = get_major(transport);
-        uint8_t transport_minor = get_minor(transport);
-
-
+		/* from this line it's just the origin code
 		n1=nx-1;/* n1,n2,n3 are the last indice in arrays*/
 		n2=ny-1;
 		n3=nz-1;
@@ -471,11 +502,28 @@ void run_lbm(char * filepath, int step_stop, int dims_cube[3], MPI_Comm *pcomm)
 			fflush(stdout);
 		}
 
+}
+
+
+status_t lbm_advance_step(MPI_Comm * pcomm, void *buff){
+
+//void run_lbm(char * filepath, int step_stop, int dims_cube[3], MPI_Comm *pcomm)
+
+
+   
+        // original code
+		//double df1[nx][ny][nz][19],df2[nx][ny][nz][19],df_inout[2][ny][nz][19];
+		//double rho[nx][ny][nz],u[nx][ny][nz],v[nx][ny][nz],w[nx][ny][nz];
+
+
+
 		//int blk_id=0;
 
-		while (step < step_stop)
+		// mark advance_step
 
-		{
+		//while (step < step_stop)
+
+		//{
 
 		t5=MPI_Wtime();
 
@@ -1017,96 +1065,21 @@ void run_lbm(char * filepath, int step_stop, int dims_cube[3], MPI_Comm *pcomm)
 		t_buffer+=t7-t6;
 
 
-        
-        /*******************************
-         *          ADIOS              *
-         *******************************/
-        // n can be large (64*64*256)
-
-
-       
-
-    if(transport_major == ADIOS_STAGING){
-        // for staging, each time write to same file
-        //insert_into_adios(filepath, "atom",-1, n, SIZE_ONE , buffer,"w", &comm);
-        
-        if(step ==0){
-            insert_into_adios(filepath, "atom",-1, n, SIZE_ONE , buffer,"w", &comm);
-        }
-        else{
-
-            insert_into_adios(filepath, "atom",-1, n, SIZE_ONE , buffer,"a", &comm);
-        }
-        
-    }
-    else if(transport_major == ADIOS_DISK){
-        // for mpiio, each time write different files
-        insert_into_adios(filepath, "atom", step, n, SIZE_ONE , buffer,"w", &comm);
-        /**** use index file to keep track of current step *****/
-        int fd; 
-        char step_index_file[256];
-        int time_stamp;
-        
-        if(rank == 0){
-            if(step == step_stop - 1){
-               time_stamp = -2;
-            }else{
-               time_stamp = step;
-            }// flag read from producer
-
-            sprintf(step_index_file, "%s/stamp.file", filepath);
-
-            printf("step index file in %s \n", step_index_file);
-
-            fd = open(step_index_file, O_WRONLY|O_CREAT|O_SYNC, S_IRWXU);
-            if(fd < 0){
-                perror("indexfile not opened");
-                exit(-1);
-            }
-            else{
-                flock(fd, LOCK_EX);
-                write(fd,  &time_stamp,  sizeof(int));
-                flock(fd, LOCK_UN);
-                printf("write stamp %d at %lf", time_stamp, MPI_Wtime());
-                close(fd);
-            }
-        }
-        // wait until all process finish writes and 
-        MPI_Barrier(comm);
-    }
-
-    else if(transport_major == NATIVE_STAGING){
-        int bounds[6] = {0};
-        double time_comm;
-
-        // xmin
-        bounds[1]=n*rank;
-        // ymin
-        bounds[0]=0;
-
-        // xmax
-        bounds[4]=n*(rank+1)-1 ;
-        // ymax
-        bounds[3]=1;
-
-        put_common_buffer(transport_minor, step,2, bounds,rank , var_name, (void **)&buffer, elem_size, &time_comm);
-        
-
-        t_put+=time_comm;
-     }
+		
+		// mark: io_template
 
         free(buffer);
 
 #ifdef ENABLE_TIMING
         t8 = MPI_Wtime();
-        clog_info(CLOG(MY_LOGGER),"rank %d: Step %d t_lbm %lf, t_write %lf, time %lf\n", rank, step, t6-t5,t8-t7, t8);
+        printf("rank %d: Step %d t_lbm %lf, t_write %lf, time %lf\n", rank, step, t6-t5,t8-t7, t8);
         t_write += t8-t7;
 #endif
 
 		//free(buffer);
 		#ifdef DEBUG_PRINT
 		if(step%10==0)
-		  clog_info(CLOG(MY_LOGGER),"Node %d step = %d\n", rank, step);
+		  printf(,"Node %d step = %d\n", rank, step);
 		#endif //DEBUG_PRINT
 		time1=0;
 
@@ -1123,44 +1096,45 @@ void run_lbm(char * filepath, int step_stop, int dims_cube[3], MPI_Comm *pcomm)
 
 
 
-		}  /* end of while loop */
+		//}  /* end of while loop */
 
-/*
-         * dimes needs to flush last step
-         */
-        if(transport_major == NATIVE_STAGING && transport_minor == DIMES){
-            char lock_name[STRING_LENGTH];
-            snprintf(lock_name, STRING_LENGTH, "%s_lock", var_name);
-            dspaces_lock_on_write(lock_name, &comm);
-            dimes_put_sync_all();
-            dspaces_unlock_on_write(lock_name, &comm);
-            clog_info(CLOG(MY_LOGGER),"rank %d: step %d last step flushed\n", rank, step);
-
-        }
-
-        printf("[rank %d]:sim_time %.3lf \n", rank, only_lbm_time);
-
-        double global_t_cal=0;
-        double global_t_write=0;
-        double global_t_put=0;
-        MPI_Reduce(&only_lbm_time, &global_t_cal, 1, MPI_DOUBLE, MPI_MAX, 0, comm);
-        MPI_Reduce(&t_write, &global_t_write, 1, MPI_DOUBLE, MPI_SUM, 0, comm);
-        MPI_Reduce(&t_put, &global_t_put, 1, MPI_DOUBLE, MPI_SUM, 0, comm);
-
-        if(rank == 0){
-            //printf("t_prepare:%f s, t_cal %f s,t_buffer = %f, t_write %f s, t_put %f s\n", rank,init_lbm_time, only_lbm_time,t_buffer, t_write, t_write_2);
-            clog_info(CLOG(MY_LOGGER),"t_prepare:%f s, max t_cal %f s,t_buffer = %f, t_write %f s, t_put %f s\n", init_lbm_time, global_t_cal ,t_buffer, global_t_write/nprocs, global_t_put/nprocs);
-        }
-
-		// MPI_Barrier(comm1d);
-		t3= MPI_Wtime();
-
-		MPI_Comm_free(&comm1d);
-		MPI_Type_free(&newtype);
-		MPI_Type_free(&newtype_bt);
-		MPI_Type_free(&newtype_fr);
 }
 
+
+status_t lbm_finalize(MPI_Comm *pcomm, void *buff);{
+
+	// from "end of while loop in original code"
+	printf("[rank %d]:sim_time %.3lf \n", rank, only_lbm_time);
+
+	double global_t_cal=0;
+	double global_t_write=0;
+	double global_t_put=0;
+	MPI_Reduce(&only_lbm_time, &global_t_cal, 1, MPI_DOUBLE, MPI_MAX, 0, comm);
+	MPI_Reduce(&t_write, &global_t_write, 1, MPI_DOUBLE, MPI_SUM, 0, comm);
+	MPI_Reduce(&t_put, &global_t_put, 1, MPI_DOUBLE, MPI_SUM, 0, comm);
+
+	if(rank == 0){
+		//printf("t_prepare:%f s, t_cal %f s,t_buffer = %f, t_write %f s, t_put %f s\n", rank,init_lbm_time, only_lbm_time,t_buffer, t_write, t_write_2);
+		printf("t_prepare:%f s, max t_cal %f s,t_buffer = %f, t_write %f s, t_put %f s\n", init_lbm_time, global_t_cal ,t_buffer, global_t_write/nprocs, global_t_put/nprocs);
+	}
+
+	// MPI_Barrier(comm1d);
+	t3= MPI_Wtime();
+
+	MPI_Comm_free(&comm1d);
+	MPI_Type_free(&newtype);
+	MPI_Type_free(&newtype_bt);
+	MPI_Type_free(&newtype_fr);
+
+	// call the free function
+	free_4d()
+	free_3d()
+
+}
+
+/*
+ * test driver for lbm code
+ */
 int main(int argc, char * argv[]){
 
     /*
@@ -1172,7 +1146,10 @@ int main(int argc, char * argv[]){
         printf("run_lbm nstop total_file_size\n");
         exit(-1);
     }
-    int nstop; //run how many steps
+	int nstop; //run how many steps
+	int i;
+	int nlocal; //nlines processed by each process
+	int size_one = 2; // each line stores 2 doubles
 
     nstop = atoi(argv[1]);
     int filesize2produce = atoi(argv[2]);
@@ -1190,142 +1167,38 @@ int main(int argc, char * argv[]){
 
     char nodename[256];
     int nodename_length;
-    MPI_Get_processor_name(nodename, &nodename_length );
+	MPI_Get_processor_name(nodename, &nodename_length );
+	
+	/* prepare local buff */
+	double *buff = (double *)malloc(nlocal*sizeof(double)*size_one);
+	if(NULL == buff){
+		perror("[lbm]: allocate local buff\n");
+		goto cleanup;
+	}
 
-    /*
-     * init the clog
-     */
-    
-    int r;
+	/* init lbm with dimension info*/
+	if( S_FAIL == lbm_init( dims_cube,&comm, buff ){
+		printf("[lbm]: init not success, now exit\n");
+		goto cleanup;
+	}
 
-    char *filepath = getenv("SCRATCH_DIR");
-    if(filepath == NULL){
-        fprintf(stderr, "scratch dir is not set!\n");
-    }
-    if(rank == 0){
-        r = clog_init_fd(MY_LOGGER, 1);
-    }
-    else{
-        char log_path[256];
-        sprintf(log_path,"%s/results/producer_%d.clog",filepath, rank);
-        r = clog_init_path(MY_LOGGER, log_path);
-    }
-    if (r != 0) {
-      fprintf(stderr, "Logger initialization failed.\n");
-      return 1;
-    }
-    else{
-      clog_info(CLOG(MY_LOGGER),"Logger init OK");
-    }
+	for(i = 0; i< nstop; i++){
+		lbm_advance_step(&comm, buff);
+		printf("[lbm]: step %d processed\n", i);
+	}
 
-    /*
-     * get transport method from env variable
-     */
-    transport = get_current_transport();
-    uint8_t transport_major = get_major(transport);
-    uint8_t transport_minor = get_minor(transport);
-    clog_info(CLOG(MY_LOGGER),"%s:I am rank %d of %d, tranport code %x-%x\n",
-            nodename, rank, nprocs,
-            get_major(transport), get_minor(transport) );
-    if(rank == 0){
-      clog_info(CLOG(MY_LOGGER),"stat: Producer start at %lf \n", MPI_Wtime());
-    }
+	if(S_OK == lbm_finalize(&comm, buff){
+		printf("[lbm]: finalized\n");
+	}
 
-
-  if(transport_major == ADIOS_DISK || transport_major == ADIOS_STAGING){
-
-      char xmlfile[256], trans_method[256];
-
-      if(transport_major == ADIOS_DISK){
-        strcpy(trans_method, "mpiio");
-      }
-      else{
-          if(transport_minor == DSPACES)
-               strcpy(trans_method, "dataspaces");
-          else if(transport_minor == DIMES) strcpy(trans_method, "dimes");
-
-          else if(transport_minor == FLEXPATH)
-               strcpy(trans_method, "flexpath");
-      }
-
-      sprintf(xmlfile,"adios_xmls/dbroker_%s.xml", trans_method);
-      clog_info(CLOG(MY_LOGGER),"[r%d] try to init with %s\n", rank, xmlfile);
-
-      if(adios_init (xmlfile, comm) != 0){
-        clog_info(CLOG(MY_LOGGER),"[r%d] ERROR: adios init err with %s\n", rank, trans_method);
-        clog_info(CLOG(MY_LOGGER),"[r%d] ERR: %s\n", rank, adios_get_last_errmsg());
-        return -1;
-      }
-      else{
-          //if(rank ==0)
-            clog_info(CLOG(MY_LOGGER),"rank %d : adios init complete with %s\n", rank, trans_method);
-      }
-      MPI_Barrier(comm);
-  } //use ADIOS_DISK or ADIOS_STAGING
-
-  else  if(transport_major == NATIVE_STAGING){
-        char msg[STRING_LENGTH];
-        int ret = -1;
-        clog_info(CLOG(MY_LOGGER),"trying init dspaces for %d process\n", nprocs);
-        ret = dspaces_init(nprocs, 1, &comm, NULL);
-
-        clog_info(CLOG(MY_LOGGER),"dspaces init successfuly \n");
-
-        if(ret == 0){
-            clog_info(CLOG(MY_LOGGER), "dataspaces init successfully");
-        }else{
-            clog_error(CLOG(MY_LOGGER), "dataspaces init error");
-            exit(-1);
-        }
-
-        /*
-        * set bounds and dspaces variables
-        */
-        sprintf(var_name, "atom");
-
-
-        // data layout
-//#ifdef FORCE_GDIM
-        int n = dims_cube[0]*dims_cube[1]*dims_cube[2];
-        //uint64_t gdims[2] = {2, n*nprocs};
-        //dspaces_define_gdim(var_name, 2,gdims);
-//#endif
-   }
-
-
-
-  if(rank == 0 ){
-      clog_info(CLOG(MY_LOGGER),"output will be saved in %s\n", filepath);
-  }
-
+	// free buff
+	if(buff){
+		free(buff);
+	}
+	  //run_lbm(filepath, nstop, dims_cube, &comm);
   MPI_Barrier(comm);
-  double t_start = MPI_Wtime();
-  if(rank == 0){
-      clog_info(CLOG(MY_LOGGER),"stat:Simulation start at %lf \n", t_start);
-      clog_info(CLOG(MY_LOGGER),"stat:FILE2PRODUCE=%d, NSTOP= %d \n", filesize2produce, nstop);
-  }
-  run_lbm(filepath, nstop, dims_cube, &comm);
 
-  MPI_Barrier(comm);
-  double t_end = MPI_Wtime();
-  if(rank == 0){
-      clog_info(CLOG(MY_LOGGER),"stat:Simulation stop at %lf \n", t_end);
-  }
-
-if(transport_major == ADIOS_DISK || transport_major == ADIOS_STAGING){
-  adios_finalize (rank);
-  clog_info(CLOG(MY_LOGGER),"rank %d: adios finalize complete\n", rank); 
-}
-
-else if(transport_major == NATIVE_STAGING){
-    dspaces_finalize();
-}
-
-
-  /*
-   * close logger
-   */
-  clog_free(MY_LOGGER);
+cleanup:
   MPI_Finalize();
   printf("rank %d: exit\n", rank);
   return 0;
