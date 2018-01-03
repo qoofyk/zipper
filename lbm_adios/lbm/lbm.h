@@ -1,5 +1,17 @@
+/*
+ * lbm simulation code 
+ *
+ * author luoding zhu
+ * rewrite by Feng Li, Jan 2018
+ */
 #ifndef LBM_H
 #define LBM_H
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -58,6 +70,10 @@ status_t lbm_advance_step(MPI_Comm * pcomm);
  * @param pcomm pointer to communicator
  */
 status_t lbm_finalize(MPI_Comm *pcomm);
+
+#ifdef __cplusplus
+}
+#endif
 
 
 #endif

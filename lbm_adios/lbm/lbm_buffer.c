@@ -60,12 +60,16 @@ status_t lbm_free_buffer(MPI_Comm *pcomm, double *buffer){
     return S_OK;
 }
 
+status_t lbm_io_template(MPI_Comm *pcomm, double *buffer, size_t nlocal, size_t size_one){
+    return S_OK;
+}
 
 
-
+#if 0
 /*
  * test driver for lbm code
  */
+
 int main(int argc, char * argv[]){
 
     /*
@@ -79,7 +83,11 @@ int main(int argc, char * argv[]){
     }
 	int i;
 
+    
+
+
 	/*those are all the information io libaray need to know about*/
+    MPI_Comm comm;
 	int nlocal; //nlines processed by each process
 	int size_one = SIZE_ONE; // each line stores 2 doubles
 	double *buffer; // buffer address
@@ -89,13 +97,12 @@ int main(int argc, char * argv[]){
     int dims_cube[3] = {filesize2produce/4,filesize2produce/4,filesize2produce};
     //strcpy(filepath, argv[3]);
 
-	MPI_Init(&argc, &argv);
-
-    MPI_Comm comm = MPI_COMM_WORLD;
-    
+    /* prepare */
+    MPI_Init(&argc, &argv);
+    comm = MPI_COMM_WORLD;
 	nlocal = dims_cube[0]*dims_cube[1]*dims_cube[2];
-	
 	lbm_alloc_buffer(&comm, nlocal, size_one, &buffer);
+
 	/* init lbm with dimension info*/
 	if( S_FAIL == lbm_init(&comm, nsteps)){
 		printf("[lbm]: init not success, now exit\n");
@@ -140,3 +147,4 @@ cleanup:
     printf("now exit! \n");
   return 0;
 }
+#endif

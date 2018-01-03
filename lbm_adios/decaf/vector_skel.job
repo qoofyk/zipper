@@ -41,7 +41,7 @@ module list
 
 echo "procs is \[ ${procs_this_app[*]}\], nodes is \[${nodes_this_app[*]}\]"
 
-export BUILD_DIR=${PBS_O_WORKDIR}/build_debug
+export BUILD_DIR=${PBS_O_WORKDIR}/build
 
 #This job runs with 3 nodes  
 #ibrun in verbose mode will give binding detail  #BUILD=${PBS_O_WORKDIR}/build_dspaces/bin

@@ -34,9 +34,12 @@
 #include <utility>
 #include <map>
 
-#ifndef NLINES
-#define NLINES (256*256*16) // each proc write 10 lines
-#endif
+#include "lbm.h"
+#include "lbm_buffer.h"
+
+/*#ifndef NLINES*/
+//#define NLINES (256*256*16) // each proc write 10 lines
+/*#endif*/
 
 #ifndef SIZE_ONE
 #define SIZE_ONE (2)
@@ -58,60 +61,71 @@ using namespace std;
 void prod(Decaf* decaf)
 {
     int nsteps = 100;
-    int analysis_interval=1;
     int rank;
+
+
+	/*those are all the information io libaray need to know about*/
+    MPI_Comm comm;
+	int nlocal; //nlines processed by each process
+	int size_one = SIZE_ONE; // each line stores 2 doubles
+	double *buffer; // buffer address
+
+    int dims_cube[3] = {filesize2produce/4,filesize2produce/4,filesize2produce};
+
+    /* prepare */
+    comm = decaf->prod_comm_handle();
+	nlocal = dims_cube[0]*dims_cube[1]*dims_cube[2];
+	lbm_alloc_buffer(&comm, nlocal, size_one, &buffer);
+
+    if( S_FAIL == lbm_init(&comm, nsteps)){
+		printf("[lbm]: init not success, now exit\n");
+		goto cleanup;
+	}
 
     rank = decaf->prod_comm()->rank();
     cout << "producer start, I am rank " << rank <<endl;
 
     int i;
-    double a, b;
-    a = 0, b=0;
 
     double t_start = MPI_Wtime();
 
     for (int timestep = 0; timestep < nsteps; timestep++)
     {
-        fprintf(stderr, "lammps\n");
 
-        int natoms = NLINES;
-        double* x = new double[SIZE_ONE * NLINES];
+        if(S_OK != lbm_advance_step(&comm)){
+			fprintf(stderr, "[lbm]: err when process step %d\n", i);
+		}
+	
+		// get the buffer
+		if(S_OK != lbm_get_buffer(buffer)){
+			fprintf(stderr, "[lbm]: err when updated buffer at step %d\n", i);
 
-//#ifdef DEBUG
-        /*
-         * get the sum
-         */
-        for(i = 0; i< natoms; i++){
-            x[i*SIZE_ONE] = i*0.001 + rank;
-            x[i*SIZE_ONE+1] =(-1)*( i*(0.001) + rank);
-            //x[i*3+2] = i*(0.001);
-            //
-            a += x[i*SIZE_ONE];
-            b += x[i*SIZE_ONE+1];
-        }
-//#endif
+		}
 
-        if (!((timestep + 1) % analysis_interval))
+        
+        /* decaf put */
+        if (1)
         {
             pConstructData container;
 
             // lammps gathered all positions to rank 0
             //if (decaf->prod_comm()->rank() == 0)
-            if (1)
+            if (rank == 0)
             {
-                fprintf(stderr, "lammps producing time step %d with %d atoms\n",
-                        timestep, natoms);
+                fprintf(stderr, "lbm producing time step %d with %d lines\n",
+                        timestep, nlocal);
+
+            }
                 // debug
                 //         for (int i = 0; i < 10; i++)         // print first few atoms
                 //           fprintf(stderr, "%.3lf %.3lf %.3lf\n",
                 // x[3 * i], x[3 * i + 1], x[3 * i + 2]);
 
-                VectorFliedd data(x, SIZE_ONE * natoms, SIZE_ONE);
+            VectorFliedd data(buffer, size_one * nlocal, size_one);
 
-                container->appendData("pos", data,
+            container->appendData("pos", data,
                                       DECAF_NOFLAG, DECAF_PRIVATE,
                                       DECAF_SPLIT_DEFAULT, DECAF_MERGE_DEFAULT);
-            }
             /*else*/
             //{
                 //vector<double> pos;
@@ -123,16 +137,22 @@ void prod(Decaf* decaf)
 
             decaf->put(container);
         }
-        delete[] x;
     }
+
+    if(S_OK != lbm_finalize(&comm)){
+		fprintf(stderr, "[lbm]: err when finalized\n");
+	}
+	if(S_OK != lbm_free_buffer(&comm, buffer)){
+		fprintf(stderr, "[lbm]: err when free and summarize\n");
+	}
+
     double t_end = MPI_Wtime();
     printf("total-start-end %.3f %.3f %.3f\n", t_end- t_start, t_start, t_end);
 
     // terminate the task (mandatory) by sending a quit message to the rest of the workflow
+cleanup:
     fprintf(stderr, "producer exit\n");
-//#ifdef DEBUG
-    printf("with summary a= %.3f b = %.3f\n", a, b);
-//#endif
+
     decaf->terminate();
 
 }
@@ -162,7 +182,6 @@ void print(Decaf* decaf)
                 fprintf(stderr, "consumer printing %d atoms at step %d\n",
                         pos.getNbItems(),
                         step);
-//#ifdef DEBUG
                 for (int i = 0; i < pos.getNbItems(); i++){           // print first few atoms
 /*                    fprintf(stderr, "%.3lf %.3lf\n",*/
                             //pos.getVector()[SIZE_ONE * i],
@@ -170,13 +189,16 @@ void print(Decaf* decaf)
                             //pos.getVector()[3 * i + 2]);
                     a+= pos.getVector()[SIZE_ONE * i];
                     b+= pos.getVector()[SIZE_ONE * i+1];
-//#endif
                 }
+
+#ifdef DEBUG
                 printf("first (%.3lf,%.3lf), last (%.3lf, %.3lf)\n",
                             pos.getVector()[0],
                             pos.getVector()[1],
                             pos.getVector()[SIZE_ONE *pos.getNbItems() -2],
                             pos.getVector()[SIZE_ONE *pos.getNbItems() -1]);
+
+#endif
 
             }
             else
