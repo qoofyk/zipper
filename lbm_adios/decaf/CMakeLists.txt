@@ -1,4 +1,11 @@
+
 message("Building vector example")
+set(transport_mpi on CACHE BOOL "enable mpi transport for decaf")
+set(transport_cci on CACHE BOOL "enable cci transport for decaf")
+#set(transport_file off CACHE BOOL "enable hdf5 file transport for decaf")
+set(CCI_PREFIX "/work/04446/tg837458/stampede2/software/install" CACHE PATH "cci path")
+set(DECAF_PREFIX "/work/04446/tg837458/stampede2/software/install" CACHE PATH "decaf path")
+include(${CMAKE_SOURCE_DIR}/cmake/decaf.cmake)
 
 add_executable            (vector_2nodes            vector_2nodes.cpp)
 add_library               (mod_vector_2nodes MODULE vector_2nodes.cpp)

@@ -1,7 +1,7 @@
 message("building standalone lbm")
 
 add_executable(lbm lbm.c lbm_buffer.c)
-add_library(mod_lbm shared lbm.c)
+add_library(mod_lbm lbm.c)
 
 #target_link_libraries(lbm ${LIBRARIES})
 #target_link_libraries(mod_lbm ${LIBRARIES})

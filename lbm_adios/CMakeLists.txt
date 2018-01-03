@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 2.8 FATAL_ERROR)
-include(${CMAKE_SOURCE_DIR}/mk/common.cmake)
+include(${CMAKE_SOURCE_DIR}/cmake/common.cmake)
 
 project("lbm_adios")
 add_definitions ("-DENABLE_TIMING")
@@ -37,7 +37,6 @@ target_link_libraries(adaptor ${ADIOS} ${DSPACES} ${DSCOMMON} ${DART} ${EVPATH} 
 target_link_libraries(adaptor ${MPI_LIBRARIES} pthread rt rdmacm ibverbs)
 
 add_executable(run_lbm run_lbm.c)
-add_subdirectory(lbm)
 add_executable(adios_staging_read adios_staging_read.c run_analysis.c )
 add_executable(adios_disk_read adios_disk_read.c run_analysis.c )
 
@@ -59,6 +58,8 @@ foreach(item ${myTARGET})
     endif()
 endforeach(item)
 
+add_subdirectory(lbm)
+add_subdirectory(decaf)
 add_subdirectory(tests)
 
 

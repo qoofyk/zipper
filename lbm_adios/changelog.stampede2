@@ -13,7 +13,9 @@ TODO
 	3. ENABLE_TESTING in flexpath conf, enabled
 
 ## Jan 3
-	buffer operation is now in seperate objects, also 38s per step
+	* decaf added to the source tree, cmake files are now in cmake/
+	* buffer operation is now in seperate objects, also 38s per step
+
 ## Jan 2
 	now buffer is seperated from lbm
 ## Dec 30

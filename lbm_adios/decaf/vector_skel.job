@@ -30,16 +30,18 @@ export SCRATCH_DIR=${SCRATCH}/decaf_skel/${SLURM_JOBID}
 env|grep '^HAS' # trace enabled?
 env|grep '^OMP' # trace enabled?
 
-module load remora
+#module load remora
 
 #module load libfabric
+module load boost
+module load phdf5
 module list
 
 
 
 echo "procs is \[ ${procs_this_app[*]}\], nodes is \[${nodes_this_app[*]}\]"
 
-export BUILD_DIR=${PBS_O_WORKDIR}/build
+export BUILD_DIR=${PBS_O_WORKDIR}/build_debug
 
 #This job runs with 3 nodes  
 #ibrun in verbose mode will give binding detail  #BUILD=${PBS_O_WORKDIR}/build_dspaces/bin
@@ -73,12 +75,12 @@ procs_all=$((procs_prod + procs_con + procs_link))
 
 # generate graph
 #PYTHON_RUN="python $PBS_O_WORKDIR/vector/vector_2nodes.py --np ${procs_all} --hostfile ${HOST_DIR}/machinefile-all"
-PYTHON_RUN="python $PBS_O_WORKDIR/vector/vector_2nodes_topo.py --np ${procs_all} --hostfile ${HOST_DIR}/machinefile-all"
+PYTHON_RUN="python $PBS_O_WORKDIR/decaf/vector_2nodes_topo.py --np ${procs_all} --hostfile ${HOST_DIR}/machinefile-all"
 $PYTHON_RUN &> python.log
 echo "python run $PYTHON_RUN"
 
 ## order is prod/link/consumer
-mpirun -l  --machinefile ${HOST_DIR}/machinefile-all -np ${procs_prod} $BUILD_DIR/vector/vector_2nodes : -np ${procs_link} $BUILD_DIR/vector/vector_2nodes : -np ${procs_con} $BUILD_DIR/vector/vector_2nodes
+mpirun -l  --machinefile ${HOST_DIR}/machinefile-all -np ${procs_prod} $BUILD_DIR/bin/vector_2nodes : -np ${procs_link} $BUILD_DIR/bin/vector_2nodes : -np ${procs_con} $BUILD_DIR/bin/vector_2nodes
 
 
 ## Wait for the entire workflow to finish

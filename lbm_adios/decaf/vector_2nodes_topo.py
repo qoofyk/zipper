@@ -13,7 +13,7 @@ wf = imp.load_source('workflow', os.environ['DECAF_PREFIX'] + '/python/workflow.
 # --- set your options here ---
 
 # path to .so module for dataflow callback functions
-mod_path = os.environ['BUILD_DIR'] + '/vector/mod_vector_2nodes.so'
+mod_path = os.environ['BUILD_DIR'] + '/decaf/mod_vector_2nodes.so'
 
 # define workflow graph
 # 2-node workflow
@@ -39,10 +39,10 @@ topoCon = topo.subTopology("con", procs_con, procs_prod+procs_link)
 
 # Creating the graph
 w = nx.DiGraph()
-w.add_node("prod", topology=topoProd, func='prod', cmdline=os.environ['BUILD_DIR'] + '/vector/vector_2nodes')
-w.add_node("con", topology=topoCon, func='print', cmdline=os.environ['BUILD_DIR'] + '/vector/vector_2nodes')
+w.add_node("prod", topology=topoProd, func='prod', cmdline=os.environ['BUILD_DIR'] + '/bin/vector_2nodes')
+w.add_node("con", topology=topoCon, func='print', cmdline=os.environ['BUILD_DIR'] + '/bin/vector_2nodes')
 w.add_edge("prod", "con", topology=topoDflow, func='dflow', path=mod_path,
-           prod_dflow_redist='count', dflow_con_redist='count',cmdline=os.environ['BUILD_DIR'] +'/vector/vector_2nodes')
+           prod_dflow_redist='count', dflow_con_redist='count',cmdline=os.environ['BUILD_DIR'] +'/bin/vector_2nodes')
 
 # --- convert the nx graph into a workflow data structure and run the workflow ---
 wf.processGraph(w, "vector2")
