@@ -14,7 +14,7 @@ status_t lbm_io_template(MPI_Comm *pcomm, double *buffer, size_t nlocal, size_t 
     return S_OK;
 }
 
-status_t lbm_alloc_buffer(size_t nlines, size_t size_one, double **pbuffer);
+status_t lbm_alloc_buffer(MPI_Comm *pcomm, size_t nlines, size_t size_one, double **pbuffer);
 status_t lbm_get_buffer(double *buffer);
 status_t lbm_free_buffer(MPI_Comm *pcomm, double *buffer);
 

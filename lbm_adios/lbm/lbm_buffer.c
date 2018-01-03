@@ -5,16 +5,20 @@ extern double only_lbm_time, init_lbm_time; // timer can also be placed outside
 extern double u_r;
 extern double u[nx][ny][nz],v[nx][ny][nz];
 
-static int    rank, nprocs;
+static int    rank, nprocs; // will initialize in alloc_buffer
 
 
-status_t lbm_alloc_buffer(size_t nlocal, size_t size_one, double **pbuff){
-/* alloc io buffer */
+status_t lbm_alloc_buffer(MPI_Comm *pcomm, size_t nlocal, size_t size_one, double **pbuff){
+        /* alloc io buffer */
+        MPI_Comm comm = *pcomm;
+        MPI_Comm_rank (comm, &rank);
+        MPI_Comm_size (comm, &nprocs);
+
 		*pbuff = (double *)malloc(nlocal*sizeof(double)*size_one);
 		if(NULL == *pbuff) return S_FAIL;
-		if(rank == 0){
-			printf("[LBM INFO]: io buffer allocated\n");
-		}
+        if(rank == 0){
+            printf("[LBM INFO]: io buffer allocated\n");
+        }
         return S_OK;
 }
 
@@ -88,17 +92,10 @@ int main(int argc, char * argv[]){
 	MPI_Init(&argc, &argv);
 
     MPI_Comm comm = MPI_COMM_WORLD;
-    //int         rank, nprocs; // now is global
-    MPI_Comm_rank (comm, &rank);
-    MPI_Comm_size (comm, &nprocs);
-
-    char nodename[256];
-    int nodename_length;
-	MPI_Get_processor_name(nodename, &nodename_length );
-
+    
 	nlocal = dims_cube[0]*dims_cube[1]*dims_cube[2];
 	
-	lbm_alloc_buffer(nlocal, size_one, &buffer);
+	lbm_alloc_buffer(&comm, nlocal, size_one, &buffer);
 	/* init lbm with dimension info*/
 	if( S_FAIL == lbm_init(&comm, nsteps)){
 		printf("[lbm]: init not success, now exit\n");
