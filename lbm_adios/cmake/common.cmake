@@ -34,11 +34,8 @@ elseif(CMAKE_BUILD_TYPE MATCHES Bridges_TAU)
   set(TRANSPORT_LIB "$ENV{WORK}/envs/tau_bundle" CACHE PATH "The path to transport libs")
 
 else()
-  message("-- ${CMAKE_CURRENT_SOURCE_DIR} > Defaulting to stampede")
-  set(CMAKE_BUILD_TYPE Stampede)
-  set(CMAKE_C_COMPILER  icc)
-  set(CMAKE_CXX_COMPILER  icpc)
-  set(TRANSPORT_LIB "$ENV{WORK}/envs/transports_icc_impi" CACHE PATH "The path to transport libs.")
+    message(FATAL_ERROR "-- need build type")
+  
 endif()
 
 message("-- Including transport method in ${TRANSPORT_LIB} is loaded...")

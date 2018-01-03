@@ -13,7 +13,10 @@ TODO
 	3. ENABLE_TESTING in flexpath conf, enabled
 
 ## Jan 3
-	* decaf is connected with lbm and 100 steps runs for 87s
+	* decaf is linked with lbm, end2end time  78s for 64v32, now use nmoments
+	=4
+	* decaf is connected with lbm and 100 steps runs for 87s(not using
+	optimizing flags)
 	* decaf added to the source tree, cmake files are now in cmake/
 	* buffer operation is now in seperate objects, also 38s per step
 

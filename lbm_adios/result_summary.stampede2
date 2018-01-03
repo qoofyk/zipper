@@ -1,5 +1,15 @@
 # jan 2
   JOBS 
+j
+562068
+    decaf-lbm: send_receive time has 0.8~27.5s
+561906
+    changed to noments=4
+    end2end 75.5s , max analysis 40.83, sim: 34.2~61.3
+561906
+    now with optimized on, 100 steps 78s, max analysis 42s, end2end time, sim time 35.2~50.8s, nmoments=3
+561859
+    tried to compile analysis as so, analysis code is slower, 7s per step. row back
 561069:
     decaf with lbm: 
         100 steps68v34 87s,lbm time ranges fromm (47s~72s), analysis just print

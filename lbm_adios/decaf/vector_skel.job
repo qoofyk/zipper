@@ -4,7 +4,7 @@
 #SBATCH --partition=normal
 #SBATCH --nodes=4
 #SBATCH --ntasks-per-node=68
-#SBATCH -t 00:5:00
+#SBATCH -t 00:8:00
 
 #SBATCH --mail-type=BEGIN
 # send mail to this address

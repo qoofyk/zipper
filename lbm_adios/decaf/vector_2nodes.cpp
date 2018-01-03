@@ -36,6 +36,7 @@
 
 #include "lbm.h"
 #include "lbm_buffer.h"
+#include "run_analysis.h"
 
 /*#ifndef NLINES*/
 //#define NLINES (256*256*16) // each proc write 10 lines
@@ -85,21 +86,20 @@ void prod(Decaf* decaf)
     rank = decaf->prod_comm()->rank();
     cout << "producer start, I am rank " << rank <<endl;
 
-    int i;
 
+    //MPI_Barrier(comm);
     double t_start = MPI_Wtime();
 
     for (int timestep = 0; timestep < nsteps; timestep++)
     {
 
         if(S_OK != lbm_advance_step(&comm)){
-			fprintf(stderr, "[lbm]: err when process step %d\n", i);
+			fprintf(stderr, "[lbm]: err when process step %d\n", timestep);
 		}
 	
 		// get the buffer
 		if(S_OK != lbm_get_buffer(buffer)){
-			fprintf(stderr, "[lbm]: err when updated buffer at step %d\n", i);
-
+			fprintf(stderr, "[lbm]: err when updated buffer at step %d\n", timestep);
 		}
 
         
@@ -146,6 +146,7 @@ void prod(Decaf* decaf)
 		fprintf(stderr, "[lbm]: err when free and summarize\n");
 	}
 
+    //MPI_Barrier(comm);
     double t_end = MPI_Wtime();
     printf("total-start-end %.3f %.3f %.3f\n", t_end- t_start, t_start, t_end);
 
@@ -158,7 +159,7 @@ cleanup:
 }
 
 // gets the atom positions and prints them
-void print(Decaf* decaf)
+void print_skel(Decaf* decaf)
 {
     vector< pConstructData > in_data;
 
@@ -179,7 +180,7 @@ void print(Decaf* decaf)
             if (pos)
             {
                 // debug
-                fprintf(stderr, "consumer printing %d atoms at step %d\n",
+                fprintf(stderr, "[lbm]: consumer printing %d atoms at step %d\n",
                         pos.getNbItems(),
                         step);
                 for (int i = 0; i < pos.getNbItems(); i++){           // print first few atoms
@@ -202,20 +203,100 @@ void print(Decaf* decaf)
 
             }
             else
-                fprintf(stderr, "Error: null pointer in node2\n");
+                fprintf(stderr, "[lbm]: Error: null pointer in node2\n");
         }
         step +=1;
     }
     double t_end = MPI_Wtime();
-    printf("total-start-end %.3f %.3f %.3f\n", t_end- t_start, t_start, t_end);
+    printf("[lbm]: total-start-end %.3f %.3f %.3f\n", t_end- t_start, t_start, t_end);
 
     // terminate the task (mandatory) by sending a quit message to the rest of the workflow
-    fprintf(stderr, "print terminating\n");
+    fprintf(stderr, "[lbm]: print terminating\n");
 
 
 //#ifdef DEBUG
-    printf("with summary a= %.3f b = %.3f\n", a, b);
+    printf("[lbm]: with summary a= %.3f b = %.3f\n", a, b);
 //#endif
+    decaf->terminate();
+}
+
+// gets the atom positions and prints them
+void print(Decaf* decaf)
+{
+
+    /* data structure for analysis */
+    int lp = N_LP;
+    double sum_vx[NMOMENT], sum_vy[NMOMENT];
+    double global_t_analy = 0, t_analy = 0;
+    double t1, t2;
+    int slice_size = 0;
+    double *buffer;
+    MPI_Comm comm;
+    int rank;
+
+    comm = decaf->con_comm_handle();
+    rank = decaf->con_comm()->rank();
+
+    vector< pConstructData > in_data;
+
+    int step = 0;
+
+
+    if(rank == 0){
+        printf("[noments]: application starts\n");
+    }
+
+    //MPI_Barrier(comm);
+    double t_start = MPI_Wtime();
+    while (decaf->get(in_data))
+    {
+        // get the values
+        for (size_t i = 0; i < in_data.size(); i++)
+        {
+            VectorFliedd pos = in_data[i]->getFieldData<VectorFliedd>("pos");
+            if (pos)
+            {
+                // debug
+                slice_size = pos.getNbItems();
+#ifdef DEBUG
+                fprintf(stderr, "[nmoments]: consumer processing %d atoms at step %d\n",
+                        slice_size,
+                        step);
+#endif
+
+
+                buffer = &pos.getVector()[0];
+
+                t1 =MPI_Wtime(); 
+                run_analysis(buffer, slice_size, lp, sum_vx,sum_vy);
+
+                t2 =MPI_Wtime(); 
+                t_analy += t2-t1;
+
+            }
+            else
+                fprintf(stderr, "[noments]: Error: null pointer in node2\n");
+        }
+
+        //printf("[nmoments]: Step %d,t_analy %lf\n", step, t2-t1);
+
+        step +=1;
+    }
+
+   printf("[nmoments]: t_analy %lf\n", t_analy);
+    //MPI_Barrier(comm);
+    double t_end = MPI_Wtime();
+
+    MPI_Reduce(&t_analy, &global_t_analy, 1, MPI_DOUBLE, MPI_MAX, 0, comm);
+    if(rank == 0){
+		printf("[nmoments]: max t_analysis %.3f s\n", global_t_analy);
+	}
+    printf("[noments]: total-start-end %.3f %.3f %.3f\n", t_end- t_start, t_start, t_end);
+
+    // terminate the task (mandatory) by sending a quit message to the rest of the workflow
+    fprintf(stderr, "[noments]: terminating\n");
+
+
     decaf->terminate();
 }
 

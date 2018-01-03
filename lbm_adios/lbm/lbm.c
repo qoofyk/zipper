@@ -48,7 +48,7 @@ double rho[nx][ny][nz],u[nx][ny][nz],v[nx][ny][nz],w[nx][ny][nz];
 static int step; // current step
 static int step_stop; //run how many steps
 // timer
-double t_buffer = 0;
+double t0, t1, t_stream = 0;
 
 static int  rank, nprocs;
 
@@ -588,6 +588,7 @@ status_t streaming(){
 
 		      }
 
+		t0=MPI_Wtime();
 
 		#ifdef DEBUG_PRINT
 		printf("Compute Node %d Generator start LBM data sending and receiving !\n", rank);
@@ -662,6 +663,10 @@ status_t streaming(){
 
 		           &df1[e+1][n2-2][0][16],1,newtype_fr,nbright,1616,comm1d,&status);
 		// MPI_Barrier(comm1d);
+        //
+		t1=MPI_Wtime();
+        t_stream += t1-t0;
+
 
 		#ifdef DEBUG_PRINT
 		printf("Compute Node %d Generator finish LBM data sending and receiving !\n",rank);
@@ -1048,6 +1053,7 @@ status_t lbm_finalize(MPI_Comm *pcomm){
 
 	// from "end of while loop in original code"
 	printf("[rank %d]:sim_time %.3lf \n", rank, only_lbm_time);
+	printf("[rank %d]:stream_time %.3lf \n", rank, t_stream);
 
 
 	MPI_Comm_free(&comm1d);

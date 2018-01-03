@@ -12,6 +12,7 @@ add_executable            (vector_2nodes            vector_2nodes.cpp)
 add_library               (mod_vector_2nodes MODULE vector_2nodes.cpp)
 target_link_libraries     (vector_2nodes
                             mod_lbm
+                            nmoments_analysis
                             ${libraries})
     # ${bredala_transports} bredala_datamodel manala decaf)
 
