@@ -14,7 +14,7 @@
 num_apps=3
 
 # slots used by this app
-procs_this_app=(64 4 32)
+procs_this_app=(68 16 34)
 
 # number of nodes used by this app
 nodes_this_app=(2 1 1)

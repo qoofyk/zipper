@@ -13,6 +13,8 @@ TODO
 	3. ENABLE_TESTING in flexpath conf, enabled
 
 ## Jan 3
+	* question: analysis time is longer than yuankun's 40s v 20s
+	* end2end time is 60s+ if using more link processes 
 	* decaf is linked with lbm, end2end time  78s for 64v32, now use nmoments
 	=4
 	* decaf is connected with lbm and 100 steps runs for 87s(not using

@@ -258,11 +258,10 @@ void print(Decaf* decaf)
             {
                 // debug
                 slice_size = pos.getNbItems();
-#ifdef DEBUG
+
                 fprintf(stderr, "[nmoments]: consumer processing %d atoms at step %d\n",
                         slice_size,
                         step);
-#endif
 
 
                 buffer = &pos.getVector()[0];
@@ -363,6 +362,7 @@ void run(Workflow& workflow            // workflow
 
 // test driver for debugging purposes
 // normal entry point is run(), called by python
+#if 1
 int main(int argc,
          char** argv)
 {
@@ -459,3 +459,4 @@ int main(int argc,
 
     /*return 0;*/
 }
+#endif

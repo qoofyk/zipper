@@ -65,7 +65,7 @@ status_t lbm_io_template(MPI_Comm *pcomm, double *buffer, size_t nlocal, size_t 
 }
 
 
-#if 0
+#if 1
 /*
  * test driver for lbm code
  */
