@@ -1,30 +1,3 @@
-#!/bin/bash
-#SBATCH --job-name="decaf_skel"
-#SBATCH --output="results/%j.out"
-#SBATCH --partition=normal
-#SBATCH --nodes=4
-#SBATCH --ntasks-per-node=68
-#SBATCH -t 00:8:00
-
-#SBATCH --mail-type=BEGIN
-# send mail to this address
-#SBATCH --mail-user=lifen@iupui.edu
-
-# procs placement
-num_apps=3
-
-# slots used by this app
-procs_this_app=(68 64 34)
-
-# number of nodes used by this app
-nodes_this_app=(2 1 1)
-
-
-PBS_O_HOME=$HOME
-PBS_O_WORKDIR=$(pwd)
-export SCRATCH_DIR=${SCRATCH}/decaf_skel/${SLURM_JOBID}
-
-
 #################################################### 
 
 env|grep '^HAS' # trace enabled?
@@ -85,6 +58,3 @@ mpirun -l  --machinefile ${HOST_DIR}/machinefile-all -np ${procs_prod} $BUILD_DI
 
 ## Wait for the entire workflow to finish
 wait
-
-
-

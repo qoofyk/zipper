@@ -1,7 +1,19 @@
 # Jan 4
+564921
+    136v68
+564919
+    272v136
+564916
+    544v272
+564313(again in 564355)
+    2176v1088, terminate
+        [0] terminate called after throwing an instance of 'std::length_error'
+        [0]   what():  vector::_M_range_insert
+564228
+    1088v1024v544 decaf, 79.9
 564100 
     use test_lbm to build lbm_only, time 36.1~36.4, stream time 0.7~1.8
-564087, also build lbm as static
+564087, also build lbm as static(16 link processes)
     lbm 37.4~47.6 , end2end 58.3s, analysis 22.0~23.8(unchanged), sendrecv 2.9~13.4.
 564075, run again
     lbm 36.8~46.1 , end2end 58.45s, analysis 21.6~21.9(unchanged), sendrecv 1.3~11.0.

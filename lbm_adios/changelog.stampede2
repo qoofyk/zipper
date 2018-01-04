@@ -17,6 +17,14 @@ TODO
 		- longer analysis time in stampede: run_analysis is compiled as
 		dynamic library to accomadate decaf
 		- now all use static librarys(lbm and analysis)
+	* parameter:
+		- how many link processes should be used, see decaf/REAMDE for a small
+		experiments, 64 procs per node
+	* problem:
+		- 2176v1088 crashed
+	* new results:
+		decaf_scaling: statistics of 68v34- 1088v544(52.9~79.9s)
+
 
 ## Jan 3
 	* question: analysis time is longer than yuankun's 40s v 20s

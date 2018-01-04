@@ -26,6 +26,13 @@ written by Feng Li at Fall 2017
         
 
 ## What is missing
+1. 2176 decaf is not working
+2. decaf with lammps library
+3. other transports need to use lbm and analysis library
+4. traces need to regenerate
+
+-----------------------------------------------
+before Jan 4
         traces:
             flexpath traces is not shown very clearly in performance analysis
             stampede traces and bridges flexpath traces show different behaviours
