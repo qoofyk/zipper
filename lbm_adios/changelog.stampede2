@@ -12,6 +12,39 @@ TODO
 	2. dspaces hanging
 	3. ENABLE_TESTING in flexpath conf, enabled
 
+## Jan 3
+	* question: analysis time is longer than yuankun's 40s v 20s
+	* end2end time is 60s+ if using more link processes 
+	* decaf is linked with lbm, end2end time  78s for 64v32, now use nmoments
+	=4
+	* decaf is connected with lbm and 100 steps runs for 87s(not using
+	optimizing flags)
+	* decaf added to the source tree, cmake files are now in cmake/
+	* buffer operation is now in seperate objects, also 38s per step
+
+## Jan 2
+	now buffer is seperated from lbm
+## Dec 30
+	Use valgrind to debug
+	valgrind --leak-check=yes ./lbm 1 10 &> run.log
+	grep -R run.log Invalid, will tell segmenta fault
+
+
+
+## Dec 29
+	Doing
+		modulize
+	* Lammps and lBM should have been better integrated:
+	- the decaf examples/C/lammps for example:
+		* it uses the lammps library interface
+		* the input file doesn't call "run" and "dump"
+		* this examples gatter all atoms, however it can be better, see
+		lammps_gather_atoms for more
+		details.(https://github.com/lammps/lammps/blob/master/src/lammps.h\c)
+		
+	- lbm code can also be replaced with better architecture.
+
+
 ## Dec 18
 	flexpath fixed: remove data description, otherwise seg fault(didn't happen
 	in 1.12)

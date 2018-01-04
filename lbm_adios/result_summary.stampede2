@@ -1,4 +1,44 @@
-## Dec 18
+# jan 2
+  JOBS 
+562423
+    decaf 68v16v34 nmoments=4
+
+    lbm 38~48.9 , end2end 61.5s, analysis 40.6~43.6, sendrecv 2.9~14.4
+562415
+    decaf 68v8v34 noments=4,
+    lbm 35.6~50.4, end2end 64.5s, analysisa40.6~43.0, sendrecv 1.0~15.9
+562280
+    flexpath 68v34, nmoments=4
+
+562251
+    use 68v4v34, nmoment=4
+    max end2end 80.5s, lbm 34.96~64.1 analysis 40.6~42.1, sendrecv 0.7~30.2
+----------------------------------------------------------------
+below using 64v32
+562244
+    resubmit nmoments= 4, 78s
+562101
+    pur_lbm
+    simulation only all around37.0, communcation time 0.9~3s
+562068
+    decaf-lbm: send_receive time has 0.8~27.5s
+561906
+    changed to noments=4
+    end2end 75.5s , max analysis 40.83, sim: 34.2~61.3
+561906
+    now with optimized on, 100 steps 78s, max analysis 42s, end2end time, sim time 35.2~50.8s, nmoments=3
+---------------------------------------------------------------
+below not optimzed
+561859
+    tried to compile analysis as so, analysis code is slower, 7s per step. row back
+561069:
+    decaf with lbm: 
+        100 steps68v34 87s,lbm time ranges fromm (47s~72s), analysis just print
+
+ add streaming/colliion/boundry
+    same execuation time
+ 
+# Dec 18
   528094:
         50G free mem (reason, in flexpath_debu use two nodes instead of 3)
         need to check
