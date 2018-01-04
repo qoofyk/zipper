@@ -12,6 +12,11 @@ TODO
 	2. dspaces hanging
 	3. ENABLE_TESTING in flexpath conf, enabled
 
+## Jan 4
+	* problem fix:
+		- longer analysis time in stampede: run_analysis is compiled as
+		dynamic library to accomadate decaf
+
 ## Jan 3
 	* question: analysis time is longer than yuankun's 40s v 20s
 	* end2end time is 60s+ if using more link processes 

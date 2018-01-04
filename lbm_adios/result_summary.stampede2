@@ -1,3 +1,6 @@
+# Jan 4
+564038, if using static link, flexpath use 21.7~28.5 analysis time
+564032, analysis code is slower because I use dynamic link
 # jan 2
   JOBS 
 562423

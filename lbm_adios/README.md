@@ -6,6 +6,7 @@ see [this wiki](https://github.iu.edu/IUPUI-CS-HPC/data_broker_lammps/wiki) for 
 written by Feng Li at Fall 2017
 
 ## What is new
+[Jan 4]: decaf works with lbm, using dynamic analysis library makes analysis code runs slower(40s vs 20s in stampede)
 [Jan 2]: lbm reorganized in lbm/
 [Dec18]: flexpath segfault, data description for group should be removed for v1.13 flexpath, see https://github.iu.edu/lifen/flexpath_skel/commit/59cea72ad6715c91220ac3bc4ab72aeb7a47b579
 [Dec14]:  flexpath memory leak fixed in v1.13
