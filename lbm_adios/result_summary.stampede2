@@ -1,4 +1,12 @@
 # Jan 4
+564100 
+    use test_lbm to build lbm_only, time 36.1~36.4, stream time 0.7~1.8
+564087, also build lbm as static
+    lbm 37.4~47.6 , end2end 58.3s, analysis 22.0~23.8(unchanged), sendrecv 2.9~13.4.
+564075, run again
+    lbm 36.8~46.1 , end2end 58.45s, analysis 21.6~21.9(unchanged), sendrecv 1.3~11.0.
+564067, analysis is still static, now try decaf
+    lbm 37.8~49.7 , end2end 60.22s, analysis 21.6~21.9, sendrecv 2.6~11.
 564038, if using static link, flexpath use 21.7~28.5 analysis time
 564032, analysis code is slower because I use dynamic link
 # jan 2

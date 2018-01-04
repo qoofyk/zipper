@@ -16,6 +16,7 @@ TODO
 	* problem fix:
 		- longer analysis time in stampede: run_analysis is compiled as
 		dynamic library to accomadate decaf
+		- now all use static librarys(lbm and analysis)
 
 ## Jan 3
 	* question: analysis time is longer than yuankun's 40s v 20s
