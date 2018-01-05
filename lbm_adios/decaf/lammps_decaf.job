@@ -79,7 +79,8 @@ $PYTHON_RUN &> python.log
 echo "python run $PYTHON_RUN"
 
 # copy input file
-infile=in.melt
+#infile=in.melt
+infile=in.lj.68v34.txt
 cp ${PBS_O_WORKDIR}/lammps/$infile ./$infile
 
 cmd="$BUILD_DIR/bin/lammps $infile"

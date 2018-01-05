@@ -36,6 +36,7 @@
 #include "input.h"
 #include "atom.h"
 #include "library.h"
+#define SIZE_ONE (5)
 
 using namespace decaf;
 using namespace LAMMPS_NS;
@@ -57,50 +58,87 @@ struct pos_args_t                            // custom args for atom positions
 //void lammps(Decaf* decaf, int nsteps, int analysis_interval, string infile)
 void prod(Decaf* decaf, string infile)
 {
-    printf("prod started\n");
+
     int nsteps = 10;
+    int rank;
+    int line;
+
+	/*those are all the information io libaray need to know about*/
+    MPI_Comm comm;
+	int nlocal; //nlines processed by each process
+	int size_one = SIZE_ONE; // each line stores 2 doubles
+	double *buffer; // buffer address
+
     LAMMPS* lps = new LAMMPS(0, NULL, decaf->prod_comm_handle());
     lps->input->file(infile.c_str());
+    printf("prod started with input %s\n", infile.c_str() );
+
+    rank = decaf->prod_comm()->rank();
 
     for (int timestep = 0; timestep < nsteps; timestep++)
     {
         fprintf(stderr, "lammps\n");
 
         lps->input->one("run 1");
-        int natoms = static_cast<int>(lps->atom->natoms);
-        double* x = new double[3 * natoms];
-        lammps_gather_atoms(lps, (char*)"x", 1, 3, x);
+        //int natoms = static_cast<int>(lps->atom->natoms);
+        //lammps_gather_atoms(lps, (char*)"x", 1, 3, x);
 
-        
+        //extract "value"
+        double **x;// all the atom values
+        x = (double **)(lammps_extract_atom(lps,(char *)"x"));
+        int nlocal = static_cast<int>(lps->atom->nlocal); // get the num of lines this rank have
+        if(x == NULL){
+            fprintf(stderr, "extract failed\n");
+            break;
+        }
+
+        buffer = new double[size_one * nlocal];
+
+        printf("step %d i have %d lines\n",timestep, nlocal);
+        for(line = 0; line < nlocal; line++){
+            buffer[line*size_one] = line;
+            buffer[line*size_one+1] = 1;
+            buffer[line*size_one+2] = x[line][0];
+            buffer[line*size_one+3] = x[line][1];
+            buffer[line*size_one+4] = x[line][2];
+        }
+
+        /* decaf put */
+        if (1)
+        {
             pConstructData container;
 
             // lammps gathered all positions to rank 0
-            if (decaf->prod_comm()->rank() == 0)
+            //if (decaf->prod_comm()->rank() == 0)
+            if (rank == 0)
             {
-                fprintf(stderr, "new lammps: lammps producing time step %d with %d atoms\n",
-                        timestep, natoms);
+                fprintf(stderr, "lbm producing time step %d with %d lines\n",
+                        timestep, nlocal);
+
+            }
                 // debug
                 //         for (int i = 0; i < 10; i++)         // print first few atoms
                 //           fprintf(stderr, "%.3lf %.3lf %.3lf\n",
                 // x[3 * i], x[3 * i + 1], x[3 * i + 2]);
 
-                VectorFliedd data(x, 3 * natoms, 3);
+            VectorFliedd data(buffer, size_one * nlocal, size_one);
 
-                container->appendData("pos", data,
+            container->appendData("pos", data,
                                       DECAF_NOFLAG, DECAF_PRIVATE,
                                       DECAF_SPLIT_DEFAULT, DECAF_MERGE_DEFAULT);
-            }
-            else
-            {
-                vector<double> pos;
-                VectorFliedd data(pos, 3);
-                container->appendData("pos", data,
-                                      DECAF_NOFLAG, DECAF_PRIVATE,
-                                      DECAF_SPLIT_DEFAULT, DECAF_MERGE_DEFAULT);
-            }
+            /*else*/
+            //{
+                //vector<double> pos;
+                //VectorFliedd data(pos, 3);
+                //container->appendData("pos", data,
+                                      //DECAF_NOFLAG, DECAF_PRIVATE,
+                                      //DECAF_SPLIT_DEFAULT, DECAF_MERGE_DEFAULT);
+            /*}*/
 
             decaf->put(container);
-        delete[] x;
+        }
+
+       free(buffer);
     }
 
     // terminate the task (mandatory) by sending a quit message to the rest of the workflow
@@ -129,10 +167,12 @@ void con(Decaf* decaf)
                 fprintf(stderr, "new lammps:consumer print1 or print3 printing %d atoms\n",
                         pos.getNbItems());
                 for (int i = 0; i < 10; i++)               // print first few atoms
-                    fprintf(stderr, "%.3lf %.3lf %.3lf\n",
-                            pos.getVector()[3 * i],
-                            pos.getVector()[3 * i + 1],
-                            pos.getVector()[3 * i + 2]);
+                    fprintf(stderr, "%.3lf %.3lf %.3lf %.3f, %.3f\n",
+                            pos.getVector()[5 * i],
+                            pos.getVector()[5 * i + 1],
+                            pos.getVector()[5 * i + 2],
+                            pos.getVector()[5 * i + 3],
+                            pos.getVector()[5 * i + 4]);
             }
             else
                 fprintf(stderr, "Error: null pointer in node2\n");

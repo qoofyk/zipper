@@ -1,3 +1,11 @@
+# Jan 5
+567094
+    now lammps works with yuankuan's input file, each consumer get 102400 atoms, correct
+567027 use extrac_atoms success
+566851
+    without dump
+566782
+    with dump, id type(1) x y z
 # Jan 4
 564921
     136v68
