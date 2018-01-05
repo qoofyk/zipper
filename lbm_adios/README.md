@@ -26,10 +26,14 @@ written by Feng Li at Fall 2017
         
 
 ## What is missing
-1. 2176 decaf is not working
-2. decaf with lammps library
-3. other transports need to use lbm and analysis library
-4. traces need to regenerate
+Performance Anaylis(Bridges)
+    need decaf results
+    other transports need to use lbm and analysis library
+    traces need to regenerate
+Scaling(stampde)
+    decaf with lammps library(lammps is only in scaling experiments)
+    2176 decaf is not working
+    traces need to regenerate
 
 -----------------------------------------------
 before Jan 4
