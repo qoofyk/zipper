@@ -12,6 +12,14 @@ TODO
 	2. dspaces hanging
 	3. ENABLE_TESTING in flexpath conf, enabled
 
+## Jan 5
+	* lammps need to build as shared libary, other wise:
+	/opt/apps/gcc/5.4.0/bin/ld:
+	/work/04446/tg837458/stampede2/software/lammps-16Feb16/src/liblammps.a(library.o):
+	relocation R_X86_64_32 against `.rodata.str1.4' can not be used when
+	making a shared object; recompil
+	e with -fPIC
+
 ## Jan 4
 	* problem fix:
 		- longer analysis time in stampede: run_analysis is compiled as

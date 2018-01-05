@@ -60,6 +60,7 @@ endforeach(item)
 
 add_subdirectory(analysis)
 add_subdirectory(lbm)
+#add_subdirectory(lammps)
 add_subdirectory(decaf)
 add_subdirectory(tests)
 
