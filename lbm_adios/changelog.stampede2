@@ -19,6 +19,8 @@ TODO
 	relocation R_X86_64_32 against `.rodata.str1.4' can not be used when
 	making a shared object; recompil
 	e with -fPIC
+	* progress
+		now lammps correctly run with a input file passed from slurm script
 
 ## Jan 4
 	* problem fix:

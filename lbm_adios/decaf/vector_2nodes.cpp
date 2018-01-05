@@ -221,7 +221,7 @@ void print_skel(Decaf* decaf)
 }
 
 // gets the atom positions and prints them
-void print(Decaf* decaf)
+void con(Decaf* decaf)
 {
 
     /* data structure for analysis */
@@ -349,7 +349,7 @@ void run(Workflow& workflow            // workflow
     if (decaf->my_node("prod"))
         prod(decaf);
     if (decaf->my_node("print"))
-        print(decaf);
+        con(decaf);
     if (decaf->my_node("print2"))
         print2(decaf);
 

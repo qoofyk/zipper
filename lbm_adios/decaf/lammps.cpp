@@ -54,8 +54,11 @@ struct pos_args_t                            // custom args for atom positions
 };
 
 // runs lammps and puts the atom positions to the dataflow at the consumer intervals
-void lammps(Decaf* decaf, int nsteps, int analysis_interval, string infile)
+//void lammps(Decaf* decaf, int nsteps, int analysis_interval, string infile)
+void prod(Decaf* decaf, string infile)
 {
+    printf("prod started\n");
+    int nsteps = 10;
     LAMMPS* lps = new LAMMPS(0, NULL, decaf->prod_comm_handle());
     lps->input->file(infile.c_str());
 
@@ -68,14 +71,13 @@ void lammps(Decaf* decaf, int nsteps, int analysis_interval, string infile)
         double* x = new double[3 * natoms];
         lammps_gather_atoms(lps, (char*)"x", 1, 3, x);
 
-        if (!((timestep + 1) % analysis_interval))
-        {
+        
             pConstructData container;
 
             // lammps gathered all positions to rank 0
             if (decaf->prod_comm()->rank() == 0)
             {
-                fprintf(stderr, "lammps producing time step %d with %d atoms\n",
+                fprintf(stderr, "new lammps: lammps producing time step %d with %d atoms\n",
                         timestep, natoms);
                 // debug
                 //         for (int i = 0; i < 10; i++)         // print first few atoms
@@ -98,7 +100,6 @@ void lammps(Decaf* decaf, int nsteps, int analysis_interval, string infile)
             }
 
             decaf->put(container);
-        }
         delete[] x;
     }
 
@@ -110,8 +111,10 @@ void lammps(Decaf* decaf, int nsteps, int analysis_interval, string infile)
 }
 
 // gets the atom positions and prints them
-void print(Decaf* decaf)
+void con(Decaf* decaf)
 {
+
+    printf("consumer started\n");
     vector< pConstructData > in_data;
 
     while (decaf->get(in_data))
@@ -123,7 +126,7 @@ void print(Decaf* decaf)
             if (pos)
             {
                 // debug
-                fprintf(stderr, "consumer print1 or print3 printing %d atoms\n",
+                fprintf(stderr, "new lammps:consumer print1 or print3 printing %d atoms\n",
                         pos.getNbItems());
                 for (int i = 0; i < 10; i++)               // print first few atoms
                     fprintf(stderr, "%.3lf %.3lf %.3lf\n",
@@ -174,10 +177,8 @@ extern "C"
     }
 } // extern "C"
 
-void run(Workflow& workflow,                 // workflow
-         int lammps_nsteps,                  // number of lammps timesteps to execute
-         int analysis_interval,              // number of lammps timesteps to skip analyzing
-         string infile)                      // lammps input config file
+void run(Workflow& workflow,              // workflow
+         string infile)                      // lammps input config file*/
 {
     MPI_Init(NULL, NULL);
     Decaf* decaf = new Decaf(MPI_COMM_WORLD, workflow);
@@ -188,10 +189,10 @@ void run(Workflow& workflow,                 // workflow
     // e.g., if they overlap in rank, it is up to the user to call them in an order that makes
     // sense (threaded, alternting, etc.)
     // also, the user can define any function signature she wants
-    if (decaf->my_node("lammps"))
-        lammps(decaf, lammps_nsteps, analysis_interval, infile);
-    if (decaf->my_node("print"))
-        print(decaf);
+    if (decaf->my_node("prod"))
+        prod(decaf, infile);
+    if (decaf->my_node("con"))
+        con(decaf);
     if (decaf->my_node("print2"))
         print2(decaf);
 
@@ -207,89 +208,22 @@ void run(Workflow& workflow,                 // workflow
 int main(int argc,
          char** argv)
 {
+    printf("main function launched\n");
     Workflow workflow;
-    int lammps_nsteps     = 1;
-    int analysis_interval = 1;
-    char * prefix         = getenv("DECAF_PREFIX");
+    Workflow::make_wflow_from_json(workflow, "lammps.json");
+
+    // run decaf
+char * prefix         = getenv("DECAF_PREFIX");
     if (prefix == NULL)
     {
         fprintf(stderr, "ERROR: environment variable DECAF_PREFIX not defined. Please export "
                 "DECAF_PREFIX to point to the root of your decaf install directory.\n");
         exit(1);
     }
-    string path = string(prefix , strlen(prefix));
-    path.append(string("/examples/lammps/mod_lammps.so"));
     string infile = argv[1];
 
+    run(workflow, infile);
 
-    // fill workflow nodes
-    WorkflowNode node;
-    node.in_links.push_back(1);              // print1
-    node.start_proc = 5;
-    node.nprocs = 1;
-    node.func = "print";
-    workflow.nodes.push_back(node);
-
-    node.out_links.clear();
-    node.in_links.clear();
-    node.in_links.push_back(0);              // print3
-    node.start_proc = 9;
-    node.nprocs = 1;
-    node.func = "print";
-    workflow.nodes.push_back(node);
-
-    node.out_links.clear();
-    node.in_links.clear();
-    node.out_links.push_back(0);             // print2
-    node.in_links.push_back(2);
-    node.start_proc = 7;
-    node.nprocs = 1;
-    node.func = "print2";
-    workflow.nodes.push_back(node);
-
-    node.out_links.clear();
-    node.in_links.clear();
-    node.out_links.push_back(1);             // lammps
-    node.out_links.push_back(2);
-    node.start_proc = 0;
-    node.nprocs = 4;
-    node.func = "lammps";
-    workflow.nodes.push_back(node);
-
-    // fill workflow links
-    WorkflowLink link;
-    link.prod = 2;                           // print2 - print3
-    link.con = 1;
-    link.start_proc = 8;
-    link.nprocs = 1;
-    link.func = "dflow";
-    link.path = path;
-    link.prod_dflow_redist = "count";
-    link.dflow_con_redist = "count";
-    workflow.links.push_back(link);
-
-    link.prod = 3;                           // lammps - print1
-    link.con = 0;
-    link.start_proc = 4;
-    link.nprocs = 1;
-    link.func = "dflow";
-    link.path = path;
-    link.prod_dflow_redist = "count";
-    link.dflow_con_redist = "count";
-    workflow.links.push_back(link);
-
-    link.prod = 3;                           // lammps - print2
-    link.con = 2;
-    link.start_proc = 6;
-    link.nprocs = 1;
-    link.func = "dflow";
-    link.path = path;
-    link.prod_dflow_redist = "count";
-    link.dflow_con_redist = "count";
-    workflow.links.push_back(link);
-
-    // run decaf
-    run(workflow, lammps_nsteps, analysis_interval, infile);
-
+           
     return 0;
 }

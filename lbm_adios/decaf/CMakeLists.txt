@@ -32,8 +32,8 @@ set_target_properties(mod_vector_2nodes PROPERTIES PREFIX "")
 
 
 #lammps
-find_path                   (LAMMPS_INCLUDE_DIR		lammps.h)
-find_library                (LAMMPS_LIBRARY NAMES	lammps)
+#find_path                   (LAMMPS_INCLUDE_DIR		lammps.h)
+#find_library                (LAMMPS_LIBRARY NAMES	lammps)
 
 include_directories       (${LAMMPS_INCLUDE_DIR})
 
@@ -49,11 +49,11 @@ target_link_libraries   (mod_lammps
                         ${libraries})
     #${bredala_transports} bredala_datamodel manala decaf)
 
-## .SO file extension on Linux/Mac OS
-#set_target_properties(mod_lammps PROPERTIES SUFFIX ".so")
+# .SO file extension on Linux/Mac OS
+set_target_properties(mod_lammps PROPERTIES SUFFIX ".so")
 
-## Don't add a 'lib' prefix to the shared library
-#set_target_properties(mod_lammps PROPERTIES PREFIX "")
+# Don't add a 'lib' prefix to the shared library
+set_target_properties(mod_lammps PROPERTIES PREFIX "")
 
 
 

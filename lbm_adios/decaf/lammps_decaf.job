@@ -1,5 +1,5 @@
 #!/bin/bash
-#SBATCH --job-name="decaf_skel"
+#SBATCH --job-name="lammps_decaf"
 #SBATCH --output="results/%j.out"
 #SBATCH --partition=normal
 #SBATCH --nodes=4
@@ -22,7 +22,7 @@ nodes_this_app=(2 1 1)
 
 PBS_O_HOME=$HOME
 PBS_O_WORKDIR=$(pwd)
-export SCRATCH_DIR=${SCRATCH}/decaf_skel/${SLURM_JOBID}
+export SCRATCH_DIR=${SCRATCH}/lammps_decaf/${SLURM_JOBID}
 
 
 #################################################### 
@@ -74,14 +74,21 @@ export procs_con=${procs_this_app[2]}
 procs_all=$((procs_prod + procs_con + procs_link))
 
 # generate graph
-#PYTHON_RUN="python $PBS_O_WORKDIR/vector/vector_2nodes.py --np ${procs_all} --hostfile ${HOST_DIR}/machinefile-all"
-PYTHON_RUN="python $PBS_O_WORKDIR/decaf/vector_2nodes_topo.py --np ${procs_all} --hostfile ${HOST_DIR}/machinefile-all"
+PYTHON_RUN="python $PBS_O_WORKDIR/decaf/lammps_decaf.py --np ${procs_all} --hostfile ${HOST_DIR}/machinefile-all"
 $PYTHON_RUN &> python.log
 echo "python run $PYTHON_RUN"
 
-## order is prod/link/consumer
-mpirun -l  --machinefile ${HOST_DIR}/machinefile-all -np ${procs_prod} $BUILD_DIR/bin/vector_2nodes : -np ${procs_link} $BUILD_DIR/bin/vector_2nodes : -np ${procs_con} $BUILD_DIR/bin/vector_2nodes
+# copy input file
+infile=in.melt
+cp ${PBS_O_WORKDIR}/lammps/$infile ./$infile
 
+cmd="$BUILD_DIR/bin/lammps $infile"
+
+## order is prod/link/consumer
+MPI_CMD="mpirun -l  --machinefile ${HOST_DIR}/machinefile-all -np ${procs_prod} $cmd : -np ${procs_link} $cmd : -np ${procs_con} $cmd"
+echo launch mpi with cmd $MPI_CMD
+
+$MPI_CMD
 
 ## Wait for the entire workflow to finish
 wait
