@@ -1,11 +1,11 @@
-message("building standalone lbm")
+message("building standalone msd")
 
-add_library(mod_lbm lbm.c lbm_buffer.c)
+add_library(msd_analysis run_msd.c)
 
 #target_link_libraries(mod_lbm ${LIBRARIES})
 #target_link_libraries(mod_lbm ${LIBRARIES})
 
-foreach(item mod_lbm)
+foreach(item msd_analysis)
 
     target_link_libraries(${item} ${MPI_LIBRARIES})
 
@@ -18,6 +18,6 @@ foreach(item mod_lbm)
     endif()
 endforeach(item)
 
-add_executable(lbm test_lbm.c)
-target_link_libraries(lbm mod_lbm)
+#add_executable(lbm test_lbm.c)
+#target_link_libraries(lbm mod_lbm)
 

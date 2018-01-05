@@ -1,6 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include "run_analysis.h"
+#include "run_msd.h"
 /*
  * this use 2d array from yuankun's code, I prefer 1D
  * @param steps dump steps

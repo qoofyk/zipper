@@ -36,7 +36,9 @@
 #include "input.h"
 #include "atom.h"
 #include "library.h"
+#include "run_msd.h"
 #define SIZE_ONE (5)
+#define NSTEPS (100)
 
 using namespace decaf;
 using namespace LAMMPS_NS;
@@ -59,7 +61,7 @@ struct pos_args_t                            // custom args for atom positions
 void prod(Decaf* decaf, string infile)
 {
 
-    int nsteps = 100;
+    int nsteps = NSTEPS;
     int rank;
     int line;
 
@@ -157,12 +159,35 @@ void prod(Decaf* decaf, string infile)
 // gets the atom positions and prints them
 void con(Decaf* decaf)
 {
+    double global_t_analy = 0, t_analy = 0;
+    double t1, t2;
+    int slice_size = 0;
+    double *buffer;
+    MPI_Comm comm;
+    int rank;
 
-    double t_start = MPI_Wtime();
+    comm = decaf->con_comm_handle();
+    rank = decaf->con_comm()->rank();
 
-    printf("consumer started\n");
     vector< pConstructData > in_data;
 
+    int step = 0;
+
+
+    if(rank == 0){
+        printf("[msd]: application starts\n");
+    }
+
+
+    /* msd required*/
+    double **msd;
+    int nsteps = NSTEPS;
+    int timestep = 0;
+    int size_one = SIZE_ONE;
+    msd =  init_msd(nsteps, size_one);
+
+    //MPI_Barrier(comm);
+    double t_start = MPI_Wtime();
     while (decaf->get(in_data))
     {
         // get the values
@@ -172,27 +197,50 @@ void con(Decaf* decaf)
             if (pos)
             {
                 // debug
-                fprintf(stderr, "new lammps:consumer print1 or print3 printing %d atoms\n",
-                        pos.getNbItems());
+                slice_size = pos.getNbItems();
 
-                for (int i = 0; i < 10; i++)               // print first few atoms
-                    fprintf(stderr, "%.3lf %.3lf %.3lf %.3f, %.3f\n",
-                            pos.getVector()[5 * i],
-                            pos.getVector()[5 * i + 1],
-                            pos.getVector()[5 * i + 2],
-                            pos.getVector()[5 * i + 3],
-                            pos.getVector()[5 * i + 4]);
+                fprintf(stderr, "[msd]: consumer processing %d atoms at step %d\n",
+                        slice_size,
+                        step);
+
+
+                buffer = &pos.getVector()[0];
+
+                t1 =MPI_Wtime(); 
+                calc_msd(msd, buffer, slice_size, size_one, timestep);
+
+                //run_analysis(buffer, slice_size, lp, sum_vx,sum_vy);
+
+                t2 =MPI_Wtime(); 
+                t_analy += t2-t1;
+
             }
             else
-                fprintf(stderr, "Error: null pointer in node2\n");
+                fprintf(stderr, "[msd]: Error: null pointer in node2\n");
         }
+        timestep+=1;
+
+        //printf("[msd]: Step %d,t_analy %lf\n", step, t2-t1);
+
+        step +=1;
     }
 
+    perform_msd_reduce(msd, nsteps, comm);
+    free_msd(msd, size_one);
+
+   printf("[msd]: t_analy %lf\n", t_analy);
+    //MPI_Barrier(comm);
     double t_end = MPI_Wtime();
-    printf("total-start-end %.3f %.3f %.3f\n", t_end- t_start, t_start, t_end);
+
+    MPI_Reduce(&t_analy, &global_t_analy, 1, MPI_DOUBLE, MPI_MAX, 0, comm);
+    if(rank == 0){
+		printf("[msd]: max t_analysis %.3f s\n", global_t_analy);
+	}
+    printf("[msd]: total-start-end %.3f %.3f %.3f\n", t_end- t_start, t_start, t_end);
 
     // terminate the task (mandatory) by sending a quit message to the rest of the workflow
-    fprintf(stderr, "print terminating\n");
+    fprintf(stderr, "[msd]: terminating\n");
+
     decaf->terminate();
 }
 
