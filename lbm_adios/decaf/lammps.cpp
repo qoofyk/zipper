@@ -59,7 +59,7 @@ struct pos_args_t                            // custom args for atom positions
 void prod(Decaf* decaf, string infile)
 {
 
-    int nsteps = 10;
+    int nsteps = 100;
     int rank;
     int line;
 
@@ -75,6 +75,8 @@ void prod(Decaf* decaf, string infile)
 
     rank = decaf->prod_comm()->rank();
 
+
+    double t_start = MPI_Wtime();
     for (int timestep = 0; timestep < nsteps; timestep++)
     {
         fprintf(stderr, "lammps\n");
@@ -112,7 +114,7 @@ void prod(Decaf* decaf, string infile)
             //if (decaf->prod_comm()->rank() == 0)
             if (rank == 0)
             {
-                fprintf(stderr, "lbm producing time step %d with %d lines\n",
+                fprintf(stderr, "lammps producing time step %d with %d lines\n",
                         timestep, nlocal);
 
             }
@@ -142,6 +144,10 @@ void prod(Decaf* decaf, string infile)
     }
 
     // terminate the task (mandatory) by sending a quit message to the rest of the workflow
+    //
+    double t_end = MPI_Wtime();
+    printf("total-start-end %.3f %.3f %.3f\n", t_end- t_start, t_start, t_end);
+
     fprintf(stderr, "lammps terminating\n");
     decaf->terminate();
 
@@ -151,6 +157,8 @@ void prod(Decaf* decaf, string infile)
 // gets the atom positions and prints them
 void con(Decaf* decaf)
 {
+
+    double t_start = MPI_Wtime();
 
     printf("consumer started\n");
     vector< pConstructData > in_data;
@@ -166,6 +174,7 @@ void con(Decaf* decaf)
                 // debug
                 fprintf(stderr, "new lammps:consumer print1 or print3 printing %d atoms\n",
                         pos.getNbItems());
+
                 for (int i = 0; i < 10; i++)               // print first few atoms
                     fprintf(stderr, "%.3lf %.3lf %.3lf %.3f, %.3f\n",
                             pos.getVector()[5 * i],
@@ -178,6 +187,9 @@ void con(Decaf* decaf)
                 fprintf(stderr, "Error: null pointer in node2\n");
         }
     }
+
+    double t_end = MPI_Wtime();
+    printf("total-start-end %.3f %.3f %.3f\n", t_end- t_start, t_start, t_end);
 
     // terminate the task (mandatory) by sending a quit message to the rest of the workflow
     fprintf(stderr, "print terminating\n");

@@ -1,4 +1,7 @@
 # Jan 5
+567135
+    decaf 68v34 run 100 steps, add timer to see end2end time
+    8min only run 71 steps
 567094
     now lammps works with yuankuan's input file, each consumer get 102400 atoms, correct
 567027 use extrac_atoms success
