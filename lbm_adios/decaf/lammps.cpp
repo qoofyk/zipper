@@ -70,10 +70,11 @@ void prod(Decaf* decaf, string infile)
 	int nlocal; //nlines processed by each process
 	int size_one = SIZE_ONE; // each line stores 2 doubles
 	double *buffer; // buffer address
+    double **x;// all the atom values
 
     LAMMPS* lps = new LAMMPS(0, NULL, decaf->prod_comm_handle());
     lps->input->file(infile.c_str());
-    printf("prod started with input %s\n", infile.c_str() );
+    printf("prod lammps_decaf started with input %s\n", infile.c_str() );
 
     rank = decaf->prod_comm()->rank();
 
@@ -81,16 +82,14 @@ void prod(Decaf* decaf, string infile)
     double t_start = MPI_Wtime();
     for (int timestep = 0; timestep < nsteps; timestep++)
     {
-        fprintf(stderr, "lammps\n");
 
         lps->input->one("run 1");
         //int natoms = static_cast<int>(lps->atom->natoms);
         //lammps_gather_atoms(lps, (char*)"x", 1, 3, x);
 
         //extract "value"
-        double **x;// all the atom values
         x = (double **)(lammps_extract_atom(lps,(char *)"x"));
-        int nlocal = static_cast<int>(lps->atom->nlocal); // get the num of lines this rank have
+        nlocal = static_cast<int>(lps->atom->nlocal); // get the num of lines this rank have
         if(x == NULL){
             fprintf(stderr, "extract failed\n");
             break;

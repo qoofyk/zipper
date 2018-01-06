@@ -6,3 +6,7 @@ Lammps
 3. make stampede2 mod=lib
 
 
+FILES
+    lammps_origin.job:
+        use lammps executable file directly
+

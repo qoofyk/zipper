@@ -1,3 +1,16 @@
+# Jan 6
+570306
+    use lammmps binary
+        2:41 for 100 steps, reasonable
+570194
+    lammps_only sim_only also 6.9s per step using static libary
+    run lammps directly?
+570044
+    lammps_only simulationi 6.9s per step
+    plan to try static linked lammps
+569931
+    decaf_lammps job,stil slow as expected.
+    should try lammps only
 # Jan 5
 567135
     decaf 68v34 run 100 steps, add timer to see end2end time

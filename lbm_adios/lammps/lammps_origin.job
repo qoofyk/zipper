@@ -1,8 +1,8 @@
 #!/bin/bash
-#SBATCH --job-name="lammps_decaf"
+#SBATCH --job-name="lammps_sim_only"
 #SBATCH --output="results/%j.out"
 #SBATCH --partition=normal
-#SBATCH --nodes=4
+#SBATCH --nodes=1
 #SBATCH --ntasks-per-node=68
 #SBATCH -t 00:8:00
 
@@ -11,13 +11,13 @@
 #SBATCH --mail-user=lifen@iupui.edu
 
 # procs placement
-num_apps=3
+num_apps=1
 
 # slots used by this app
-procs_this_app=(68 64 34)
+procs_this_app=(68)
 
 # number of nodes used by this app
-nodes_this_app=(2 1 1)
+nodes_this_app=(2)
 
 
 PBS_O_HOME=$HOME
@@ -27,14 +27,14 @@ export SCRATCH_DIR=${SCRATCH}/lammps_decaf/${SLURM_JOBID}
 
 #################################################### 
 
+export OMP_NUM_THREADS=4
+
 env|grep '^HAS' # trace enabled?
 env|grep '^OMP' # trace enabled?
 
 #module load remora
 
 #module load libfabric
-module load boost
-module load phdf5
 module list
 
 
@@ -67,29 +67,24 @@ else
     echo "https://github.iu.edu/lifen/LaucherTest/blob/master/generate_hosts.sh"
 fi
 
-export procs_prod=${procs_this_app[0]}
-export procs_link=${procs_this_app[1]}
-export procs_con=${procs_this_app[2]}
 
-procs_all=$((procs_prod + procs_con + procs_link))
+CMD_PRODUCER="$LAUNCHER -np ${procs_this_app[0]} -machinefile $HOST_DIR/machinefile-app0  ${BIN_PRODUCER} ${NSTOP}"
 
-# generate graph
-PYTHON_RUN="python $PBS_O_WORKDIR/decaf/lammps_decaf.py --np ${procs_all} --hostfile ${HOST_DIR}/machinefile-all"
-$PYTHON_RUN &> python.log
-echo "python run $PYTHON_RUN"
 
 # copy input file
 #infile=in.melt
-infile=in.lj.68v34.txt
+infile=in.lj.68v34.run.txt
 cp ${PBS_O_WORKDIR}/lammps/$infile ./$infile
 
-cmd="$BUILD_DIR/bin/lammps $infile"
 
-## order is prod/link/consumer
-MPI_CMD="mpirun -l  --machinefile ${HOST_DIR}/machinefile-all -np ${procs_prod} $cmd : -np ${procs_link} $cmd : -np ${procs_con} $cmd"
-echo launch mpi with cmd $MPI_CMD
+LAUNCHER="mpiexec.hydra"
+BIN_PROD="/work/04446/tg837458/stampede2/software/lammps-16Feb16/src/lmp_stampede2"
+cmd="$BIN_PROD -in $infile"
 
-$MPI_CMD
+
+CMD_PRODUCER="$LAUNCHER -np ${procs_this_app[0]} -machinefile $HOST_DIR/machinefile-app0  $cmd"
+
+$CMD_PRODUCER
 
 ## Wait for the entire workflow to finish
 wait
