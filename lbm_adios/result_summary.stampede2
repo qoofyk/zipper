@@ -1,4 +1,19 @@
 # Jan 6
+
+570598
+    lammps with decaf run with "pre no post no"
+    225.3
+    
+570591
+    test_lammps(lammps_only) now run with "pre no post no"
+    225s
+570514
+    no post and pre,waltime 3:45, the same
+570505 
+    add pre no and post yes, walltime 3:44s for 100 steps
+570351
+    100x" run 1 "in lammps binary
+    70 steps in 8 min
 570306
     use lammmps binary
         2:41 for 100 steps, reasonable

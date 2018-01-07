@@ -13,7 +13,14 @@ TODO
 	3. ENABLE_TESTING in flexpath conf, enabled
 ## Jan 6
 	* lammps runs slow, 6~7s per step in 68v34 case, extract is fast
-	* todo: try lammps binary
+	* tried static library, as slow
+	* tried lammps binary, 2:43s,
+	* run 100 vs run 1*100 times:
+		by default it's slower, try to set pre/post for run cmd, quite useful
+		for coupling processes, see lammps doc:run
+		even with this, library lammps use 3:45s for 100 steps
+	* decaf+ lammps vs lammps only
+		225s for both case, analysis too simple and simulation too long?
 
 ## Jan 5
 	* lammps need to build as shared libary, other wise:

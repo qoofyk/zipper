@@ -83,7 +83,7 @@ void prod(Decaf* decaf, string infile)
     for (int timestep = 0; timestep < nsteps; timestep++)
     {
 
-        lps->input->one("run 1");
+        lps->input->one("run 1 pre no post no");
         //int natoms = static_cast<int>(lps->atom->natoms);
         //lammps_gather_atoms(lps, (char*)"x", 1, 3, x);
 

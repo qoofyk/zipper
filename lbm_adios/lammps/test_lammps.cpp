@@ -72,7 +72,7 @@ int main(int argc, char *argv[])
     {
 
         t1 = MPI_Wtime();
-        lps->input->one("run 1");
+        lps->input->one("run 1 pre no post no"); // do not initialize each time, this is recommanded from lammps doc for coupled simulation using lammps library
 
         t2 = MPI_Wtime();
         int natoms = static_cast<int>(lps->atom->natoms);

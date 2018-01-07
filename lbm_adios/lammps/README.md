@@ -7,6 +7,12 @@ Lammps
 
 
 FILES
+    test_lammps
     lammps_origin.job:
         use lammps executable file directly
+
+Timing in Stampede
+    run 100 in lammps excutable 2:43s
+    run 100 in lammps libary (pre no post no) 3:45s
+    
 
