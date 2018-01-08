@@ -15,7 +15,7 @@
 num_apps=3
 
 # slots used by this app
-procs_this_app=(32 16 16)
+procs_this_app=(32 8 16)
 
 # number of nodes used by this app
 nodes_this_app=(2 1 1)
@@ -65,6 +65,12 @@ else
     echo "generate_hosts.sh should downloaded from:"
     echo "https://github.iu.edu/lifen/LaucherTest/blob/master/generate_hosts.sh"
 fi
+
+if [[ `hostname` == *"bridges"* ]];then
+    export MV2_ENABLE_AFFINITY=0
+    export MV2_USE_BLOCKING=1
+fi
+
 
 export procs_prod=${procs_this_app[0]}
 export procs_link=${procs_this_app[1]}

@@ -14,6 +14,10 @@ cci might be different
     68  564157  53.2s
 
 
+#### performance when using different link procsses in single node at bridges
+    8 82.3s
+
+
 1. vectot_skel.job
     need set path, decaf_prefix in bash file
     

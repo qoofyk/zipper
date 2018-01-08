@@ -1,7 +1,7 @@
 #!/bin/bash
 #SBATCH --job-name="decaf_lbm"
 #SBATCH --output="results/%j.out"
-#SBATCH --partition=normal
+#SBATCH --partition=RM
 #SBATCH --nodes=32
 #SBATCH --ntasks-per-node=28
 #SBATCH -t 00:8:00
@@ -15,7 +15,7 @@
 num_apps=3
 
 # slots used by this app
-procs_this_app=(256 128 128)
+procs_this_app=(256 64 128)
 
 # number of nodes used by this app
 nodes_this_app=(16 8 8)

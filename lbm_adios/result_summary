@@ -1,3 +1,35 @@
+## Jan 8
+JOBS
+
+2157003
+    bridges 256v128, end2end time 86.36
+
+2156965
+    adios_dimes 248s
+
+2156993
+
+    decaf 32v12v16, 12 link procs
+    
+
+2156990
+    decaf add MV2 settings 32v8v16,
+    end2end 82.3s
+    
+2156984
+    decaf 32v4v16, 4 link procs, 89.4s
+
+2156977
+    decaf 32v8v16, 8 link procs
+    end2end time 86.9
+
+2156969
+    decaf 32v24v16, 24 link procs
+    end2end 93.8
+2156491
+    decaf 16 link procs, 32v16v16
+    lbm 44.1~58.9 anlysis 41.6~82.7; stream 1.4~22.8, end2end 95.5
+
 ## Jan 4
 Jobs
 2136279
