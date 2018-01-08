@@ -1,3 +1,21 @@
+## Jan 4
+Jobs
+2136279
+    256v128 nmoments 3, flexpath, analysis time 29.7~44.2
+2136252(I need to compare with 2098326)
+    256v128, noments 4, flexpath, analysis time 50~80.5
+## Dec 29
+#   use nmonent=3
+fli5@br005:~/Workspaces/General_Data_Broker/lbm_adiossqueue -u $USER
+             JOBID PARTITION     NAME     USER ST       TIME  NODES NODELIST(REASON)
+           2120864        RM native_d     fli5 PD       0:00     32 (Priority)
+           2120865        RM native_d     fli5 PD       0:00     32 (Dependency)
+           2120866        RM adios_ds     fli5 PD       0:00     32 (Dependency)
+           2120867        RM adios_di     fli5 PD       0:00     32 (Dependency)
+           2120868        RM    mpiio     fli5 PD       0:00     24 (Dependency)
+           2120869        RM adios_fl     fli5 PD       0:00     24 (Dependency)
+           2120870        RM sim_only     fli5 PD       0:00     16 (Dependency)
+
 ## Dec 23
 JOBS
     use nmonent=3 and use max time as sim and lbm time
@@ -44,7 +62,7 @@ rereproduce the results
     2082464 flexpath 24v12 15.7s
     2082476 flexpath 12v
 256v128
-5@br005:~/Workspaces/General_Data_Broker/lbm_adiossqueue -u $USER
+5@br005:~/Workspaces/General_Data_Broker/lbm_adiossqueue -u $USER (nmoments =4)
              JOBID PARTITION     NAME     USER ST       TIME  NODES NODELIST(REASON)
            2080107        RM native_d     fli5 PD       0:00     32 (Resources), works
            2080108        RM native_d     fli5 PD       0:00     32 (Dependency)

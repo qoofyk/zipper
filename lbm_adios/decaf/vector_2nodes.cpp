@@ -70,6 +70,7 @@ void prod(Decaf* decaf)
 	int nlocal; //nlines processed by each process
 	int size_one = SIZE_ONE; // each line stores 2 doubles
 	double *buffer; // buffer address
+    double t_start, t_end;
 
     int dims_cube[3] = {filesize2produce/4,filesize2produce/4,filesize2produce};
 
@@ -88,7 +89,7 @@ void prod(Decaf* decaf)
 
 
     //MPI_Barrier(comm);
-    double t_start = MPI_Wtime();
+    t_start = MPI_Wtime();
 
     for (int timestep = 0; timestep < nsteps; timestep++)
     {
@@ -147,7 +148,7 @@ void prod(Decaf* decaf)
 	}
 
     //MPI_Barrier(comm);
-    double t_end = MPI_Wtime();
+    t_end = MPI_Wtime();
     printf("total-start-end %.3f %.3f %.3f\n", t_end- t_start, t_start, t_end);
 
     // terminate the task (mandatory) by sending a quit message to the rest of the workflow

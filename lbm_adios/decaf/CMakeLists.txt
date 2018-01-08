@@ -3,8 +3,8 @@ message("Building vector example")
 set(transport_mpi on CACHE BOOL "enable mpi transport for decaf")
 set(transport_cci on CACHE BOOL "enable cci transport for decaf")
 #set(transport_file off CACHE BOOL "enable hdf5 file transport for decaf")
-set(CCI_PREFIX "/work/04446/tg837458/stampede2/software/install" CACHE PATH "cci path")
-set(DECAF_PREFIX "/work/04446/tg837458/stampede2/software/install" CACHE PATH "decaf path")
+set(CCI_PREFIX "$ENV{WORK}/software/install" CACHE PATH "cci path")
+set(DECAF_PREFIX "$ENV{WORK}/software/install" CACHE PATH "decaf path")
 include(${CMAKE_SOURCE_DIR}/cmake/decaf.cmake)
 include_directories(${CMAKE_SOURCE_DIR}/lbm)
 
@@ -35,27 +35,32 @@ set_target_properties(mod_vector_2nodes PROPERTIES PREFIX "")
 #find_path                   (LAMMPS_INCLUDE_DIR		lammps.h)
 #find_library                (LAMMPS_LIBRARY NAMES	lammps)
 
-include_directories       (${LAMMPS_INCLUDE_DIR})
 
-add_executable            (lammps            lammps.cpp)
-add_library               (mod_lammps MODULE lammps.cpp)
-target_link_libraries     (lammps
+if(${LAMPPS_INCLUDE_DIR})
+
+    include_directories       (${LAMMPS_INCLUDE_DIR})
+
+    add_executable            (lammps            lammps.cpp)
+    add_library               (mod_lammps MODULE lammps.cpp)
+    target_link_libraries     (lammps
+                                ${LAMMPS_LIBRARY}
+                                msd_analysis
+                                ${libraries})
+        # ${bredala_transports} bredala_datamodel manala decaf)
+
+    target_link_libraries   (mod_lammps
                             ${LAMMPS_LIBRARY}
                             msd_analysis
                             ${libraries})
-    # ${bredala_transports} bredala_datamodel manala decaf)
+        #${bredala_transports} bredala_datamodel manala decaf)
 
-target_link_libraries   (mod_lammps
-                        ${LAMMPS_LIBRARY}
-                        msd_analysis
-                        ${libraries})
-    #${bredala_transports} bredala_datamodel manala decaf)
+    # .SO file extension on Linux/Mac OS
+    set_target_properties(mod_lammps PROPERTIES SUFFIX ".so")
 
-# .SO file extension on Linux/Mac OS
-set_target_properties(mod_lammps PROPERTIES SUFFIX ".so")
+    # Don't add a 'lib' prefix to the shared library
+    set_target_properties(mod_lammps PROPERTIES PREFIX "")
 
-# Don't add a 'lib' prefix to the shared library
-set_target_properties(mod_lammps PROPERTIES PREFIX "")
+endif()
 
 
 

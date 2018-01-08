@@ -1,6 +1,32 @@
-#################################################### 
+#!/bin/bash
+#SBATCH --job-name="decaf_skel"
+#SBATCH --output="results/%j.out"
+#SBATCH --partition=RM
+#SBATCH --nodes=4
+#SBATCH --ntasks-per-node=24
+#SBATCH -t 00:8:00
+#SBATCH --export=ALL
 
-export OMP_NUM_THREADS=4
+#SBATCH --mail-type=BEGIN
+# send mail to this address
+#SBATCH --mail-user=lifen@iupui.edu
+
+# procs placement
+num_apps=3
+
+# slots used by this app
+procs_this_app=(32 16 16)
+
+# number of nodes used by this app
+nodes_this_app=(2 1 1)
+
+
+PBS_O_HOME=$HOME
+PBS_O_WORKDIR=$(pwd)
+export SCRATCH_DIR=${SCRATCH}/decaf_skel/${SLURM_JOBID}
+
+
+#################################################### 
 
 env|grep '^HAS' # trace enabled?
 env|grep '^OMP' # trace enabled?
@@ -40,11 +66,6 @@ else
     echo "https://github.iu.edu/lifen/LaucherTest/blob/master/generate_hosts.sh"
 fi
 
-if [[ `hostname` == *"bridges"* ]];then
-    export MV2_ENABLE_AFFINITY=0
-    export MV2_USE_BLOCKING=1
-fi
-
 export procs_prod=${procs_this_app[0]}
 export procs_link=${procs_this_app[1]}
 export procs_con=${procs_this_app[2]}
@@ -63,3 +84,6 @@ mpirun -l  --machinefile ${HOST_DIR}/machinefile-all -np ${procs_prod} $BUILD_DI
 
 ## Wait for the entire workflow to finish
 wait
+
+
+
