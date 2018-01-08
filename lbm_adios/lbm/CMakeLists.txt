@@ -1,12 +1,11 @@
 message("building standalone lbm")
 
-add_executable(lbm lbm.c lbm_buffer.c)
-add_library(mod_lbm SHARED lbm.c lbm_buffer.c)
+add_library(mod_lbm lbm.c lbm_buffer.c)
 
-target_link_libraries(lbm ${LIBRARIES})
+#target_link_libraries(mod_lbm ${LIBRARIES})
 #target_link_libraries(mod_lbm ${LIBRARIES})
 
-foreach(item mod_lbm lbm)
+foreach(item mod_lbm)
 
     target_link_libraries(${item} ${MPI_LIBRARIES})
 
@@ -18,4 +17,7 @@ foreach(item mod_lbm lbm)
         set_target_properties(${item} PROPERTIES LINK_FLAGS "${MPI_C_LINK_FLAGS}")
     endif()
 endforeach(item)
+
+add_executable(lbm test_lbm.c)
+target_link_libraries(lbm mod_lbm)
 

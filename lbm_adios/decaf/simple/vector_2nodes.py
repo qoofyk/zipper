@@ -22,7 +22,7 @@ mod_path = os.environ['BUILD_DIR'] + '/vector/mod_vector_2nodes.so'
 
 w = nx.DiGraph()
 w.add_node("prod", start_proc=0, nprocs=64, func='prod', cmdline='./vector_2nodes')
-w.add_node("con",  start_proc=68, nprocs=32, func='print', cmdline='./vector_2nodes')
+w.add_node("con",  start_proc=68, nprocs=32, func='con', cmdline='./vector_2nodes')
 w.add_edge("prod", "con", start_proc=64, nprocs=4, func='dflow', path=mod_path,
            prod_dflow_redist='count', dflow_con_redist='count', cmdline='./vector_2nodes')
 

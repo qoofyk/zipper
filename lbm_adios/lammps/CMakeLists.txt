@@ -1,12 +1,11 @@
-message("building standalone analsis")
+include_directories       (${LAMMPS_INCLUDE_DIR})
 
-#add_executable(lbm lbm.c lbm_buffer.c lbm_test.c)
-add_library(nmoments_analysis run_analysis.c)
+add_executable            (test_lammps            test_lammps.cpp)
+target_link_libraries     (test_lammps
+    ${LAMMPS_LIBRARY_STATIC})
+                        #${LAMMPS_LIBRARY})
 
-#target_link_libraries(lbm ${LIBRARIES})
-#target_link_libraries(mod_lbm ${LIBRARIES})
-
-foreach(item nmoments_analysis)
+foreach(item test_lammps)
 
     target_link_libraries(${item} ${MPI_LIBRARIES})
 
@@ -18,4 +17,8 @@ foreach(item nmoments_analysis)
         set_target_properties(${item} PROPERTIES LINK_FLAGS "${MPI_C_LINK_FLAGS}")
     endif()
 endforeach(item)
+
+
+
+
 

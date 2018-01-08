@@ -1,8 +1,8 @@
 #!/bin/bash
-#SBATCH --job-name="decaf_skel"
+#SBATCH --job-name="lammps_sim_only"
 #SBATCH --output="results/%j.out"
 #SBATCH --partition=normal
-#SBATCH --nodes=4
+#SBATCH --nodes=1
 #SBATCH --ntasks-per-node=68
 #SBATCH -t 00:8:00
 
@@ -11,21 +11,23 @@
 #SBATCH --mail-user=lifen@iupui.edu
 
 # procs placement
-num_apps=3
+num_apps=1
 
 # slots used by this app
-procs_this_app=(68 64 34)
+procs_this_app=(68)
 
 # number of nodes used by this app
-nodes_this_app=(2 1 1)
+nodes_this_app=(2)
 
 
 PBS_O_HOME=$HOME
 PBS_O_WORKDIR=$(pwd)
-export SCRATCH_DIR=${SCRATCH}/decaf_skel/${SLURM_JOBID}
+export SCRATCH_DIR=${SCRATCH}/lammps_decaf/${SLURM_JOBID}
 
 
 #################################################### 
+
+export OMP_NUM_THREADS=4
 
 env|grep '^HAS' # trace enabled?
 env|grep '^OMP' # trace enabled?
@@ -33,15 +35,13 @@ env|grep '^OMP' # trace enabled?
 #module load remora
 
 #module load libfabric
-module load boost
-module load phdf5
 module list
 
 
 
 echo "procs is \[ ${procs_this_app[*]}\], nodes is \[${nodes_this_app[*]}\]"
 
-export BUILD_DIR=${PBS_O_WORKDIR}/build_debug
+export BUILD_DIR=${PBS_O_WORKDIR}/build
 
 #This job runs with 3 nodes  
 #ibrun in verbose mode will give binding detail  #BUILD=${PBS_O_WORKDIR}/build_dspaces/bin
@@ -67,21 +67,23 @@ else
     echo "https://github.iu.edu/lifen/LaucherTest/blob/master/generate_hosts.sh"
 fi
 
-export procs_prod=${procs_this_app[0]}
-export procs_link=${procs_this_app[1]}
-export procs_con=${procs_this_app[2]}
 
-procs_all=$((procs_prod + procs_con + procs_link))
+CMD_PRODUCER="$LAUNCHER -np ${procs_this_app[0]} -machinefile $HOST_DIR/machinefile-app0  ${BIN_PRODUCER} ${NSTOP}"
 
-# generate graph
-#PYTHON_RUN="python $PBS_O_WORKDIR/vector/vector_2nodes.py --np ${procs_all} --hostfile ${HOST_DIR}/machinefile-all"
-PYTHON_RUN="python $PBS_O_WORKDIR/decaf/vector_2nodes_topo.py --np ${procs_all} --hostfile ${HOST_DIR}/machinefile-all"
-$PYTHON_RUN &> python.log
-echo "python run $PYTHON_RUN"
 
-## order is prod/link/consumer
-mpirun -l  --machinefile ${HOST_DIR}/machinefile-all -np ${procs_prod} $BUILD_DIR/bin/vector_2nodes : -np ${procs_link} $BUILD_DIR/bin/vector_2nodes : -np ${procs_con} $BUILD_DIR/bin/vector_2nodes
+# copy input file
+#infile=in.melt
+infile=in.lj.68v34.txt
+cp ${PBS_O_WORKDIR}/lammps/$infile ./$infile
 
+
+LAUNCHER="mpiexec.hydra"
+cmd="$BUILD_DIR/bin/test_lammps $infile"
+
+
+CMD_PRODUCER="$LAUNCHER -np ${procs_this_app[0]} -machinefile $HOST_DIR/machinefile-app0  $cmd"
+
+$CMD_PRODUCER
 
 ## Wait for the entire workflow to finish
 wait

@@ -1,12 +1,11 @@
-message("building standalone analsis")
+message("building standalone msd")
 
-#add_executable(lbm lbm.c lbm_buffer.c lbm_test.c)
-add_library(nmoments_analysis run_analysis.c)
+add_library(msd_analysis run_msd.c)
 
-#target_link_libraries(lbm ${LIBRARIES})
+#target_link_libraries(mod_lbm ${LIBRARIES})
 #target_link_libraries(mod_lbm ${LIBRARIES})
 
-foreach(item nmoments_analysis)
+foreach(item msd_analysis)
 
     target_link_libraries(${item} ${MPI_LIBRARIES})
 
@@ -18,4 +17,7 @@ foreach(item nmoments_analysis)
         set_target_properties(${item} PROPERTIES LINK_FLAGS "${MPI_C_LINK_FLAGS}")
     endif()
 endforeach(item)
+
+#add_executable(lbm test_lbm.c)
+#target_link_libraries(lbm mod_lbm)
 

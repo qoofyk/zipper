@@ -6,6 +6,8 @@ see [this wiki](https://github.iu.edu/IUPUI-CS-HPC/data_broker_lammps/wiki) for 
 written by Feng Li at Fall 2017
 
 ## What is new
+[Jan 5]; lammps example code added to the source tree and works
+[Jan 4]: decaf works with lbm, using dynamic analysis library makes analysis code runs slower(40s vs 20s in stampede)
 [Jan 2]: lbm reorganized in lbm/
 [Dec18]: flexpath segfault, data description for group should be removed for v1.13 flexpath, see https://github.iu.edu/lifen/flexpath_skel/commit/59cea72ad6715c91220ac3bc4ab72aeb7a47b579
 [Dec14]:  flexpath memory leak fixed in v1.13
@@ -25,6 +27,18 @@ written by Feng Li at Fall 2017
         
 
 ## What is missing
+Performance Anaylis(Bridges)
+    need decaf results
+    other transports need to use lbm and analysis library
+    traces need to regenerate
+Scaling(stampde)
+    decaf with lammps library(lammps is only in scaling experiments)
+        lammps is now built as shared lib
+    2176 decaf is not working
+    traces need to regenerate
+
+-----------------------------------------------
+before Jan 4
         traces:
             flexpath traces is not shown very clearly in performance analysis
             stampede traces and bridges flexpath traces show different behaviours

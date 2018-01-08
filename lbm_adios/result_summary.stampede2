@@ -1,3 +1,65 @@
+# Jan 6
+
+570598
+    lammps with decaf run with "pre no post no"
+    225.3
+    
+570591
+    test_lammps(lammps_only) now run with "pre no post no"
+    225s
+570514
+    no post and pre,waltime 3:45, the same
+570505 
+    add pre no and post yes, walltime 3:44s for 100 steps
+570351
+    100x" run 1 "in lammps binary
+    70 steps in 8 min
+570306
+    use lammmps binary
+        2:41 for 100 steps, reasonable
+570194
+    lammps_only sim_only also 6.9s per step using static libary
+    run lammps directly?
+570044
+    lammps_only simulationi 6.9s per step
+    plan to try static linked lammps
+569931
+    decaf_lammps job,stil slow as expected.
+    should try lammps only
+# Jan 5
+567135
+    decaf 68v34 run 100 steps, add timer to see end2end time
+    8min only run 71 steps
+567094
+    now lammps works with yuankuan's input file, each consumer get 102400 atoms, correct
+567027 use extrac_atoms success
+566851
+    without dump
+566782
+    with dump, id type(1) x y z
+# Jan 4
+564921
+    136v68
+564919
+    272v136
+564916
+    544v272
+564313(again in 564355)
+    2176v1088, terminate
+        [0] terminate called after throwing an instance of 'std::length_error'
+        [0]   what():  vector::_M_range_insert
+564228
+    1088v1024v544 decaf, 79.9
+564100 
+    use test_lbm to build lbm_only, time 36.1~36.4, stream time 0.7~1.8
+564087, also build lbm as static(16 link processes)
+    lbm 37.4~47.6 , end2end 58.3s, analysis 22.0~23.8(unchanged), sendrecv 2.9~13.4.
+564075, run again
+    lbm 36.8~46.1 , end2end 58.45s, analysis 21.6~21.9(unchanged), sendrecv 1.3~11.0.
+564067, analysis is still static, now try decaf
+    lbm 37.8~49.7 , end2end 60.22s, analysis 21.6~21.9, sendrecv 2.6~11.
+564038, if using static link, flexpath use 21.7~28.5 analysis time
+564032, analysis code is slower because I use dynamic link
 # jan 2
   JOBS 
 562423
