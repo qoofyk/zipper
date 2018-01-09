@@ -40,7 +40,7 @@ topoCon = topo.subTopology("con", procs_con, procs_prod+procs_link)
 # Creating the graph
 w = nx.DiGraph()
 w.add_node("prod", topology=topoProd, func='prod', cmdline=os.environ['BUILD_DIR'] + '/bin/vector_2nodes')
-w.add_node("con", topology=topoCon, func='print', cmdline=os.environ['BUILD_DIR'] + '/bin/vector_2nodes')
+w.add_node("con", topology=topoCon, func='con', cmdline=os.environ['BUILD_DIR'] + '/bin/vector_2nodes')
 w.add_edge("prod", "con", topology=topoDflow, func='dflow', path=mod_path,
            prod_dflow_redist='count', dflow_con_redist='count',cmdline=os.environ['BUILD_DIR'] +'/bin/vector_2nodes')
 

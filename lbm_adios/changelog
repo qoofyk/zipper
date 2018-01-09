@@ -22,10 +22,15 @@ versions
 	raw_dspacesraw_gcc_mvapich
 ----------------------------------------------------------------------------------
 ----------------------------------------------------------------------------------
+## Jan 9
+	* trace in comformance comparison
+		use 32v16, I want to keep consistent with
 ## Jan 8
 	* results:
 	decaf 256v128 86.36s, 8 procs per link node
 	* TODO build decaf using TAU
+	* build
+		decaf_tau build at software/install_tau
 
 ## Dec 12
 	fixed:

@@ -61,7 +61,7 @@ using namespace std;
 //void prod(Decaf* decaf, int nsteps, int analysis_interval, string infile)
 void prod(Decaf* decaf)
 {
-    int nsteps = 100;
+    int nsteps = 10;
     int rank;
 
 

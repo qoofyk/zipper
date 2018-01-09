@@ -14,7 +14,33 @@ module list
 
 echo "procs is \[ ${procs_this_app[*]}\], nodes is \[${nodes_this_app[*]}\]"
 
-export BUILD_DIR=${PBS_O_WORKDIR}/build
+#export BUILD_DIR=${PBS_O_WORKDIR}/build
+if [ x"$HAS_TRACE" == "x" ];then
+    export BUILD_DIR=${PBS_O_WORKDIR}/build
+    DS_SERVER=${WORK}/envs/gcc_mvapich/Dataspacesroot/bin/dataspaces_server
+    export DECAF_PREFIX=$WORK/software/install
+else
+    echo "TRACE ENABLED"
+    export BUILD_DIR=${PBS_O_WORKDIR}/build_tau
+    DS_SERVER=${WORK}/envs/Dataspacesroot_tau/bin/dataspaces_server
+    #enable trace
+    export TAU_TRACE=1
+    # set trace dir
+    export ALL_TRACES=${SCRATCH_DIR}/trace
+    mkdir -pv $ALL_TRACES/app0
+    mkdir -pv $ALL_TRACES/app1
+    mkdir -pv $ALL_TRACES/app2
+
+    if [ -z $TAU_MAKEFILE ]; then
+        module load tau
+        echo "LOAD TAU!"
+    fi
+
+    export DECAF_PREFIX=$WORK/software/install_tau
+
+fi
+
+env|grep '^DECAF' # trace enabled?
 
 #This job runs with 3 nodes  
 #ibrun in verbose mode will give binding detail  #BUILD=${PBS_O_WORKDIR}/build_dspaces/bin
@@ -58,7 +84,7 @@ $PYTHON_RUN &> python.log
 echo "python run $PYTHON_RUN"
 
 ## order is prod/link/consumer
-mpirun -l  --machinefile ${HOST_DIR}/machinefile-all -np ${procs_prod} $BUILD_DIR/bin/vector_2nodes : -np ${procs_link} $BUILD_DIR/bin/vector_2nodes : -np ${procs_con} $BUILD_DIR/bin/vector_2nodes
+mpirun -l  --machinefile ${HOST_DIR}/machinefile-all -np ${procs_prod} -env TRACEDIR=${ALL_TRACES}/app0 $BUILD_DIR/bin/vector_2nodes : -np ${procs_link} -env TRACEDIR=${ALL_TRACES}/app1 $BUILD_DIR/bin/vector_2nodes : -np ${procs_con} -env TRACEDIR=${ALL_TRACES}/app2 $BUILD_DIR/bin/vector_2nodes
 
 
 ## Wait for the entire workflow to finish

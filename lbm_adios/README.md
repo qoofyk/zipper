@@ -6,6 +6,7 @@ see [this wiki](https://github.iu.edu/IUPUI-CS-HPC/data_broker_lammps/wiki) for 
 written by Feng Li at Fall 2017
 
 ## What is new
+[Jan 9]: in bridges, use 32v16 for traces
 [Jan 5]; lammps example code added to the source tree and works
 [Jan 4]: decaf works with lbm, using dynamic analysis library makes analysis code runs slower(40s vs 20s in stampede)
 [Jan 2]: lbm reorganized in lbm/
@@ -54,6 +55,7 @@ before Jan 4
 ## Important Note
  - use dependency-enabled job to submit all the tasks, record whether they are success in summary.txt
  - record all the results in exp_brideges.excel PerfBridges_Large
+ - all end2end time is built with -O3, with traces-eabled are not, 
 
 
 
