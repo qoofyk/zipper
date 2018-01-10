@@ -1,4 +1,26 @@
 ## Jan 10
+[notes]: seems like 8v4, 256v128 works fine but 32v16 are not
+
+commit  3cd150bf:
+    2169859
+        256v128 dimes
+
+in commit eee3f8ccf:
+    2168533
+        256v128 dimes
+            fine
+    2168505/2168512
+        32v16 with 16 server procs
+        producer Reading from remote process' memory failed. Disabling CMA support
+    2168483/2168521
+        32v16 with 4 server procs, crashed
+
+    2168478/2168568
+        8v4 dimes
+            works
+    2168448
+        32v16 dimes
+             server crashed
 2168162
     256v128 again, server crashed
 2167732

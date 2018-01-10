@@ -22,6 +22,13 @@ versions
 	raw_dspacesraw_gcc_mvapich
 ----------------------------------------------------------------------------------
 ----------------------------------------------------------------------------------
+## Jan 10
+	* finds:
+		32v16 not good for dimes, I may generate traces using 256v128
+	* work left:
+		traces for 256v128
+	* plan:
+		work on stampede first
 ## Jan 9
 	* trace in comformance comparison
 		use 32v16, I want to keep consistent with
