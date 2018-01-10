@@ -84,7 +84,10 @@ $PYTHON_RUN &> python.log
 echo "python run $PYTHON_RUN"
 
 ## order is prod/link/consumer
-mpirun -l  --machinefile ${HOST_DIR}/machinefile-all -np ${procs_prod} -env TRACEDIR=${ALL_TRACES}/app0 $BUILD_DIR/bin/vector_2nodes : -np ${procs_link} -env TRACEDIR=${ALL_TRACES}/app1 $BUILD_DIR/bin/vector_2nodes : -np ${procs_con} -env TRACEDIR=${ALL_TRACES}/app2 $BUILD_DIR/bin/vector_2nodes
+MPI_CMD="mpirun -l -genv TRACEDIR=${ALL_TRACES}/app0 --machinefile ${HOST_DIR}/machinefile-all -np ${procs_prod}  $BUILD_DIR/bin/vector_2nodes : -np ${procs_link}  $BUILD_DIR/bin/vector_2nodes : -np ${procs_con}  $BUILD_DIR/bin/vector_2nodes"
+
+echo "[MPI command]: $MPI_CMD"
+$MPI_CMD
 
 
 ## Wait for the entire workflow to finish

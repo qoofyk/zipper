@@ -1,4 +1,36 @@
+## Jan 10
+2168162
+    256v128 again, server crashed
+2167732
+    256v128 dimes rerun, 
+    failed r052.pvt.bridges.psc.edu.14226run_lbm: Reading from remote process' memory failed. Disabling CMA support
 ## Jan 9
+
+2162794
+    no trace decaf, not ok
+    [31] r051.pvt.bridges.psc.edu.2237vector_2nodes: Reading from remote process' memory failed. Disabling CMA support
+2162788
+    has_trace decaf, failed
+
+2162879
+    no_trace native_dimes, server crashed
+2162780/2162846
+    has_trace=1 native_dimes
+2162776
+    has_trace=1 flexpath
+    fast, 16.34s
+--------------------------------------------
+all rebuilt above(build and build_tau)
+2162667
+    has_trace=1, now use one single env variable
+2160249
+    HAS_TRACE=1 sbatch scripts/bridges/32v16/decaf.job
+    trace failed
+2160246
+    sbatch scripts/bridges/32v16/decaf.job
+     can run without has_tau
+2160222
+    with traces
 2160103
     256v128 not work anymore?, stoped at 1 step
     configuration files not correct

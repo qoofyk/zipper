@@ -349,7 +349,7 @@ void run(Workflow& workflow            // workflow
     // also, the user can define any function signature she wants
     if (decaf->my_node("prod"))
         prod(decaf);
-    if (decaf->my_node("print"))
+    if (decaf->my_node("con"))
         con(decaf);
     if (decaf->my_node("print2"))
         print2(decaf);
