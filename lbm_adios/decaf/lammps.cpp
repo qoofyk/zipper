@@ -38,7 +38,7 @@
 #include "library.h"
 #include "run_msd.h"
 #define SIZE_ONE (5)
-#define NSTEPS (100)
+//#define NSTEPS (100)
 
 using namespace decaf;
 using namespace LAMMPS_NS;
@@ -58,10 +58,10 @@ struct pos_args_t                            // custom args for atom positions
 
 // runs lammps and puts the atom positions to the dataflow at the consumer intervals
 //void lammps(Decaf* decaf, int nsteps, int analysis_interval, string infile)
-void prod(Decaf* decaf, string infile)
+void prod(Decaf* decaf, int nsteps, string infile)
 {
 
-    int nsteps = NSTEPS;
+    //int nsteps = NSTEPS;
     int rank;
     int line;
 
@@ -156,7 +156,7 @@ void prod(Decaf* decaf, string infile)
 }
 
 // gets the atom positions and prints them
-void con(Decaf* decaf)
+void con(Decaf* decaf, int nsteps)
 {
     double global_t_analy = 0, t_analy = 0;
     double t1, t2;
@@ -180,7 +180,7 @@ void con(Decaf* decaf)
 
     /* msd required*/
     double **msd;
-    int nsteps = NSTEPS;
+    //int nsteps = NSTEPS;
     int timestep = 0;
     int size_one = SIZE_ONE;
     msd =  init_msd(nsteps, size_one);
@@ -277,6 +277,7 @@ extern "C"
 } // extern "C"
 
 void run(Workflow& workflow,              // workflow
+        int nsteps,
          string infile)                      // lammps input config file*/
 {
     MPI_Init(NULL, NULL);
@@ -289,9 +290,9 @@ void run(Workflow& workflow,              // workflow
     // sense (threaded, alternting, etc.)
     // also, the user can define any function signature she wants
     if (decaf->my_node("prod"))
-        prod(decaf, infile);
+        prod(decaf, nsteps, infile);
     if (decaf->my_node("con"))
-        con(decaf);
+        con(decaf, nsteps);
     if (decaf->my_node("print2"))
         print2(decaf);
 
@@ -319,9 +320,10 @@ char * prefix         = getenv("DECAF_PREFIX");
                 "DECAF_PREFIX to point to the root of your decaf install directory.\n");
         exit(1);
     }
-    string infile = argv[1];
+    int nsteps = atoi(argv[1]);
+    string infile = argv[2];
 
-    run(workflow, infile);
+    run(workflow, nsteps, infile);
 
            
     return 0;

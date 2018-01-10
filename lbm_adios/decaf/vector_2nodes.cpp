@@ -59,9 +59,9 @@ using namespace std;
 // rank 0 will generate all the data
 // runs lammps and puts the atom positions to the dataflow at the consumer intervals
 //void prod(Decaf* decaf, int nsteps, int analysis_interval, string infile)
-void prod(Decaf* decaf)
+void prod(Decaf* decaf, int nsteps)
 {
-    int nsteps = 10;
+    //int nsteps;
     int rank;
 
 
@@ -332,7 +332,8 @@ extern "C"
     }
 } // extern "C"
 
-void run(Workflow& workflow            // workflow
+void run(Workflow& workflow,         // workflow
+        int nsteps
         )
      /*    int lammps_nsteps,                  // number of lammps timesteps to execute*/
          //int analysis_interval,              // number of lammps timesteps to skip analyzing
@@ -348,7 +349,7 @@ void run(Workflow& workflow            // workflow
     // sense (threaded, alternting, etc.)
     // also, the user can define any function signature she wants
     if (decaf->my_node("prod"))
-        prod(decaf);
+        prod(decaf, nsteps);
     if (decaf->my_node("con"))
         con(decaf);
     if (decaf->my_node("print2"))
@@ -370,8 +371,10 @@ int main(int argc,
     Workflow workflow;
     Workflow::make_wflow_from_json(workflow, "vector2.json");
 
+    int nsteps = atoi(argv[1]);
+
     // run decaf
-    run(workflow);
+    run(workflow, nsteps);
 
     return 0;
 

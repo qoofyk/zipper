@@ -10,6 +10,8 @@
 # send mail to this address
 #SBATCH --mail-user=lifen@iupui.edu
 
+NSTOP=100
+
 # procs placement
 num_apps=1
 
@@ -68,8 +70,6 @@ else
 fi
 
 
-CMD_PRODUCER="$LAUNCHER -np ${procs_this_app[0]} -machinefile $HOST_DIR/machinefile-app0  ${BIN_PRODUCER} ${NSTOP}"
-
 
 # copy input file
 #infile=in.melt
@@ -78,7 +78,7 @@ cp ${PBS_O_WORKDIR}/lammps/$infile ./$infile
 
 
 LAUNCHER="mpiexec.hydra"
-cmd="$BUILD_DIR/bin/test_lammps $infile"
+cmd="$BUILD_DIR/bin/test_lammps $NSTOP $infile"
 
 
 CMD_PRODUCER="$LAUNCHER -np ${procs_this_app[0]} -machinefile $HOST_DIR/machinefile-app0  $cmd"

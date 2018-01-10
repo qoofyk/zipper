@@ -22,6 +22,10 @@ TODO
 	* decaf+ lammps vs lammps only
 		225s for both case, analysis too simple and simulation too long?
 
+## Jan 10
+	* lammps scaling experiments, time is almost the same as lammps library
+	* tau broken
+
 ## Jan 5
 	* lammps need to build as shared libary, other wise:
 	/opt/apps/gcc/5.4.0/bin/ld:

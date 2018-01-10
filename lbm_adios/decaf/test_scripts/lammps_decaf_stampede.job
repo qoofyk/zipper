@@ -10,6 +10,8 @@
 # send mail to this address
 #SBATCH --mail-user=lifen@iupui.edu
 
+NSTOP=10
+
 # procs placement
 num_apps=3
 
@@ -83,7 +85,7 @@ echo "python run $PYTHON_RUN"
 infile=in.lj.68v34.txt
 cp ${PBS_O_WORKDIR}/lammps/$infile ./$infile
 
-cmd="$BUILD_DIR/bin/lammps $infile"
+cmd="$BUILD_DIR/bin/lammps $NSTOP $infile"
 
 ## order is prod/link/consumer
 MPI_CMD="mpirun -l  --machinefile ${HOST_DIR}/machinefile-all -np ${procs_prod} $cmd : -np ${procs_link} $cmd : -np ${procs_con} $cmd"

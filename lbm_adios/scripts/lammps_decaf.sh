@@ -13,6 +13,7 @@ module load phdf5
 module list
 
 echo "procs is \[ ${procs_this_app[*]}\], nodes is \[${nodes_this_app[*]}\]"
+echo "will run $NSTOP steps and using inputfile $infile"
 
 #export BUILD_DIR=${PBS_O_WORKDIR}/build
 if [ x"$HAS_TRACE" == "x" ];then
@@ -86,8 +87,7 @@ echo "python run $PYTHON_RUN"
 
 # copy input file
 #infile=in.melt
-infile=in.lj.68v34.txt
-cp ${PBS_O_WORKDIR}/lammps/$infile ./$infile
+cp ${PBS_O_WORKDIR}/scripts/lammps_input/$infile ./$infile
 
 cmd="$BUILD_DIR/bin/lammps $NSTOP $infile"
 

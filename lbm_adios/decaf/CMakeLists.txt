@@ -35,7 +35,7 @@ set_target_properties(mod_vector_2nodes PROPERTIES PREFIX "")
 #find_library                (LAMMPS_LIBRARY NAMES	lammps)
 
 
-if(${LAMPPS_INCLUDE_DIR})
+if(LAMMPS_INCLUDE_DIR)
 
     include_directories       (${LAMMPS_INCLUDE_DIR})
 
