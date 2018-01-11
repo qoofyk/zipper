@@ -327,6 +327,10 @@ char * prefix         = getenv("DECAF_PREFIX");
                 "DECAF_PREFIX to point to the root of your decaf install directory.\n");
         exit(1);
     }
+
+    if(argc !=3){
+        fprintf(stderr, "[lammps]: cmd nsteps infile\n");
+    }
     int nsteps = atoi(argv[1]);
     string infile = argv[2];
 

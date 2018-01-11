@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 2.8 FATAL_ERROR)
-include(${CMAKE_SOURCE_DIR}/cmake/common.cmake)
+#include(${CMAKE_SOURCE_DIR}/cmake/common.cmake)
 
 project("lbm_adios")
 add_definitions ("-DENABLE_TIMING")

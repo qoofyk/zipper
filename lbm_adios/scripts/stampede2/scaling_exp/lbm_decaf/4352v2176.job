@@ -10,6 +10,8 @@
 # send mail to this address
 #SBATCH --mail-user=lifen@iupui.edu
 
+NSTOP=100
+
 # procs placement
 num_apps=3
 

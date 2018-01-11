@@ -375,6 +375,10 @@ int main(int argc,
     Workflow workflow;
     Workflow::make_wflow_from_json(workflow, "vector2.json");
 
+    if(argc != 2){
+        fprintf(stderr, "[lbm]: need steps\n");
+        return -1;
+    }
     int nsteps = atoi(argv[1]);
 
     // run decaf

@@ -1,3 +1,13 @@
+# Jan 11
+ * 587424
+        lbm-only trace 68v34, 40s, trace 46M, transfered to dell desktop
+ * 587326
+        10 steps, stampede lbm trace, 60G in, 147s, boost too many calls?
+ * 587201
+        stampede lbm trace, 8min too short for 100 steps, 30+ steps trace generated, but already 40G
+ * 586758
+    not fully built vector2nodes, ok
+
 # Jan 10
  * 584474
         lammps-only 4352v2176, 221s

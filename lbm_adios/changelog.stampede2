@@ -18,7 +18,10 @@ TODO
 			stuck at "C compiler features", use 2.8 instead
 		-- using 2.8 decaf not found: reason should use DECAF_FOUND(not
 		Decaf_FOUND) in version
-		2.8
+		-- now can built
+	decaf generate too much traces
+		boost? /scratch/04446/tg837458/decaf_skel/587326/trace/app0less
+		events.61.edf
 ## Jan 10
 	* lammps scaling experiments, time is almost the same as lammps library
 	* tau broken

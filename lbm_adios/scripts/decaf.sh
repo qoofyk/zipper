@@ -20,7 +20,8 @@ if [ x"$HAS_TRACE" == "x" ];then
     DS_SERVER=${WORK}/envs/gcc_mvapich/Dataspacesroot/bin/dataspaces_server
     export DECAF_PREFIX=$WORK/software/install
 else
-    echo "TRACE ENABLED"
+    echo "TRACE ENABLED, use 10 steps"
+    NSTOP=10
     export BUILD_DIR=${PBS_O_WORKDIR}/build_tau
     DS_SERVER=${WORK}/envs/Dataspacesroot_tau/bin/dataspaces_server
     #enable trace
@@ -36,7 +37,7 @@ else
         echo "LOAD TAU!"
     fi
 
-    export DECAF_PREFIX=$WORK/software/install_tau
+    export DECAF_PREFIX=$WORK/software/install
 
 fi
 
@@ -84,7 +85,12 @@ $PYTHON_RUN &> python.log
 echo "python run $PYTHON_RUN"
 
 ## order is prod/link/consumer
-MPI_CMD="mpirun -l -genv TRACEDIR=${ALL_TRACES}/app0 --machinefile ${HOST_DIR}/machinefile-all -np ${procs_prod}  $BUILD_DIR/bin/vector_2nodes : -np ${procs_link}  $BUILD_DIR/bin/vector_2nodes : -np ${procs_con}  $BUILD_DIR/bin/vector_2nodes"
+LAUNCHER="mpirun -l"
+cmd="$BUILD_DIR/bin/vector_2nodes $NSTOP"
+
+## order is prod/link/consumer
+MPI_CMD="$LAUNCHER -genv TRACEDIR=${ALL_TRACES}/app0 --machinefile ${HOST_DIR}/machinefile-all -np ${procs_prod} $cmd : -np ${procs_link} $cmd : -np ${procs_con} $cmd"
+
 
 echo "[MPI command]: $MPI_CMD"
 $MPI_CMD
