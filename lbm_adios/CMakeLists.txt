@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.7 FATAL_ERROR)
+cmake_minimum_required(VERSION 2.8 FATAL_ERROR)
 include(${CMAKE_SOURCE_DIR}/cmake/common.cmake)
 
 project("lbm_adios")

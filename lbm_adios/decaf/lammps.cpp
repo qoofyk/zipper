@@ -72,6 +72,8 @@ void prod(Decaf* decaf, int nsteps, string infile)
 	double *buffer; // buffer address
     double **x;// all the atom values
 
+    double t_start = MPI_Wtime();
+
     LAMMPS* lps = new LAMMPS(0, NULL, decaf->prod_comm_handle());
     lps->input->file(infile.c_str());
     printf("prod lammps_decaf started with input %s\n", infile.c_str() );
@@ -79,7 +81,6 @@ void prod(Decaf* decaf, int nsteps, string infile)
     rank = decaf->prod_comm()->rank();
 
 
-    double t_start = MPI_Wtime();
     for (int timestep = 0; timestep < nsteps; timestep++)
     {
 
@@ -97,7 +98,9 @@ void prod(Decaf* decaf, int nsteps, string infile)
 
         buffer = new double[size_one * nlocal];
 
+#if DEBUG
         printf("step %d i have %d lines\n",timestep, nlocal);
+#endif
         for(line = 0; line < nlocal; line++){
             buffer[line*size_one] = line;
             buffer[line*size_one+1] = 1;
@@ -147,9 +150,11 @@ void prod(Decaf* decaf, int nsteps, string infile)
     // terminate the task (mandatory) by sending a quit message to the rest of the workflow
     //
     double t_end = MPI_Wtime();
-    printf("total-start-end %.3f %.3f %.3f\n", t_end- t_start, t_start, t_end);
+    printf("[lammps]:total-start-end %.3f %.3f %.3f\n", t_end- t_start, t_start, t_end);
 
-    fprintf(stderr, "lammps terminating\n");
+    if(rank == 0){
+        fprintf(stderr, "[lammps] now terminating\n");
+    }
     decaf->terminate();
 
     delete lps;
@@ -198,9 +203,11 @@ void con(Decaf* decaf, int nsteps)
                 // debug
                 slice_size = pos.getNbItems();
 
+                if(rank == 0){
                 fprintf(stderr, "[msd]: consumer processing %d atoms at step %d\n",
                         slice_size,
                         step);
+                }
 
 
                 buffer = &pos.getVector()[0];
@@ -232,13 +239,13 @@ void con(Decaf* decaf, int nsteps)
     double t_end = MPI_Wtime();
 
     MPI_Reduce(&t_analy, &global_t_analy, 1, MPI_DOUBLE, MPI_MAX, 0, comm);
-    if(rank == 0){
-		printf("[msd]: max t_analysis %.3f s\n", global_t_analy);
-	}
+    
     printf("[msd]: total-start-end %.3f %.3f %.3f\n", t_end- t_start, t_start, t_end);
 
     // terminate the task (mandatory) by sending a quit message to the rest of the workflow
-    fprintf(stderr, "[msd]: terminating\n");
+    if(rank == 0){
+		printf("[msd]: max t_analysis %.3fs, now existing\n", global_t_analy);
+	}
 
     decaf->terminate();
 }

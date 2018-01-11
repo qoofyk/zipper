@@ -15,9 +15,9 @@
 #include "input.h"
 #include "atom.h"
 #include "library.h"
+#include "stdlib.h"
 //#include "run_msd.h"
 #define SIZE_ONE (5)
-#define NSTEPS (100)
 
 using namespace LAMMPS_NS;
 using namespace std;
@@ -40,7 +40,7 @@ struct pos_args_t                            // custom args for atom positions
 int main(int argc, char *argv[])
 {
 
-    int nsteps = NSTEPS;
+    int nsteps;
     int rank;
     int line;
 
@@ -56,7 +56,10 @@ int main(int argc, char *argv[])
     MPI_Init(&argc, &argv);
     comm = MPI_COMM_WORLD;
     
-    string infile = argv[1];
+    string infile = argv[2];
+    nsteps = atoi(argv[1]);
+
+    double t_start = MPI_Wtime();
 
     LAMMPS* lps = new LAMMPS(0, NULL, comm);
     lps->input->file(infile.c_str());
@@ -67,7 +70,6 @@ int main(int argc, char *argv[])
     //MPI_Comm_size (comm, &nprocs);
 
 
-    double t_start = MPI_Wtime();
     for (int timestep = 0; timestep < nsteps; timestep++)
     {
 
@@ -89,11 +91,13 @@ int main(int argc, char *argv[])
 
         buffer = new double[size_one * nlocal];
 
+        if(rank == 0){
         printf("step %d i have %d lines, sim time %.3f extract time %.3f\n",
                 timestep, 
                 nlocal,
                 t2-t1,
                 t3-t2);
+        }
         for(line = 0; line < nlocal; line++){
             buffer[line*size_one] = line;
             buffer[line*size_one+1] = 1;
@@ -101,8 +105,6 @@ int main(int argc, char *argv[])
             buffer[line*size_one+3] = x[line][1];
             buffer[line*size_one+4] = x[line][2];
         }
-
-
 
        delete[] buffer;
     }
@@ -112,13 +114,12 @@ int main(int argc, char *argv[])
     double t_end = MPI_Wtime();
     printf("total-start-end %.3f %.3f %.3f\n", t_end- t_start, t_start, t_end);
 
-    fprintf(stderr, "lammps terminating\n");
 
     delete lps;
 
     MPI_Finalize();
       if(rank == 0)
-        printf("now exit! \n");
+        printf("[lammps]: terminating! \n");
       return 0;
 
 }

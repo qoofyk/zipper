@@ -1,8 +1,10 @@
 # Jan 10
+ * 584474
+        lammps-only 4352v2176, 221s
 
  * JOBS:
-    583981
-        lammps-decaf 4352v2176 
+    584131(583981 5 min too slow), again(584474)
+        lammps-decaf 4352v2176  528.37
     583891
         lammps-decaf 2176v1088 297.72
     583874
@@ -19,7 +21,6 @@
         lammps with decaf
         
 # Jan 6
-
 570598
     lammps with decaf run with "pre no post no"
     225.3

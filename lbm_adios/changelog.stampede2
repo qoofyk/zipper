@@ -11,6 +11,25 @@ TODO
 	1. nnti in flexpath, not usable.
 	2. dspaces hanging
 	3. ENABLE_TESTING in flexpath conf, enabled
+
+## Jan 11
+	traces in stampede .. 
+		-- build_tau cannot use 3.7
+			stuck at "C compiler features", use 2.8 instead
+		-- using 2.8 decaf not found: reason should use DECAF_FOUND(not
+		Decaf_FOUND) in version
+		2.8
+## Jan 10
+	* lammps scaling experiments, time is almost the same as lammps library
+	* tau broken
+	* decaf timer: 
+		it's okay end2end time is valued in consumerside
+	* question:
+		why lbm cannot run large scale but lammps can
+			I tried the example, if one dimension is larger than 100000, crash
+			happens
+
+
 ## Jan 6
 	* lammps runs slow, 6~7s per step in 68v34 case, extract is fast
 	* tried static library, as slow
@@ -21,10 +40,6 @@ TODO
 		even with this, library lammps use 3:45s for 100 steps
 	* decaf+ lammps vs lammps only
 		225s for both case, analysis too simple and simulation too long?
-
-## Jan 10
-	* lammps scaling experiments, time is almost the same as lammps library
-	* tau broken
 
 ## Jan 5
 	* lammps need to build as shared libary, other wise:
@@ -49,7 +64,6 @@ TODO
 	* new results:
 		decaf_scaling: statistics of 68v34- 1088v544(52.9~79.9s)
 
-
 ## Jan 3
 	* question: analysis time is longer than yuankun's 40s v 20s
 	* end2end time is 60s+ if using more link processes 
@@ -66,8 +80,6 @@ TODO
 	Use valgrind to debug
 	valgrind --leak-check=yes ./lbm 1 10 &> run.log
 	grep -R run.log Invalid, will tell segmenta fault
-
-
 
 ## Dec 29
 	Doing

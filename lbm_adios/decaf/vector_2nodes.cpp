@@ -74,6 +74,8 @@ void prod(Decaf* decaf, int nsteps)
 
     int dims_cube[3] = {filesize2produce/4,filesize2produce/4,filesize2produce};
 
+    t_start = MPI_Wtime();
+
     /* prepare */
     comm = decaf->prod_comm_handle();
 	nlocal = dims_cube[0]*dims_cube[1]*dims_cube[2];
@@ -89,7 +91,6 @@ void prod(Decaf* decaf, int nsteps)
 
 
     //MPI_Barrier(comm);
-    t_start = MPI_Wtime();
 
     for (int timestep = 0; timestep < nsteps; timestep++)
     {
@@ -153,7 +154,9 @@ void prod(Decaf* decaf, int nsteps)
 
     // terminate the task (mandatory) by sending a quit message to the rest of the workflow
 cleanup:
-    fprintf(stderr, "producer exit\n");
+    if(rank == 0){
+        fprintf(stderr, "producer exit\n");
+    }
 
     decaf->terminate();
 
@@ -260,9 +263,11 @@ void con(Decaf* decaf)
                 // debug
                 slice_size = pos.getNbItems();
 
-                fprintf(stderr, "[nmoments]: consumer processing %d atoms at step %d\n",
+                if(rank == 0){
+                    fprintf(stderr, "[nmoments]: consumer processing %d atoms at step %d\n",
                         slice_size,
                         step);
+                }
 
 
                 buffer = &pos.getVector()[0];
@@ -288,13 +293,12 @@ void con(Decaf* decaf)
     double t_end = MPI_Wtime();
 
     MPI_Reduce(&t_analy, &global_t_analy, 1, MPI_DOUBLE, MPI_MAX, 0, comm);
-    if(rank == 0){
-		printf("[nmoments]: max t_analysis %.3f s\n", global_t_analy);
-	}
     printf("[noments]: total-start-end %.3f %.3f %.3f\n", t_end- t_start, t_start, t_end);
 
     // terminate the task (mandatory) by sending a quit message to the rest of the workflow
-    fprintf(stderr, "[noments]: terminating\n");
+    if(rank == 0){
+		printf("[nmoments]: max t_analysis %.3f s,now terminates\n", global_t_analy);
+	}
 
 
     decaf->terminate();

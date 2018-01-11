@@ -6,6 +6,7 @@ see [this wiki](https://github.iu.edu/IUPUI-CS-HPC/data_broker_lammps/wiki) for 
 written by Feng Li at Fall 2017
 
 ## What is new
+[Jan 11]: in stampede, need to use cmake 2.8 to build with taucc
 [Jan 9]: in bridges, use 32v16 for traces
 [Jan 5]; lammps example code added to the source tree and works
 [Jan 4]: decaf works with lbm, using dynamic analysis library makes analysis code runs slower(40s vs 20s in stampede)
