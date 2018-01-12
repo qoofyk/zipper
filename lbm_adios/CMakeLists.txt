@@ -2,6 +2,8 @@ cmake_minimum_required(VERSION 2.8 FATAL_ERROR)
 include(${CMAKE_SOURCE_DIR}/cmake/common.cmake)
 
 project("lbm_adios")
+
+option(all_transports "build all transports" ON)
 add_definitions ("-DENABLE_TIMING")
 #add_definitions ("-DUSE_DATASPACES -DENABLE_TIMING -Wall -Wextra")
 #add_definitions ("-DUSE_DATASPACES -DHAS_KEEP -DENABLE_TIMING -Wall -Wextra")
@@ -11,6 +13,9 @@ find_package(MPI REQUIRED)
 include_directories(${MPI_INCLUDE_PATH} ${CMAKE_SOURCE_DIR} ${CMAKE_SOURCE_DIR}/analysis ${CMAKE_SOURCE_DIR}/msd ${CMAKE_SOURCE_DIR}/lbm)
 
 set(EXECUTABLE_OUTPUT_PATH "${CMAKE_BINARY_DIR}/bin")
+
+
+add_subdirectory(lbm)
 
 if(all_transports)
     set(DS_DIR "${TRANSPORT_LIB}/Dataspacesroot" CACHE PATH "The path to dataspaces.")
@@ -60,20 +65,18 @@ if(all_transports)
     endforeach(item)
 
     add_subdirectory(analysis)
-endif(all_transports)
-
-add_subdirectory(msd)
-add_subdirectory(lbm)
-add_subdirectory(zipper)
-
-if(all_transports)
     if(LAMMPS_INCLUDE_DIR)
         add_subdirectory(lammps)
     else()
         message("-- lammps not build")
     endif()
+
+    add_subdirectory(msd)
     add_subdirectory(decaf)
     add_subdirectory(tests)
+
 endif(all_transports)
+
+add_subdirectory(zipper)
 
 

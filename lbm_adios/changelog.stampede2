@@ -13,7 +13,11 @@ TODO
 	3. ENABLE_TESTING in flexpath conf, enabled
 
 ## Jan 12
-	- self build tau with function name filter. trc file smaller but edf file
+	* newly added:
+		zipper code is added to source tree, see README for how to build
+		
+	* problems:
+		self build tau with function name filter. trc file smaller but edf file
 	still have boost
 ## Jan 11
 New:
