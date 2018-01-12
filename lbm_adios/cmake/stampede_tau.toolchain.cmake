@@ -1,6 +1,6 @@
 set(CMAKE_SYSTEM_NAME Linux)
 
-message("-- stampede tau toolchain used")
+# message("-- stampede tau toolchain used")
 
 #set(CMAKE_SYSROOT /home/devel/rasp-pi-rootfs)
 #set(CMAKE_STAGING_PREFIX /home/devel/stage)
