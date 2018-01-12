@@ -1,4 +1,11 @@
+# jan 12 
+ * 590563
+     now 7.3G traces
 # Jan 11
+ * 588209
+        set both tau_select file and tau_optioln, still large traces
+ * 587809
+        add tau_select, and now can completedly compile with cmake 2.8
  * 587424
         lbm-only trace 68v34, 40s, trace 46M, transfered to dell desktop
  * 587326

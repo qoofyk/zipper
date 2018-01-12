@@ -12,16 +12,25 @@ TODO
 	2. dspaces hanging
 	3. ENABLE_TESTING in flexpath conf, enabled
 
+## Jan 12
+	- self build tau with function name filter. trc file smaller but edf file
+	still have boost
 ## Jan 11
+New:
+	self built tau
+		haven't work yet
+--------------
 	traces in stampede .. 
-		-- build_tau cannot use 3.7
+		-- build_tau cannot use 3.7(use select file to fileter out .so makes
+		3.7 works)
 			stuck at "C compiler features", use 2.8 instead
 		-- using 2.8 decaf not found: reason should use DECAF_FOUND(not
 		Decaf_FOUND) in version
 		-- now can built
 	decaf generate too much traces
-		boost? /scratch/04446/tg837458/decaf_skel/587326/trace/app0less
+		- boost? /scratch/04446/tg837458/decaf_skel/587326/trace/app0less
 		events.61.edf
+		- all boost related have TAU_DEFAULT, how to disable it
 ## Jan 10
 	* lammps scaling experiments, time is almost the same as lammps library
 	* tau broken

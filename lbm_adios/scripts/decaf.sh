@@ -38,6 +38,8 @@ else
     fi
 
     export DECAF_PREFIX=$WORK/software/install
+    #export TAU_SELECT_FILE=/home1/04446/tg837458/Workspaces/General_Data_Broker/lbm_adios/configs/select.tau
+    env|grep '^TAU' # trace enabled?
 
 fi
 

@@ -5,7 +5,7 @@ message("-- stampede tau toolchain used")
 #set(CMAKE_SYSROOT /home/devel/rasp-pi-rootfs)
 #set(CMAKE_STAGING_PREFIX /home/devel/stage)
 
-set(tools /opt/apps/intel17/impi17_0/tau/2.26.2p1/x86_64/)
+set(tools /work/04446/tg837458/stampede2/envs/tau_bundle_2_27/tau_opempi_pthread/x86_64/)
 set(CMAKE_C_COMPILER ${tools}/bin/tau_cc.sh)
 set(CMAKE_CXX_COMPILER ${tools}/bin/tau_cxx.sh)
 
