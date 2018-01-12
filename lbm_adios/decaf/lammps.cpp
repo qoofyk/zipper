@@ -38,7 +38,7 @@
 #include "library.h"
 #include "run_msd.h"
 #define SIZE_ONE (5)
-#define NSTEPS (100)
+//#define NSTEPS (100)
 
 using namespace decaf;
 using namespace LAMMPS_NS;
@@ -58,10 +58,10 @@ struct pos_args_t                            // custom args for atom positions
 
 // runs lammps and puts the atom positions to the dataflow at the consumer intervals
 //void lammps(Decaf* decaf, int nsteps, int analysis_interval, string infile)
-void prod(Decaf* decaf, string infile)
+void prod(Decaf* decaf, int nsteps, string infile)
 {
 
-    int nsteps = NSTEPS;
+    //int nsteps = NSTEPS;
     int rank;
     int line;
 
@@ -72,6 +72,8 @@ void prod(Decaf* decaf, string infile)
 	double *buffer; // buffer address
     double **x;// all the atom values
 
+    double t_start = MPI_Wtime();
+
     LAMMPS* lps = new LAMMPS(0, NULL, decaf->prod_comm_handle());
     lps->input->file(infile.c_str());
     printf("prod lammps_decaf started with input %s\n", infile.c_str() );
@@ -79,7 +81,6 @@ void prod(Decaf* decaf, string infile)
     rank = decaf->prod_comm()->rank();
 
 
-    double t_start = MPI_Wtime();
     for (int timestep = 0; timestep < nsteps; timestep++)
     {
 
@@ -97,7 +98,9 @@ void prod(Decaf* decaf, string infile)
 
         buffer = new double[size_one * nlocal];
 
+#if DEBUG
         printf("step %d i have %d lines\n",timestep, nlocal);
+#endif
         for(line = 0; line < nlocal; line++){
             buffer[line*size_one] = line;
             buffer[line*size_one+1] = 1;
@@ -147,16 +150,18 @@ void prod(Decaf* decaf, string infile)
     // terminate the task (mandatory) by sending a quit message to the rest of the workflow
     //
     double t_end = MPI_Wtime();
-    printf("total-start-end %.3f %.3f %.3f\n", t_end- t_start, t_start, t_end);
+    printf("[lammps]:total-start-end %.3f %.3f %.3f\n", t_end- t_start, t_start, t_end);
 
-    fprintf(stderr, "lammps terminating\n");
+    if(rank == 0){
+        fprintf(stderr, "[lammps] now terminating\n");
+    }
     decaf->terminate();
 
     delete lps;
 }
 
 // gets the atom positions and prints them
-void con(Decaf* decaf)
+void con(Decaf* decaf, int nsteps)
 {
     double global_t_analy = 0, t_analy = 0;
     double t1, t2;
@@ -180,7 +185,7 @@ void con(Decaf* decaf)
 
     /* msd required*/
     double **msd;
-    int nsteps = NSTEPS;
+    //int nsteps = NSTEPS;
     int timestep = 0;
     int size_one = SIZE_ONE;
     msd =  init_msd(nsteps, size_one);
@@ -198,9 +203,11 @@ void con(Decaf* decaf)
                 // debug
                 slice_size = pos.getNbItems();
 
+                if(rank == 0){
                 fprintf(stderr, "[msd]: consumer processing %d atoms at step %d\n",
                         slice_size,
                         step);
+                }
 
 
                 buffer = &pos.getVector()[0];
@@ -232,13 +239,13 @@ void con(Decaf* decaf)
     double t_end = MPI_Wtime();
 
     MPI_Reduce(&t_analy, &global_t_analy, 1, MPI_DOUBLE, MPI_MAX, 0, comm);
-    if(rank == 0){
-		printf("[msd]: max t_analysis %.3f s\n", global_t_analy);
-	}
+    
     printf("[msd]: total-start-end %.3f %.3f %.3f\n", t_end- t_start, t_start, t_end);
 
     // terminate the task (mandatory) by sending a quit message to the rest of the workflow
-    fprintf(stderr, "[msd]: terminating\n");
+    if(rank == 0){
+		printf("[msd]: max t_analysis %.3fs, now existing\n", global_t_analy);
+	}
 
     decaf->terminate();
 }
@@ -277,6 +284,7 @@ extern "C"
 } // extern "C"
 
 void run(Workflow& workflow,              // workflow
+        int nsteps,
          string infile)                      // lammps input config file*/
 {
     MPI_Init(NULL, NULL);
@@ -289,9 +297,9 @@ void run(Workflow& workflow,              // workflow
     // sense (threaded, alternting, etc.)
     // also, the user can define any function signature she wants
     if (decaf->my_node("prod"))
-        prod(decaf, infile);
+        prod(decaf, nsteps, infile);
     if (decaf->my_node("con"))
-        con(decaf);
+        con(decaf, nsteps);
     if (decaf->my_node("print2"))
         print2(decaf);
 
@@ -319,9 +327,14 @@ char * prefix         = getenv("DECAF_PREFIX");
                 "DECAF_PREFIX to point to the root of your decaf install directory.\n");
         exit(1);
     }
-    string infile = argv[1];
 
-    run(workflow, infile);
+    if(argc !=3){
+        fprintf(stderr, "[lammps]: cmd nsteps infile\n");
+    }
+    int nsteps = atoi(argv[1]);
+    string infile = argv[2];
+
+    run(workflow, nsteps, infile);
 
            
     return 0;

@@ -2,9 +2,9 @@
 #SBATCH --job-name="lammps_decaf"
 #SBATCH --output="results/%j.out"
 #SBATCH --partition=normal
-#SBATCH --nodes=4
+#SBATCH --nodes=256
 #SBATCH --ntasks-per-node=68
-#SBATCH -t 00:8:00
+#SBATCH -t 00:15:00
 
 #SBATCH --mail-type=BEGIN
 # send mail to this address
@@ -14,10 +14,10 @@
 num_apps=3
 
 # slots used by this app
-procs_this_app=(68 64 34)
+procs_this_app=(4352 4096 2176)
 
 # number of nodes used by this app
-nodes_this_app=(2 1 1)
+nodes_this_app=(128 64 64)
 
 
 NSTOP=100

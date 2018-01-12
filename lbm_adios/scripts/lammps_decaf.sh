@@ -8,22 +8,22 @@ env|grep '^OMP' # trace enabled?
 #module load remora
 
 #module load libfabric
+module load boost
+module load phdf5
 module list
 
-
-
 echo "procs is \[ ${procs_this_app[*]}\], nodes is \[${nodes_this_app[*]}\]"
+echo "will run $NSTOP steps and using inputfile $infile"
 
 #export BUILD_DIR=${PBS_O_WORKDIR}/build
 if [ x"$HAS_TRACE" == "x" ];then
     export BUILD_DIR=${PBS_O_WORKDIR}/build
-    DS_SERVER=${WORK}/envs/gcc_mvapich/Dataspacesroot/bin/dataspaces_server
+    #DS_SERVER=${WORK}/envs/gcc_mvapich/Dataspacesroot/bin/dataspaces_server
     export DECAF_PREFIX=$WORK/software/install
 else
-    echo "TRACE ENABLED, use 10 steps"
-    NSTOP=10
+    echo "TRACE ENABLED"
     export BUILD_DIR=${PBS_O_WORKDIR}/build_tau
-    DS_SERVER=${WORK}/envs/Dataspacesroot_tau/bin/dataspaces_server
+    #DS_SERVER=${WORK}/envs/Dataspacesroot_tau/bin/dataspaces_server
     #enable trace
     export TAU_TRACE=1
     # set trace dir
@@ -37,13 +37,13 @@ else
         echo "LOAD TAU!"
     fi
 
-    export DECAF_PREFIX=$WORK/software/install
-    #export TAU_SELECT_FILE=/home1/04446/tg837458/Workspaces/General_Data_Broker/lbm_adios/configs/select.tau
-    env|grep '^TAU' # trace enabled?
+    export DECAF_PREFIX=$WORK/software/install_tau
 
 fi
 
 env|grep '^DECAF' # trace enabled?
+
+#export BUILD_DIR=${PBS_O_WORKDIR}/build
 
 #This job runs with 3 nodes  
 #ibrun in verbose mode will give binding detail  #BUILD=${PBS_O_WORKDIR}/build_dspaces/bin
@@ -81,22 +81,21 @@ export procs_con=${procs_this_app[2]}
 procs_all=$((procs_prod + procs_con + procs_link))
 
 # generate graph
-#PYTHON_RUN="python $PBS_O_WORKDIR/vector/vector_2nodes.py --np ${procs_all} --hostfile ${HOST_DIR}/machinefile-all"
-PYTHON_RUN="python $PBS_O_WORKDIR/decaf/vector_2nodes_topo.py --np ${procs_all} --hostfile ${HOST_DIR}/machinefile-all"
+PYTHON_RUN="python $PBS_O_WORKDIR/decaf/lammps_decaf.py --np ${procs_all} --hostfile ${HOST_DIR}/machinefile-all"
 $PYTHON_RUN &> python.log
 echo "python run $PYTHON_RUN"
 
-## order is prod/link/consumer
-LAUNCHER="mpirun -l"
-cmd="$BUILD_DIR/bin/vector_2nodes $NSTOP"
+# copy input file
+#infile=in.melt
+cp ${PBS_O_WORKDIR}/scripts/lammps_input/$infile ./$infile
+
+cmd="$BUILD_DIR/bin/lammps $NSTOP $infile"
 
 ## order is prod/link/consumer
-MPI_CMD="$LAUNCHER -genv TRACEDIR=${ALL_TRACES}/app0 --machinefile ${HOST_DIR}/machinefile-all -np ${procs_prod} $cmd : -np ${procs_link} $cmd : -np ${procs_con} $cmd"
+MPI_CMD="mpirun -l  --machinefile ${HOST_DIR}/machinefile-all -np ${procs_prod} $cmd : -np ${procs_link} $cmd : -np ${procs_con} $cmd"
+echo launch mpi with cmd $MPI_CMD
 
-
-echo "[MPI command]: $MPI_CMD"
 $MPI_CMD
-
 
 ## Wait for the entire workflow to finish
 wait

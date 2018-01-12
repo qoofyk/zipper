@@ -1,7 +1,7 @@
 
 option                      (transport_mpi      "Build Decaf with MPI transport layer"          ON)
 option                      (transport_cci      "Build Decaf with CCI transport layer"          OFF)
-option                      (transport_file     "Build Decaf with file transport layer"         ON)
+option                      (transport_file     "Build Decaf with file transport layer"         OFF)
 option                      (tess_dense         "Build tessellation density estimator example"  OFF)
 option                      (build_bredala      "Build Bredala libraries and examples"          ON)
 option                      (build_manala       "Build Manala libraries and examples"           ON)
@@ -55,7 +55,7 @@ endif                       (transport_file)
 
 # decaf, added by feng
 find_package                (Decaf REQUIRED)
-if (Decaf_FOUND)
+if (DECAF_FOUND)
     include_directories       (${DECAF_CXX_INCLUDE} 
                                ${DECAF_CXX_INCLUDE_DIR})
     set                       (transport_libraries    
@@ -67,7 +67,7 @@ if (Decaf_FOUND)
                             #message("fulltransport libray is ${transport_libraries}")
 else()
     message("Decaf not found, set DecafPrefix")
-endif(Decaf_FOUND)
+endif(DECAF_FOUND)
 
 # Boost
 find_package                (Boost 1.64.0 COMPONENTS serialization REQUIRED)

@@ -9,7 +9,7 @@ if [ x"$HAS_TRACE" == "x" ];then
     BUILD_DIR=${PBS_O_WORKDIR}/build
     DS_SERVER=${WORK}/envs/gcc_mvapich/Dataspacesroot/bin/dataspaces_server
 else
-    echo "TRACE ENABLED"
+    echo "TRACE ENABLED, use 10 steps"
     BUILD_DIR=${PBS_O_WORKDIR}/build_tau
     DS_SERVER=${WORK}/envs/Dataspacesroot_tau/bin/dataspaces_server
     #enable trace
@@ -28,7 +28,7 @@ else
 fi
 
 
-BIN_PRODUCER=${BUILD_DIR}/bin/lbm;
+#BIN_PRODUCER=${BUILD_DIR}/bin/lbm;
 
 #This job runs with 3 nodes  
 #ibrun in verbose mode will give binding detail  
@@ -59,18 +59,20 @@ else
     echo "https://github.iu.edu/lifen/LaucherTest/blob/master/generate_hosts.sh"
 fi
 
-LAUNCHER="mpiexec.hydra"
 
 if [[ `hostname` == *"bridges"* ]];then
     export MV2_ENABLE_AFFINITY=0 
     export MV2_USE_BLOCKING=1
 fi
 
+LAUNCHER="mpirun -l"
+cmd="$BUILD_DIR/bin/lbm $NSTOP"
+
 
 #Use ibrun to run the MPI job. It will detect the MPI, generate the hostfile
 # and doing the right binding. With no options ibrun will use all cores.
 #export OMP_NUM_THREADS=1
-CMD_PRODUCER="$LAUNCHER -np ${procs_this_app[0]} -machinefile $HOST_DIR/machinefile-app0  ${BIN_PRODUCER} ${NSTOP}"
+CMD_PRODUCER="$LAUNCHER -genv TRACEDIR=${ALL_TRACES}/app0 -machinefile $HOST_DIR/machinefile-app0 -np ${procs_this_app[0]} $cmd"
 $CMD_PRODUCER  &> ${PBS_RESULTDIR}/producer.log &
 echo "producer applciation lauched: $CMD_PRODUCER"
 

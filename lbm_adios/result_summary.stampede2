@@ -1,5 +1,48 @@
-# Jan 6
+# jan 12 
+ * 594604
+    self built tau: pdt need to compile with icpc?
+ * 590610
+    self built tau: trace fo lbm only
+    
+ * 590563
+     now 7.3G traces
+# Jan 11
+ * 588209
+        set both tau_select file and tau_optioln, still large traces
+ * 587809
+        add tau_select, and now can completedly compile with cmake 2.8
+ * 587424
+        lbm-only trace 68v34, 40s, trace 46M, transfered to dell desktop
+ * 587326
+        10 steps, stampede lbm trace, 60G in, 147s, boost too many calls?
+ * 587201
+        stampede lbm trace, 8min too short for 100 steps, 30+ steps trace generated, but already 40G
+ * 586758
+    not fully built vector2nodes, ok
 
+# Jan 10
+ * 584474
+        lammps-only 4352v2176, 221s
+
+ * JOBS:
+    584131(583981 5 min too slow), again(584474)
+        lammps-decaf 4352v2176  528.37
+    583891
+        lammps-decaf 2176v1088 297.72
+    583874
+        lammps-decaf 1088v544 294.54
+    583865
+        lammps-decaf 544v272 240.41
+    583857
+        LAMMPS-DECAF 272v136 232.03
+    583832
+        lammps-decaf 136v68 232.47
+    583810
+        lammps-decaf 68v34 232.08
+    583056
+        lammps with decaf
+        
+# Jan 6
 570598
     lammps with decaf run with "pre no post no"
     225.3

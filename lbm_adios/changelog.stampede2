@@ -11,6 +11,37 @@ TODO
 	1. nnti in flexpath, not usable.
 	2. dspaces hanging
 	3. ENABLE_TESTING in flexpath conf, enabled
+
+## Jan 12
+	- self build tau with function name filter. trc file smaller but edf file
+	still have boost
+## Jan 11
+New:
+	self built tau
+		haven't work yet
+--------------
+	traces in stampede .. 
+		-- build_tau cannot use 3.7(use select file to fileter out .so makes
+		3.7 works)
+			stuck at "C compiler features", use 2.8 instead
+		-- using 2.8 decaf not found: reason should use DECAF_FOUND(not
+		Decaf_FOUND) in version
+		-- now can built
+	decaf generate too much traces
+		- boost? /scratch/04446/tg837458/decaf_skel/587326/trace/app0less
+		events.61.edf
+		- all boost related have TAU_DEFAULT, how to disable it
+## Jan 10
+	* lammps scaling experiments, time is almost the same as lammps library
+	* tau broken
+	* decaf timer: 
+		it's okay end2end time is valued in consumerside
+	* question:
+		why lbm cannot run large scale but lammps can
+			I tried the example, if one dimension is larger than 100000, crash
+			happens
+
+
 ## Jan 6
 	* lammps runs slow, 6~7s per step in 68v34 case, extract is fast
 	* tried static library, as slow
@@ -45,7 +76,6 @@ TODO
 	* new results:
 		decaf_scaling: statistics of 68v34- 1088v544(52.9~79.9s)
 
-
 ## Jan 3
 	* question: analysis time is longer than yuankun's 40s v 20s
 	* end2end time is 60s+ if using more link processes 
@@ -62,8 +92,6 @@ TODO
 	Use valgrind to debug
 	valgrind --leak-check=yes ./lbm 1 10 &> run.log
 	grep -R run.log Invalid, will tell segmenta fault
-
-
 
 ## Dec 29
 	Doing

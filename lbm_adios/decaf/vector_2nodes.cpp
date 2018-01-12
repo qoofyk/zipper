@@ -59,9 +59,9 @@ using namespace std;
 // rank 0 will generate all the data
 // runs lammps and puts the atom positions to the dataflow at the consumer intervals
 //void prod(Decaf* decaf, int nsteps, int analysis_interval, string infile)
-void prod(Decaf* decaf)
+void prod(Decaf* decaf, int nsteps)
 {
-    int nsteps = 10;
+    //int nsteps;
     int rank;
 
 
@@ -73,6 +73,8 @@ void prod(Decaf* decaf)
     double t_start, t_end;
 
     int dims_cube[3] = {filesize2produce/4,filesize2produce/4,filesize2produce};
+
+    t_start = MPI_Wtime();
 
     /* prepare */
     comm = decaf->prod_comm_handle();
@@ -89,7 +91,6 @@ void prod(Decaf* decaf)
 
 
     //MPI_Barrier(comm);
-    t_start = MPI_Wtime();
 
     for (int timestep = 0; timestep < nsteps; timestep++)
     {
@@ -153,7 +154,9 @@ void prod(Decaf* decaf)
 
     // terminate the task (mandatory) by sending a quit message to the rest of the workflow
 cleanup:
-    fprintf(stderr, "producer exit\n");
+    if(rank == 0){
+        fprintf(stderr, "producer exit\n");
+    }
 
     decaf->terminate();
 
@@ -260,9 +263,11 @@ void con(Decaf* decaf)
                 // debug
                 slice_size = pos.getNbItems();
 
-                fprintf(stderr, "[nmoments]: consumer processing %d atoms at step %d\n",
+                if(rank == 0){
+                    fprintf(stderr, "[nmoments]: consumer processing %d atoms at step %d\n",
                         slice_size,
                         step);
+                }
 
 
                 buffer = &pos.getVector()[0];
@@ -288,13 +293,12 @@ void con(Decaf* decaf)
     double t_end = MPI_Wtime();
 
     MPI_Reduce(&t_analy, &global_t_analy, 1, MPI_DOUBLE, MPI_MAX, 0, comm);
-    if(rank == 0){
-		printf("[nmoments]: max t_analysis %.3f s\n", global_t_analy);
-	}
     printf("[noments]: total-start-end %.3f %.3f %.3f\n", t_end- t_start, t_start, t_end);
 
     // terminate the task (mandatory) by sending a quit message to the rest of the workflow
-    fprintf(stderr, "[noments]: terminating\n");
+    if(rank == 0){
+		printf("[nmoments]: max t_analysis %.3f s,now terminates\n", global_t_analy);
+	}
 
 
     decaf->terminate();
@@ -332,7 +336,8 @@ extern "C"
     }
 } // extern "C"
 
-void run(Workflow& workflow            // workflow
+void run(Workflow& workflow,         // workflow
+        int nsteps
         )
      /*    int lammps_nsteps,                  // number of lammps timesteps to execute*/
          //int analysis_interval,              // number of lammps timesteps to skip analyzing
@@ -348,7 +353,7 @@ void run(Workflow& workflow            // workflow
     // sense (threaded, alternting, etc.)
     // also, the user can define any function signature she wants
     if (decaf->my_node("prod"))
-        prod(decaf);
+        prod(decaf, nsteps);
     if (decaf->my_node("con"))
         con(decaf);
     if (decaf->my_node("print2"))
@@ -370,8 +375,14 @@ int main(int argc,
     Workflow workflow;
     Workflow::make_wflow_from_json(workflow, "vector2.json");
 
+    if(argc != 2){
+        fprintf(stderr, "[lbm]: need steps\n");
+        return -1;
+    }
+    int nsteps = atoi(argv[1]);
+
     // run decaf
-    run(workflow);
+    run(workflow, nsteps);
 
     return 0;
 
