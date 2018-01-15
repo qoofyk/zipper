@@ -161,7 +161,7 @@ status_t run_module_lbm(GV gv, MPI_Comm *pcomm){
     //printf("[lbm]: reached the barrier\n");
 
 cleanup:
-  MPI_Finalize();
+//   MPI_Finalize();
   if(rank == 0)
     printf("now exit! \n");
   return S_OK;
