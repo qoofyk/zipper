@@ -1,9 +1,13 @@
 #include "lbm.h"
 #include "lbm_buffer.h"
 
+#include <VT.h>
+
+#define V_T
 /*
  * test driver for lbm code
  */
+
 
 int main(int argc, char * argv[]){
 
@@ -31,6 +35,16 @@ int main(int argc, char * argv[]){
     
     int dims_cube[3] = {filesize2produce/4,filesize2produce/4,filesize2produce};
     //strcpy(filepath, argv[3]);
+#ifdef V_T
+      int class_id;
+      int advance_step_id, get_buffer_id;
+      
+      VT_classdef( "Computation", &class_id );
+      VT_funcdef("ADVSTEP", class_id, &advance_step_id);
+      VT_funcdef("GETBUF", class_id, &get_buffer_id);
+#endif
+
+
 
     /* prepare */
     MPI_Init(&argc, &argv);
@@ -54,15 +68,29 @@ int main(int argc, char * argv[]){
 		printf("[lbm]: init with nlocal = %d size_one = %d\n", nlocal, size_one);
 	}
 	for(i = 0; i< nsteps; i++){
+
+       // advance step
+#ifdef V_T
+      VT_begin(advance_step_id);
+#endif
 		if(S_OK != lbm_advance_step(&comm)){
 			fprintf(stderr, "[lbm]: err when process step %d\n", i);
 		}
+#ifdef V_T
+      VT_end(advance_step_id);
+#endif
 	
 		// get the buffer
+#ifdef V_T
+      VT_begin(get_buffer_id);
+#endif
 		if(S_OK != lbm_get_buffer(buffer)){
 			fprintf(stderr, "[lbm]: err when updated buffer at step %d\n", i);
 
 		}
+#ifdef V_T
+      VT_end(get_buffer_id);
+#endif
 
 		// replace this line with different i/o libary
 		if(S_OK != lbm_io_template(&comm, buffer, nlocal, size_one)){

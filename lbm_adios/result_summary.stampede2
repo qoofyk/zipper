@@ -1,3 +1,6 @@
+# jan 15
+ * 603317
+    build with itac but not run with -trace, ok
 # jan 12 
  * 594604
     self built tau: pdt need to compile with icpc?

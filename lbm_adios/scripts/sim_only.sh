@@ -5,9 +5,17 @@ module list
 echo "case=$CASE_NAME datasize=$FILESIZE2PRODUCE nstops=$NSTOP"
 echo "procs is \[ ${procs_this_app[*]}\], nodes is \[${nodes_this_app[*]}\]"
 
-if [ x"$HAS_TRACE" == "x" ];then
+if [ x"$HAS_TRACE" = "x" ];then
     BUILD_DIR=${PBS_O_WORKDIR}/build
     DS_SERVER=${WORK}/envs/gcc_mvapich/Dataspacesroot/bin/dataspaces_server
+
+elif [ x"$HAS_TRACE" = "xitac" ]; then
+    echo "itac ENABLED, use 10 steps"
+    BUILD_DIR=${PBS_O_WORKDIR}/build_itac
+    echo "use itac"
+    LOGFILE_PREFIX=${SCRATCH_DIR}/trace 
+
+    export traceanalyzer poisson_sendrecv.single.stf
 else
     echo "TRACE ENABLED, use 10 steps"
     BUILD_DIR=${PBS_O_WORKDIR}/build_tau
@@ -65,7 +73,7 @@ if [[ `hostname` == *"bridges"* ]];then
     export MV2_USE_BLOCKING=1
 fi
 
-LAUNCHER="mpirun -l"
+LAUNCHER="mpirun -trace -l"
 cmd="$BUILD_DIR/bin/lbm $NSTOP"
 
 
