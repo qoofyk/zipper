@@ -1,4 +1,4 @@
-#include "lbm.h"        
+#include "lbm.h"
 
 #ifndef STRING_LENGTH
 #define STRING_LENGTH (160)
@@ -37,8 +37,8 @@ double t2=0, t3=0,t4=0,t5=0,t6=0,only_lbm_time=0,init_lbm_time=0;
 int errorcode;
 
 /*
- * added by Feng 
- * 
+ * added by Feng
+ *
  */
 
 
@@ -52,7 +52,7 @@ double t0, t1, t_stream = 0;
 
 static int  rank, nprocs;
 
-    
+
 
 status_t lbm_init(MPI_Comm *pcomm, int nsteps){
         MPI_Comm comm = *pcomm;
@@ -61,7 +61,7 @@ status_t lbm_init(MPI_Comm *pcomm, int nsteps){
 
         step_stop = nsteps;
 
-		
+
 		/* from this line it's just the origin code */
 		n1=nx-1;/* n1,n2,n3 are the last indice in arrays*/
 		n2=ny-1;
@@ -69,7 +69,7 @@ status_t lbm_init(MPI_Comm *pcomm, int nsteps){
 
 		num_data=ny*nz;/* number of data to be passed from process to process */
 		//num_data1=num_data*19;
-		
+
 		np[0]=nprocs;period[0]=0;
 		fp_np=np;
 		fp_period=period;
@@ -98,7 +98,7 @@ status_t lbm_init(MPI_Comm *pcomm, int nsteps){
 		  exit(1);
 		}
 
-		
+
 
 		//---------------------------------------------BEGIN LBM -----------------------------------------------
 		#ifdef DEBUG_PRINT
@@ -676,7 +676,7 @@ status_t streaming(){
 		if (myid==left_most) s=3;
 
 		if (myid==right_most) e=n1-3;
-        
+
         return S_OK;
 } // end of streaming
 
@@ -806,160 +806,160 @@ status_t boundry(){
 		// MPI_Barrier(comm1d);
 
 
-
-
-		/* compute rho and (u,v) from distribution function */
-
-		/* for (i=3;i<=n1-3;i++) */
-
-		for (i=s;i<=e;i++)
-
-		   for (j=2;j<=n2-2;j++)
-
-		      for (k=2;k<=n3-2;k++)
-
-		      {
-
-		      s1=df2[i][j][k][0];
-
-		      s2=c[0][0]*df2[i][j][k][0];
-
-		      s3=c[0][1]*df2[i][j][k][0];
-
-		      s4=c[0][2]*df2[i][j][k][0];
-
-
-
-		      for (m=1;m<=18;m++)
-
-		      {
-
-		      s1+=df2[i][j][k][m];
-
-		      s2+=c[m][0]*df2[i][j][k][m];
-
-		      s3+=c[m][1]*df2[i][j][k][m];
-
-		      s4+=c[m][2]*df2[i][j][k][m];
-
-		      }
-
-
-
-		          rho[i][j][k]=s1;
-
-		          u[i][j][k]=s2/s1;
-
-		          v[i][j][k]=s3/s1;
-
-		      w[i][j][k]=s4/s1;
-
-		      }
-
-
-
-
-
-		if (myid==left_most) {
-
-
-		/* 2. inlet and outlet conditions */
-
-		/* inlet */
-
-		i=2;
-
-		for (j=1;j<=n2-1;j++)
-
-		   for (k=1;k<=n3-1;k++)
-
-		      for (m=0;m<=18;m++)
-
-		  {
-
-		   df2[i][j][k][m]=df_inout[0][j][k][m];
-
-		      }
-
-		}
-
-
-
-		if (myid==right_most) {
-
-		/* outlet */
-
-		i=n1-2;
-
-		for (j=1;j<=n2-1;j++)
-
-		   for (k=1;k<=n3-1;k++)
-
-		      for (m=0;m<=18;m++)
-
-		{
-
-		df2[i][j][k][m]=df_inout[1][j][k][m];
-
-		}
-
-		}
-
-
-
-		for (i=s;i<=e;i++)
-
-		   for (k=2;k<=n3-2;k++)
-
-		      for (m=0;m<=18;m++)
-
-		{df2[i][1][k][m]=df2[i][n2-3][k][m];
-
-		 df2[i][n2-1][k][m]=df2[i][3][k][m];}
-
-
-
-
-
-		/* along z-direction, z=1 & n3-1 */
-
-		/*for (i=3;i<=n1-3;i++)*/
-
-		for (i=s;i<=e;i++)
-
-		   for (j=2;j<=n2-2;j++)
-
-		      for (m=0;m<=18;m++)
-
-		  {df2[i][j][1][m]=df2[i][j][n3-3][m];
-
-		         df2[i][j][n3-1][m]=df2[i][j][3][m];}
-
-
-
-		/* replacing the old d.f. values by the newly compuited ones */
-
-		if (myid==left_most) s=1;
-
-		if(myid==right_most) e=n1-1;
-
-		/* for (i=1;i<=n1-1;i++) */
-
-		for (i=s;i<=e;i++)
-
-		   for (j=1;j<=n2-1;j++)
-
-		      for (k=1;k<=n3-1;k++)
-
-		         for (m=0;m<=18;m++)
-
-		          {df1[i][j][k][m]=df2[i][j][k][m];}
-
         return S_OK;
 } //end of boundring condition
 
 
+status_t update_rho_u_v(){
+	/* compute rho and (u,v) from distribution function */
 
+	/* for (i=3;i<=n1-3;i++) */
+
+	for (i=s;i<=e;i++)
+
+	   for (j=2;j<=n2-2;j++)
+
+	      for (k=2;k<=n3-2;k++)
+
+	      {
+
+	      s1=df2[i][j][k][0];
+
+	      s2=c[0][0]*df2[i][j][k][0];
+
+	      s3=c[0][1]*df2[i][j][k][0];
+
+	      s4=c[0][2]*df2[i][j][k][0];
+
+
+
+	      for (m=1;m<=18;m++)
+
+	      {
+
+	      s1+=df2[i][j][k][m];
+
+	      s2+=c[m][0]*df2[i][j][k][m];
+
+	      s3+=c[m][1]*df2[i][j][k][m];
+
+	      s4+=c[m][2]*df2[i][j][k][m];
+
+	      }
+
+
+
+	          rho[i][j][k]=s1;
+
+	          u[i][j][k]=s2/s1;
+
+	          v[i][j][k]=s3/s1;
+
+	      w[i][j][k]=s4/s1;
+
+	      }
+
+
+
+
+
+	if (myid==left_most) {
+
+
+	/* 2. inlet and outlet conditions */
+
+	/* inlet */
+
+	i=2;
+
+	for (j=1;j<=n2-1;j++)
+
+	   for (k=1;k<=n3-1;k++)
+
+	      for (m=0;m<=18;m++)
+
+	  {
+
+	   df2[i][j][k][m]=df_inout[0][j][k][m];
+
+	      }
+
+	}
+
+
+
+	if (myid==right_most) {
+
+	/* outlet */
+
+	i=n1-2;
+
+	for (j=1;j<=n2-1;j++)
+
+	   for (k=1;k<=n3-1;k++)
+
+	      for (m=0;m<=18;m++)
+
+	{
+
+	df2[i][j][k][m]=df_inout[1][j][k][m];
+
+	}
+
+	}
+
+
+
+	for (i=s;i<=e;i++)
+
+	   for (k=2;k<=n3-2;k++)
+
+	      for (m=0;m<=18;m++)
+
+	{df2[i][1][k][m]=df2[i][n2-3][k][m];
+
+	 df2[i][n2-1][k][m]=df2[i][3][k][m];}
+
+
+
+
+
+	/* along z-direction, z=1 & n3-1 */
+
+	/*for (i=3;i<=n1-3;i++)*/
+
+	for (i=s;i<=e;i++)
+
+	   for (j=2;j<=n2-2;j++)
+
+	      for (m=0;m<=18;m++)
+
+	  {df2[i][j][1][m]=df2[i][j][n3-3][m];
+
+	         df2[i][j][n3-1][m]=df2[i][j][3][m];}
+
+
+
+	/* replacing the old d.f. values by the newly compuited ones */
+
+	if (myid==left_most) s=1;
+
+	if(myid==right_most) e=n1-1;
+
+	/* for (i=1;i<=n1-1;i++) */
+
+	for (i=s;i<=e;i++)
+
+	   for (j=1;j<=n2-1;j++)
+
+	      for (k=1;k<=n3-1;k++)
+
+	         for (m=0;m<=18;m++)
+
+	          {df1[i][j][k][m]=df2[i][j][k][m];}
+
+	return S_OK;
+}
 
 
 status_t lbm_advance_step(MPI_Comm * pcomm){
@@ -967,7 +967,7 @@ status_t lbm_advance_step(MPI_Comm * pcomm){
 //void run_lbm(char * filepath, int step_stop, int dims_cube[3], MPI_Comm *pcomm)
 
 
-   
+
         // original code
 		//double df1[nx][ny][nz][19],df2[nx][ny][nz][19],df_inout[2][ny][nz][19];
 		//double rho[nx][ny][nz],u[nx][ny][nz],v[nx][ny][nz],w[nx][ny][nz];
@@ -985,7 +985,7 @@ status_t lbm_advance_step(MPI_Comm * pcomm){
 		t5=MPI_Wtime();
 
 		if (myid==0){
-			printf("step = %d   of   %d,rank %d nprocs %d   \n", step, step_stop, rank, nprocs);
+			printf("step = %d of %d, rank %d nprocs %d\n", step, step_stop, rank, nprocs);
 			fflush(stdout);
 		}
 
@@ -1012,6 +1012,9 @@ status_t lbm_advance_step(MPI_Comm * pcomm){
 		/* III. boundary conditions */
         boundry();
 
+        /* IV. update rho u v */
+        update_rho_u_v();
+
 		t6=MPI_Wtime();
 		only_lbm_time+=t6-t5;
 
@@ -1025,7 +1028,7 @@ status_t lbm_advance_step(MPI_Comm * pcomm){
 
 
 
-		
+
 		#ifdef DEBUG_PRINT
 		if(step%10==0)
 		  printf("Node %d step = %d\n", rank, step);
