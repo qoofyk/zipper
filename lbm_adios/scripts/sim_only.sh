@@ -11,11 +11,11 @@ if [ x"$HAS_TRACE" = "x" ];then
 
 elif [ x"$HAS_TRACE" = "xitac" ]; then
     echo "itac ENABLED, use 10 steps"
+    module load itac
     BUILD_DIR=${PBS_O_WORKDIR}/build_itac
     echo "use itac"
-    LOGFILE_PREFIX=${SCRATCH_DIR}/trace 
-
-    export traceanalyzer poisson_sendrecv.single.stf
+    export VT_LOGFILE_PREFIX=${SCRATCH_DIR}/trace 
+    mkdir -pv $VT_LOGFILE_PREFIX
 else
     echo "TRACE ENABLED, use 10 steps"
     BUILD_DIR=${PBS_O_WORKDIR}/build_tau
@@ -73,7 +73,7 @@ if [[ `hostname` == *"bridges"* ]];then
     export MV2_USE_BLOCKING=1
 fi
 
-LAUNCHER="mpirun -trace -l"
+LAUNCHER="mpirun -l"
 cmd="$BUILD_DIR/bin/lbm $NSTOP"
 
 

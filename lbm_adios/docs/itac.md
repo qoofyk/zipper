@@ -28,4 +28,7 @@ USE Intel tracing tool
 1. cannot find VT.h?
     add definition
 2. ld.so: object ''libVT.so' from LD_PRELOAD cannot be preloaded: ignored
+    a. if compiled with -trace, don't run with -trace, this will link intel trace statically
+    b. don't compile with -trace, instread use mpirun -trace, this will link trace lib dynamically
+3. to use itac with cmake, only need to find VT.h and link the dynmaic libVT.so with applications
     

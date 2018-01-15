@@ -1,4 +1,7 @@
 # jan 15
+ *604273
+ * 604068
+    trace of lbm_only
  * 603317
     build with itac but not run with -trace, ok
 # jan 12 
