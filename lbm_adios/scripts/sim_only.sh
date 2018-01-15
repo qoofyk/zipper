@@ -11,7 +11,6 @@ if [ x"$HAS_TRACE" = "x" ];then
 
 elif [ x"$HAS_TRACE" = "xitac" ]; then
     echo "itac ENABLED, use 10 steps"
-    module load itac
     BUILD_DIR=${PBS_O_WORKDIR}/build_itac
     echo "use itac"
     export VT_LOGFILE_PREFIX=${SCRATCH_DIR}/trace 

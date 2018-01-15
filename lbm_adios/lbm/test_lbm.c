@@ -35,6 +35,11 @@ int main(int argc, char * argv[]){
     
     int dims_cube[3] = {filesize2produce/4,filesize2produce/4,filesize2produce};
     //strcpy(filepath, argv[3]);
+
+    /* prepare */
+    MPI_Init(&argc, &argv);
+    comm = MPI_COMM_WORLD;
+
 #ifdef V_T
       int class_id;
       int advance_step_id, get_buffer_id;
@@ -46,9 +51,9 @@ int main(int argc, char * argv[]){
 
 
 
-    /* prepare */
-    MPI_Init(&argc, &argv);
-    comm = MPI_COMM_WORLD;
+
+
+
 
     int    rank, nprocs;
     MPI_Comm_rank (comm, &rank);

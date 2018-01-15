@@ -15,6 +15,9 @@ TODO
 ## Jan 15
 	* itac:
 		-tcollect not work, try manually instruction
+		only need the include directory and -libVT.so library
+	* Computation not shown
+
 
 ## Jan 12
 	* newly added:

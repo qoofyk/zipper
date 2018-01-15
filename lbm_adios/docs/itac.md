@@ -31,4 +31,9 @@ USE Intel tracing tool
     a. if compiled with -trace, don't run with -trace, this will link intel trace statically
     b. don't compile with -trace, instread use mpirun -trace, this will link trace lib dynamically
 3. to use itac with cmake, only need to find VT.h and link the dynmaic libVT.so with applications
+4. should use MPIC_CC_COMPILE_FLAGS instead of CMAKE_C_FLAGS, see [here](https://cmake.org/cmake/help/v3.7/module/FindMPI.html)
+5. if LD_PRELOAD is not set as libVT.so, you need the 
+6. cmakelist, library, vt should be ahead of mpi
+7. for mpi code, VT_function should be placed after MPI_Init
+    for non-mpi, there should be a VT_Init
     
