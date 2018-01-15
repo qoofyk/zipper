@@ -12,6 +12,10 @@ TODO
 	2. dspaces hanging
 	3. ENABLE_TESTING in flexpath conf, enabled
 
+## Jan 15
+	* itac:
+		-tcollect not work, try manually instruction
+
 ## Jan 12
 	* newly added:
 		zipper code is added to source tree, see README for how to build

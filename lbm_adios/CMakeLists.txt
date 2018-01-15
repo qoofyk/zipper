@@ -3,6 +3,14 @@ include(${CMAKE_SOURCE_DIR}/cmake/common.cmake)
 
 project("lbm_adios")
 
+if(TRANSPORT_LIB)
+    message("-- Including transport method in ${TRANSPORT_LIB} is loaded...")
+else()
+    message(FATAL_ERROR "-- should either specify build type or toolchain file")
+endif()
+
+
+
 option(all_transports "build all transports" ON)
 add_definitions ("-DENABLE_TIMING")
 #add_definitions ("-DUSE_DATASPACES -DENABLE_TIMING -Wall -Wextra")
@@ -13,7 +21,6 @@ find_package(MPI REQUIRED)
 include_directories(${MPI_INCLUDE_PATH} ${CMAKE_SOURCE_DIR} ${CMAKE_SOURCE_DIR}/analysis ${CMAKE_SOURCE_DIR}/msd ${CMAKE_SOURCE_DIR}/lbm)
 
 set(EXECUTABLE_OUTPUT_PATH "${CMAKE_BINARY_DIR}/bin")
-
 
 add_subdirectory(lbm)
 
