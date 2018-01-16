@@ -1,7 +1,11 @@
+# Jan 16
+ * 606310
+    more detailed lbm traces
 # jan 15
  * serial program gets trace
     see tmp/a.out
- *604273
+ *605578
+    results for sim_only
  * 604068
     trace of lbm_only
  * 603317

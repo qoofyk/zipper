@@ -1,5 +1,14 @@
 #include "lbm.h"
 
+#ifdef V_T
+#include <VT.h>
+int class_id;
+int lbm_collision_id,
+    lbm_boundry_id,
+    lbm_stream_id,
+    lbm_update_id;
+#endif
+
 #ifndef STRING_LENGTH
 #define STRING_LENGTH (160)
 #endif
@@ -58,6 +67,15 @@ status_t lbm_init(MPI_Comm *pcomm, int nsteps){
         MPI_Comm comm = *pcomm;
         MPI_Comm_rank (comm, &rank);
         MPI_Comm_size (comm, &nprocs);
+
+#ifdef V_T
+      VT_classdef( "LBM", &class_id );
+      VT_funcdef("CL", class_id, &lbm_collision_id); //collsion
+      VT_funcdef("ST", class_id, &lbm_stream_id);// streaming
+      VT_funcdef("BD", class_id, &lbm_boundry_id);// boundry
+      VT_funcdef("UD", class_id, &lbm_update_id);//update
+#endif
+
 
         step_stop = nsteps;
 
@@ -999,21 +1017,48 @@ status_t lbm_advance_step(MPI_Comm * pcomm){
 
 
         /* Collision */
+#ifdef V_T
+      VT_begin(lbm_collision_id);
+#endif
         collision();
+#ifdef V_T
+      VT_end(lbm_collision_id);
+#endif
 
 
 
 
         /* II. streaming */
+
+#ifdef V_T
+      VT_begin(lbm_stream_id);
+#endif
         streaming();
+#ifdef V_T
+      VT_end(lbm_stream_id);
+#endif
 
 		// MPI_Barrier(comm1d);
 
 		/* III. boundary conditions */
+
+#ifdef V_T
+      VT_begin(lbm_boundry_id);
+#endif
         boundry();
+#ifdef V_T
+      VT_end(lbm_boundry_id);
+#endif
 
         /* IV. update rho u v */
+
+#ifdef V_T
+      VT_begin(lbm_update_id);
+#endif
         update_rho_u_v();
+#ifdef V_T
+      VT_end(lbm_update_id);
+#endif
 
 		t6=MPI_Wtime();
 		only_lbm_time+=t6-t5;

@@ -18,8 +18,9 @@ set(common_library "m")
 
 
 if(use_itac)
-    set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
-    set (CMAKE_C_FLAGS "${CMAKE_C_FLAGS}")
+ #   set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
+    #set (CMAKE_C_FLAGS "${CMAKE_C_FLAGS}")
+    add_definitions(-DV_T)
     set(VT_ROOT $ENV{VT_ROOT} CACHE PATH "The path vt")
     message("itac enabled! with ${VT_ROOT}")
     include_directories(${VT_ROOT}/include)

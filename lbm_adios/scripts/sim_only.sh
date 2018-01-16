@@ -10,6 +10,7 @@ if [ x"$HAS_TRACE" = "x" ];then
     DS_SERVER=${WORK}/envs/gcc_mvapich/Dataspacesroot/bin/dataspaces_server
 
 elif [ x"$HAS_TRACE" = "xitac" ]; then
+    NSTOP=10
     echo "itac ENABLED, use 10 steps"
     BUILD_DIR=${PBS_O_WORKDIR}/build_itac
     echo "use itac"

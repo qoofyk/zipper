@@ -1,9 +1,12 @@
 #include "lbm.h"
 #include "lbm_buffer.h"
 
+#ifdef V_T
 #include <VT.h>
+int class_id;
+int advance_step_id, get_buffer_id;
+#endif
 
-#define V_T
 /*
  * test driver for lbm code
  */
@@ -41,12 +44,10 @@ int main(int argc, char * argv[]){
     comm = MPI_COMM_WORLD;
 
 #ifdef V_T
-      int class_id;
-      int advance_step_id, get_buffer_id;
       
-      VT_classdef( "Computation", &class_id );
-      VT_funcdef("ADVSTEP", class_id, &advance_step_id);
-      VT_funcdef("GETBUF", class_id, &get_buffer_id);
+      VT_classdef( "Application", &class_id );
+      VT_funcdef("ADV", class_id, &advance_step_id);
+      VT_funcdef("GBUF", class_id, &get_buffer_id);
 #endif
 
 
