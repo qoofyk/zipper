@@ -7,7 +7,7 @@ add_library(mod_lbm lbm.c lbm_buffer.c)
 
 foreach(item mod_lbm)
 
-    target_link_libraries(${item} ${MPI_LIBRARIES})
+    target_link_libraries(${item} ${common_library})
 
     if(MPI_COMPILE_FLAGS)
         set_target_properties(${item} PROPERTIES COMPILE_FLAGS "${MPI_C_COMPILE_FLAGS}")

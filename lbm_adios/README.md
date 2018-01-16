@@ -7,10 +7,7 @@ written by Feng Li at Fall 2017
 
 ## What is new
 [Jan 12]: now stampede tau build should be buit with
-```
-cmake -DCMAKE_TOOLCHAIN_FILE=../cmake/stampede_tau.toolchain.cmake ..
-
-```
+    
 [Jan 11]: in stampede, need to use cmake 2.8 to build with taucc
 [Jan 9]: in bridges, use 32v16 for traces
 [Jan 5]; lammps example code added to the source tree and works
