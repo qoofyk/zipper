@@ -12,7 +12,7 @@ endif()
 set(COMMON_LIBRARY "m")
 
 option(all_transports "build all transports" ON)
-option(use_itac "build with itac" ON)
+option(use_itac "build with itac" OFF)
 
 set(common_library "m")
 

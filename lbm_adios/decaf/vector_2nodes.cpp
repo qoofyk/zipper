@@ -46,6 +46,14 @@
 #define SIZE_ONE (2)
 #endif
 
+#ifdef V_T
+#include <VT.h>
+int class_id;
+int advance_step_id, get_buffer_id;
+#endif
+
+
+
 /*// lammps includes*/
 //#include "lammps.h"
 //#include "input.h"
@@ -73,6 +81,15 @@ void prod(Decaf* decaf, int nsteps)
     double t_start, t_end;
 
     int dims_cube[3] = {filesize2produce/4,filesize2produce/4,filesize2produce};
+#ifdef V_T
+      
+      //VT_initialize(NULL, NULL);
+        printf("[decaf]: trace enabled and initialized\n");
+      VT_classdef( "Computation", &class_id );
+      VT_funcdef("ADVSTEP", class_id, &advance_step_id);
+      VT_funcdef("GETBUF", class_id, &get_buffer_id);
+#endif
+
 
     t_start = MPI_Wtime();
 
@@ -95,14 +112,27 @@ void prod(Decaf* decaf, int nsteps)
     for (int timestep = 0; timestep < nsteps; timestep++)
     {
 
+#ifdef V_T
+      VT_begin(advance_step_id);
+#endif
         if(S_OK != lbm_advance_step(&comm)){
 			fprintf(stderr, "[lbm]: err when process step %d\n", timestep);
 		}
+#ifdef V_T
+      VT_end(advance_step_id);
+#endif
 	
 		// get the buffer
+#ifdef V_T
+      VT_begin(get_buffer_id);
+#endif
 		if(S_OK != lbm_get_buffer(buffer)){
 			fprintf(stderr, "[lbm]: err when updated buffer at step %d\n", timestep);
 		}
+
+#ifdef V_T
+      VT_end(get_buffer_id);
+#endif
 
         
         /* decaf put */
@@ -159,6 +189,12 @@ cleanup:
     }
 
     decaf->terminate();
+#ifdef V_T
+    //VT_finalize();
+    printf("[decaf]: trace finalized\n");
+#endif
+
+
 
 }
 
@@ -344,6 +380,9 @@ void run(Workflow& workflow,         // workflow
          /*string infile)        */              // lammps input config file
 {
     MPI_Init(NULL, NULL);
+
+    
+
     Decaf* decaf = new Decaf(MPI_COMM_WORLD, workflow);
 
     // run workflow node tasks
@@ -363,6 +402,7 @@ void run(Workflow& workflow,         // workflow
 
     // cleanup
     delete decaf;
+
     MPI_Finalize();
 }
 

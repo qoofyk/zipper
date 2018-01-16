@@ -1,11 +1,22 @@
-# Jan 16
+# Jan 16 
+ * 606586
+    [result]: trace with decaf
+        streaming time 0.11~0.68
+ * 606533 
+    trace with decaf:
+        1. add common_library in the end of target_link_library)
+        2. export LD_PRELOAD=libVT.so
+ * 606383
+    trace with decaf, not trace output?
+        see docs/itac.md note 8
  * 606310
-    more detailed lbm traces
+    [result] more detailed lbm traces
+        0.072~0.544 streaming time
 # jan 15
  * serial program gets trace
     see tmp/a.out
  *605578
-    results for sim_only
+    [results] for sim_only
  * 604068
     trace of lbm_only
  * 603317

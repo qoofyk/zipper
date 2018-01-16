@@ -69,6 +69,7 @@ status_t lbm_init(MPI_Comm *pcomm, int nsteps){
         MPI_Comm_size (comm, &nprocs);
 
 #ifdef V_T
+      //VT_initialize(NULL, NULL);
       VT_classdef( "LBM", &class_id );
       VT_funcdef("CL", class_id, &lbm_collision_id); //collsion
       VT_funcdef("ST", class_id, &lbm_stream_id);// streaming
@@ -1097,6 +1098,10 @@ status_t lbm_advance_step(MPI_Comm * pcomm){
 }
 
 status_t lbm_finalize(MPI_Comm *pcomm){
+
+#ifdef V_T
+      //VT_finalize();
+#endif
     MPI_Comm comm = *pcomm;
 
 	// from "end of while loop in original code"

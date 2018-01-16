@@ -12,13 +12,13 @@ if [ x"$HAS_TRACE" = "x" ];then
 elif [ x"$HAS_TRACE" = "xitac" ]; then
     NSTOP=10
     echo "itac ENABLED, use 10 steps"
-    BUILD_DIR=${PBS_O_WORKDIR}/build_itac
+    export BUILD_DIR=${PBS_O_WORKDIR}/build_itac
     echo "use itac"
     export VT_LOGFILE_PREFIX=${SCRATCH_DIR}/trace 
     mkdir -pv $VT_LOGFILE_PREFIX
 else
     echo "TRACE ENABLED, use 10 steps"
-    BUILD_DIR=${PBS_O_WORKDIR}/build_tau
+    export BUILD_DIR=${PBS_O_WORKDIR}/build_tau
     DS_SERVER=${WORK}/envs/Dataspacesroot_tau/bin/dataspaces_server
     #enable trace
     export TAU_TRACE=1

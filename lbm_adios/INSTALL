@@ -6,6 +6,7 @@ NOTE: if you don't have lammps/adios/dspaces/decaf installed, you should add the
 ```
     -Dall_transports=off
 ```
+
 1. build for highest performance
 ```
 mkdir build
@@ -13,7 +14,16 @@ cmake -DCMAKE_BUILD_TYPE=Stampede ..
 make -j4
 ```
 
-2. build with tau trace
+To build with itac trace
+```
+module load itac
+cd build_build_itac
+cmake -DCMAKE_BUILD_TYPE=Stampede -Duse_itac=on ..
+```
+
+
+
+2. build with tau trace(depreciated, will use option instead in future)
 ```
 mkdir build
 cmake -DCMAKE_BUILD_TYPE=Stampede_TAU ..

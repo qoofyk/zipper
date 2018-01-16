@@ -45,9 +45,9 @@ int main(int argc, char * argv[]){
 
 #ifdef V_T
       
-      VT_classdef( "Application", &class_id );
-      VT_funcdef("ADV", class_id, &advance_step_id);
-      VT_funcdef("GBUF", class_id, &get_buffer_id);
+      VT_classdef( "Computation", &class_id );
+      VT_funcdef("ADVSTEP", class_id, &advance_step_id);
+      VT_funcdef("GETBUF", class_id, &get_buffer_id);
 #endif
 
 

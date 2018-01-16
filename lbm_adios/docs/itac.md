@@ -36,4 +36,10 @@ USE Intel tracing tool
 6. cmakelist, library, vt should be ahead of mpi
 7. for mpi code, VT_function should be placed after MPI_Init
     for non-mpi, there should be a VT_Init
+8. decaf use mod-lib, which is loaded during runtime, use specify export LD_PRELAD=libVT.so, to generate the trace, but lbm_sim_only doesn't require.
+
+
+#### no-mpi build
+    if no using mpicc:
+        icc -L $VT_ROOT/slib -lVTcs -lpthread -I$VT_ROOT/include tmp.c
     
