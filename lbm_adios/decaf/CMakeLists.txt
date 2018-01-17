@@ -19,8 +19,6 @@ target_link_libraries     (vector_2nodes
     # ${bredala_transports} bredala_datamodel manala decaf)
 
 target_link_libraries   (mod_vector_2nodes
-                        mod_lbm
-                        nmoments_analysis
                         ${libraries})
     #${bredala_transports} bredala_datamodel manala decaf)
 
@@ -50,7 +48,6 @@ if(LAMMPS_INCLUDE_DIR)
         # ${bredala_transports} bredala_datamodel manala decaf)
 
     target_link_libraries   (mod_lammps
-                            msd_analysis
                             ${libraries})
         #${bredala_transports} bredala_datamodel manala decaf)
 

@@ -1,4 +1,12 @@
 # Jan 17
+612104
+    did the same for decaf_lammps 
+        err
+612008, removed -fpic (also the library in module libraries, put mpi in the end)
+    lbm_sim_only, ok
+    612107 run again with removing LD_PRELOAD,  ok. 
+611042 manually built of test_lbm works with static libs
+    mpicc, place mpi lirary =lrt -ldl in the end
 611990
     use static vt libs, lbm_decaf fault
 611992

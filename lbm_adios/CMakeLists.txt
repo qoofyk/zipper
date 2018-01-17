@@ -15,10 +15,6 @@ option(use_itac "build with itac" OFF)
 
 set(common_library "m")
 
-# mpi
-find_package(MPI REQUIRED)
-set(common_library ${common_library} ${MPI_LIBRARIES})
-
 #itac
 if(use_itac)
     add_definitions(-DV_T)
@@ -31,6 +27,12 @@ if(use_itac)
     set(common_library ${common_library} ${vt_library})
    #set(common_library ${common_library} "-L/opt/intel/itac/2017.3.030/intel64/lib -lVT -ldwarf -lelf -lvtunwind" )
 endif(use_itac)
+
+# mpi
+find_package(MPI REQUIRED)
+set(common_library ${common_library} ${MPI_LIBRARIES})
+
+
 
 add_definitions ("-DENABLE_TIMING")
 #add_definitions ("-DUSE_DATASPACES -DENABLE_TIMING -Wall -Wextra")

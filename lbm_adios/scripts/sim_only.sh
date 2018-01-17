@@ -10,7 +10,7 @@ if [ x"$HAS_TRACE" = "x" ];then
     DS_SERVER=${WORK}/envs/gcc_mvapich/Dataspacesroot/bin/dataspaces_server
 
 elif [ x"$HAS_TRACE" = "xitac" ]; then
-    export LD_PRELOAD=libVT.so
+    #export LD_PRELOAD=libVT.so
     NSTOP=10
     echo "itac ENABLED, use 10 steps"
     export BUILD_DIR=${PBS_O_WORKDIR}/build_itac
@@ -77,6 +77,7 @@ fi
 
 LAUNCHER="mpirun -l"
 cmd="$BUILD_DIR/bin/lbm $NSTOP"
+#cmd="$BUILD_DIR/bin/test_lbm $NSTOP"
 
 
 #Use ibrun to run the MPI job. It will detect the MPI, generate the hostfile
