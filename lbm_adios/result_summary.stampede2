@@ -1,4 +1,8 @@
 # Jan 16 
+ *609922
+    lbm_decaf 68, can stop
+ *609917
+    lammps now 68 cannot stop
  * 606762
     [result not checked]: lammps_sim_only 4352v2176
  * 606913

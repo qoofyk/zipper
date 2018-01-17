@@ -6,8 +6,6 @@ add_library(mod_lbm lbm.c lbm_buffer.c)
 #target_link_libraries(mod_lbm ${LIBRARIES})
 
 foreach(item mod_lbm)
-    message("debug: ${MPI_C_COMPILE_FLAGS}")
-
     #target_link_libraries(${item} ${MPI_LIBRARIES})
 
     if(MPI_COMPILE_FLAGS)

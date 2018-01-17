@@ -13,7 +13,8 @@
 # procs placement
 num_apps=1
 
-# slots used by this app procs_this_app=(68)
+# slots used by this app
+procs_this_app=(68)
 
 # number of nodes used by this app
 nodes_this_app=(2)

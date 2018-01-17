@@ -8,8 +8,6 @@ env|grep '^OMP' # trace enabled?
 #module load remora
 
 #module load libfabric
-module load boost
-module load phdf5
 module list
 
 echo "procs is \[ ${procs_this_app[*]}\], nodes is \[${nodes_this_app[*]}\]"
@@ -21,7 +19,7 @@ if [ x"$HAS_TRACE" == "x" ];then
     #DS_SERVER=${WORK}/envs/gcc_mvapich/Dataspacesroot/bin/dataspaces_server
     export DECAF_PREFIX=$WORK/software/install
 elif [ x"$HAS_TRACE" = "xitac" ]; then
-    #export LD_PRELOAD=libVT.so
+    export LD_PRELOAD=libVT.so
     NSTOP=10
     echo "itac ENABLED, use 10 steps"
     export BUILD_DIR=${PBS_O_WORKDIR}/build_itac

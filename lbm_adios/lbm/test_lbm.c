@@ -25,9 +25,6 @@ int main(int argc, char * argv[]){
     }
 	int i;
 
-    
-
-
 	/*those are all the information io libaray need to know about*/
     MPI_Comm comm;
 	int nlocal; //nlines processed by each process
@@ -44,7 +41,6 @@ int main(int argc, char * argv[]){
     comm = MPI_COMM_WORLD;
 
 #ifdef V_T
-      
       VT_classdef( "Computation", &class_id );
       VT_funcdef("ADVSTEP", class_id, &advance_step_id);
       VT_funcdef("GETBUF", class_id, &get_buffer_id);
