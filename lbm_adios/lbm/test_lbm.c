@@ -51,11 +51,6 @@ int main(int argc, char * argv[]){
 #endif
 
 
-
-
-
-
-
     int    rank, nprocs;
     MPI_Comm_rank (comm, &rank);
     MPI_Comm_size (comm, &nprocs);

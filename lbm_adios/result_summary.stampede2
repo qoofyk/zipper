@@ -1,9 +1,20 @@
 # Jan 16 
+ * 606762
+    [result not checked]: lammps_sim_only 4352v2176
+ * 606913
+    [result]: lammps_decaf 1088v544
+        failed run: 606753, timeup for traces (8mins)
+
+    
+ * 606748
+    [result]: lammps_decaf 68v34
+ * 606746
+    [result]: lammps_sim_only 68v34
  * 606586
-    [result]: trace with decaf
+    [result]: trace with decaf, total end2end 5.5
         streaming time 0.11~0.68
  * 606533 
-    trace with decaf:
+    trace with decaf: total end2end
         1. add common_library in the end of target_link_library)
         2. export LD_PRELOAD=libVT.so
  * 606383
