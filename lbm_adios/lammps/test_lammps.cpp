@@ -19,6 +19,14 @@
 //#include "run_msd.h"
 #define SIZE_ONE (5)
 
+#ifdef V_T
+#include <VT.h>
+int class_id;
+int advance_step_id, get_buffer_id;
+#endif
+
+
+
 using namespace LAMMPS_NS;
 using namespace std;
 
@@ -60,6 +68,16 @@ int main(int argc, char *argv[])
     nsteps = atoi(argv[1]);
 
     double t_start = MPI_Wtime();
+#ifdef V_T
+      
+      //VT_initialize(NULL, NULL);
+        printf("[decaf]: trace enabled and initialized\n");
+      VT_classdef( "Computation", &class_id );
+      VT_funcdef("ADVSTEP", class_id, &advance_step_id);
+      VT_funcdef("GETBUF", class_id, &get_buffer_id);
+#endif
+
+
 
     LAMMPS* lps = new LAMMPS(0, NULL, comm);
     lps->input->file(infile.c_str());
@@ -74,10 +92,25 @@ int main(int argc, char *argv[])
     {
 
         t1 = MPI_Wtime();
+#ifdef V_T
+      VT_begin(advance_step_id);
+#endif
         lps->input->one("run 1 pre no post no"); // do not initialize each time, this is recommanded from lammps doc for coupled simulation using lammps library
 
+#ifdef V_T
+      VT_end(advance_step_id);
+#endif
+
         t2 = MPI_Wtime();
+
+#ifdef V_T
+      VT_begin(get_buffer_id);
+#endif
         int natoms = static_cast<int>(lps->atom->natoms);
+
+#ifdef V_T
+      VT_end(get_buffer_id);
+#endif
         //lammps_gather_atoms(lps, (char*)"x", 1, 3, x);
 
         //extract "value"

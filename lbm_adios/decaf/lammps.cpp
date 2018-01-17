@@ -40,6 +40,14 @@
 #define SIZE_ONE (5)
 //#define NSTEPS (100)
 
+#ifdef V_T
+#include <VT.h>
+int class_id;
+int advance_step_id, get_buffer_id, put_buffer_id;
+#endif
+
+
+
 using namespace decaf;
 using namespace LAMMPS_NS;
 using namespace std;
@@ -73,6 +81,17 @@ void prod(Decaf* decaf, int nsteps, string infile)
     double **x;// all the atom values
 
     double t_start = MPI_Wtime();
+#ifdef V_T
+      
+      //VT_initialize(NULL, NULL);
+      printf("[decaf]: trace enabled and initialized\n");
+      VT_classdef( "Computation", &class_id );
+      VT_funcdef("ADVSTEP", class_id, &advance_step_id);
+      VT_funcdef("GETBUF", class_id, &get_buffer_id);
+      VT_funcdef("PUT", class_id, &put_buffer_id);
+#endif
+
+
 
     LAMMPS* lps = new LAMMPS(0, NULL, decaf->prod_comm_handle());
     lps->input->file(infile.c_str());
@@ -84,11 +103,21 @@ void prod(Decaf* decaf, int nsteps, string infile)
     for (int timestep = 0; timestep < nsteps; timestep++)
     {
 
+#ifdef V_T
+      VT_begin(advance_step_id);
+#endif
         lps->input->one("run 1 pre no post no");
+
+#ifdef V_T
+      VT_end(advance_step_id);
+#endif
         //int natoms = static_cast<int>(lps->atom->natoms);
         //lammps_gather_atoms(lps, (char*)"x", 1, 3, x);
 
         //extract "value"
+#ifdef V_T
+      VT_begin(get_buffer_id);
+#endif
         x = (double **)(lammps_extract_atom(lps,(char *)"x"));
         nlocal = static_cast<int>(lps->atom->nlocal); // get the num of lines this rank have
         if(x == NULL){
@@ -109,6 +138,13 @@ void prod(Decaf* decaf, int nsteps, string infile)
             buffer[line*size_one+4] = x[line][2];
         }
 
+#ifdef V_T
+      VT_end(get_buffer_id);
+#endif
+
+#ifdef V_T
+      VT_begin(put_buffer_id);
+#endif
         /* decaf put */
         if (1)
         {
@@ -144,6 +180,10 @@ void prod(Decaf* decaf, int nsteps, string infile)
             decaf->put(container);
         }
 
+#ifdef V_T
+      VT_end(put_buffer_id);
+#endif
+
        free(buffer);
     }
 
@@ -151,6 +191,11 @@ void prod(Decaf* decaf, int nsteps, string infile)
     //
     double t_end = MPI_Wtime();
     printf("[lammps]:total-start-end %.3f %.3f %.3f\n", t_end- t_start, t_start, t_end);
+
+#ifdef V_T
+    /*VT_finalize();*/
+    /*printf("[itac]: trace finalized");*/
+#endif
 
     if(rank == 0){
         fprintf(stderr, "[lammps] now terminating\n");
