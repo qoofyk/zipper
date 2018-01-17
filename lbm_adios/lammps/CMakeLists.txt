@@ -3,7 +3,7 @@ include_directories       (${LAMMPS_INCLUDE_DIR})
 add_executable            (test_lammps            test_lammps.cpp)
 target_link_libraries     (test_lammps
     ${LAMMPS_LIBRARY_STATIC})
-                        #${LAMMPS_LIBRARY})
+                       
 
 foreach(item test_lammps)
 

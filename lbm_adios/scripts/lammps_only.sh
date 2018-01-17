@@ -23,6 +23,7 @@ elif [ x"$HAS_TRACE" = "xitac" ]; then
     export BUILD_DIR=${PBS_O_WORKDIR}/build_itac
     echo "use itac"
     export VT_LOGFILE_PREFIX=${SCRATCH_DIR}/trace 
+    export VT_VERBOSE=3
     mkdir -pv $VT_LOGFILE_PREFIX
 
 

@@ -27,7 +27,7 @@ if(use_itac)
     include_directories(${VT_ROOT}/include)
     ### see VT_ADD_LIBS
     #set(vt_library ${INTEL_VT}  $ENV{VT_ADD_LIBS})
-    set(vt_library "-L$ENV{VT_SLIB_DIR} -lVT $ENV{VT_ADD_LIBS}" CACHE STRING "itac link flags")
+    set(vt_library "-L$ENV{VT_LIB_DIR} -lVT $ENV{VT_ADD_LIBS}" CACHE STRING "itac link flags")
     set(common_library ${common_library} ${vt_library})
    #set(common_library ${common_library} "-L/opt/intel/itac/2017.3.030/intel64/lib -lVT -ldwarf -lelf -lvtunwind" )
 endif(use_itac)

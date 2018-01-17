@@ -49,7 +49,7 @@
 #ifdef V_T
 #include <VT.h>
 int class_id;
-int advance_step_id, get_buffer_id;
+int advance_step_id, get_buffer_id, put_buffer_id;
 #endif
 
 
@@ -88,6 +88,7 @@ void prod(Decaf* decaf, int nsteps)
       VT_classdef( "Computation", &class_id );
       VT_funcdef("ADVSTEP", class_id, &advance_step_id);
       VT_funcdef("GETBUF", class_id, &get_buffer_id);
+      VT_funcdef("PUT", class_id, &put_buffer_id);
 #endif
 
 
@@ -134,6 +135,10 @@ void prod(Decaf* decaf, int nsteps)
       VT_end(get_buffer_id);
 #endif
 
+
+#ifdef V_T
+      VT_begin(put_buffer_id);
+#endif
         
         /* decaf put */
         if (1)
@@ -169,6 +174,10 @@ void prod(Decaf* decaf, int nsteps)
 
             decaf->put(container);
         }
+
+#ifdef V_T
+      VT_end(put_buffer_id);
+#endif
     }
 
     if(S_OK != lbm_finalize(&comm)){
@@ -190,7 +199,7 @@ cleanup:
 
     decaf->terminate();
 #ifdef V_T
-    //VT_finalize();
+    VT_finalize();
     printf("[decaf]: trace finalized\n");
 #endif
 

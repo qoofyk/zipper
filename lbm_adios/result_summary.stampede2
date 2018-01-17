@@ -1,6 +1,30 @@
+# Jan 17
+611990
+    use static vt libs, lbm_decaf fault
+611992
+    use static vt libr, lbm_sim_only seg fault (try to manually build sim_only_lbm, see what's different)
+        mpicc -trace -o test_lbm lbm_buffer.c lbm.c test_lbm.c
+611931
+    lbm_sim_only
+611934
+   lbm_decaf
+---------------------------------
+can be a problem of "PUT" trace id(no)
+611883
+    lammps_sim_only with VERBOSE-3, lammps_decaf stops at the first line
+    [0] [0 Wed Jan 17 09:47:06 2018] Intel(R) Trace Collector INFO: wall clock: 1.516204e+09s - 1.516204e+09s since Epoch
+    [0] [0 Wed Jan 17 09:47:06 2018] Intel(R) Trace Collector INFO: maximum number of events on the same clock tick was 4: insufficient clock resolution
+
+611831
+    lammps_decaf with VERBOSE=3
+    this can be a problem: lammps_sim_only is built with lammps.a, lammps_decaf is built using lammps.so
+609967
+    lammps_sim_only also built with shared libs
 # Jan 16 
+ *609967
+    lammps_only
  *609922
-    lbm_decaf 68, can stop
+    lbm_decaf 68, can stop 
  *609917
     lammps now 68 cannot stop
  * 606762
@@ -8,7 +32,6 @@
  * 606913
     [result]: lammps_decaf 1088v544
         failed run: 606753, timeup for traces (8mins)
-
     
  * 606748
     [result]: lammps_decaf 68v34

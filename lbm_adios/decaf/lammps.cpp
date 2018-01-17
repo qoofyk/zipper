@@ -193,8 +193,8 @@ void prod(Decaf* decaf, int nsteps, string infile)
     printf("[lammps]:total-start-end %.3f %.3f %.3f\n", t_end- t_start, t_start, t_end);
 
 #ifdef V_T
-    VT_finalize();
-    printf("[itac]: trace finalized");
+    /*VT_finalize();*/
+    /*printf("[itac]: trace finalized");*/
 #endif
 
     if(rank == 0){

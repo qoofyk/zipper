@@ -43,14 +43,13 @@ if(LAMMPS_INCLUDE_DIR)
     add_executable            (lammps            lammps.cpp)
     add_library               (mod_lammps MODULE lammps.cpp)
     target_link_libraries     (lammps
-                                ${LAMMPS_LIBRARY}
+        ${LAMMPS_LIBRARY_STATIC}
                                 msd_analysis
                                 ${libraries}
                                 ${common_library})
         # ${bredala_transports} bredala_datamodel manala decaf)
 
     target_link_libraries   (mod_lammps
-                            ${LAMMPS_LIBRARY}
                             msd_analysis
                             ${libraries})
         #${bredala_transports} bredala_datamodel manala decaf)
