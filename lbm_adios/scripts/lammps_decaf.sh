@@ -19,14 +19,17 @@ if [ x"$HAS_TRACE" == "x" ];then
     #DS_SERVER=${WORK}/envs/gcc_mvapich/Dataspacesroot/bin/dataspaces_server
     export DECAF_PREFIX=$WORK/software/install
 elif [ x"$HAS_TRACE" = "xitac" ]; then
-    #export LD_PRELOAD=libVT.so
+    export LD_PRELOAD=libVT.so
     NSTOP=10
     echo "itac ENABLED, use 10 steps"
     export BUILD_DIR=${PBS_O_WORKDIR}/build_itac
     echo "use itac"
     export VT_LOGFILE_PREFIX=${SCRATCH_DIR}/trace 
     export VT_VERBOSE=3
+    export export VT_CONFIG=${PBS_O_WORKDIR}/configs/vt.lammps.conf
     mkdir -pv $VT_LOGFILE_PREFIX
+    env|grep '^VT' # trace enabled?
+
 
 
 else

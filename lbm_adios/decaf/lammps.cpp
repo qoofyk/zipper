@@ -84,7 +84,7 @@ void prod(Decaf* decaf, int nsteps, string infile)
 #ifdef V_T
       
       //VT_initialize(NULL, NULL);
-        printf("[decaf]: trace enabled and initialized\n");
+      printf("[decaf]: trace enabled and initialized\n");
       VT_classdef( "Computation", &class_id );
       VT_funcdef("ADVSTEP", class_id, &advance_step_id);
       VT_funcdef("GETBUF", class_id, &get_buffer_id);

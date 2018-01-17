@@ -15,6 +15,7 @@ TODO
 ## Jan 17
 	* to static build with VT, link mpi after VT libraries, as the mpicc -show
 	-trace does
+	* after disable all MPI functions, now I have 1088 trace for lammps
 
 ## Jan 16
 	* now sim_only trace looks good

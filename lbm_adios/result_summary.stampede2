@@ -1,4 +1,20 @@
 # Jan 17
+613116
+    get the 1088 lammps trace if disable mpi trace
+613048
+    lbm_decaf 1088 same problem, trace file to large: due to too many mpi messages?
+612886
+    lammps_decaf 1088, stuck at
+        [0] [0 Wed Jan 17 13:01:34 2018] Intel(R) Trace Collector INFO: "write header": done
+        log shows there will be 5G trace data, but only 1.9G is filled. then just wait there
+612854(compare with 612845)
+    decaf_lammps with with LD_PRELOAD=VT.so, shared link
+612845
+    decaf_lammps wiout LD_PRELOAD., shared link
+612795
+    decaf_lammps in build, with incorrect .so
+        only producer launched
+    
 612104
     did the same for decaf_lammps 
         err
