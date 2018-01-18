@@ -11,6 +11,8 @@ TODO
 	1. nnti in flexpath, not usable.
 	2. dspaces hanging
 	3. ENABLE_TESTING in flexpath conf, enabled
+## Jan 18
+	* better trace record organization
 
 ## Jan 17
 	* to static build with VT, link mpi after VT libraries, as the mpicc -show
