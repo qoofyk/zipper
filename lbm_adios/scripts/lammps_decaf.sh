@@ -101,7 +101,7 @@ echo "python run $PYTHON_RUN"
 #infile=in.melt
 cp ${PBS_O_WORKDIR}/scripts/lammps_input/$infile ./$infile
 
-cmd="$BUILD_DIR/bin/lammps $NSTOP $infile"
+cmd="$BUILD_DIR/bin/lammps_decaf $NSTOP $infile"
 
 ## order is prod/link/consumer
 MPI_CMD="mpirun -l  --machinefile ${HOST_DIR}/machinefile-all -np ${procs_prod} $cmd : -np ${procs_link} $cmd : -np ${procs_con} $cmd"

@@ -50,6 +50,7 @@
 #include <VT.h>
 int class_id;
 int advance_step_id, get_buffer_id, put_buffer_id;
+int analysis_id;
 #endif
 
 
@@ -89,6 +90,7 @@ void prod(Decaf* decaf, int nsteps)
       VT_funcdef("ADVSTEP", class_id, &advance_step_id);
       VT_funcdef("GETBUF", class_id, &get_buffer_id);
       VT_funcdef("PUT", class_id, &put_buffer_id);
+      VT_funcdef("ANAL", class_id, &analysis_id);
 #endif
 
 
@@ -318,7 +320,16 @@ void con(Decaf* decaf)
                 buffer = &pos.getVector()[0];
 
                 t1 =MPI_Wtime(); 
+
+
+#ifdef V_T
+      VT_begin(analysis_id);
+#endif
                 run_analysis(buffer, slice_size, lp, sum_vx,sum_vy);
+
+#ifdef V_T
+      VT_end(analysis_id);
+#endif
 
                 t2 =MPI_Wtime(); 
                 t_analy += t2-t1;

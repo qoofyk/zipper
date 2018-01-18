@@ -22,7 +22,7 @@
 #ifdef V_T
 #include <VT.h>
 int class_id;
-int advance_step_id, get_buffer_id;
+int advance_step_id, get_buffer_id, put_buffer_id;
 #endif
 
 
@@ -75,6 +75,7 @@ int main(int argc, char *argv[])
       VT_classdef( "Computation", &class_id );
       VT_funcdef("ADVSTEP", class_id, &advance_step_id);
       VT_funcdef("GETBUF", class_id, &get_buffer_id);
+      VT_funcdef("PUT", class_id, &put_buffer_id);
 #endif
 
 
@@ -108,9 +109,6 @@ int main(int argc, char *argv[])
 #endif
         int natoms = static_cast<int>(lps->atom->natoms);
 
-#ifdef V_T
-      VT_end(get_buffer_id);
-#endif
         //lammps_gather_atoms(lps, (char*)"x", 1, 3, x);
 
         //extract "value"
@@ -138,6 +136,20 @@ int main(int argc, char *argv[])
             buffer[line*size_one+3] = x[line][1];
             buffer[line*size_one+4] = x[line][2];
         }
+
+#ifdef V_T
+      VT_end(get_buffer_id);
+#endif
+
+#ifdef V_T
+      VT_begin(put_buffer_id);
+#endif
+
+      // doing nothing for lammps_sim_only
+
+#ifdef V_T
+      VT_end(put_buffer_id);
+#endif
 
        delete[] buffer;
     }

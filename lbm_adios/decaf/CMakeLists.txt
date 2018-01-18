@@ -9,24 +9,24 @@ include(${CMAKE_SOURCE_DIR}/cmake/decaf.cmake)
 
 # lbm
 
-add_executable            (vector_2nodes            vector_2nodes.cpp)
-add_library               (mod_vector_2nodes MODULE vector_2nodes.cpp)
-target_link_libraries     (vector_2nodes
+add_executable            (lbm_decaf            lbm_decaf.cpp)
+add_library               (mod_lbm_decaf MODULE lbm_decaf.cpp)
+target_link_libraries     (lbm_decaf
                             mod_lbm
                             nmoments_analysis
                             ${libraries}
                             ${common_library})
     # ${bredala_transports} bredala_datamodel manala decaf)
 
-target_link_libraries   (mod_vector_2nodes
+target_link_libraries   (mod_lbm_decaf
                         ${libraries})
     #${bredala_transports} bredala_datamodel manala decaf)
 
 # .SO file extension on Linux/Mac OS
-set_target_properties(mod_vector_2nodes PROPERTIES SUFFIX ".so")
+set_target_properties(mod_lbm_decaf PROPERTIES SUFFIX ".so")
 
 # Don't add a 'lib' prefix to the shared library
-set_target_properties(mod_vector_2nodes PROPERTIES PREFIX "")
+set_target_properties(mod_lbm_decaf PROPERTIES PREFIX "")
 
 
 #lammps
@@ -38,24 +38,24 @@ if(LAMMPS_INCLUDE_DIR)
 
     include_directories       (${LAMMPS_INCLUDE_DIR})
 
-    add_executable            (lammps            lammps.cpp)
-    add_library               (mod_lammps MODULE lammps.cpp)
-    target_link_libraries     (lammps
+    add_executable            (lammps_decaf            lammps_decaf.cpp)
+    add_library               (mod_lammps_decaf MODULE lammps_decaf.cpp)
+    target_link_libraries     (lammps_decaf
         ${LAMMPS_LIBRARY_STATIC}
                                 msd_analysis
                                 ${libraries}
                                 ${common_library})
         # ${bredala_transports} bredala_datamodel manala decaf)
 
-    target_link_libraries   (mod_lammps
+    target_link_libraries   (mod_lammps_decaf
                             ${libraries})
         #${bredala_transports} bredala_datamodel manala decaf)
 
     # .SO file extension on Linux/Mac OS
-    set_target_properties(mod_lammps PROPERTIES SUFFIX ".so")
+    set_target_properties(mod_lammps_decaf PROPERTIES SUFFIX ".so")
 
     # Don't add a 'lib' prefix to the shared library
-    set_target_properties(mod_lammps PROPERTIES PREFIX "")
+    set_target_properties(mod_lammps_decaf PROPERTIES PREFIX "")
 
 endif()
 
