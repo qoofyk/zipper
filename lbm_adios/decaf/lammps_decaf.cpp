@@ -42,7 +42,7 @@
 
 #ifdef V_T
 #include <VT.h>
-int class_id;
+int class_id, class_id2;
 int advance_step_id, get_buffer_id, put_buffer_id;
 int analysis_id;
 #endif
@@ -90,7 +90,6 @@ void prod(Decaf* decaf, int nsteps, string infile)
       VT_funcdef("ADVSTEP", class_id, &advance_step_id);
       VT_funcdef("GETBUF", class_id, &get_buffer_id);
       VT_funcdef("PUT", class_id, &put_buffer_id);
-      VT_funcdef("ANAL", class_id, &analysis_id);
 #endif
 
 
@@ -216,13 +215,17 @@ void con(Decaf* decaf, int nsteps)
     double *buffer;
     MPI_Comm comm;
     int rank;
+    int step;
+
+     VT_classdef( "Analysis", &class_id2 );
+     VT_funcdef("ANL", class_id2, &analysis_id);
 
     comm = decaf->con_comm_handle();
     rank = decaf->con_comm()->rank();
 
     vector< pConstructData > in_data;
 
-    int step = 0;
+    step = 0;
 
 
     if(rank == 0){
@@ -372,7 +375,7 @@ int main(int argc,
 {
     printf("main function launched\n");
     Workflow workflow;
-    Workflow::make_wflow_from_json(workflow, "lammps.json");
+    Workflow::make_wflow_from_json(workflow, "lammps_decaf.json");
 
     // run decaf
 char * prefix         = getenv("DECAF_PREFIX");

@@ -1,3 +1,10 @@
+# Jan 18
+regenerate trace files
+617497:[results]: lbm_decaf
+617308:[results]: lbm_sim_only
+617503:[results]: lammps_decaf 4352
+
+
 # Jan 17
 613479
     [results]: lammps_decaf 4356 with trace, 50.1s

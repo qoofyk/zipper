@@ -48,7 +48,7 @@
 
 #ifdef V_T
 #include <VT.h>
-int class_id;
+int class_id, class_id2;
 int advance_step_id, get_buffer_id, put_buffer_id;
 int analysis_id;
 #endif
@@ -85,12 +85,11 @@ void prod(Decaf* decaf, int nsteps)
 #ifdef V_T
       
       //VT_initialize(NULL, NULL);
-        printf("[decaf]: trace enabled and initialized\n");
+      printf("[decaf]: trace enabled and initialized\n");
       VT_classdef( "Computation", &class_id );
       VT_funcdef("ADVSTEP", class_id, &advance_step_id);
       VT_funcdef("GETBUF", class_id, &get_buffer_id);
       VT_funcdef("PUT", class_id, &put_buffer_id);
-      VT_funcdef("ANAL", class_id, &analysis_id);
 #endif
 
 
@@ -284,13 +283,17 @@ void con(Decaf* decaf)
     double *buffer;
     MPI_Comm comm;
     int rank;
+    int step;
+
+     VT_classdef( "Analysis", &class_id2 );
+     VT_funcdef("ANL", class_id2, &analysis_id);
 
     comm = decaf->con_comm_handle();
     rank = decaf->con_comm()->rank();
 
     vector< pConstructData > in_data;
 
-    int step = 0;
+    step = 0;
 
 
     if(rank == 0){
@@ -433,7 +436,7 @@ int main(int argc,
          char** argv)
 {
     Workflow workflow;
-    Workflow::make_wflow_from_json(workflow, "vector2.json");
+    Workflow::make_wflow_from_json(workflow, "lbm_decaf.json");
 
     if(argc != 2){
         fprintf(stderr, "[lbm]: need steps\n");
