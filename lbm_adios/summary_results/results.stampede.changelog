@@ -1,6 +1,19 @@
+# Jan 18
+regenerate trace files
+617497:[results]: lbm_decaf
+617308:[results]: lbm_sim_only
+617503:[results]: lammps_decaf 4352
+
+
 # Jan 17
+613479
+    [results]: lammps_decaf 4356 with trace, 50.1s
+613455
+    [results]: lammps_sim_only 4356 with trace, 27.0
+613444
+    [results]: sim_only 1088, end2end 26.6s
 613116
-    get the 1088 lammps trace if disable mpi trace
+    [result]: get the 1088 lammps trace if disable mpi trace, end2end time 28.5s for 10 steps
 613048
     lbm_decaf 1088 same problem, trace file to large: due to too many mpi messages?
 612886

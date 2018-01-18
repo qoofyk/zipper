@@ -92,13 +92,13 @@ procs_all=$((procs_prod + procs_con + procs_link))
 
 # generate graph
 #PYTHON_RUN="python $PBS_O_WORKDIR/vector/vector_2nodes.py --np ${procs_all} --hostfile ${HOST_DIR}/machinefile-all"
-PYTHON_RUN="python $PBS_O_WORKDIR/decaf/vector_2nodes_topo.py --np ${procs_all} --hostfile ${HOST_DIR}/machinefile-all"
+PYTHON_RUN="python $PBS_O_WORKDIR/decaf/lbm_decaf.py --np ${procs_all} --hostfile ${HOST_DIR}/machinefile-all"
 $PYTHON_RUN &> python.log
 echo "python run $PYTHON_RUN"
 
 ## order is prod/link/consumer
 LAUNCHER="mpirun -l"
-cmd="$BUILD_DIR/bin/vector_2nodes $NSTOP"
+cmd="$BUILD_DIR/bin/lbm_decaf $NSTOP"
 
 ## order is prod/link/consumer
 MPI_CMD="$LAUNCHER -genv TRACEDIR=${ALL_TRACES}/app0 --machinefile ${HOST_DIR}/machinefile-all -np ${procs_prod} $cmd : -np ${procs_link} $cmd : -np ${procs_con} $cmd"

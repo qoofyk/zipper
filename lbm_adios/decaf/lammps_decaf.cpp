@@ -42,8 +42,9 @@
 
 #ifdef V_T
 #include <VT.h>
-int class_id;
+int class_id, class_id2;
 int advance_step_id, get_buffer_id, put_buffer_id;
+int analysis_id;
 #endif
 
 
@@ -214,13 +215,17 @@ void con(Decaf* decaf, int nsteps)
     double *buffer;
     MPI_Comm comm;
     int rank;
+    int step;
+
+     VT_classdef( "Analysis", &class_id2 );
+     VT_funcdef("ANL", class_id2, &analysis_id);
 
     comm = decaf->con_comm_handle();
     rank = decaf->con_comm()->rank();
 
     vector< pConstructData > in_data;
 
-    int step = 0;
+    step = 0;
 
 
     if(rank == 0){
@@ -258,7 +263,15 @@ void con(Decaf* decaf, int nsteps)
                 buffer = &pos.getVector()[0];
 
                 t1 =MPI_Wtime(); 
+
+#ifdef V_T
+      VT_begin(analysis_id);
+#endif
                 calc_msd(msd, buffer, slice_size, size_one, timestep);
+
+#ifdef V_T
+      VT_end(analysis_id);
+#endif
 
                 //run_analysis(buffer, slice_size, lp, sum_vx,sum_vy);
 
@@ -362,7 +375,7 @@ int main(int argc,
 {
     printf("main function launched\n");
     Workflow workflow;
-    Workflow::make_wflow_from_json(workflow, "lammps.json");
+    Workflow::make_wflow_from_json(workflow, "lammps_decaf.json");
 
     // run decaf
 char * prefix         = getenv("DECAF_PREFIX");
