@@ -11,6 +11,11 @@ TODO
 	1. nnti in flexpath, not usable.
 	2. dspaces hanging
 	3. ENABLE_TESTING in flexpath conf, enabled
+## Jan 19
+	* flexpath, why it is slow
+	* decaf, why it crashes at large scale?
+	* regenerate trace in lbm-decaf in adios_perf
+	* 
 ## Jan 18
 	* better trace record organization
 

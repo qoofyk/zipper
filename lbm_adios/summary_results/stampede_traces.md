@@ -3,7 +3,7 @@ records for trace results in stampede  HDPC18
 1. LBM:
     * 68:
         decaf:
-           606586
+           620119
             
         sim_only:
            606310

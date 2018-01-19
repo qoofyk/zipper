@@ -1,6 +1,18 @@
+# Jan 19
+should also look at the funciton time
+621424:[results] lammps_decaf 68, withno mpiscatter
+
+621426:[results] lammps_decaf 1088, with mpiscatter
+621486:[results] lammps_decaf 4352
+
+start to add specific mpi funciton into trace
+------------------------------------------
+
+#
+
 # Jan 18
 regenerate trace files
-617497:[results]: lbm_decaf
+620119:[results]: lbm_decaf
 617308:[results]: lbm_sim_only
 617503:[results]: lammps_decaf 4352
 

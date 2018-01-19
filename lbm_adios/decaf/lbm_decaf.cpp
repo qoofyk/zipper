@@ -200,7 +200,7 @@ cleanup:
 
     decaf->terminate();
 #ifdef V_T
-    VT_finalize();
+    //VT_finalize();
     printf("[decaf]: trace finalized\n");
 #endif
 
