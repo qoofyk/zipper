@@ -22,6 +22,17 @@ echo "procs is \[ ${procs_this_app[*]}\], nodes is \[${nodes_this_app[*]}\]"
 if [ x"$HAS_TRACE" == "x" ];then
     BUILD_DIR=${PBS_O_WORKDIR}/build
     DS_SERVER=${WORK}/envs/gcc_mvapich/Dataspacesroot/bin/dataspaces_server
+
+elif [ x"$HAS_TRACE" = "xitac" ]; then
+    #export LD_PRELOAD=libVT.so
+    NSTOP=10
+    echo "itac ENABLED, use 10 steps"
+    export BUILD_DIR=${PBS_O_WORKDIR}/build_itac
+    echo "use itac"
+    export VT_LOGFILE_PREFIX=${SCRATCH_DIR}/trace 
+    export VT_VERBOSE=3
+    mkdir -pv $VT_LOGFILE_PREFIX
+
 else
     echo "TRACE ENABLED"
     BUILD_DIR=${PBS_O_WORKDIR}/build_tau
@@ -100,11 +111,18 @@ else
     LAUNCHER="mpiexec.hydra"
 fi
 
-
 if [[ `hostname` == *"bridges"* ]];then
-    export MV2_ENABLE_AFFINITY=0
-    export MV2_USE_BLOCKING=1
+    if [ x`which mpicc|grep mvapich` = "x" ]; then
+
+        # itac by default load impi
+        export I_MPI_JOB_RESPECT_PROCESS_PLACEMENT=0
+        export I_MPI_SHM_LMT=shm
+    else
+        export MV2_ENABLE_AFFINITY=0
+        export MV2_USE_BLOCKING=1
+    fi
 fi
+
 
 
 echo "use transport method $CMTransport with CMTransportVerbose=$CMTransportVerbose"

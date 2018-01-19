@@ -285,8 +285,10 @@ void con(Decaf* decaf)
     int rank;
     int step;
 
+#ifdef V_T
      VT_classdef( "Analysis", &class_id2 );
      VT_funcdef("ANL", class_id2, &analysis_id);
+#endif
 
     comm = decaf->con_comm_handle();
     rank = decaf->con_comm()->rank();
