@@ -22,6 +22,14 @@ versions
 	raw_dspacesraw_gcc_mvapich
 ----------------------------------------------------------------------------------
 ----------------------------------------------------------------------------------
+## Jan 18
+	switched to intel/impi:
+		need set following
+
+        export I_MPI_JOB_RESPECT_PROCESS_PLACEMENT=0
+        export I_MPI_SHM_LMT=shm
+
+	with decaf now analysis run very slow in some procs
 ## Jan 10
 	* finds:
 		32v16 not good for dimes, I may generate traces using 256v128

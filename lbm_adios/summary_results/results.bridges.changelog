@@ -1,3 +1,22 @@
+## Jan 18
+JOBS:
+    2209189[results]
+        sim_only with trace
+
+    2209061[results]:
+         flexpath with trace 32
+        trace not added
+
+    2208619
+        lBM_DECAF trace
+        trace also show P41 and P55 runs very slow
+
+    2208516[results]
+        lbm_32_sim_only
+
+above switch to intel compiler/mpi
+--------------------------------------------------------------
+
 ## Jan 10
 [notes]: seems like 8v4, 256v128 works fine but 32v16 are not
 

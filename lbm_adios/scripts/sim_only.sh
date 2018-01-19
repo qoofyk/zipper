@@ -69,15 +69,24 @@ else
     echo "https://github.iu.edu/lifen/LaucherTest/blob/master/generate_hosts.sh"
 fi
 
-
 if [[ `hostname` == *"bridges"* ]];then
-    export MV2_ENABLE_AFFINITY=0 
-    export MV2_USE_BLOCKING=1
+    if [ x`which mpicc|grep mvapich` = "x" ]; then
+
+        # itac by default load impi
+        echo "now use intel mpi"
+        export I_MPI_JOB_RESPECT_PROCESS_PLACEMENT=0
+        export I_MPI_SHM_LMT=shm
+    else
+        echo "now use mvapich mpi"
+        export MV2_ENABLE_AFFINITY=0
+        export MV2_USE_BLOCKING=1
+    fi
 fi
+
 
 LAUNCHER="mpirun -l"
 cmd="$BUILD_DIR/bin/lbm $NSTOP"
-#cmd="$BUILD_DIR/bin/test_lbm $NSTOP"
+#cmd="$BUILD_DIR/bin/tmp_lbm $NSTOP"
 
 
 #Use ibrun to run the MPI job. It will detect the MPI, generate the hostfile

@@ -101,8 +101,14 @@ else
 fi
 
 if [[ `hostname` == *"bridges"* ]];then
-    export MV2_ENABLE_AFFINITY=0 
-    export MV2_USE_BLOCKING=1
+    if [ x`which mpicc|grep mvapich` = "x" ]; then
+
+        # itac by default load impi
+        export I_MPI_JOB_RESPECT_PROCESS_PLACEMENT=0
+    else
+        export MV2_ENABLE_AFFINITY=0
+        export MV2_USE_BLOCKING=1
+    fi
 fi
 
 #-env I_MPI_FABRICS tcp
