@@ -3,8 +3,8 @@
  * @date   2017
  */
 
-#ifndef ADIOS_ADAPTOR_H
-#define ADIOS_ADAPTOR_H
+#ifndef ADIOS_HELPER_H
+#define ADIOS_HELPER_H
 #ifdef __cplusplus
 extern "C"{
 #endif
@@ -15,8 +15,15 @@ extern "C"{
 #include "adios.h"
 #include "time.h"
 #include <unistd.h>
-#include "utility.h"
+#include "transports.h"
+//#include "utility.h"
 
+
+/*
+ * previously it's in lammps source tree
+ */
+//void insert_into_Adios(int n, double * buf, int step, int nsteps);
+void insert_into_Adios(transport_method_t method, char *var_name, int step, int nsteps, int n, int size_one, double * buf, const char* mode,  MPI_Comm *pcomm);
 
 /* 
  * @brief adios writting wrapper
