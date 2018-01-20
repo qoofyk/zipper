@@ -42,11 +42,43 @@ env|grep '^OMP' # trace enabled?
 
 module list
 
+if [ x"$HAS_TRACE" == "x" ];then
+    BUILD_DIR=${PBS_O_WORKDIR}/build
+    DS_SERVER=${WORK}/envs/gcc_mvapich/Dataspacesroot/bin/dataspaces_server
+
+elif [ x"$HAS_TRACE" = "xitac" ]; then
+    #export LD_PRELOAD=libVT.so
+    NSTOP=10
+    echo "itac ENABLED, use 10 steps"
+    export BUILD_DIR=${PBS_O_WORKDIR}/build_itac
+    echo "use itac"
+    export VT_LOGFILE_PREFIX=${SCRATCH_DIR}/trace 
+    export VT_VERBOSE=3
+    mkdir -pv $VT_LOGFILE_PREFIX
+
+else
+    echo "TRACE ENABLED"
+    BUILD_DIR=${PBS_O_WORKDIR}/build_tau
+    DS_SERVER=${WORK}/envs/Dataspacesroot_tau/bin/dataspaces_server
+    #enable trace
+    export TAU_TRACE=1
+    # set trace dir
+    export ALL_TRACES=${SCRATCH_DIR}/trace
+    mkdir -pv $ALL_TRACES/app0
+    mkdir -pv $ALL_TRACES/app1
+    mkdir -pv $ALL_TRACES/app2
+
+    if [ -z $TAU_MAKEFILE ]; then
+        module load tau
+        echo "LOAD TAU!"
+    fi
+
+fi
+
 
 
 echo "procs is \[ ${procs_this_app[*]}\], nodes is \[${nodes_this_app[*]}\]"
 
-export BUILD_DIR=${PBS_O_WORKDIR}/build
 
 #This job runs with 3 nodes  
 #ibrun in verbose mode will give binding detail  #BUILD=${PBS_O_WORKDIR}/build_dspaces/bin

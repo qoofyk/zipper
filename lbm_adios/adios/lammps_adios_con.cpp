@@ -36,6 +36,12 @@ static transport_method_t transport;
 
 #define SIZE_ONE (5)
 
+#ifdef V_T
+#include <VT.h>
+int class_id;
+int analysis_id;
+#endif
+
 //#define DEBUG_Feng
 int main (int argc, char ** argv){
 
@@ -71,6 +77,11 @@ int main (int argc, char ** argv){
     int nodename_length;
     MPI_Get_processor_name(nodename, &nodename_length );
 
+
+#ifdef V_T
+     VT_classdef( "Analysis", &class_id );
+     VT_funcdef("ANL", class_id, &analysis_id);
+#endif
 
 
 
@@ -184,7 +195,14 @@ int main (int argc, char ** argv){
         adios_advance_step(f, 0, -1);
 
         t1 =MPI_Wtime(); 
+
+#ifdef V_T
+      VT_begin(analysis_id);
+#endif
         calc_msd(msd, data, nlines, size_one, step);
+#ifdef V_T
+      VT_end(analysis_id);
+#endif
         t2 =MPI_Wtime(); 
 
         t_analy += t2-t1;

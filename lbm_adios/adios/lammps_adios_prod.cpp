@@ -25,6 +25,15 @@
 #include "utility.h"
 static transport_method_t transport;
 
+#ifdef V_T
+#include <VT.h>
+int class_id;
+int advance_step_id, get_buffer_id, put_buffer_id;
+//int analysis_id;
+#endif
+
+
+
 
 using namespace LAMMPS_NS;
 using namespace std;
@@ -158,6 +167,18 @@ int main(int argc, char * argv[]){
 	double *buffer; // buffer address
     double **x;// all the atom values
 
+#ifdef V_T
+      
+      //VT_initialize(NULL, NULL);
+      printf("[decaf]: trace enabled and initialized\n");
+      VT_classdef( "Computation", &class_id );
+      VT_funcdef("ADVSTEP", class_id, &advance_step_id);
+      VT_funcdef("GETBUF", class_id, &get_buffer_id);
+      VT_funcdef("PUT", class_id, &put_buffer_id);
+#endif
+
+
+
 
     LAMMPS* lps = new LAMMPS(0, NULL, comm);
     lps->input->file(infile.c_str());
@@ -166,8 +187,17 @@ int main(int argc, char * argv[]){
     for (step = 0; step < nsteps; step++)
     {
 
+#ifdef V_T
+      VT_begin(advance_step_id);
+#endif
        lps->input->one("run 1 pre no post no");
+#ifdef V_T
+      VT_end(advance_step_id);
+#endif
 
+#ifdef V_T
+      VT_begin(get_buffer_id);
+#endif
         x = (double **)(lammps_extract_atom(lps,(char *)"x"));
         nlocal = static_cast<int>(lps->atom->nlocal); // get the num of lines this rank have
         if(x == NULL){
@@ -188,10 +218,23 @@ int main(int argc, char * argv[]){
             buffer[line*size_one+4] = x[line][2];
         }
 
+#ifdef V_T
+      VT_end(get_buffer_id);
+#endif
+
         /*
          * insert intto adios
          */
+
+
+#ifdef V_T
+      VT_begin(put_buffer_id);
+#endif
        insert_into_Adios(transport, var_name, step,nsteps, nlocal, size_one, buffer,"w" , &comm);
+
+#ifdef V_T
+      VT_end(put_buffer_id);
+#endif
   
        free(buffer);
     }
