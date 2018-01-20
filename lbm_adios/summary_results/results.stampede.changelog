@@ -1,4 +1,10 @@
 # Jan 20
+626674: 
+    flexpth _lammps 68v34
+
+-------------------------------------------------------------
+starting flexpath_lammpsgenerate results
+
 626429: error
 626396: flexpath with estimated lines, "remove gathering and reduce"
 626177: flexpath with itac

@@ -184,6 +184,8 @@ int main(int argc, char * argv[]){
     lps->input->file(infile.c_str());
     printf("prod lammps_decaf started with input %s\n", infile.c_str() );
 
+    double t_start = MPI_Wtime();
+
     for (step = 0; step < nsteps; step++)
     {
 
@@ -248,6 +250,9 @@ int main(int argc, char * argv[]){
   
        free(buffer);
     }
+
+  double t_end = MPI_Wtime();
+  printf("[lammps]:total-start-end %.3f %.3f %.3f\n", t_end- t_start, t_start, t_end);
 
 
 
