@@ -199,18 +199,28 @@ int main(int argc, char * argv[]){
       VT_begin(get_buffer_id);
 #endif
         x = (double **)(lammps_extract_atom(lps,(char *)"x"));
+
         nlocal = static_cast<int>(lps->atom->nlocal); // get the num of lines this rank have
         if(x == NULL){
             fprintf(stderr, "extract failed\n");
             break;
         }
-
-        buffer = (double *)malloc(size_one * nlocal*sizeof(double));
-
-#if DEBUG
-        printf("step %d i have %d lines\n",step, nlocal);
+        int natoms = static_cast<int>(lps->atom->natoms);
+        int navg = natoms/nprocs; //avg atoms per proc
+        
+#ifdef PRECISE
+        int line_buffer = nlocal; // how many lines for buffer
+#else
+        int line_buffer = navg;
+        if(rank == 0)
+            printf("[warning]: use estimate lines\n");
 #endif
-        for(line = 0; line < nlocal; line++){
+
+        buffer = (double *)malloc(size_one * line_buffer*sizeof(double));
+
+        if(rank == 0)
+            printf("step %d i have %d lines\n",step, nlocal);
+        for(line = 0; line < nlocal && line < line_buffer; line++){
             buffer[line*size_one] = line;
             buffer[line*size_one+1] = 1;
             buffer[line*size_one+2] = x[line][0];
@@ -230,7 +240,7 @@ int main(int argc, char * argv[]){
 #ifdef V_T
       VT_begin(put_buffer_id);
 #endif
-       insert_into_Adios(transport, var_name, step,nsteps, nlocal, size_one, buffer,"w" , &comm);
+       insert_into_Adios(transport, var_name, step,nsteps, line_buffer, size_one, buffer,"w" , &comm);
 
 #ifdef V_T
       VT_end(put_buffer_id);

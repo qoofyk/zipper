@@ -1,4 +1,5 @@
 if(LAMMPS_INCLUDE_DIR)
+    add_definitions("-DPRECISE")
 
     include_directories       (${LAMMPS_INCLUDE_DIR})
 

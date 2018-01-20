@@ -12,6 +12,9 @@
 #include "stdio.h"
 #include "stdlib.h"
 
+// each proc will get different number of lines in lammps
+//#define PRECISE
+
 
 // for lammps, each line has different lines
 void insert_into_Adios(transport_method_t transport, char *var_name, int step, int nsteps, int n, int size_one, double * buf, const char* mode,  MPI_Comm *pcomm){
@@ -41,17 +44,23 @@ void insert_into_Adios(transport_method_t transport, char *var_name, int step, i
     uint8_t transport_minor = get_minor(transport);
 
     // save nlines in all processes
+    int lb;
+#ifdef PRECISE
+    //each process generate different number of lines
     int nlines_all[size];
     MPI_Allgather(&n, 1, MPI_INT, nlines_all,1, MPI_INT, comm);
     MPI_Allreduce(&n, &ntotal, 1, MPI_INT, MPI_SUM, comm);
-
-    NX=ntotal;
     
-    int lb;
     lb = 0;
     for(i = 0; i< rank; i++){
         lb+=nlines_all[i];
     }
+#else
+    printf("[warning]: use estimate lines \n");
+    ntotal=n*size;
+    lb = rank*size;
+#endif
+    NX=ntotal;
 
 
     if(transport_major == ADIOS_DISK){
