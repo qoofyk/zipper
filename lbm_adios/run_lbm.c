@@ -1,4 +1,5 @@
 #include "run_lbm.h"        
+#define SIZE_ONE (2)
 
 #define CLOG_MAIN
 #include "utility.h"

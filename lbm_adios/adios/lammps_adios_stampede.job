@@ -91,8 +91,8 @@ MPI_CMD1="mpirun -l  --machinefile $HOST_DIR/machinefile-app0 -np ${procs_prod} 
 
 MPI_CMD2="mpirun -l  --machinefile $HOST_DIR/machinefile-app1 -np ${procs_con} $cmd_con"
 
-$MPI_CMD1 &
-$MPI_CMD2 &
+$MPI_CMD1 &> prod.log &
+$MPI_CMD2 &> con.log &
 
 ## Wait for the entire workflow to finish
 wait

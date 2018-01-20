@@ -1,9 +1,11 @@
+# Jan 20
+625980: [results] modualized flexpath, 63s for 10steps
 # Jan 19
 should also look at the funciton time
 621424:[results] lammps_decaf 68, withno mpiscatter
 
 621426:[results] lammps_decaf 1088, with mpiscatter
-621486:[results] lammps_decaf 4352
+621486:[results] lammps_decaf 4352, load trace too slow!
 
 start to add specific mpi funciton into trace
 ------------------------------------------
@@ -14,7 +16,7 @@ start to add specific mpi funciton into trace
 regenerate trace files
 620119:[results]: lbm_decaf
 617308:[results]: lbm_sim_only
-617503:[results]: lammps_decaf 4352
+617503:[results]: lammps_decaf 4352 (this seems ok)
 
 
 # Jan 17

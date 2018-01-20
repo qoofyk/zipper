@@ -9,16 +9,8 @@
        <var name="atom" gwrite="t" type="double" dimensions="n,size_one" 
             transform="none"/>
     </global-bounds>
-    <attribute name="atom/description" 
-               value="Global array written from 'size' processes" 
-               type="string"/>
   </adios-group>
 
-  <method group="atom" method="FLEXPATH">QUEUE_SIZE=100;</method>
-  <!--method group="temperature" method="MPI_AGGREGATE">stripe_count=1;stripe_size=10485760;num_aggregators=2;merging_pgs=0;num_ost=2</method-->
-  <!--method group="temperature" method="PHDF5"/-->
- 
-  <buffer max-size-MB="2"/>
-
+  <method group="atom" method="FLEXPATH">QUEUE_SIZE=10;</method>
 </adios-config>
 
