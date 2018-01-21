@@ -101,9 +101,9 @@ void insert_into_Adios(transport_method_t transport, char *var_name, int step, i
                     + 4 \          
                     + 8 * (n) * (size_one);         
     adios_group_size (adios_handle, adios_groupsize, &adios_totalsize);
-    adios_write (adios_handle, "NX", &NX);
-    adios_write (adios_handle, "lb", &lb);
-    adios_write (adios_handle, "n", &n);
+    adios_write (adios_handle, "size", &size);
+    adios_write (adios_handle, "rank", &rank);
+    adios_write (adios_handle, "nlocal", &n);
     adios_write (adios_handle, "size_one", &size_one);
     adios_write (adios_handle, "atom", t);
 

@@ -67,7 +67,7 @@ int main (int argc, char ** argv){
     //enum ADIOS_READ_METHOD method = ADIOS_READ_METHOD_BP;
     ADIOS_SELECTION * sel;
     double * data = NULL;
-    uint64_t start[2], count[2];
+    uint64_t start[3], count[3];
 
     MPI_Init (&argc, &argv);
     MPI_Comm_rank (comm, &rank);
@@ -163,14 +163,17 @@ int main (int argc, char ** argv){
     start[1] = 0;
     count[1] = v->dims[1];
 
-    printf("rank %d: start: (%ld, %ld), count:( %ld, %ld)\n", rank, start[0], start[1], count[0], count[1]);
+    start[2] = 0;
+    count[2] = v->dims[2];
 
-    int size_one = v->dims[1];
-    int nlines = slice_size;
+    printf("rank %d: start: (%ld, %ld, %ld), count:( %ld, %ld, %ld)\n", rank, start[0], start[1], start[2], count[0], count[1], count[2]);
+
+    int size_one = v->dims[2];
+    int nlines = slice_size*(v->dims[1]);
        
     msd =  init_msd(nsteps, size_one);
 
-    data = (double *)malloc (slice_size * v->dims[1]* sizeof (double));
+    data = (double *)malloc (slice_size * v->dims[1] *v->dims[2]* sizeof (double));
     if (data == NULL)
     {
         fprintf (stderr, "malloc failed.\n");

@@ -1,12 +1,12 @@
 <?xml version="1.0"?>
 <adios-config host-language="C">
   <adios-group name="atom" stats="On">
-    <var name="NX" type="integer"/>
-    <var name="lb" type="integer"/>
-    <var name="n" type="integer"/>
+    <var name="nlocal" type="integer"/>
     <var name="size_one" type="integer"/>
-    <global-bounds dimensions="NX, size_one" offsets="lb,0">
-       <var name="atom" gwrite="t" type="double" dimensions="n,size_one" 
+    <var name="size" type="integer"/>
+    <var name="rank" type="integer"/>
+    <global-bounds dimensions="size, nlocal, size_one" offsets="rank, nlocal, size_one">
+       <var name="atom" gwrite="t" type="double" dimensions="1, nlocal,size_one" 
             transform="none"/>
     </global-bounds>
   </adios-group>

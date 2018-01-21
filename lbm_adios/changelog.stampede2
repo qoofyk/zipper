@@ -14,6 +14,7 @@ TODO
 ## Jan 20
 	* flexpath slow:
 		all reduce and all gather
+	* flexpath crash 2074*1000000 > int_max
 ## Jan 19
 	* flexpath, why it is slow
 	* decaf, why it crashes at large scale?
