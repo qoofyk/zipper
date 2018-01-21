@@ -1,8 +1,33 @@
+# Jan 20
+626674: 
+    flexpth _lammps 68v34
+
+-------------------------------------------------------------
+starting flexpath_lammpsgenerate results
+
+626429: error
+626396: flexpath with estimated lines, "remove gathering and reduce"
+626177: flexpath with itac
+
+626008: 4362 decaf with only partial proceses
+625980: [results] modualized flexpath, 63s for 10steps
+# Jan 19
+should also look at the funciton time
+621424:[results] lammps_decaf 68, withno mpiscatter
+
+621426:[results] lammps_decaf 1088, with mpiscatter
+621486:[results] lammps_decaf 4352, load trace too slow!
+
+start to add specific mpi funciton into trace
+------------------------------------------
+
+#
+
 # Jan 18
 regenerate trace files
-617497:[results]: lbm_decaf
+620119:[results]: lbm_decaf
 617308:[results]: lbm_sim_only
-617503:[results]: lammps_decaf 4352
+617503:[results]: lammps_decaf 4352 (this seems ok)
 
 
 # Jan 17

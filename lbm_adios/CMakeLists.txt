@@ -65,9 +65,11 @@ if(all_transports)
     find_library(DILL dill ${FLEXPATH_DIR}/lib)
     find_library(CERCS_ENV cercs_env ${FLEXPATH_DIR}/lib)
 
+    set(ADIOS_LIB ${ADIOS} ${DSPACES} ${DSCOMMON} ${DART} ${EVPATH} ${FFS} ${ATL} ${DILL} ${CERCS_ENV})
+
     #include_directories("${CMAKE_SOURCE_DIR}/src")     
     add_library(adaptor adios_adaptor.c utility.c adios_adaptor.c ds_adaptor.c)
-    target_link_libraries(adaptor ${ADIOS} ${DSPACES} ${DSCOMMON} ${DART} ${EVPATH} ${FFS} ${ATL} ${DILL} ${CERCS_ENV})
+    target_link_libraries(adaptor ${ADIOS_LIB})
 
     # add libm if using gcc
     target_link_libraries(adaptor  pthread rt rdmacm ibverbs)
@@ -103,6 +105,7 @@ if(all_transports)
 
     add_subdirectory(msd)
     add_subdirectory(decaf)
+    add_subdirectory(adios)
     add_subdirectory(tests)
 
 endif(all_transports)

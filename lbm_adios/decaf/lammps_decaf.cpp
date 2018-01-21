@@ -217,8 +217,10 @@ void con(Decaf* decaf, int nsteps)
     int rank;
     int step;
 
+#ifdef V_T
      VT_classdef( "Analysis", &class_id2 );
      VT_funcdef("ANL", class_id2, &analysis_id);
+#endif
 
     comm = decaf->con_comm_handle();
     rank = decaf->con_comm()->rank();
@@ -236,7 +238,7 @@ void con(Decaf* decaf, int nsteps)
     /* msd required*/
     double **msd;
     //int nsteps = NSTEPS;
-    int timestep = 0;
+    //int timestep = 0;
     int size_one = SIZE_ONE;
     msd =  init_msd(nsteps, size_one);
 
@@ -267,7 +269,7 @@ void con(Decaf* decaf, int nsteps)
 #ifdef V_T
       VT_begin(analysis_id);
 #endif
-                calc_msd(msd, buffer, slice_size, size_one, timestep);
+                calc_msd(msd, buffer, slice_size, size_one, step);
 
 #ifdef V_T
       VT_end(analysis_id);
@@ -282,11 +284,7 @@ void con(Decaf* decaf, int nsteps)
             else
                 fprintf(stderr, "[msd]: Error: null pointer in node2\n");
         }
-        timestep+=1;
-
-        //printf("[msd]: Step %d,t_analy %lf\n", step, t2-t1);
-
-        step +=1;
+        step+=1;
     }
 
     perform_msd_reduce(msd, nsteps, comm);
