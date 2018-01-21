@@ -1,5 +1,13 @@
 #include "run_module_lbm.h"
 
+#ifdef V_T
+#include <VT.h>
+int class_id;
+int advance_step_id;// get_buffer_id;
+#endif
+
+
+
 extern double u[nx][ny][nz],v[nx][ny][nz];
 extern double u_r;
 
@@ -125,6 +133,13 @@ status_t run_module_lbm(GV gv, MPI_Comm *pcomm){
     // comm = MPI_COMM_WORLD;
 
     int    rank, nprocs;
+
+#ifdef V_T
+      VT_classdef( "Computation", &class_id );
+      VT_funcdef("PUT", class_id, &advance_step_id);
+      //VT_funcdef("GETBUF", class_id, &get_buffer_id);
+#endif
+
     MPI_Comm_rank (comm, &rank);
     // MPI_Comm_size (comm, &nprocs);
 
@@ -146,7 +161,13 @@ status_t run_module_lbm(GV gv, MPI_Comm *pcomm){
 			fprintf(stderr, "[lbm]: err when process step %d\n", i);
 		}
 
+#ifdef V_T
+      VT_begin(advance_step_id);
+#endif
 		status_t status = insert_zipper(gv);
+#ifdef V_T
+      VT_end(advance_step_id);
+#endif
 	}
 
 	//generate exit message

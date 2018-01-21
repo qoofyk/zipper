@@ -2,7 +2,7 @@
  * lbm simulation code
  *
  * author luoding zhu
- * rewrite by Feng Li, Jan 2018
+ * rewrite by Yuankun Fu, Jan 2018
  */
 #ifndef RUN_MODULE_LBM_H
 #define RUN_MODULE_LBM_H

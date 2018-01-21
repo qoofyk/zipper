@@ -17,7 +17,7 @@ make -j4
 To build with itac trace
 ```
 module load itac
-cd build_build_itac
+cd build_itac
 cmake -DCMAKE_BUILD_TYPE=Stampede -Duse_itac=on ..
 ```
 
@@ -27,7 +27,7 @@ cmake -DCMAKE_BUILD_TYPE=Stampede -Duse_itac=on ..
 ```
 mkdir build
 cmake -DCMAKE_BUILD_TYPE=Stampede_TAU ..
-make -j4 
+make -j4
 ```
 
 2.1 build with self build tau
@@ -39,7 +39,7 @@ make
 
 
 ## Environment settings in Bridges:
-* 
+*
 1. modules
     Currently Loaded Modulefiles:
         1) psc_path/1.1      2) slurm/17.02.5     3) git/2.10.2        4) mpi/gcc_mvapich
@@ -54,33 +54,33 @@ make
             export TAU_OPTIONS="-optRevert"
             export PATH="/home/fli5/envs/tau_bundle/tau/x86_64/bin:/home/fli5/envs/tau_bundle/pdt/x86_64/bin:/home/lifeng/tools/anaconda/bin:$PATH"
     * transport libraries
-        * path 
+        * path
             built in ~/Downloads/transport_bundle_gcc_mvapich/
             install at ~/envs/gcc_mvapich(this will include ADIOSroot, Dataspaceroot, Flexpath)
 
         * binaries
             a full-feattured binary copy is here: https://github.iu.edu/lifen/transport_binaries
-            cp the 3 folders(ADIOSroot, Dataspaceroot Flexpath) to ~/envs/gcc_mvapich, 
+            cp the 3 folders(ADIOSroot, Dataspaceroot Flexpath) to ~/envs/gcc_mvapich,
 
     * transport libraries buit using tau
         * path
             built in ~/Downloads/transport_bundle_gcc_mvapich
 
-            installed in "$ENV{WORK}/envs/transports_tau/ 
+            installed in "$ENV{WORK}/envs/transports_tau/
 
             this is installed in yuankun's machine,
-            (the working version in my machine, I use my machine to get the result) are still scattered to 
+            (the working version in my machine, I use my machine to get the result) are still scattered to
                 Dataspacesroot_gnu_mvapich
                 Flexpath_gnu_mvapich
                 ADIOSroot_gnu_mvapioch
 
-        
+
         * note
             currently I cannot build ADIOS+FLEXPATH+application+DATASPACE all with tau_cc.ssh
             a workaround is for use unstructed Flexpath and build all the other with taucc.
             Somehow instructed ADIOS cannot recoganize instructed ADIOS. But we didn;t show the
             trace to ADIOS/DIMES, this should be fine
-             
+
 
 
 
@@ -108,9 +108,9 @@ make
     mkdir build && cd build
     cmake -DCMAKE_BUILD_TYPE=Bridges ..
     ```
-            
 
-    
-    
-    
+
+
+
+
 

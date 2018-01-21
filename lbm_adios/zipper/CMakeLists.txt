@@ -27,7 +27,7 @@ add_executable(lbm_concurrent_nokeep_onefile main.c do_thread.c
 SET(myTARGET lbm_concurrent_nokeep_onefile)
 foreach(item ${myTARGET})
 
-    target_link_libraries(${item} pthread m mod_lbm ${MPI_LIBRARIES})
+    target_link_libraries(${item} pthread m mod_lbm ${common_library})
 
     if(MPI_COMPILE_FLAGS)
         set_target_properties(${item} PROPERTIES COMPILE_FLAGS "${MPI_C_COMPILE_FLAGS}")

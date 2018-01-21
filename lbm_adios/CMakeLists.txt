@@ -11,7 +11,7 @@ endif()
 
 set(COMMON_LIBRARY "m")
 
-option(all_transports "build all transports" ON)
+option(all_transports "build all transports" OFF)
 option(use_itac "build with itac" OFF)
 
 set(common_library "m")
@@ -34,7 +34,7 @@ add_definitions ("-DENABLE_TIMING")
 #add_definitions ("-DUSE_DATASPACES -DENABLE_TIMING -Wall -Wextra")
 #add_definitions ("-DUSE_DATASPACES -DHAS_KEEP -DENABLE_TIMING -Wall -Wextra")
 #add_definitions ("-DUSE_DIMES -DENABLE_TIMING -Wall -Wextra")
-#add_definitions ("-DUSE_DIMES -DHAS_KEEP -DENABLE_TIMING -Wall -Wextra") 
+#add_definitions ("-DUSE_DIMES -DHAS_KEEP -DENABLE_TIMING -Wall -Wextra")
 
 # mpi
 find_package(MPI REQUIRED)
@@ -54,8 +54,8 @@ if(all_transports)
     include_directories(${DS_DIR}/include ${ADIOS_DIR}/include ${FLEXPATH_DIR}/include)
 
     find_library(DSPACES dspaces ${DS_DIR}/lib)
-    find_library(DSCOMMON dscommon ${DS_DIR}/lib) 
-    find_library(DART dart ${DS_DIR}/lib) 
+    find_library(DSCOMMON dscommon ${DS_DIR}/lib)
+    find_library(DART dart ${DS_DIR}/lib)
     find_library(ADIOS adios ${ADIOS_DIR}/lib)
 
     find_library(EVPATH evpath ${FLEXPATH_DIR}/lib)
@@ -64,7 +64,7 @@ if(all_transports)
     find_library(DILL dill ${FLEXPATH_DIR}/lib)
     find_library(CERCS_ENV cercs_env ${FLEXPATH_DIR}/lib)
 
-    #include_directories("${CMAKE_SOURCE_DIR}/src")     
+    #include_directories("${CMAKE_SOURCE_DIR}/src")
     add_library(adaptor adios_adaptor.c utility.c adios_adaptor.c ds_adaptor.c)
     target_link_libraries(adaptor ${ADIOS} ${DSPACES} ${DSCOMMON} ${DART} ${EVPATH} ${FFS} ${ATL} ${DILL} ${CERCS_ENV})
 
@@ -107,5 +107,6 @@ if(all_transports)
 endif(all_transports)
 
 add_subdirectory(zipper)
+add_subdirectory(zipper_lammps)
 
 

@@ -107,11 +107,11 @@ computer_group_size, num_analysis_nodes, cubex, cubez, step_stop, n_moment\n", a
 	gv->Z 	= 	nz/gv->cubez;
 
 	gv->step_stop = atoi(argv[10]);
-
 	gv->n_moments = atoi(argv[11]); //Loop times in Analysis calc_n_moments
-	gv->writer_prb_thousandth = atoi(argv[12]); //writer start to get element
 
 	//init IObox
+	gv->block_size = sizeof(int)*4+sizeof(double)*(gv->cubex*gv->cubey*gv->cubez*EACH_FLUID_NUM_DOUBLE); //64K B+4B,step,ci,cj,ck,data
+
 	gv->compute_generator_num = atoi(argv[1]);
 	gv->compute_writer_num = atoi(argv[2]);
 	gv->analysis_reader_num = atoi(argv[3]);
@@ -119,8 +119,6 @@ computer_group_size, num_analysis_nodes, cubex, cubez, step_stop, n_moment\n", a
 
 	gv->data_id = 0;
 	// gv->mpi_send_progress_counter = 0;
-
-	gv->block_size = sizeof(int)*4+sizeof(double)*(gv->cubex*gv->cubey*gv->cubez*EACH_FLUID_NUM_DOUBLE); //64K B+4B,step,ci,cj,ck,data
 
   	gv->cpt_total_blks = gv->X*gv->Y*gv->Z*gv->step_stop;
   	gv->writer_thousandth  = atoi(argv[5]);
@@ -133,10 +131,9 @@ computer_group_size, num_analysis_nodes, cubex, cubez, step_stop, n_moment\n", a
 
   	gv->computer_group_size=atoi(argv[6]);
   	gv->analysis_process_num=atoi(argv[7]);
-  	//gv->msleep = atof(argv[8]);
+  	gv->writer_prb_thousandth = atoi(argv[12]); //writer start to get element
   	gv->compute_process_num = gv->computer_group_size * gv->analysis_process_num;
   	gv->calc_counter = 0;
-  	// gv->prefetch_counter = 0;
 
   	gv->nproc_per_mac = atoi(getenv("nproc_per_mac"));
   	gv->filepath = getenv("SCRATCH_DIR");
