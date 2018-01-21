@@ -1,8 +1,8 @@
 #include "concurrent.h"
 
 status_t insert_zipper(GV gv, double **x, int nlocal, int step){
-  int i,j;
-  double xs, ys, zs;
+  int i,j;            //i: current line
+  double xs, ys, zs;  //atom coordinate
   double atom_id, type;
   int total_num_double, num_blk_cur_step;
   char* buffer;
@@ -23,28 +23,8 @@ status_t insert_zipper(GV gv, double **x, int nlocal, int step){
 #endif //DEBUG_PRINT
   }
 
-#ifdef V_T
-      VT_classdef( "Computation", &class_id );
-      VT_funcdef("PUT", class_id, &advance_step_id);
-      //VT_funcdef("GETBUF", class_id, &get_buffer_id);
-#endif
-
-  // memcpy(newbuf, data);
-
-  // memcpy(&((char*)bufWithSize)[sizeof(int)],mybuf,(n*sizeof(double)));
-
-  int cur_line=0;
+  int cur_line=0; //current line in zipper block
   for(i=0; i<nlocal; i++){
-
-    // atom_id = *(double *) (buf+i);
-    // type    = *(double *) (buf+i+1);
-
-    // xs = *(double *) (buf+i+2);
-    // ys = *(double *) (buf+i+3);
-    // zs = *(double *) (buf+i+4);
-
-    // printf("atom_id=%f, type=%f, xs=%f, ys=%f, zs=%f\n", atom_id, type, xs, ys, zs);
-    // fflush(stdout);
 
     if(cur_line%gv->dump_lines_per_blk == 0){
 
@@ -65,20 +45,12 @@ status_t insert_zipper(GV gv, double **x, int nlocal, int step){
 
 
 
-    ((double *)(buffer+sizeof(int)*3))[j]   = i;
-    ((double *)(buffer+sizeof(int)*3))[j+1] = 1;
-    ((double *)(buffer+sizeof(int)*3))[j+2] = x[i][0];
-    ((double *)(buffer+sizeof(int)*3))[j+3] = x[i][1];
-    ((double *)(buffer+sizeof(int)*3))[j+4] = x[i][2];
+    ((double *)(buffer+sizeof(int)*3))[j]   = i;        //atom_id, need to specify in future
+    ((double *)(buffer+sizeof(int)*3))[j+1] = 1;        //type
+    ((double *)(buffer+sizeof(int)*3))[j+2] = x[i][0];  //xs
+    ((double *)(buffer+sizeof(int)*3))[j+3] = x[i][1];  //ys
+    ((double *)(buffer+sizeof(int)*3))[j+4] = x[i][2];  //zs
 
-    // printf("Comp_Proc%d: atom_id=%.1f, type=%.1f, xs=%f, ys=%f, zs=%f\n",
-    //   gv->rank[0],
-    //   ((double *)(buffer+sizeof(int)*2))[j],
-    //   ((double *)(buffer+sizeof(int)*2))[j+1],
-    //   ((double *)(buffer+sizeof(int)*2))[j+2],
-    //   ((double *)(buffer+sizeof(int)*2))[j+3],
-    //   ((double *)(buffer+sizeof(int)*2))[j+4]);
-    // fflush(stdout);
 
     j+=5;
     cur_line++;
@@ -115,12 +87,14 @@ status_t insert_zipper(GV gv, double **x, int nlocal, int step){
 
   if(cur_line != nlocal)
     printf("Error: insert_into_DataBroker Missing original data\n");
+
+  return S_OK;
 }
 
 status_t generate_exit_msg(GV gv){
   char* buffer;
 
-  double producer_ring_buffer_put_time;
+  double producer_ring_buffer_put_time=0.0;
   double t0, t1;
 
   //generate the exit message
@@ -150,5 +124,7 @@ status_t generate_exit_msg(GV gv){
     fflush(stdout);
 #endif //DEBUG_PRINT
   }
+
+  return S_OK;
 }
 

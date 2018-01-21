@@ -21,15 +21,14 @@ add_definitions ("-DMPI_NOKEEP")
 add_library( zipper
     do_thread.c concurrent.c
     compute_generator.c compute_sender.c compute_writer.c
-    analysis_receiver.c analysis_reader.c analysis_writer.c analysis_consumer.c )
+    analysis_receiver.c analysis_reader.c analysis_writer.c analysis_consumer.c)
 
 add_executable(lmp_mpi_nokeep main.cpp
-    run_module_lammps.cpp
-    )
-    
+    run_module_lammps.cpp)
+
 #add_subdirectory(lbm)
 
-SET(myTARGET lmp_mpi_nokeep )
+SET(myTARGET lmp_mpi_nokeep)
 foreach(item ${myTARGET})
 
     target_link_libraries(${item} zipper ${LAMMPS_LIBRARY_STATIC} pthread m  ${common_library})

@@ -1,0 +1,76 @@
+#!/bin/bash
+#SBATCH --job-name="544NoKeepLammps" 					# Job name
+#SBATCH --output="results/LJM.NoKeep.544v272.%j.out" 	# Name of stdout output file
+#SBATCH --partition=normal         			# Queue (partition) name
+#SBATCH --nodes=24 									# Total nodes
+#SBATCH --ntasks-per-node=34						# MPI tasks per node
+#SBATCH --mail-type=all
+#SBATCH --mail-user=qoofyk@gmail.com 				# mail alert at start, end and abortion of execution
+#SBATCH -t 0:05:00 									# Run time (hh:mm:ss)
+
+#########################################################################################
+directory="544v272"
+nproc_per_mac=34
+
+CASE_NAME=LAMMPS_DataBroker_concurrent_NoKeep
+
+num_comp_proc=544
+compute_group_size=2
+num_ana_proc=$((${num_comp_proc} / ${compute_group_size}))
+total_proc=$((${num_comp_proc} + ${num_ana_proc}))
+
+comp_gen_num=1
+comp_writer_num=1
+ana_reader_num=1
+ana_writer_num=1
+
+# Set lammps atom number
+xx=4
+yy=64
+zz=34
+num_atom=$((32000 * ${xx} * ${yy} * ${zz}))
+
+NSTOP=100 				# total num of steps lammps will run
+one_dump_blk_size=40 	# one_dump_blk_size=5*sizeof(double) -- Fixed
+dump_step_internal=1 	# lammps will dump data every this number of steps
+# dump_lines_per_blk=(4000 8000 16000 32000 64000 128000 256000)
+dump_lines_per_blk=(32000)
+total_dump_steps=$((${NSTOP} / ${dump_step_internal} + 1))
+
+maxp=1
+# writer_thousandth=(0 400 999)
+# writer_prb_thousandth=(1000 1000 1000)
+writer_thousandth=(0)
+writer_prb_thousandth=(1000)
+
+tune_stripe_count=-1
+#########################################################################################
+PBS_O_HOME=$HOME
+PBS_O_WORKDIR=$(pwd)
+
+echo "-----------case=$CASE_NAME---------------"
+echo "num_atom=$num_atom, nstops=$NSTOP, dump_step_internal=$dump_step_internal, num_comp_proc=$num_comp_proc, num_ana_proc=$num_ana_proc, stripe_count=$tune_stripe_count, maxp=$maxp"
+
+PBS_O_HOME=$HOME
+PBS_O_WORKDIR=$(pwd)
+
+# Set Machine
+MACHINE=stampede2
+
+# comet
+# SCRATCH_DIR=/oasis/scratch/comet/qoofyk/temp_project/lammps_benchtest
+
+# bridges
+# groupname=$(id -Gn)
+# export SCRATCH_DIR=/pylon5/cc4s86p/qoofyk/lammps_benchtest/${SLURM_JOBID}
+# EMPTY_DIR=/pylon5/cc4s86p/qoofyk/empty/
+
+# stampede2
+# groupname=$(id -Gn)
+export SCRATCH_DIR=$SCRATCH/lammps_benchtest/${SLURM_JOBID}
+EMPTY_DIR=$SCRATCH/empty/
+
+
+inputfile=${PBS_O_WORKDIR}/scripts/lammps_input/in.lj.${directory}.txt
+
+source ${PBS_O_WORKDIR}/zipper_lammps/scripts_${MACHINE}/common.sh

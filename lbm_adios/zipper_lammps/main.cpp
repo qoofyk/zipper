@@ -182,7 +182,7 @@ int main(int argc, char **argv)
   gv->writer_prb_thousandth = atoi(argv[14]); //writer start to get element
 
 
-  gv->total_num_dump_steps = gv->total_run_steps/gv->dump_step_internal + 1;
+  gv->total_num_dump_steps = gv->total_run_steps/gv->dump_step_internal;
 
   // cpt_total_blks need to write into adaptive way in future
   // cpt_total_blks now is only a guess number

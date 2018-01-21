@@ -195,7 +195,7 @@ void msleep(double milisec);
 void producer_ring_buffer_put(GV gv,char * buffer);
 
 status_t insert_zipper(GV gv, double **x, int nlocal, int step);
-status_t run_module_lammps(int argc, char **argv, GV gv, MPI_Comm *pcomm);
+// status_t run_module_lammps(int argc, char **argv, GV gv, MPI_Comm *pcomm);
 status_t generate_exit_msg(GV gv);
 
 #ifdef __cplusplus

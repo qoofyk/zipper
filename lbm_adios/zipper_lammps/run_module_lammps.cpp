@@ -28,7 +28,8 @@ using namespace std;
 #ifdef V_T
 #include <VT.h>
 int class_id;
-int advance_step_id;// get_buffer_id;
+int advance_step_id;
+int put_zipper_id;
 #endif
 
 struct lammps_args_t                         // custom args for running lammps
@@ -69,15 +70,15 @@ status_t run_module_lammps (int argc, char *argv[], GV gv, MPI_Comm *pcomm)
 
     double t_start = MPI_Wtime();
 
+#ifdef V_T
+    VT_classdef( "Computation", &class_id );
+    VT_funcdef("ADVSTEP", class_id, &advance_step_id);
+    VT_funcdef("PUT", class_id, &put_zipper_id);
+#endif
+
     LAMMPS* lps = new LAMMPS(0, NULL, comm);
     lps->input->file(infile.c_str());
-    printf("prod lammps_sim_only started with input %s\n", infile.c_str() );
-
-#ifdef V_T
-      VT_classdef( "Computation", &class_id );
-      VT_funcdef("PUT", class_id, &advance_step_id);
-      //VT_funcdef("GETBUF", class_id, &get_buffer_id);
-#endif
+    printf("prod lammps_zipper started with input %s\n", infile.c_str() );
 
     MPI_Comm_rank (comm, &rank);
     //MPI_Comm_size (comm, &nprocs);
@@ -87,7 +88,14 @@ status_t run_module_lammps (int argc, char *argv[], GV gv, MPI_Comm *pcomm)
     {
 
         t1 = MPI_Wtime();
+
+#ifdef V_T
+      VT_begin(advance_step_id);
+#endif
         lps->input->one("run 1 pre no post no"); // do not initialize each time, this is recommanded from lammps doc for coupled simulation using lammps library
+#ifdef V_T
+      VT_end(advance_step_id);
+#endif
 
         t2 = MPI_Wtime();
         int natoms = static_cast<int>(lps->atom->natoms);
@@ -110,8 +118,13 @@ status_t run_module_lammps (int argc, char *argv[], GV gv, MPI_Comm *pcomm)
                 t3-t2);
         }
 
-        insert_zipper(gv, x, nlocal,timestep);
-
+#ifdef V_T
+        VT_begin(put_zipper_id);
+#endif
+        insert_zipper(gv, x, nlocal, timestep);
+#ifdef V_T
+        VT_end(put_zipper_id);
+#endif
 
     }
 

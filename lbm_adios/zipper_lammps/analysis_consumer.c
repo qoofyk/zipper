@@ -4,11 +4,11 @@ Brief desc of the file: consumer thread
 ********************************************************/
 #include "concurrent.h"
 
-// #ifdef V_T
-// #include <VT.h>
-// static int class_id;
-// static int analysis_id;
-// #endif
+#ifdef V_T
+#include <VT.h>
+static int class_id;
+static int analysis_id;
+#endif
 
 void simple_verify(GV gv, LV lv, char* buffer, int nbytes, int source, int block_id, char* consumer_state_p){
   double atom_id, type;
@@ -279,11 +279,10 @@ void analysis_consumer_thread(GV gv, LV lv){
   // printf("Ana_Proc%d: consumer%d is running!\n",gv->rank[0], lv->tid);
   // fflush(stdout);
 
-// #ifdef V_T
-//   VT_classdef( "Analysis", &class_id );
-//   VT_funcdef("ANL", class_id, &analysis_id);
-//   //VT_funcdef("GETBUF", class_id, &get_buffer_id);
-// #endif
+#ifdef V_T
+  VT_classdef( "Analysis", &class_id );
+  VT_funcdef("ANL", class_id, &analysis_id);
+#endif
 
   t2 = MPI_Wtime();
   while (1) {
@@ -325,14 +324,14 @@ step=%d, dump_lines_per_blk=%d, gv->calc_counter=%d, consumer_state=%d\n",
 #endif //DEBUG_PRINT
 
           t0 = MPI_Wtime();
-// #ifdef V_T
-//       VT_begin(analysis_id);
-// #endif
+#ifdef V_T
+      VT_begin(analysis_id);
+#endif
           // simple_verify(gv, lv, pointer, gv->block_size, source, block_id, &consumer_state);
           calc_msd(gv, lv, pointer, source, block_id, &consumer_state);
-// #ifdef V_T
-//       VT_end(analysis_id);
-// #endif
+#ifdef V_T
+      VT_end(analysis_id);
+#endif
           t1 = MPI_Wtime();
           lv->calc_time += t1 - t0;
           gv->calc_counter++;

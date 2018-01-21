@@ -14,6 +14,7 @@ extern "C" {
 #include "lbm.h"
 #include "concurrent.h"
 
+status_t run_module_lbm(GV gv, MPI_Comm *pcomm);
 
 #ifdef __cplusplus
 }
