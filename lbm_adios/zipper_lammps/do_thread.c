@@ -2,6 +2,7 @@
 Copyright YUANKUN FU
 Brief desc of the file: do thread
 ********************************************************/
+#include "mpi.h"
 #include "concurrent.h"
 
 void init_lv(LV lv, int tid, GV gv) {

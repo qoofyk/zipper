@@ -18,19 +18,21 @@ add_definitions ("-DMPI_NOKEEP")
 #include_directories(${MPI_INCLUDE_PATH} ${CMAKE_SOURCE_DIR} ${CMAKE_SOURCE_DIR}/lbm )
 
 #set(EXECUTABLE_OUTPUT_PATH "${CMAKE_BINARY_DIR}/bin")
+add_library( zipper
+    do_thread.c concurrent.c
+    compute_generator.c compute_sender.c compute_writer.c
+    analysis_receiver.c analysis_reader.c analysis_writer.c analysis_consumer.c )
 
-add_executable(lmp_mpi_nokeep main.cpp do_thread.cpp
+add_executable(lmp_mpi_nokeep main.cpp
     run_module_lammps.cpp
-    compute_generator.cpp compute_sender.cpp compute_writer.cpp
-    analysis_receiver.cpp analysis_reader.cpp analysis_writer.cpp analysis_consumer.cpp )
-
-
+    )
+    
 #add_subdirectory(lbm)
 
 SET(myTARGET lmp_mpi_nokeep )
 foreach(item ${myTARGET})
 
-    target_link_libraries(${item} ${LAMMPS_LIBRARY_STATIC} pthread m  ${common_library})
+    target_link_libraries(${item} zipper ${LAMMPS_LIBRARY_STATIC} pthread m  ${common_library})
 
     if(MPI_COMPILE_FLAGS)
         set_target_properties(${item} PROPERTIES COMPILE_FLAGS "${MPI_C_COMPILE_FLAGS}")

@@ -21,7 +21,6 @@
 
 #include "run_module_lammps.h"
 
-#define SIZE_ONE (5)
 
 using namespace LAMMPS_NS;
 using namespace std;
@@ -111,7 +110,7 @@ status_t run_module_lammps (int argc, char *argv[], GV gv, MPI_Comm *pcomm)
                 t3-t2);
         }
 
-        insert_zipper(GV gv, double **x, int nlocal, int timestep)
+        insert_zipper(gv, x, nlocal,timestep);
 
 
     }

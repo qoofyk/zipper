@@ -11,13 +11,14 @@
    See the README file in the top-level LAMMPS directory.
 ------------------------------------------------------------------------- */
 
-// #include <mpi.h>
+ #include <mpi.h>
 // #include "lammps.h"
 // #include "input.h"
 // #include <stdio.h>
 // #include "concurrent.h"
 // #include <iostream>
 // #include <fstream>
+
 
 #include "run_module_lammps.h"
 #include "concurrent.h"

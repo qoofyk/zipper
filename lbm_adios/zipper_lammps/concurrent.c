@@ -52,7 +52,7 @@ status_t insert_zipper(GV gv, double **x, int nlocal, int step){
       check_malloc(buffer);
 
       ((int *)buffer)[0] = gv->data_id++;
-      ((int *)buffer)[1] = timestep;
+      ((int *)buffer)[1] = step;
       ((int *)buffer)[2] = gv->dump_lines_per_blk;
       j=0;  //buffer offset set to zero
 
@@ -89,7 +89,7 @@ status_t insert_zipper(GV gv, double **x, int nlocal, int step){
 
 #ifdef DEBUG_PRINT
       printf("Comp_Proc%d: Lammps put a block_id=%d, timestep=%d with lines %d into PRB\n",
-        me, ((int *)buffer)[0], update->ntimestep, ((int *)buffer)[2]);
+        me, ((int *)buffer)[0], step, ((int *)buffer)[2]);
       fflush(stdout);
 #endif //DEBUG_PRINT
 
@@ -120,6 +120,9 @@ status_t insert_zipper(GV gv, double **x, int nlocal, int step){
 status_t generate_exit_msg(GV gv){
   char* buffer;
 
+  double producer_ring_buffer_put_time;
+  double t0, t1;
+
   //generate the exit message
   if(gv->dump_step_cnt>=gv->total_num_dump_steps){
 
@@ -132,7 +135,7 @@ status_t generate_exit_msg(GV gv){
 
 #ifdef DEBUG_PRINT
     printf("Comp_Proc%d: Lammps generate the EXIT block_id=%d in timestep=%d with total_blks %d\n",
-      gv->rank[0], ((int *)buffer)[0], update->ntimestep, gv->data_id);
+      gv->rank[0], ((int *)buffer)[0], step, gv->data_id);
     fflush(stdout);
 #endif //DEBUG_PRINT
 
@@ -143,7 +146,7 @@ status_t generate_exit_msg(GV gv){
 
 #ifdef DEBUG_PRINT
     printf("Comp_Proc%d: Lammps finished put the EXIT block_id=%d in timestep=%d with total_blks %d, T_put=%.3f\n",
-      gv->rank[0], ((int *)buffer)[0], update->ntimestep, gv->data_id, producer_ring_buffer_put_time);
+      gv->rank[0], ((int *)buffer)[0], step, gv->data_id, producer_ring_buffer_put_time);
     fflush(stdout);
 #endif //DEBUG_PRINT
   }

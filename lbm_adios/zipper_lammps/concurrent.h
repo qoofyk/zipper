@@ -5,6 +5,8 @@ Brief desc of the file: Header
 #ifndef CONCURRENT_H
 #define CONCURRENT_H
 
+#define SIZE_ONE (5)
+
 
 #ifdef __cplusplus
 extern "C"{
@@ -53,6 +55,14 @@ extern "C"{
 #define ANALSIS_COUNT 5000
 
 #define EXIT_BLK_ID -1
+
+#ifndef S_OK
+typedef int status_t;
+#define S_OK (0)
+#define S_FAIL (-1)
+#endif
+
+
 
 typedef struct {
   char** buffer; //array of pointers

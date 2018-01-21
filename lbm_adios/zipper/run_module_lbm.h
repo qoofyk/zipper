@@ -15,11 +15,6 @@ extern "C" {
 #include "concurrent.h"
 
 
-
-status_t insert_zipper(GV gv);
-
-status_t run_module_lbm(GV gv, MPI_Comm *pcomm);
-
 #ifdef __cplusplus
 }
 #endif
