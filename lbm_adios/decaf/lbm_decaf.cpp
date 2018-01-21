@@ -48,8 +48,9 @@
 
 #ifdef V_T
 #include <VT.h>
-int class_id;
-int advance_step_id, get_buffer_id;
+int class_id, class_id2;
+int advance_step_id, get_buffer_id, put_buffer_id;
+int analysis_id;
 #endif
 
 
@@ -84,10 +85,11 @@ void prod(Decaf* decaf, int nsteps)
 #ifdef V_T
       
       //VT_initialize(NULL, NULL);
-        printf("[decaf]: trace enabled and initialized\n");
+      printf("[decaf]: trace enabled and initialized\n");
       VT_classdef( "Computation", &class_id );
       VT_funcdef("ADVSTEP", class_id, &advance_step_id);
       VT_funcdef("GETBUF", class_id, &get_buffer_id);
+      VT_funcdef("PUT", class_id, &put_buffer_id);
 #endif
 
 
@@ -134,6 +136,10 @@ void prod(Decaf* decaf, int nsteps)
       VT_end(get_buffer_id);
 #endif
 
+
+#ifdef V_T
+      VT_begin(put_buffer_id);
+#endif
         
         /* decaf put */
         if (1)
@@ -169,6 +175,10 @@ void prod(Decaf* decaf, int nsteps)
 
             decaf->put(container);
         }
+
+#ifdef V_T
+      VT_end(put_buffer_id);
+#endif
     }
 
     if(S_OK != lbm_finalize(&comm)){
@@ -273,13 +283,19 @@ void con(Decaf* decaf)
     double *buffer;
     MPI_Comm comm;
     int rank;
+    int step;
+
+#ifdef V_T
+     VT_classdef( "Analysis", &class_id2 );
+     VT_funcdef("ANL", class_id2, &analysis_id);
+#endif
 
     comm = decaf->con_comm_handle();
     rank = decaf->con_comm()->rank();
 
     vector< pConstructData > in_data;
 
-    int step = 0;
+    step = 0;
 
 
     if(rank == 0){
@@ -309,7 +325,16 @@ void con(Decaf* decaf)
                 buffer = &pos.getVector()[0];
 
                 t1 =MPI_Wtime(); 
+
+
+#ifdef V_T
+      VT_begin(analysis_id);
+#endif
                 run_analysis(buffer, slice_size, lp, sum_vx,sum_vy);
+
+#ifdef V_T
+      VT_end(analysis_id);
+#endif
 
                 t2 =MPI_Wtime(); 
                 t_analy += t2-t1;
@@ -413,7 +438,7 @@ int main(int argc,
          char** argv)
 {
     Workflow workflow;
-    Workflow::make_wflow_from_json(workflow, "vector2.json");
+    Workflow::make_wflow_from_json(workflow, "lbm_decaf.json");
 
     if(argc != 2){
         fprintf(stderr, "[lbm]: need steps\n");

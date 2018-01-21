@@ -12,6 +12,8 @@
 #SBATCH --mail-user=lifen@iupui.edu
 
 # procs placement
+NSTOP=100
+
 num_apps=3
 
 # slots used by this app

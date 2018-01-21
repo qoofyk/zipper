@@ -1,9 +1,109 @@
+# Jan 20
+626674: 
+    flexpth _lammps 68v34
+
+-------------------------------------------------------------
+starting flexpath_lammpsgenerate results
+
+626429: error
+626396: flexpath with estimated lines, "remove gathering and reduce"
+626177: flexpath with itac
+
+626008: 4362 decaf with only partial proceses
+625980: [results] modualized flexpath, 63s for 10steps
+# Jan 19
+should also look at the funciton time
+621424:[results] lammps_decaf 68, withno mpiscatter
+
+621426:[results] lammps_decaf 1088, with mpiscatter
+621486:[results] lammps_decaf 4352, load trace too slow!
+
+start to add specific mpi funciton into trace
+------------------------------------------
+
+#
+
+# Jan 18
+regenerate trace files
+620119:[results]: lbm_decaf
+617308:[results]: lbm_sim_only
+617503:[results]: lammps_decaf 4352 (this seems ok)
+
+
+# Jan 17
+613479
+    [results]: lammps_decaf 4356 with trace, 50.1s
+613455
+    [results]: lammps_sim_only 4356 with trace, 27.0
+613444
+    [results]: sim_only 1088, end2end 26.6s
+613116
+    [result]: get the 1088 lammps trace if disable mpi trace, end2end time 28.5s for 10 steps
+613048
+    lbm_decaf 1088 same problem, trace file to large: due to too many mpi messages?
+612886
+    lammps_decaf 1088, stuck at
+        [0] [0 Wed Jan 17 13:01:34 2018] Intel(R) Trace Collector INFO: "write header": done
+        log shows there will be 5G trace data, but only 1.9G is filled. then just wait there
+612854(compare with 612845)
+    decaf_lammps with with LD_PRELOAD=VT.so, shared link
+612845
+    decaf_lammps wiout LD_PRELOAD., shared link
+612795
+    decaf_lammps in build, with incorrect .so
+        only producer launched
+    
+612104
+    did the same for decaf_lammps 
+        err
+612008, removed -fpic (also the library in module libraries, put mpi in the end)
+    lbm_sim_only, ok
+    612107 run again with removing LD_PRELOAD,  ok. 
+611042 manually built of test_lbm works with static libs
+    mpicc, place mpi lirary =lrt -ldl in the end
+611990
+    use static vt libs, lbm_decaf fault
+611992
+    use static vt libr, lbm_sim_only seg fault (try to manually build sim_only_lbm, see what's different)
+        mpicc -trace -o test_lbm lbm_buffer.c lbm.c test_lbm.c
+611931
+    lbm_sim_only
+611934
+   lbm_decaf
+---------------------------------
+can be a problem of "PUT" trace id(no)
+611883
+    lammps_sim_only with VERBOSE-3, lammps_decaf stops at the first line
+    [0] [0 Wed Jan 17 09:47:06 2018] Intel(R) Trace Collector INFO: wall clock: 1.516204e+09s - 1.516204e+09s since Epoch
+    [0] [0 Wed Jan 17 09:47:06 2018] Intel(R) Trace Collector INFO: maximum number of events on the same clock tick was 4: insufficient clock resolution
+
+611831
+    lammps_decaf with VERBOSE=3
+    this can be a problem: lammps_sim_only is built with lammps.a, lammps_decaf is built using lammps.so
+609967
+    lammps_sim_only also built with shared libs
 # Jan 16 
+ *609967
+    lammps_only
+ *609922
+    lbm_decaf 68, can stop 
+ *609917
+    lammps now 68 cannot stop
+ * 606762
+    [result not checked]: lammps_sim_only 4352v2176
+ * 606913
+    [result]: lammps_decaf 1088v544
+        failed run: 606753, timeup for traces (8mins)
+    
+ * 606748
+    [result]: lammps_decaf 68v34
+ * 606746
+    [result]: lammps_sim_only 68v34
  * 606586
-    [result]: trace with decaf
+    [result]: trace with decaf, total end2end 5.5
         streaming time 0.11~0.68
  * 606533 
-    trace with decaf:
+    trace with decaf: total end2end
         1. add common_library in the end of target_link_library)
         2. export LD_PRELOAD=libVT.so
  * 606383

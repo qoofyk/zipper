@@ -11,6 +11,21 @@ TODO
 	1. nnti in flexpath, not usable.
 	2. dspaces hanging
 	3. ENABLE_TESTING in flexpath conf, enabled
+## Jan 20
+	* flexpath slow:
+		all reduce and all gather
+## Jan 19
+	* flexpath, why it is slow
+	* decaf, why it crashes at large scale?
+	* regenerate trace in lbm-decaf in adios_perf
+	* 
+## Jan 18
+	* better trace record organization
+
+## Jan 17
+	* to static build with VT, link mpi after VT libraries, as the mpicc -show
+	-trace does
+	* after disable all MPI functions, now I have 1088 trace for lammps
 
 ## Jan 16
 	* now sim_only trace looks good

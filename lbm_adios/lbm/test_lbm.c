@@ -4,7 +4,7 @@
 #ifdef V_T
 #include <VT.h>
 int class_id;
-int advance_step_id, get_buffer_id;
+int advance_step_id, get_buffer_id, put_buffer_id;
 #endif
 
 /*
@@ -25,9 +25,6 @@ int main(int argc, char * argv[]){
     }
 	int i;
 
-    
-
-
 	/*those are all the information io libaray need to know about*/
     MPI_Comm comm;
 	int nlocal; //nlines processed by each process
@@ -44,16 +41,11 @@ int main(int argc, char * argv[]){
     comm = MPI_COMM_WORLD;
 
 #ifdef V_T
-      
       VT_classdef( "Computation", &class_id );
       VT_funcdef("ADVSTEP", class_id, &advance_step_id);
       VT_funcdef("GETBUF", class_id, &get_buffer_id);
+      VT_funcdef("PUT", class_id, &put_buffer_id);
 #endif
-
-
-
-
-
 
 
     int    rank, nprocs;
@@ -98,11 +90,17 @@ int main(int argc, char * argv[]){
       VT_end(get_buffer_id);
 #endif
 
+#ifdef V_T
+      VT_begin(put_buffer_id);
+#endif
 		// replace this line with different i/o libary
 		if(S_OK != lbm_io_template(&comm, buffer, nlocal, size_one)){
 			fprintf(stderr,"[lbm]: error when writing step %d \n", i);
 		}
 	}
+#ifdef V_T
+      VT_end(put_buffer_id);
+#endif
 
 	if(S_OK != lbm_finalize(&comm)){
 		fprintf(stderr, "[lbm]: err when finalized\n");

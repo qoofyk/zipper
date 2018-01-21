@@ -17,7 +17,7 @@ echo "procs is \[ ${procs_this_app[*]}\], nodes is \[${nodes_this_app[*]}\]"
 #export BUILD_DIR=${PBS_O_WORKDIR}/build
 if [ x"$HAS_TRACE" == "x" ];then
     export BUILD_DIR=${PBS_O_WORKDIR}/build
-    DS_SERVER=${WORK}/envs/gcc_mvapich/Dataspacesroot/bin/dataspaces_server
+    #DS_SERVER=${WORK}/envs/gcc_mvapich/Dataspacesroot/bin/dataspaces_server
     export DECAF_PREFIX=$WORK/software/install
 elif [ x"$HAS_TRACE" = "xitac" ]; then
     export LD_PRELOAD=libVT.so
@@ -26,6 +26,7 @@ elif [ x"$HAS_TRACE" = "xitac" ]; then
     export BUILD_DIR=${PBS_O_WORKDIR}/build_itac
     echo "use itac"
     export VT_LOGFILE_PREFIX=${SCRATCH_DIR}/trace 
+    export VT_VERBOSE=3
     mkdir -pv $VT_LOGFILE_PREFIX
 
 else
@@ -79,8 +80,15 @@ else
 fi
 
 if [[ `hostname` == *"bridges"* ]];then
-    export MV2_ENABLE_AFFINITY=0
-    export MV2_USE_BLOCKING=1
+    if [ x`which mpicc|grep mvapich` = "x" ]; then
+
+        # itac by default load impi
+        export I_MPI_JOB_RESPECT_PROCESS_PLACEMENT=0
+        export I_MPI_SHM_LMT=shm
+    else
+        export MV2_ENABLE_AFFINITY=0
+        export MV2_USE_BLOCKING=1
+    fi
 fi
 
 export procs_prod=${procs_this_app[0]}
@@ -91,13 +99,13 @@ procs_all=$((procs_prod + procs_con + procs_link))
 
 # generate graph
 #PYTHON_RUN="python $PBS_O_WORKDIR/vector/vector_2nodes.py --np ${procs_all} --hostfile ${HOST_DIR}/machinefile-all"
-PYTHON_RUN="python $PBS_O_WORKDIR/decaf/vector_2nodes_topo.py --np ${procs_all} --hostfile ${HOST_DIR}/machinefile-all"
+PYTHON_RUN="python $PBS_O_WORKDIR/decaf/lbm_decaf.py --np ${procs_all} --hostfile ${HOST_DIR}/machinefile-all"
 $PYTHON_RUN &> python.log
 echo "python run $PYTHON_RUN"
 
 ## order is prod/link/consumer
 LAUNCHER="mpirun -l"
-cmd="$BUILD_DIR/bin/vector_2nodes $NSTOP"
+cmd="$BUILD_DIR/bin/lbm_decaf $NSTOP"
 
 ## order is prod/link/consumer
 MPI_CMD="$LAUNCHER -genv TRACEDIR=${ALL_TRACES}/app0 --machinefile ${HOST_DIR}/machinefile-all -np ${procs_prod} $cmd : -np ${procs_link} $cmd : -np ${procs_con} $cmd"

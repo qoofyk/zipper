@@ -6,6 +6,7 @@ see [this wiki](https://github.iu.edu/IUPUI-CS-HPC/data_broker_lammps/wiki) for 
 written by Feng Li at Fall 2017
 
 ## What is new
+[Jan 16]: trace inteval: lbm use center 2, width 2, lammps use 10,10
 [Jan 12]: now stampede tau build should be buit with
     
 [Jan 11]: in stampede, need to use cmake 2.8 to build with taucc
