@@ -248,10 +248,11 @@ int main(int argc, char * argv[]){
     int64_t     adios_handle;
 	sprintf(filename, "atom.bp");
 
+    // dimension sizexnlocalxsize_one
     adios_open (&adios_handle, "atom", filename, "w", comm);
     adios_write (adios_handle, "size", &nprocs);
     adios_write (adios_handle, "rank", &rank);
-    adios_write (adios_handle, "nlocal", &navg);
+    adios_write (adios_handle, "nlocal", &line_buffer);
     adios_write (adios_handle, "size_one", &size_one);
     adios_write (adios_handle, "array", buffer);
 

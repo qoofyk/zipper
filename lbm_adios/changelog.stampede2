@@ -11,6 +11,10 @@ TODO
 	1. nnti in flexpath, not usable.
 	2. dspaces hanging
 	3. ENABLE_TESTING in flexpath conf, enabled
+## Jan 21
+	* flexpath dimension:
+			see flexpath_skel/global_range_select, for 3d dimension, there
+			seems a reversed dimension
 ## Jan 20
 	* flexpath slow:
 		all reduce and all gather
