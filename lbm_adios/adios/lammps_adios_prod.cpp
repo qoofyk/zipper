@@ -17,7 +17,8 @@
 //#include "utility.h"
 
 //#include "adios_adaptor.h"
-#include "adios_helper.h"
+//#include "adios_helper.h"
+#include "adios.h"
 #include "adios_error.h"
 #include "ds_adaptor.h"
 
@@ -242,7 +243,24 @@ int main(int argc, char * argv[]){
 #ifdef V_T
       VT_begin(put_buffer_id);
 #endif
-       insert_into_Adios(transport, var_name, step,nsteps, line_buffer, size_one, buffer,"w" , &comm);
+	char        filename [256];
+    uint64_t    adios_groupsize, adios_totalsize;
+    int64_t     adios_handle;
+	sprintf(filename, "atom.bp");
+
+    adios_open (&adios_handle, "atom", filename, "w", comm);
+    adios_write (adios_handle, "size", &nprocs);
+    adios_write (adios_handle, "rank", &rank);
+    adios_write (adios_handle, "nlocal", &navg);
+    adios_write (adios_handle, "size_one", &size_one);
+    adios_write (adios_handle, "array", buffer);
+
+    // end of gwrite_atom
+
+    adios_close (adios_handle);
+
+
+       //insert_into_Adios(transport, var_name, step,nsteps, line_buffer, size_one, buffer,"w" , &comm);
 
 #ifdef V_T
       VT_end(put_buffer_id);

@@ -6,7 +6,7 @@
     <var name="size" type="integer"/>
     <var name="rank" type="integer"/>
     <global-bounds dimensions="size, nlocal, size_one" offsets="rank, nlocal, size_one">
-       <var name="atom" gwrite="t" type="double" dimensions="1, nlocal,size_one" 
+       <var name="array" gwrite="t" type="double" dimensions="1, nlocal,size_one" 
             transform="none"/>
     </global-bounds>
   </adios-group>

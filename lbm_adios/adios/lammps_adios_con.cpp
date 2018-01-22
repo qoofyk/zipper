@@ -28,7 +28,8 @@
 #include "adios_error.h"
 #include "run_msd.h"
 //#include "adios_adaptor.h"
-#include "adios_helper.h"
+//#include "adios_helper.h"
+#include "adios.h"
 #include <assert.h>
 #include "transports.h"
 #include "utility.h"
@@ -147,7 +148,7 @@ int main (int argc, char ** argv){
         return -1;
     }
 
-    ADIOS_VARINFO * v = adios_inq_var (f, "atom");
+    ADIOS_VARINFO * v = adios_inq_var (f, "array");
     /* Using less readers to read the global array back, i.e., non-uniform */
 
 
@@ -192,7 +193,7 @@ int main (int argc, char ** argv){
         }
 
         // read
-        adios_schedule_read (f, sel, "atom", 0, 1, data);
+        adios_schedule_read (f, sel, "array", 0, 1, data);
         adios_perform_reads (f, 1);
         adios_release_step(f);
         adios_advance_step(f, 0, -1);
