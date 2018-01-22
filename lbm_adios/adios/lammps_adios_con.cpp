@@ -155,26 +155,28 @@ int main (int argc, char ** argv){
     /* 
      * get the dimension info
      */
-    uint64_t slice_size = v->dims[2]/nprocs;
+    uint64_t slice_size = v->dims[1]/nprocs;
     start[1] = slice_size * rank;
     if (rank == nprocs-1) /* last rank may read more lines */
         slice_size = slice_size + v->dims[2]%nprocs;
     count[1] = slice_size;
 
-    start[1] = 0;
-    count[1] = v->dims[1];
 
     start[0] = 0;
     count[0] = v->dims[0];
 
+    start[2] = 0;
+    count[2] = v->dims[2];
+
     printf("rank %d: start: (%ld, %ld, %ld), count:( %ld, %ld, %ld)\n", rank, start[0], start[1], start[2], count[0], count[1], count[2]);
 
     int size_one = v->dims[0];
-    int nlines = slice_size*(v->dims[1]);
+    int nlines = slice_size*(v->dims[2]);
        
     msd =  init_msd(nsteps, size_one);
 
-    data = (double *)malloc (slice_size * v->dims[1] *v->dims[0]* sizeof (double));
+    data = (double *)malloc (nlines*size_one* sizeof (double));
+    memset(data, 0, nlines*size_one*sizeof(double));
     if (data == NULL)
     {
         fprintf (stderr, "malloc failed.\n");

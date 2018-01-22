@@ -5,8 +5,8 @@
     <var name="size_one" type="integer"/>
     <var name="size" type="integer"/>
     <var name="rank" type="integer"/>
-    <global-bounds dimensions="size_one, nlocal, size" offsets="size_one, nlocal, rank">
-       <var name="array" gwrite="t" type="double" dimensions="size_one, nlocal, 1" 
+    <global-bounds dimensions="size_one,size, nlocal" offsets="size_one, rank, nlocal">
+       <var name="array" gwrite="t" type="double" dimensions="size_one, 1, nlocal" 
             transform="none"/>
     </global-bounds>
   </adios-group>
