@@ -45,14 +45,11 @@ writer_prb_thousandth=(1000)
 
 tune_stripe_count=-1
 #########################################################################################
-PBS_O_HOME=$HOME
-PBS_O_WORKDIR=$(pwd)
-
 echo "-----------case=$CASE_NAME---------------"
 echo "num_atom=$num_atom, nstops=$NSTOP, dump_step_internal=$dump_step_internal, num_comp_proc=$num_comp_proc, num_ana_proc=$num_ana_proc, stripe_count=$tune_stripe_count, maxp=$maxp"
 
 PBS_O_HOME=$HOME
-PBS_O_WORKDIR=$(pwd)
+PBS_O_WORKDIR=$(dirname `pwd`)
 
 # Set Machine
 MACHINE=stampede2

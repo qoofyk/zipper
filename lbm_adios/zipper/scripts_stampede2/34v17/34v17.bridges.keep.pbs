@@ -1,0 +1,70 @@
+#!/bin/bash
+#SBATCH --job-name="34KeepLBM" 					# Job name
+#SBATCH --output="results/LBM.Keep.34v17.%j.out" 		# Name of stdout output file
+#SBATCH --partition=development         			# Queue (partition) name
+#SBATCH --nodes=3 									# Total nodes
+#SBATCH --ntasks-per-node=17						# MPI tasks per node
+#SBATCH --mail-type=all
+#SBATCH --mail-user=qoofyk@gmail.com 				# mail alert at start, end and abortion of execution
+#SBATCH -t 0:10:00 									# Run time (hh:mm:ss)
+
+##################parameter setting#################################################
+directory="0034v0017"
+nproc_per_mac=17
+
+CASE_NAME=LBM_DataBroker_concurrent_Keep
+
+FILESIZE2PRODUCE=256 # 64*64*256*2*8 = 16MB per proc
+compute_generator_num=1
+compute_writer_num=1
+analysis_reader_num=1
+analysis_writer_num=1
+compute_group_size=2
+num_comp_proc=34
+num_ana_proc=$((${num_comp_proc} / ${compute_group_size}))
+total_proc=$((${num_comp_proc} + ${num_ana_proc}))
+
+maxp=1 			#control how many times to run each configuration
+n_moments=4   	#n_moment
+NSTOP=100 		# how many steps
+
+# Block size starting from 64KB,128KB,256KB,512KB,1MB, 2MB, 4MB, 8MB
+# cubex =	   			   16  ,16   ,16   ,32   ,32 , 32 , 64 , 64
+# cubez =	   			   16  ,32   ,64   ,32   ,64 , 128, 64 , 128
+
+# cubex=(32 32 64 64)
+# cubez=(64 128 64 128)
+# writer_thousandth=(0 999) #upper_limit_hint
+# writer_prb_thousandth=(1000 0)
+
+cubex=(64)
+cubez=(128)
+writer_thousandth=(0) #upper_limit_hint
+writer_prb_thousandth=(1000)
+
+tune_stripe_count=-1
+####################################################################################
+
+echo "-----------case=$CASE_NAME---------------"
+echo "datasize=$FILESIZE2PRODUCE nstops=$NSTOP num_comp_proc=$num_comp_proc num_ana_proc=$num_ana_proc n_moments=$n_moments NSTOP=$NSTOP stripe_count=$tune_stripe_count"
+
+PBS_O_HOME=$HOME
+PBS_O_WORKDIR=$(pwd)
+
+# comet
+# SCRATCH_DIR=/oasis/scratch/comet/qoofyk/temp_project/lbm
+
+# bridges
+# groupname=$(id -Gn)
+# export SCRATCH_DIR=/pylon5/cc4s86p/qoofyk/lbm/${SLURM_JOBID}
+# EMPTY_DIR=/pylon5/cc4s86p/qoofyk/empty/
+
+# stampede2
+# groupname=$(id -Gn)
+export SCRATCH_DIR=$SCRATCH/lbm/${SLURM_JOBID}
+EMPTY_DIR=$SCRATCH/empty/
+
+BIN1=${PBS_O_HOME}/General_Data_Broker/lbm_concurrent_store/build_keep/lbm_concurrent_keep_onefile
+BIN2=${PBS_O_HOME}/General_Data_Broker/lbm_concurrent_store/build_keep/lbm_concurrent_keep_sep_file
+
+source ${PBS_O_WORKDIR}/scripts_stampede2/common.sh

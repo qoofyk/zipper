@@ -78,7 +78,7 @@ status_t run_module_lammps (int argc, char *argv[], GV gv, MPI_Comm *pcomm)
 
     LAMMPS* lps = new LAMMPS(0, NULL, comm);
     lps->input->file(infile.c_str());
-    printf("prod lammps_zipper started with input %s\n", infile.c_str() );
+    // printf("prod lammps_zipper started with input %s\n", infile.c_str() );
 
     MPI_Comm_rank (comm, &rank);
     //MPI_Comm_size (comm, &nprocs);

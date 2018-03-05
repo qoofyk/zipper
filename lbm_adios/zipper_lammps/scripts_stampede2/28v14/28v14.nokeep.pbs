@@ -46,37 +46,29 @@ writer_prb_thousandth=(1000)
 
 tune_stripe_count=-1
 #########################################################################################
-PBS_O_HOME=$HOME
-PBS_O_WORKDIR=$(pwd)
-
 echo "-----------case=$CASE_NAME---------------"
 echo "num_atom=$num_atom, nstops=$NSTOP, dump_step_internal=$dump_step_internal, num_comp_proc=$num_comp_proc, num_ana_proc=$num_ana_proc, stripe_count=$tune_stripe_count, maxp=$maxp"
 
 PBS_O_HOME=$HOME
-PBS_O_WORKDIR=$(pwd)
+PBS_O_WORKDIR=$(dirname `pwd`)
 
 # Set Machine
-MACHINE=bridges
+MACHINE=stampede2
 
 # comet
 # SCRATCH_DIR=/oasis/scratch/comet/qoofyk/temp_project/lammps_benchtest
 
 # bridges
-groupname=$(id -Gn)
-export SCRATCH_DIR=/pylon5/cc4s86p/qoofyk/lammps_benchtest/${SLURM_JOBID}
-EMPTY_DIR=/pylon5/cc4s86p/qoofyk/empty/
+# groupname=$(id -Gn)
+# export SCRATCH_DIR=/pylon5/cc4s86p/qoofyk/lammps_benchtest/${SLURM_JOBID}
+# EMPTY_DIR=/pylon5/cc4s86p/qoofyk/empty/
 
 # stampede2
 # groupname=$(id -Gn)
-# export SCRATCH_DIR=$SCRATCH/lammps_benchtest/${SLURM_JOBID}
-# EMPTY_DIR=$SCRATCH/empty/
+export SCRATCH_DIR=$SCRATCH/lammps_benchtest/${SLURM_JOBID}
+EMPTY_DIR=$SCRATCH/empty/
 
-BIN=${PBS_O_HOME}/data_broker_lammps/data_broker_lammps/lmp_mpi_nokeep
-# BIN=${PBS_O_HOME}/data_broker_lammps/data_broker_lammps/lmp_mpi_keep
-# echo "BIN=$BIN"
 
-# step0file=/pylon5/${groupname}/qoofyk/lammps_benchtest/${jobscript}step0.data
+inputfile=${PBS_O_WORKDIR}/scripts/lammps_input/in.lj.${directory}.txt
 
-inputfile=${PBS_O_WORKDIR}/scripts_${MACHINE}/${directory}/in.lj.${directory}.txt
-
-source ${PBS_O_WORKDIR}/scripts_${MACHINE}/common.sh
+source ${PBS_O_WORKDIR}/zipper_lammps/scripts_${MACHINE}/common.sh

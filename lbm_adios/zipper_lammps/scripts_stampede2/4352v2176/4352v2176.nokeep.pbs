@@ -34,7 +34,7 @@ NSTOP=100 				# total num of steps lammps will run
 one_dump_blk_size=40 	# one_dump_blk_size=5*sizeof(double) -- Fixed
 dump_step_internal=1 	# lammps will dump data every this number of steps
 # dump_lines_per_blk=(4000 8000 16000 32000 64000 128000 256000)
-dump_lines_per_blk=(32000 64000 128000 256000)
+dump_lines_per_blk=(32000)
 total_dump_steps=$((${NSTOP} / ${dump_step_internal} + 1))
 
 maxp=1
@@ -45,14 +45,11 @@ writer_prb_thousandth=(1000)
 
 tune_stripe_count=-1
 #########################################################################################
-PBS_O_HOME=$HOME
-PBS_O_WORKDIR=$(pwd)
-
 echo "-----------case=$CASE_NAME---------------"
 echo "num_atom=$num_atom, nstops=$NSTOP, dump_step_internal=$dump_step_internal, num_comp_proc=$num_comp_proc, num_ana_proc=$num_ana_proc, stripe_count=$tune_stripe_count, maxp=$maxp"
 
 PBS_O_HOME=$HOME
-PBS_O_WORKDIR=$(pwd)
+PBS_O_WORKDIR=$(dirname `pwd`)
 
 # Set Machine
 MACHINE=stampede2

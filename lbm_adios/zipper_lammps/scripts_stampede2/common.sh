@@ -13,6 +13,7 @@ if [ x"$HAS_TRACE" = "x" ];then
 elif [ x"$HAS_TRACE" = "xitac" ]; then
     NSTOP=10
     export LD_PRELOAD=libVT.so
+    export VT_CONFIG=${PBS_O_HOME}/itac_filter.conf
     echo "itac ENABLED, use 10 steps"
     export BUILD_DIR=${PBS_O_WORKDIR}/build_itac
     echo "use itac"
