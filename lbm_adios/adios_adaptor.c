@@ -8,7 +8,7 @@
 void insert_into_adios(char * file_path, char *var_name,int timestep, int n, int size_one, double * buf, const char* mode,  MPI_Comm *pcomm){
     char        filename [256];
     int         rank, size;
-    int         NX;
+    uint64_t         NX;
     
     //int size_one = SIZE_ONE;
     // prepare sending buffer
@@ -27,7 +27,7 @@ void insert_into_adios(char * file_path, char *var_name,int timestep, int n, int
     NX = size*n;
     
     // lower bound of my line index
-    int lb;
+    uint64_t lb;
     lb = rank*n;
 
     if(timestep <0){
