@@ -1,6 +1,15 @@
+# jan 23
+ 637680[results]
+    flexpath 68v34 1 process per node
+        46.0s
+# jan 22
+ flexpath 2176v1088 after change NX to uint64t
 # Jan 20
-626674: 
-    flexpth _lammps 68v34
+627434
+    flexpath_lammps 272v136
+627436
+    flexpath_lammps 544v272
+    
 
 -------------------------------------------------------------
 starting flexpath_lammpsgenerate results

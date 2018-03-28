@@ -22,6 +22,8 @@ versions
 	raw_dspacesraw_gcc_mvapich
 ----------------------------------------------------------------------------------
 ----------------------------------------------------------------------------------
+## Jan 22
+	flexpath with lammps, using 1 proc in each node, 218s v 219(zipper)s
 ## Jan 18
 	switched to intel/impi:
 		need set following

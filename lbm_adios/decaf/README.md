@@ -1,5 +1,12 @@
 Decaf integration
 
+suggestions from Matatthieua:
+    use new overflow version of decf to enable large global size: see 
+        decaf_examples/my_skelless scripts/vector_skel_2176v1088.overflow.job
+    use ArrayField instead of Vector
+    use "proc" distribution instead of "count"
+
+
 now I only tried mpi tranpsort
 cci might be different
 

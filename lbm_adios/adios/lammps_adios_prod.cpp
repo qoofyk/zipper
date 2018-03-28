@@ -17,7 +17,8 @@
 //#include "utility.h"
 
 //#include "adios_adaptor.h"
-#include "adios_helper.h"
+//#include "adios_helper.h"
+#include "adios.h"
 #include "adios_error.h"
 #include "ds_adaptor.h"
 
@@ -122,7 +123,8 @@ int main(int argc, char * argv[]){
                strcpy(trans_method, "flexpath");
       }
 
-      sprintf(xmlfile,"xmls/dbroker_%s.xml", trans_method);
+      //sprintf(xmlfile,"xmls/dbroker_%s.xml", trans_method);
+      sprintf(xmlfile,"xmls/arrays.xml");
       if(rank == 0)
         printf("[r%d] try to init with %s\n", rank, xmlfile);
 
@@ -186,6 +188,8 @@ int main(int argc, char * argv[]){
 
     double t_start = MPI_Wtime();
 
+    buffer = (double *)malloc(size_one * 521000 *sizeof(double));
+
     for (step = 0; step < nsteps; step++)
     {
 
@@ -218,7 +222,7 @@ int main(int argc, char * argv[]){
             printf("[warning]: use estimate lines\n");
 #endif
 
-        buffer = (double *)malloc(size_one * line_buffer*sizeof(double));
+       // buffer = (double *)malloc(size_one * line_buffer*sizeof(double));
 
         if(rank == 0)
             printf("step %d i have %d lines\n",step, nlocal);
@@ -242,14 +246,56 @@ int main(int argc, char * argv[]){
 #ifdef V_T
       VT_begin(put_buffer_id);
 #endif
-       insert_into_Adios(transport, var_name, step,nsteps, line_buffer, size_one, buffer,"w" , &comm);
+	char        filename [256];
+    int         offset, size_y;
+    int         NX = size_one; // this is the longest dimension
+    int         NY = 1;
+    int         NZ = line_buffer;
+    int64_t     adios_handle;
+
+    offset = rank*NY;
+    size_y = nprocs*NY;
+
+	sprintf(filename, "atom.bp");
+
+        adios_open (&adios_handle, "temperature", filename, "w", comm);
+
+        adios_write (adios_handle, "/scalar/dim/NX", &NX);
+        adios_write (adios_handle, "/scalar/dim/NY", &NY);
+        adios_write (adios_handle, "/scalar/dim/NZ", &NZ);
+        //adios_write (adios_handle, "test_scalar", &test_scalar);
+        adios_write (adios_handle, "size", &nprocs);
+        adios_write (adios_handle, "rank", &rank);
+        adios_write (adios_handle, "offset", &offset);
+        adios_write (adios_handle, "size_y", &size_y);
+        adios_write (adios_handle, "var_2d_array", buffer);
+        
+        adios_close (adios_handle);
+
+
+
+    /*// dimension sizexnlocalxsize_one*/
+    //adios_open (&adios_handle, "atom", filename, "w", comm);
+
+    //adios_write (adios_handle, "size", &nprocs);
+    //adios_write (adios_handle, "rank", &rank);
+    //adios_write (adios_handle, "nlocal", &const_nlocal);
+    //adios_write (adios_handle, "size_one", &size_one);
+    //adios_write (adios_handle, "array", buffer);
+
+    //// end of gwrite_atom
+
+    //adios_close (adios_handle);
+
+
+       //insert_into_Adios(transport, var_name, step,nsteps, line_buffer, size_one, buffer,"w" , &comm);
 
 #ifdef V_T
       VT_end(put_buffer_id);
 #endif
   
-       free(buffer);
     }
+  free(buffer);
 
   double t_end = MPI_Wtime();
   printf("[lammps]:total-start-end %.3f %.3f %.3f\n", t_end- t_start, t_start, t_end);
