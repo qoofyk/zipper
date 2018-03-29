@@ -1,5 +1,4 @@
 cmake_minimum_required(VERSION 3.7 FATAL_ERROR)
-include(${CMAKE_SOURCE_DIR}/cmake/common.cmake)
 
 project("lbm_adios")
 
@@ -10,8 +9,12 @@ else()
 endif()
 
 
+message("----current cxx flags is ${CMAKE_CXX_FLAGS}")
+
 option(all_transports "build all transports" ON)
 option(use_itac "build with itac" OFF)
+option(build_zipper "build zipper runtim" OFF)
+
 
 set(common_library "m")
 
@@ -110,6 +113,8 @@ if(all_transports)
 
 endif(all_transports)
 
-add_subdirectory(zipper)
+if(build_zipper)
+    add_subdirectory(zipper)
+endif(build_zipper)
 
 
