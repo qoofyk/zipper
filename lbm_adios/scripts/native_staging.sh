@@ -77,7 +77,7 @@ echo "## Config file for DataSpaces
 ndim = 2
 dims = 2, $((DS_LIMIT))
 hash_version = 2
-max_versions = 10
+max_versions = 1
 max_readers = 1
 lock_type = 2
 " > dataspaces.conf

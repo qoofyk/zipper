@@ -1,6 +1,17 @@
 ## Mar 30
 [JOBS]:
+1. 2667696
+    native dpsaces 3 consumers are not up
+1. 2667672
+    native dspaces: 32v16, one consumer is not up!
+1. 2667425:
+    dspaces with 2 locks
+    while dimes server is in the trace
+1. 2664216:
+    dspaces using samelock
+
 1. 2663284:
+    native dspaces using same lock
 ## Mar 29
 [todo]: put ds_max_version/use_one_block in config.h 
 [JOBS]:
