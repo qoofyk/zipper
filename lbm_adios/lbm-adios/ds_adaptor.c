@@ -5,11 +5,8 @@
 
 #include "ds_adaptor.h"
 #include "utility.h"
-//#define USE_SAME_LOCK
-#undef USE_SAME_LOCK
+#include "config.h"
 
-#define DS_MAX_VERSION (10)
-//#undef USE_SAME_LOCK
 
 // logger indentifier
 extern const int MY_LOGGER;

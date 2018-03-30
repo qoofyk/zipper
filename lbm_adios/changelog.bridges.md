@@ -14,6 +14,8 @@ versions
 ----------------------------------------------------------------------------------
 
 ## Mar 29
+[changed]:
+1. reorganized
 [multi-locks]:
 1. I should also set the max-version in dspaces.conf
 [dspaces]:
