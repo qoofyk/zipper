@@ -52,7 +52,7 @@
 #define PINF(f, a...) fprintf(stderr, "%s" f "%s\n", ESC_INF, ##a, ESC_END)
 #define PWRN(f, a...) fprintf(stderr, "%s[WRN]: " f "%s\n", ESC_WRN, ##a, ESC_END)
 #define PERR(f, a...) fprintf(stderr, "%sERROR %s:" f "%s\n", ESC_ERR, __FUNCTION__, ##a, ESC_END);
-#define PDBG(f, a...) fprintf(stderr, "%sERROR %s:" f "%s\n", ESC_ERR, __FUNCTION__, ##a, ESC_END);
+#define PDBG(f, a...) fprintf(stderr, "%sDEBUG %s:" f "%s\n", ESC_DBG, __FUNCTION__, ##a, ESC_END);
 
 #define TRACE() fprintf(stderr, "[TRACE]: %s\n", __FUNCTION__)
 

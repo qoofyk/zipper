@@ -56,6 +56,8 @@ int main (int argc, char ** argv)
         printf("need to specify timstop total_file_size scratch procs_prod\n");
         exit(-1);
     }
+
+    PDBG("consumer started!");
     int nstop;
     int filesize2produce;
     int nprocs_producer;
@@ -138,7 +140,8 @@ int main (int argc, char ** argv)
         PINF("dataspaces init successfully");
     }else{
         PERR("dataspaces init err");
-        exit(-1);
+        TRACE();
+        MPI_Abort(comm, -1);
     }
 
     /*
@@ -161,7 +164,8 @@ int main (int argc, char ** argv)
     if (data == NULL)
     {
         fprintf (stderr, "malloc failed.\n");
-        return -1;
+        TRACE();
+        MPI_Abort(comm, -1);
     }
 
     start[0] = slice_size * rank;
@@ -175,10 +179,10 @@ int main (int argc, char ** argv)
 
     int bounds[6] = {0};
     double time_comm = 0;;
-    bounds[1]=start[0];
-    bounds[0]=start[1];
-    bounds[4]=start[0]+count[0]-1;
-    bounds[3]=start[1]+count[1]-1;
+    bounds[0]=start[1]; //ymin
+    bounds[1]=start[0]; //xmin
+    bounds[3]=start[1]+count[1]-1; //ymax
+    bounds[4]=start[0]+count[0]-1; //xmax
 //#endif
 //#endif
 

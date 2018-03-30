@@ -12,7 +12,7 @@
 extern const int MY_LOGGER;
 
 #define debug_1
-void get_common_buffer(uint8_t transport_minor,int timestep,int ndim, int bounds[6], int rank, char * var_name, void **p_buffer,size_t elem_size, double *p_time_used){
+status_t get_common_buffer(uint8_t transport_minor,int timestep,int ndim, int bounds[6], int rank, char * var_name, void **p_buffer,size_t elem_size, double *p_time_used){
 
     PDBG("\n ** prepare to get, ndim = %d\n", ndim);
     // how many number of elements are actually written
@@ -28,14 +28,13 @@ void get_common_buffer(uint8_t transport_minor,int timestep,int ndim, int bounds
     lb[0] = 0;
     ub[0] = num_points - 1;
     */
-    lb[0] = bounds[0];
-    lb[1] = bounds[1];
-    lb[2] = bounds[2];
-    //y
-    ub[0] = bounds[3];
-    //x
-    ub[1] = bounds[4];
-    ub[2] = bounds[5];
+    lb[0] = bounds[0]; //ymin
+    lb[1] = bounds[1]; //xmin
+    lb[2] = bounds[2]; //0
+
+    ub[0] = bounds[3]; //ymax
+    ub[1] = bounds[4]; //xmax
+    ub[2] = bounds[5]; //0
 
     num_points = (bounds[3]-bounds[0]+1)*(bounds[4]- bounds[1]+1)*(bounds[5]- bounds[2]+1);
 
@@ -92,17 +91,19 @@ void get_common_buffer(uint8_t transport_minor,int timestep,int ndim, int bounds
     if(ret_get != 0){
 
         PDBG( "get varaible %s err in step %d ,  error number %d \n", var_name, timestep, ret_get);
-        exit(-1);
+        TRACE();
+        return(STATUS_FAIL);
     }else{
         PDBG( "read %d elem from dspaces, each has %zu bytes", num_points, elem_size);
     }
 
     *p_time_used = t2-t1;
+    return STATUS_OK;
     //MPI_Comm_free(&row_comm);
     
 }
 
-void put_common_buffer(uint8_t transport_minor, int timestep,int ndim, int bounds[6], int rank,char * var_name, void  **p_buffer,size_t elem_size, double *p_time_used){
+status_t put_common_buffer(uint8_t transport_minor, int timestep,int ndim, int bounds[6], int rank,char * var_name, void  **p_buffer,size_t elem_size, double *p_time_used){
 
     PDBG("\n ** prepare to put, ndim = %d\n", ndim);
     // how many number of elements are actually written
@@ -167,7 +168,8 @@ void put_common_buffer(uint8_t transport_minor, int timestep,int ndim, int bound
             sync_ok = dimes_put_sync_all();
             if(sync_ok != 0){
                 perror("put err:");
-                exit(-1);
+                TRACE();
+                return STATUS_FAIL;
             }
 #endif
 
@@ -187,13 +189,14 @@ void put_common_buffer(uint8_t transport_minor, int timestep,int ndim, int bound
     PDBG( "release the write lock %s for step %d ", lock_name, timestep);
 
     if(ret_put != 0){
-        perror("put err:");
         PERR("put varaible %s err,  error number %d \n", var_name, ret_put);
-        exit(-1);
+        TRACE();
+        return STATUS_FAIL;
     }
     else{
         PDBG( "write %d elem to dspaces, each has %zu bytes", num_points, elem_size);
     }
     *p_time_used = t2-t1;
     //MPI_Comm_free(&row_comm);
+    return STATUS_OK;
 }

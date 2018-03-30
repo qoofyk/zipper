@@ -13,9 +13,17 @@ versions
 	raw_dspacesraw_gcc_mvapich
 ----------------------------------------------------------------------------------
 
+## Mar 30
+[dspaces]:
+1. how buffer is managed, version? how dsspaces allocate sufficient buffer(max version only for data indexing or buffer allocation)
+2. how unblocking io works(each time alloc allocate a buffer and call rpc\_send), how the bufer is freed(a callback function is added in the message)
+3. in the conf it didn't specify variable size(how to allocate sizse)
+4. in the README file, dimes doesn't support max_version in configuration(how about now?)
+5. multiversion/failure with hash version2?
 ## Mar 29
 [changed]:
 1. reorganized
+2. clog is removed
 [multi-locks]:
 1. I should also set the max-version in dspaces.conf
 [dspaces]:

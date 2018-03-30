@@ -19,8 +19,6 @@ static char var_name[STRING_LENGTH];
 static size_t elem_size=sizeof(double);
     
 
-
-
 void run_lbm(char * filepath, int step_stop, int dims_cube[3], MPI_Comm *pcomm)
 {
 
@@ -1057,7 +1055,8 @@ void run_lbm(char * filepath, int step_stop, int dims_cube[3], MPI_Comm *pcomm)
             fd = open(step_index_file, O_WRONLY|O_CREAT|O_SYNC, S_IRWXU);
             if(fd < 0){
                 perror("indexfile not opened");
-                exit(-1);
+                TRACE();
+                MPI_Abort(comm, -1);
             }
             else{
                 flock(fd, LOCK_EX);
@@ -1168,12 +1167,16 @@ int main(int argc, char * argv[]){
         printf("run_lbm nstop total_file_size\n");
         exit(-1);
     }
+
+    PDBG("producer started!");
+
     int nstop; //run how many steps
 
     nstop = atoi(argv[1]);
     int filesize2produce = atoi(argv[2]);
     int dims_cube[3] = {filesize2produce/4,filesize2produce/4,filesize2produce};
     //strcpy(filepath, argv[3]);
+
 
     
 
@@ -1256,7 +1259,8 @@ int main(int argc, char * argv[]){
             PINF( "dataspaces init successfully");
         }else{
             PERR( "dataspaces init error");
-            exit(-1);
+            TRACE();
+            MPI_Abort(comm, -1);
         }
 
         /*

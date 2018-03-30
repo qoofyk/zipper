@@ -31,6 +31,11 @@ extern "C" {
 //#define SIZE_ONE (2)
 
 
+// status
+typedef int status_t;
+#define STATUS_OK (0)
+#define STATUS_FAIL (-1)
+
 
 #ifndef STRING_LENGTH
 #define STRING_LENGTH (160)
@@ -38,20 +43,6 @@ extern "C" {
 
 
 #define RANK_SEQUENTIAL (-1)
-
-
-// current log filter
-#define LOG_FILTER (5)
-
-// different log level
-#define LOG_CRITICAL (1)
-#define LOG_WARNING (5)
-#define LOG_INFO (10)
-#define LOG_VERB (15)
-
-
-
-
 
 static double get_cur_time() {
   struct timeval   tv;
@@ -72,20 +63,6 @@ static void check_malloc(void * pointer){
     exit(1);
   }
 }
-
-/*******************************
- * parallel use
- * input:
- *  msg: msg to output
- *  rank, current rank, -1 for sequential
- *  level, log level:
- *      1: CRITICAL
- *      5: WARNING
- *      10:INFO
- *      15:VER_INFO
- *******************************/
-
-static const int MY_LOGGER = 0;
 
 #ifdef __cplusplus
 }
