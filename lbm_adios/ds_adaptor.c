@@ -5,7 +5,10 @@
 
 #include "ds_adaptor.h"
 #include "utility.h"
-#define USE_SAME_LOCK
+//#define USE_SAME_LOCK
+#undef USE_SAME_LOCK
+
+#define DS_MAX_VERSION (10)
 //#undef USE_SAME_LOCK
 
 // logger indentifier
@@ -53,7 +56,9 @@ void get_common_buffer(uint8_t transport_minor,int timestep,int ndim, int bounds
     snprintf(lock_name, STRING_LENGTH, "%s_lock", var_name);
 #else
     //snprintf(lock_name, STRING_LENGTH, "%s_lock_t_%d",var_name, timestep%20);
-    snprintf(lock_name, STRING_LENGTH, "%s_lock_p_%d_t_%d",var_name,part, timestep%(DS_MAX_VERSION));
+    //snprintf(lock_name, STRING_LENGTH, "%s_lock_p_%d_t_%d",var_name,part, timestep%(DS_MAX_VERSION));
+    snprintf(lock_name, STRING_LENGTH, "%s_lock_t_%d",var_name, timestep%(DS_MAX_VERSION));
+    //snprintf(lock_name, STRING_LENGTH, "%s_lock_t_%d",var_name, timestep);
 #endif
 
 #ifdef debug_1
@@ -138,7 +143,8 @@ void put_common_buffer(uint8_t transport_minor, int timestep,int ndim, int bound
     snprintf(lock_name, STRING_LENGTH, "%s_lock", var_name);
 #else
     //snprintf(lock_name, STRING_LENGTH, "%s_lock_t_%d",var_name, timestep%20);
-    snprintf(lock_name, STRING_LENGTH, "%s_lock_p_%d_t_%d",var_name,part, timestep%(DS_MAX_VERSION));
+    //snprintf(lock_name, STRING_LENGTH, "%s_lock_p_%d_t_%d",var_name,part, timestep%(DS_MAX_VERSION));
+    snprintf(lock_name, STRING_LENGTH, "%s_lock_t_%d",var_name, timestep%(DS_MAX_VERSION));
 #endif
 
 #ifdef debug_1
@@ -160,11 +166,13 @@ void put_common_buffer(uint8_t transport_minor, int timestep,int ndim, int bound
     if(transport_minor == DIMES){
         //if(timestep%(DS_MAX_VERSION)==0 && timestep>0){
             // this will free  previous buffer
+#ifdef USE_SAME_LOCK
             sync_ok = dimes_put_sync_all();
             if(sync_ok != 0){
                 perror("put err:");
                 exit(-1);
             }
+#endif
 
             clog_debug(CLOG(MY_LOGGER), "freed tmp buffer at step at step %d", timestep);
         //}

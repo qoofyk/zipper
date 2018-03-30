@@ -8,7 +8,6 @@ else()
     message(FATAL_ERROR "-- should either specify build type or toolchain file")
 endif()
 
-
 message("----current cxx flags is ${CMAKE_CXX_FLAGS}")
 
 option(all_transports "build all transports" ON)

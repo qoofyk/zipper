@@ -2,15 +2,6 @@
 All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/) 
 and this project adheres to [Semantic Versioning](http://semver.org/).
-TODO
-	see github log
-	* redesigned flexpath
-	* new version of adios
-
-	0. use environment variable instead of preprocessor
-	1. nnti in flexpath, not usable.
-	2. dspaces hanging
-	3. ENABLE_TESTING in flexpath conf, enabled
 
 -------------------------------------------------------------------------------
 versions
@@ -21,11 +12,24 @@ versions
 		~/Downloads/flexpath/flexpath_adios_1_12_gnu_mvapich_tauperl chaos_bootstrap.pl adios-1.12 $HOME/envs/Flexpath_gcc_mvapich_tau &> config.lifen.log
 	raw_dspacesraw_gcc_mvapich
 ----------------------------------------------------------------------------------
-----------------------------------------------------------------------------------
 
 ## Mar 29
-	Use toolchain file instead of BuildType. This will make sure flags are
+[multi-locks]:
+1. I should also set the max-version in dspaces.conf
+[dspaces]:
+1. where is the installation dir?
+[Notes]:
+1. Use toolchain file instead of BuildType. This will make sure flags are
 	also updated in Cache
+2. where did we use the standard-alone lbm?
+    * only in the decaf-lbm and lbm-sim-only
+    * TODO: i need to wrap the all the adios one in a sepearte directory(transport/adios),
+3. where adios is used?
+    * seems only in LBM in bridges
+4. lammps-flexpath result in scaling?
+    * it's in adios/prod.cpp and adios_con.cpp 
+5. seems like we are using the MPIIO data (lammps scaling) from IPDPS
+6. TODO: i need give a table of trasports/apps/machine/
 ## Jan 22
 	flexpath with lammps, using 1 proc in each node, 218s v 219(zipper)s
 ## Jan 18

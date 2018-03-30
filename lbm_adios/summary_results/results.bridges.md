@@ -1,3 +1,26 @@
+## Mar 29
+[todo]: put ds_max_version/use_one_block in config.h 
+[JOBS]:
+1. 2662941:
+    dspaces using only 3 version
+1. 2661466:
+    dspaces using the config, err
+1. 2660781
+    setting: max_version =10, use %10 as lockname
+1. 2660718
+    found: also remove the put_sync_all for multi-locks:
+    how to fix: now no error, but dspaces servers take forever to initialize
+1. 2660303
+    multi-version also added in dspaces.conf
+1. 2659686
+   **failed**(also confirmed in 2659948) : 256v128 with  native_dimes with multi locks, failed with
+    reason: 
+            sync_ok = dimes_put_sync_all();
+1. 2658888:
+256v128 with  native_dimes, t2s= 140.6s
+1. 2657187:
+256v128 adios\_dimes, t2s= 173.8s
+
 ## Jan 18
 JOBS:
     2209189[results]
