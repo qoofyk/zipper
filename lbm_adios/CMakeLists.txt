@@ -27,6 +27,7 @@ configure_file(
     )
 
 include_directories("${PROJECT_BINARY_DIR}")
+include_directories(include)
 
 
 set(common_library "m")
@@ -78,7 +79,7 @@ if(all_transports)
     endif()
 
     add_subdirectory(decaf)
-    add_subdirectory(tests)
+    #add_subdirectory(tests)
 
 endif(all_transports)
 

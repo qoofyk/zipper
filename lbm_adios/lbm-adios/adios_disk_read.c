@@ -83,25 +83,6 @@ int main (int argc, char ** argv)
     if(filepath == NULL){
         fprintf(stderr, "scratch dir is not set!\n");
     }
-    if(rank == 0){
-        r = clog_init_fd(MY_LOGGER, 1);
-    }
-    else{
-        char log_path[256];
-        sprintf(log_path,"%s/results/consumer_%d.clog",filepath, rank);
-        r = clog_init_path(MY_LOGGER, log_path);
-    }
-    if (r != 0) {
-      fprintf(stderr, "Logger initialization failed.\n");
-      return 1;
-    }
-
-
-    if(rank == 0){
-      clog_info(CLOG(MY_LOGGER),"stat: Consumer start at %lf \n", MPI_Wtime());
-    }
-
-
     int timestep = -1;
     
     /**** use index file to keep track of current step *****/
@@ -114,7 +95,7 @@ int main (int argc, char ** argv)
     MPI_Barrier(comm);
 
     adios_read_init_method (method, comm, "verbose=3");
-    clog_info(CLOG(MY_LOGGER),"rank %d:reader init\n", rank);
+    PINF("rank %d:reader init\n", rank);
 
     char filename_atom[256];
     ADIOS_FILE * f;
@@ -145,7 +126,7 @@ int main (int argc, char ** argv)
                 close(fd);
             }
             if(time_stamp  == -2){
-                clog_info(CLOG(MY_LOGGER),"producer  terminate\n");
+                PINF("producer  terminate\n");
                 time_stamp = nstop-1;
                 // run this gap then exit
             }
@@ -156,7 +137,7 @@ int main (int argc, char ** argv)
         MPI_Barrier(comm);
 
         if(rank ==0 && time_stamp!= time_stamp_old){
-                clog_info(CLOG(MY_LOGGER),"set stamp as %d at %lf\n", time_stamp, MPI_Wtime());
+                PINF("set stamp as %d at %lf\n", time_stamp, MPI_Wtime());
         }
 
         if(time_stamp ==-1){
@@ -171,7 +152,7 @@ int main (int argc, char ** argv)
         while(timestep < time_stamp){
             timestep++;
             if(rank ==0)
-                clog_info(CLOG(MY_LOGGER),"----reader opened step %d\n", timestep);
+                PINF("----reader opened step %d\n", timestep);
             sprintf(filename_atom, "%s/atom_%d.bp", filepath, timestep);
 
             t0 = MPI_Wtime();
@@ -225,13 +206,13 @@ int main (int argc, char ** argv)
             t_close += t3-t2;
 
             if(rank ==0)
-                clog_info(CLOG(MY_LOGGER),"Step %d read\n", timestep);
+                PINF("Step %d read\n", timestep);
             // analysis
             run_analysis(data, slice_size, lp, sum_vx,sum_vy);
 
             t4 = MPI_Wtime();
             t_analy += t4-t3;
-            clog_info(CLOG(MY_LOGGER),"rank %d: Step %d moments calculated,t_prepare %lf, t_read %lf, t_close %lf, t_analy %lf, time%lf\n", rank, timestep, t1-t0, t2-t1, t3-t2, t4-t3, t4);
+            PINF("rank %d: Step %d moments calculated,t_prepare %lf, t_read %lf, t_close %lf, t_analy %lf, time%lf\n", rank, timestep, t1-t0, t2-t1, t3-t2, t4-t3, t4);
         }
     }
 
@@ -256,8 +237,8 @@ int main (int argc, char ** argv)
         MPI_Reduce(&t_analy, &global_t_analy, 1, MPI_DOUBLE, MPI_MAX, 0, comm);
  
     if(rank == 0){
-      clog_info(CLOG(MY_LOGGER),"stat:Consumer end  at %lf \n", t_end);
-      clog_info(CLOG(MY_LOGGER),"stat:time for prepare %fs, read %f s; time for close %f s; max time for analy %f s\n",global_t_prepare/nprocs, global_t_get/nprocs, global_t_close/nprocs, global_t_analy);
+      PINF("stat:Consumer end  at %lf \n", t_end);
+      PINF("stat:time for prepare %fs, read %f s; time for close %f s; max time for analy %f s\n",global_t_prepare/nprocs, global_t_get/nprocs, global_t_close/nprocs, global_t_analy);
     }
 #endif
     
@@ -265,12 +246,11 @@ int main (int argc, char ** argv)
     MPI_Barrier (comm);
     adios_read_finalize_method (method);
 
-    clog_info(CLOG(MY_LOGGER),"rank %d: exit\n", rank);
+    PINF("rank %d: exit\n", rank);
 
   /*
    * close logger
    */
-  clog_free(MY_LOGGER);
     MPI_Finalize ();
     return 0;
 }

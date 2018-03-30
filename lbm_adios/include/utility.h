@@ -10,8 +10,6 @@
 extern "C" {
 #endif
 
-#include "clog.h"
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
@@ -27,6 +25,8 @@ extern "C" {
 #include <sys/file.h>
 #include <fcntl.h>
 #include <errno.h>
+
+#include "logging.h"
 
 //#define SIZE_ONE (2)
 
