@@ -26,6 +26,7 @@ target_link_libraries(adaptor  pthread rt rdmacm ibverbs)
 
 
 add_executable(run_lbm run_lbm.c)
+target_link_libraries(run_lbm mod_lbm)
 add_executable(adios_staging_read adios_staging_read.c)
 add_executable(adios_disk_read adios_disk_read.c)
 
