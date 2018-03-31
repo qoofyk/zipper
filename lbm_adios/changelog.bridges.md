@@ -12,8 +12,22 @@ versions
 		~/Downloads/flexpath/flexpath_adios_1_12_gnu_mvapich_tauperl chaos_bootstrap.pl adios-1.12 $HOME/envs/Flexpath_gcc_mvapich_tau &> config.lifen.log
 	raw_dspacesraw_gcc_mvapich
 ----------------------------------------------------------------------------------
+## Mar 31
+[TODO]:
+1. reorganize code for  lbm adios/dspaces/mpiio
+2. trace
+[CHANGES]:
+1. remove FILE2PRODUCE in scripts
+
+[TODO]:
+1. reorganize code for lammps mpiio
 
 ## Mar 30
+[Conclusion]:
+1. native dimes,end2end time not stable
+[TODO]:
+1. lbm-adios need to use the lib-lbm
+2. get the itac trace
 [results]:
 1. two locks doen't help with 8v4 an 64v32; 256v32 crashes sometimes
 [dspaces]:

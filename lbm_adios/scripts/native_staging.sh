@@ -128,7 +128,7 @@ while [ ! -f conf ]; do
 done
 sleep 5s  # wait server to fill up the conf file
 
-CMD_PRODUCER="$LAUNCHER -np ${procs_this_app[1]} -machinefile $HOST_DIR/machinefile-app1 -env TRACEDIR=${ALL_TRACES}/app1 ${BIN_PRODUCER} ${NSTOP} ${FILESIZE2PRODUCE}"
+CMD_PRODUCER="$LAUNCHER -np ${procs_this_app[1]} -machinefile $HOST_DIR/machinefile-app1 -env TRACEDIR=${ALL_TRACES}/app1 ${BIN_PRODUCER} ${NSTOP}"
 $CMD_PRODUCER  &> ${PBS_RESULTDIR}/producer.log &
 echo "producer applciation lauched: $CMD_PRODUCER"
 

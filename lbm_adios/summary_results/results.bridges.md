@@ -2,18 +2,36 @@
 [JOBS]:
 -----------------------------------------------
 * summary in Per\_comp\_xp\_data/ds-2lock tab
+1. 2668643
+    native dspaces 32v16(2 lock)  **ERROR** (crashes)
 1. 2668570
     native dspaces 64v32(1 lock)
 1. 2668521
     native dspaces 64v32(2 lock)
+1. 2668717
+    native dspaces 128v64(1 lock) 
+1. 2668725
+    native dspaces 128v64(1 lock) 
+1. 2668728
+    native dspaces 128v64(1 lock)
+1. 2668666
+    native dspaces 128v64(2 lock)
+1. 2668703
+    native dspaces 128v64(2 lock) 
+
 1. 2668515
-    native dspaces 256v128(1 lock) 
+    native dspaces 256v128(1 lock) **175.8**
+1. 2668743
+    native dspaces 256v128(1 lock) **WAIT**
 1. 2668584
     native dspaces 256v128(2 lock) **error**
 1. 2668600
-    native dspaces 256v128(2 lock) **WAIT**
+    native dspaces 256v128(2 lock) **ERROR** (rpc connection rejected)
 1. 2668609
-    native dspaces 256v128(2 lock) **WAIT**
+    native dspaces 256v128(2 lock) **FASTER!**
+1. 2668688
+    native dspaces 256v128(2 lock) **FASTER!**
+1. 2668512
 1. 2668512
     native dpspaces 8v4(8v4 1 lock)
 1. 2668629

@@ -33,8 +33,8 @@ extern "C" {
 
 // status
 typedef int status_t;
-#define STATUS_OK (0)
-#define STATUS_FAIL (-1)
+#define S_OK (0)
+#define S_FAIL (-1)
 
 
 #ifndef STRING_LENGTH

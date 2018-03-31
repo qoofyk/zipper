@@ -1,5 +1,4 @@
 #include "run_lbm.h"        
-#define SIZE_ONE (2)
 
 #include "utility.h"
 //#include "adios_write_global.h"
@@ -8,6 +7,22 @@
 #include "ds_adaptor.h"
 
 #include "transports.h"
+
+#include "lbm.h"
+#include "lbm_buffer.h"
+#include "run_analysis.h"
+
+#ifndef SIZE_ONE
+#define SIZE_ONE (2)
+#endif
+
+#ifdef V_T
+#include <VT.h>
+int class_id, class_id2;
+int advance_step_id, get_buffer_id, put_buffer_id;
+int analysis_id;
+#endif
+
 static transport_method_t transport;
 
 #define debug
@@ -17,8 +32,193 @@ static transport_method_t transport;
  */
 static char var_name[STRING_LENGTH];
 static size_t elem_size=sizeof(double);
-    
+ 
 
+/*
+ * run lbm for nsteps
+ */
+
+status_t run_lbm_adios(char *filepath, int nsteps, MPI_Comm comm){
+{
+    //int nsteps;
+    int rank; //TODO
+    int timestep;
+
+	/*those are all the information io libaray need to know about*/
+    MPI_Comm comm;
+	int nlocal; //nlines processed by each process
+	int size_one = SIZE_ONE; // each line stores 2 doubles
+	double *buffer; // buffer address
+    double t_start, t_end;
+
+    int dims_cube[3] = {filesize2produce/4,filesize2produce/4,filesize2produce};
+#ifdef V_T
+      
+      //VT_initialize(NULL, NULL);
+      printf("[decaf]: trace enabled and initialized\n");
+      VT_classdef( "Computation", &class_id );
+      VT_funcdef("ADVSTEP", class_id, &advance_step_id);
+      VT_funcdef("GETBUF", class_id, &get_buffer_id);
+      VT_funcdef("PUT", class_id, &put_buffer_id);
+#endif
+
+
+    t_start = MPI_Wtime();
+
+    /* prepare */
+	nlocal = dims_cube[0]*dims_cube[1]*dims_cube[2];
+	lbm_alloc_buffer(&comm, nlocal, size_one, &buffer);
+
+    if( S_FAIL == lbm_init(&comm, nsteps)){
+		printf("[lbm]: init not success, now exit\n");
+		goto cleanup;
+	}
+
+    MPI_Comm_rank(comm,&rank);
+    
+    PINF("producer start, I am rank %d\n", rank);
+
+
+    uint8_t transport_major = get_major(transport);
+    uint8_t transport_minor = get_minor(transport);
+
+    //MPI_Barrier(comm);
+
+    for (timestep = 0; timestep < nsteps; timestep++)
+    {
+
+#ifdef V_T
+      VT_begin(advance_step_id);
+#endif
+        if(S_OK != lbm_advance_step(&comm)){
+			fprintf(stderr, "[lbm]: err when process step %d\n", timestep);
+		}
+#ifdef V_T
+      VT_end(advance_step_id);
+#endif
+	
+		// get the buffer
+#ifdef V_T
+      VT_begin(get_buffer_id);
+#endif
+		if(S_OK != lbm_get_buffer(buffer)){
+			fprintf(stderr, "[lbm]: err when updated buffer at step %d\n", timestep);
+		}
+
+#ifdef V_T
+      VT_end(get_buffer_id);
+#endif
+
+
+#ifdef V_T
+      VT_begin(put_buffer_id);
+#endif
+
+      /*
+       * adios inserting
+       */
+
+    if(transport_major == ADIOS_STAGING){
+        // for staging, each time write to same file
+        //insert_into_adios(filepath, "atom",-1, n, SIZE_ONE , buffer,"w", &comm);
+        
+        if(timestep ==0){
+            insert_into_adios(filepath, "atom",-1, nlocal, size_one , buffer,"w", &comm);
+        }
+        else{
+
+            insert_into_adios(filepath, "atom",-1, nlocal, SIZE_ONE , buffer,"a", &comm);
+        }
+        
+    }
+    else if(transport_major == ADIOS_DISK){
+        // for mpiio, each time write different files
+        insert_into_adios(filepath, "atom", timestep, nlocal, size_one , buffer,"w", &comm);
+        /**** use index file to keep track of current step *****/
+        int fd; 
+        char step_index_file[256];
+        int time_stamp;
+        
+        if(rank == 0){
+            if(timestep == nsteps - 1){
+               time_stamp = -2;
+            }else{
+               time_stamp = timestep;
+            }// flag read from producer
+
+            sprintf(step_index_file, "%s/stamp.file", filepath);
+
+            printf("step index file in %s \n", step_index_file);
+
+            fd = open(step_index_file, O_WRONLY|O_CREAT|O_SYNC, S_IRWXU);
+            if(fd < 0){
+                perror("indexfile not opened");
+                TRACE();
+                MPI_Abort(comm, -1);
+            }
+            else{
+                flock(fd, LOCK_EX);
+                write(fd,  &time_stamp,  sizeof(int));
+                flock(fd, LOCK_UN);
+                printf("write stamp %d at %lf", time_stamp, MPI_Wtime());
+                close(fd);
+            }
+        }
+        // wait until all process finish writes and 
+        MPI_Barrier(comm);
+    }
+
+    else if(transport_major == NATIVE_STAGING){
+        int bounds[6] = {0};
+        double time_comm;
+
+        // xmin
+        bounds[1]=nlocal*rank;
+        // ymin
+        bounds[0]=0;
+
+        // xmax
+        bounds[4]=nlocal*(rank+1)-1 ;
+        // ymax
+        bounds[3]= size_one-1;
+
+        put_common_buffer(transport_minor, timestep,2, bounds,rank , var_name, (void **)&buffer, elem_size, &time_comm);
+        //t_put+=time_comm;
+     }
+
+        
+
+#ifdef V_T
+      VT_end(put_buffer_id);
+#endif
+    }
+
+    if(S_OK != lbm_finalize(&comm)){
+		fprintf(stderr, "[lbm]: err when finalized\n");
+	}
+	if(S_OK != lbm_free_buffer(&comm, buffer)){
+		fprintf(stderr, "[lbm]: err when free and summarize\n");
+	}
+
+    //MPI_Barrier(comm);
+    t_end = MPI_Wtime();
+    printf("total-start-end %.3f %.3f %.3f\n", t_end- t_start, t_start, t_end);
+
+    // terminate the task (mandatory) by sending a quit message to the rest of the workflow
+cleanup:
+    if(rank == 0){
+        fprintf(stderr, "producer exit\n");
+    }
+
+#ifdef V_T
+    //VT_finalize();
+    printf("[decaf]: trace finalized\n");
+#endif
+
+    return S_OK;
+}
+
+#if 0
 void run_lbm(char * filepath, int step_stop, int dims_cube[3], MPI_Comm *pcomm)
 {
 
@@ -1155,13 +1355,13 @@ void run_lbm(char * filepath, int step_stop, int dims_cube[3], MPI_Comm *pcomm)
 		MPI_Type_free(&newtype_bt);
 		MPI_Type_free(&newtype_fr);
 }
+#endif
 
 int main(int argc, char * argv[]){
 
     /*
      * @input
      * @param NSTOP
-     * @param FILESIZE2PRODUCE
      */
     if(argc !=3){
         printf("run_lbm nstop total_file_size\n");
@@ -1173,12 +1373,7 @@ int main(int argc, char * argv[]){
     int nstop; //run how many steps
 
     nstop = atoi(argv[1]);
-    int filesize2produce = atoi(argv[2]);
-    int dims_cube[3] = {filesize2produce/4,filesize2produce/4,filesize2produce};
-    //strcpy(filepath, argv[3]);
 
-
-    
 
 	MPI_Init(&argc, &argv);
 
@@ -1191,11 +1386,6 @@ int main(int argc, char * argv[]){
     int nodename_length;
     MPI_Get_processor_name(nodename, &nodename_length );
 
-    /*
-     * init the clog
-     */
-    
-    int r;
 
     char *filepath = getenv("SCRATCH_DIR");
     if(filepath == NULL){
@@ -1271,7 +1461,7 @@ int main(int argc, char * argv[]){
 
         // data layout
 //#ifdef FORCE_GDIM
-        int n = dims_cube[0]*dims_cube[1]*dims_cube[2];
+        //int n = dims_cube[0]*dims_cube[1]*dims_cube[2];
         //uint64_t gdims[2] = {2, n*nprocs};
         //dspaces_define_gdim(var_name, 2,gdims);
 //#endif
@@ -1284,12 +1474,8 @@ int main(int argc, char * argv[]){
   }
 
   MPI_Barrier(comm);
-  double t_start = MPI_Wtime();
-  if(rank == 0){
-      PINF("stat:Simulation start at %lf \n", t_start);
-      PINF("stat:FILE2PRODUCE=%d, NSTOP= %d \n", filesize2produce, nstop);
-  }
-  run_lbm(filepath, nstop, dims_cube, &comm);
+
+  run_lbm_adios(filepath, nstop, comm);
 
   MPI_Barrier(comm);
   double t_end = MPI_Wtime();
@@ -1297,14 +1483,18 @@ int main(int argc, char * argv[]){
       PINF("stat:Simulation stop at %lf \n", t_end);
   }
 
-if(transport_major == ADIOS_DISK || transport_major == ADIOS_STAGING){
-  adios_finalize (rank);
-  PINF("rank %d: adios finalize complete\n", rank); 
-}
+    if(transport_major == ADIOS_DISK || transport_major == ADIOS_STAGING){
+      adios_finalize (rank);
+      PINF("rank %d: adios finalize complete\n", rank); 
+    }
 
-else if(transport_major == NATIVE_STAGING){
-    dspaces_finalize();
-}
+    else if(transport_major == NATIVE_STAGING){
+        /* dimes needs to flush last step */
+        if(transport_minor == DIMES){
+            ds_adaptor_flush_dimes(var_name, comm);
+        }
+        dspaces_finalize();
+  }
 
   MPI_Finalize();
   PINF("rank %d: exit\n", rank);

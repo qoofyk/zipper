@@ -92,13 +92,13 @@ status_t get_common_buffer(uint8_t transport_minor,int timestep,int ndim, int bo
 
         PDBG( "get varaible %s err in step %d ,  error number %d \n", var_name, timestep, ret_get);
         TRACE();
-        return(STATUS_FAIL);
+        return(S_FAIL);
     }else{
         PDBG( "read %d elem from dspaces, each has %zu bytes", num_points, elem_size);
     }
 
     *p_time_used = t2-t1;
-    return STATUS_OK;
+    return S_OK;
     //MPI_Comm_free(&row_comm);
     
 }
@@ -169,7 +169,7 @@ status_t put_common_buffer(uint8_t transport_minor, int timestep,int ndim, int b
             if(sync_ok != 0){
                 perror("put err:");
                 TRACE();
-                return STATUS_FAIL;
+                return S_FAIL;
             }
 #endif
 
@@ -191,12 +191,27 @@ status_t put_common_buffer(uint8_t transport_minor, int timestep,int ndim, int b
     if(ret_put != 0){
         PERR("put varaible %s err,  error number %d \n", var_name, ret_put);
         TRACE();
-        return STATUS_FAIL;
+        return S_FAIL;
     }
     else{
         PDBG( "write %d elem to dspaces, each has %zu bytes", num_points, elem_size);
     }
     *p_time_used = t2-t1;
     //MPI_Comm_free(&row_comm);
-    return STATUS_OK;
+    return S_OK;
+}
+
+/* dimes needs to flush last step
+         */
+status_t ds_adaptor_flush_dimes(char * var_name, MPI_Comm comm){
+   
+#ifdef USE_SAME_LOCK
+    char lock_name[STRING_LENGTH];
+    snprintf(lock_name, STRING_LENGTH, "%s_lock", var_name);
+    dspaces_lock_on_write(lock_name, &comm);
+    dimes_put_sync_all();
+    dspaces_unlock_on_write(lock_name, &comm);
+    //PINF("rank %d: step %d last step flushed\n");
+#endif
+    return S_OK;
 }

@@ -7,6 +7,8 @@ int class_id;
 int advance_step_id, get_buffer_id, put_buffer_id;
 #endif
 
+
+#define SIZE_ONE (2)
 /*
  * test driver for lbm code
  */
