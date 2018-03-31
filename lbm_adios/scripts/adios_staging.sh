@@ -108,7 +108,7 @@ if [ x"$HAS_TRACE" == "x" ];then
 else
     #export LD_PRELOAD=libVT.so 
     #LAUNCHER="mpiexec.hydra -trace"
-    LAUNCHER="mpiexec.hydra"
+    LAUNCHER="mpirun -l"
 fi
 
 if [[ `hostname` == *"bridges"* ]];then
@@ -123,6 +123,8 @@ if [[ `hostname` == *"bridges"* ]];then
     fi
 fi
 
+env|grep '^I_MPI' # trace enabled?
+env|grep '^I_MV2' # trace enabled?
 
 
 echo "use transport method $CMTransport with CMTransportVerbose=$CMTransportVerbose"

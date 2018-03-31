@@ -1,5 +1,24 @@
 ## Mar 30
 [JOBS]:
+-----------------------------------------------
+* summary in Per\_comp\_xp\_data/ds-2lock tab
+1. 2668570
+    native dspaces 64v32(1 lock)
+1. 2668521
+    native dspaces 64v32(2 lock)
+1. 2668515
+    native dspaces 256v128(1 lock) 
+1. 2668584
+    native dspaces 256v128(2 lock) **error**
+1. 2668600
+    native dspaces 256v128(2 lock) **WAIT**
+1. 2668609
+    native dspaces 256v128(2 lock) **WAIT**
+1. 2668512
+    native dpspaces 8v4(8v4 1 lock)
+1. 2668629
+    native dspaces 8v4(2 lock)
+------------------------------------------------
 1. 2667696
     native dpsaces 3 consumers are not up
 1. 2667672

@@ -14,6 +14,8 @@ versions
 ----------------------------------------------------------------------------------
 
 ## Mar 30
+[results]:
+1. two locks doen't help with 8v4 an 64v32; 256v32 crashes sometimes
 [dspaces]:
 1. how buffer is managed, version? how dsspaces allocate sufficient buffer(max version only for data indexing or buffer allocation)
 2. how unblocking io works(each time alloc allocate a buffer and call rpc\_send), how the bufer is freed(a callback function is added in the message)

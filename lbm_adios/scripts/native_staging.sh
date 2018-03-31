@@ -77,7 +77,7 @@ echo "## Config file for DataSpaces
 ndim = 2
 dims = 2, $((DS_LIMIT))
 hash_version = 2
-max_versions = 1
+max_versions = 2
 max_readers = 1
 lock_type = 2
 " > dataspaces.conf
@@ -97,7 +97,7 @@ if [ x"$HAS_TRACE" == "x" ];then
 else
     #export LD_PRELOAD=libVT.so 
     #LAUNCHER="mpiexec.hydra -trace"
-    LAUNCHER="mpiexec.hydra"
+    LAUNCHER="mpirun -l"
 fi
 
 if [[ `hostname` == *"bridges"* ]];then
@@ -113,6 +113,9 @@ if [[ `hostname` == *"bridges"* ]];then
 fi
 
 #-env I_MPI_FABRICS tcp
+
+env|grep '^I_MPI' # trace enabled?
+env|grep '^MV2' # trace enabled?
 
 
 ## Run DataSpaces servers
