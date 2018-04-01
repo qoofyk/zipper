@@ -26,7 +26,21 @@ extern const int MY_LOGGER;
  */
 status_t ds_adaptor_init_client(int nprocs, int appid, MPI_Comm * pcomm, const char * param)
 {
-    int ret = S_FAIL;
+    /*
+     * trace init
+     */
+#ifdef V_T
+      #warning "VT enabled in ds_adaptor"
+      //VT_initialize(NULL, NULL);
+      PINF("[%s]: trace enabled and initialized", module_name );
+      VT_classdef( "DSPACES-DIMES", &class_id );
+      VT_funcdef("DS-LOCK", class_id, &ds_lock_id);
+      VT_funcdef("DS-UNLOCK", class_id, &ds_unlock_id);
+      VT_funcdef("DS-PUT", class_id, &ds_put_id);
+      VT_funcdef("DS-GET", class_id, &ds_get_id);
+#endif
+
+    int ret = -1;
     PINF("[%s]: trying init dspaces for %d process\n",module_name, nprocs);
     ret = dspaces_init(nprocs, appid, pcomm, param);
 
@@ -39,20 +53,7 @@ status_t ds_adaptor_init_client(int nprocs, int appid, MPI_Comm * pcomm, const c
         return S_FAIL;
     }
 
-    /*
-     * trace init
-     */
-#ifdef V_T
-      
-      #warning "VT enabled in ds_adaptor"
-      //VT_initialize(NULL, NULL);
-      PINF("[%s]: trace enabled and initialized", module_name );
-      VT_classdef( "DSPACES-DIMES", &class_id );
-      VT_funcdef("DS-LOCK", class_id, &ds_lock_id);
-      VT_funcdef("DS-UNLOCK", class_id, &ds_unlock_id);
-      VT_funcdef("DS-PUT", class_id, &ds_put_id);
-      VT_funcdef("DS-GET", class_id, &ds_get_id);
-#endif
+
 }
 
 

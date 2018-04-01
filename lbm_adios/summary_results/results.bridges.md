@@ -8,9 +8,11 @@
         why: link to faulse mpi library
 
 1. 2675280
-    native dimes 64v32(1 lock) with itac **ok**
+    native dimes 64v32(1 lock) with itac
 1. 2675334
-    native dspacs 64v32(1 lock) with itac **WAITING**
+    native dspacs 64v32(1 lock) with itac 
+1. 2675373
+    native dspacs 64v32(1 lock) with itac, [results, clear]
 
 1. 2674770
     flexpath 64v32 with itac **WAITING** 

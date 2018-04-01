@@ -13,15 +13,6 @@ int adios_open_id, adios_write_id, adios_read_id,adios_close_id;
 
 
 status_t adios_adaptor_init_client(char *xmlfile, MPI_Comm comm){
-    if(adios_init (xmlfile, comm) != 0){
-        PERR("adios init err\n");
-        PERR("%s\n", adios_get_last_errmsg());
-        TRACE();
-        return S_FAIL;
-    }
-    else{
-        return S_OK;
-    }
 #ifdef V_T
       //VT_initialize(NULL, NULL);
       PINF("[adios_adaptor]: trace enabled and initialized\n");
@@ -32,6 +23,16 @@ status_t adios_adaptor_init_client(char *xmlfile, MPI_Comm comm){
       VT_funcdef("AD-CL", class_id, &adios_close_id);
 #endif
 
+
+    if(adios_init (xmlfile, comm) != 0){
+        PERR("adios init err\n");
+        PERR("%s\n", adios_get_last_errmsg());
+        TRACE();
+        return S_FAIL;
+    }
+    else{
+        return S_OK;
+    }
 }
 
 
