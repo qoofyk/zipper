@@ -129,17 +129,7 @@ int main (int argc, char ** argv)
     MPI_Barrier(comm);
 
 //#ifdef RAW_DSPACES
-    char msg[STRING_LENGTH];
-    int ret=-1;
-    PINF("trying init dspaces for %d process\n", nprocs);
-    ret = dspaces_init(nprocs, 2, &comm, NULL);
-
-    //PINF("dspaces init successfuly \n");
-
-    if(ret == 0){
-        PINF("dataspaces init successfully");
-    }else{
-        PERR("dataspaces init err");
+    if(S_OK != ds_adaptor_init_client(nprocs, 2, &comm, NULL)){
         TRACE();
         MPI_Abort(comm, -1);
     }

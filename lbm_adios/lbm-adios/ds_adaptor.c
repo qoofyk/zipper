@@ -7,9 +7,54 @@
 #include "utility.h"
 #include "config.h"
 
+#ifdef V_T
+#include <VT.h>
+int class_id;
+int ds_lock_id, ds_unlock_id, ds_put_id, ds_get_id;
+#endif
+
+static char *module_name = "ds_adaptor";
+
+
+
 
 // logger indentifier
 extern const int MY_LOGGER;
+
+/* 
+ * this is a wrapper of adios_init for trace init
+ */
+status_t ds_adaptor_init_client(int nprocs, int appid, MPI_Comm * pcomm, const char * param)
+{
+    int ret = S_FAIL;
+    PINF("[%s]: trying init dspaces for %d process\n",module_name, nprocs);
+    ret = dspaces_init(nprocs, appid, pcomm, param);
+
+    if(ret == 0){
+        PINF( "dataspaces init successfully");
+        return S_OK;
+    }else{
+        PERR( "dataspaces init error");
+        TRACE();
+        return S_FAIL;
+    }
+
+    /*
+     * trace init
+     */
+#ifdef V_T
+      
+      #warning "VT enabled in ds_adaptor"
+      //VT_initialize(NULL, NULL);
+      PINF("[%s]: trace enabled and initialized", module_name );
+      VT_classdef( "DSPACES-DIMES", &class_id );
+      VT_funcdef("DS-LOCK", class_id, &ds_lock_id);
+      VT_funcdef("DS-UNLOCK", class_id, &ds_unlock_id);
+      VT_funcdef("DS-PUT", class_id, &ds_put_id);
+      VT_funcdef("DS-GET", class_id, &ds_get_id);
+#endif
+}
+
 
 #define debug_1
 status_t get_common_buffer(uint8_t transport_minor,int timestep,int ndim, int bounds[6], int rank, char * var_name, void **p_buffer,size_t elem_size, double *p_time_used){
@@ -64,11 +109,21 @@ status_t get_common_buffer(uint8_t transport_minor,int timestep,int ndim, int bo
     PDBG( "try to acquired the read lock %s for step %d", lock_name, timestep);
 
     
+#ifdef V_T
+      VT_begin(ds_lock_id);
+#endif
     dspaces_lock_on_read(lock_name, &row_comm);
+#ifdef V_T
+      VT_end(ds_lock_id);
+#endif
 
     PDBG( "get the read lock %s for step %d", lock_name, timestep);
 
     // read all regions in once
+    //
+#ifdef V_T
+    VT_begin(ds_get_id);
+#endif
     t1 = MPI_Wtime();
     if(transport_minor == DIMES){
         ret_get = dimes_get(var_name, timestep, elem_size, ndim, lb, ub, *p_buffer);
@@ -77,6 +132,10 @@ status_t get_common_buffer(uint8_t transport_minor,int timestep,int ndim, int bo
     else{
         ret_get = dspaces_get(var_name, timestep, elem_size, ndim, lb, ub, *p_buffer);
     }
+
+#ifdef V_T
+    VT_end(ds_get_id);
+#endif
 //#else
 //#error("either dspaces or dimes")
     t2 = MPI_Wtime();
@@ -85,7 +144,13 @@ status_t get_common_buffer(uint8_t transport_minor,int timestep,int ndim, int bo
 
 
     // now we can release region lock
+#ifdef V_T
+    VT_begin(ds_unlock_id);
+#endif
     dspaces_unlock_on_read(lock_name, &row_comm);
+#ifdef V_T
+    VT_end(ds_unlock_id);
+#endif
     PDBG( "release the read lock %s for step %d ", lock_name, timestep);
 
     if(ret_get != 0){
@@ -151,7 +216,14 @@ status_t put_common_buffer(uint8_t transport_minor, int timestep,int ndim, int b
 
     PDBG( "try to acquired the write lock %s for step %d", lock_name, timestep);
 
+
+#ifdef V_T
+      VT_begin(ds_lock_id);
+#endif
     dspaces_lock_on_write(lock_name, &row_comm);
+#ifdef V_T
+      VT_end(ds_lock_id);
+#endif
 
     
 
@@ -161,6 +233,10 @@ status_t put_common_buffer(uint8_t transport_minor, int timestep,int ndim, int b
 
     // write all data in once
     t1 = MPI_Wtime();
+
+#ifdef V_T
+      VT_begin(ds_put_id);
+#endif
     if(transport_minor == DIMES){
         //if(timestep%(DS_MAX_VERSION)==0 && timestep>0){
             // this will free  previous buffer
@@ -182,10 +258,19 @@ status_t put_common_buffer(uint8_t transport_minor, int timestep,int ndim, int b
 
 
     }
+#ifdef V_T
+      VT_end(ds_put_id);
+#endif
     t2 = MPI_Wtime();
 
     // now we can release region lock
+#ifdef V_T
+      VT_begin(ds_unlock_id);
+#endif
     dspaces_unlock_on_write(lock_name, &row_comm);
+#ifdef V_T
+      VT_end(ds_unlock_id);
+#endif
     PDBG( "release the write lock %s for step %d ", lock_name, timestep);
 
     if(ret_put != 0){

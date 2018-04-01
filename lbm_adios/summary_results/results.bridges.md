@@ -3,13 +3,18 @@
 1. 2674632
     native dspaces 256v128(1 lock) with itac **WAITING**
 1. 2674759
-    mpiio 64v32(1 lock) with itac **WAITING**
+    mpiio 64v32(1 lock) with itac **ERROR**
+        what:undefined symbol: _ZTVN10__cxxabiv117__class_type_infoE**
+        why: link to faulse mpi library
 
-1. 2674769
-    native dimes 64v32(1 lock) with itac **WAITING**
+1. 2675280
+    native dimes 64v32(1 lock) with itac **ok**
+1. 2675334
+    native dspacs 64v32(1 lock) with itac **WAITING**
 
 1. 2674770
-    flexpath 64v32 with itac **WAITING**
+    flexpath 64v32 with itac **WAITING** 
+    in this earlier version adios is not itac-traced
 
 
 1. 2673834

@@ -12,10 +12,14 @@ versions
 		~/Downloads/flexpath/flexpath_adios_1_12_gnu_mvapich_tauperl chaos_bootstrap.pl adios-1.12 $HOME/envs/Flexpath_gcc_mvapich_tau &> config.lifen.log
 	raw_dspacesraw_gcc_mvapich
 ----------------------------------------------------------------------------------
+## April 1
+[new]:
+1. for native dspaces, there is a barrier, could be ds_lock_on_write
+1. trace is now also added in ds_adaptor
 ## Mar 31
 [TODO]:
 1. reorganize code for  lbm adios/dspaces/mpiio (done)
-2. trace (done,)
+2. trace (done)
 [CHANGES]:
 1. remove FILE2PRODUCE in scripts
 

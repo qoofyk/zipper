@@ -23,6 +23,10 @@ extern "C" {
 #include "utility.h"
 
 //#include <mpi.h>
+/*
+ * init dspaces/dimes client
+ */
+status_t ds_adaptor_init_client(int nprocs, int appid, MPI_Comm * pcomm, const char * param);
 
 /*
  * @brief get data from dspaces/dimes

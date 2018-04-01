@@ -32,6 +32,7 @@ static transport_method_t transport;
  */
 static char var_name[STRING_LENGTH];
 static size_t elem_size=sizeof(double);
+static char * module_name="lbm_driver";
  
 
 /*
@@ -54,7 +55,7 @@ status_t run_lbm_adios(char *filepath, int nsteps, MPI_Comm comm){
 #ifdef V_T
       
       //VT_initialize(NULL, NULL);
-      printf("[decaf]: trace enabled and initialized\n");
+      PINF("[%s]: trace enabled and initialized\n", module_name);
       VT_classdef( "Computation", &class_id );
       VT_funcdef("ADVSTEP", class_id, &advance_step_id);
       VT_funcdef("GETBUF", class_id, &get_buffer_id);
@@ -211,7 +212,7 @@ cleanup:
 
 #ifdef V_T
     //VT_finalize();
-    printf("[decaf]: trace finalized\n");
+    PINF("[%s]: trace finalized", module_name);
 #endif
 
     return S_OK;
@@ -285,46 +286,22 @@ int main(int argc, char * argv[]){
       sprintf(xmlfile,"adios_xmls/dbroker_%s.xml", trans_method);
       PINF("[r%d] try to init with %s\n", rank, xmlfile);
 
-      if(adios_init (xmlfile, comm) != 0){
-        PINF("[r%d] ERROR: adios init err with %s\n", rank, trans_method);
-        PINF("[r%d] ERR: %s\n", rank, adios_get_last_errmsg());
-        return -1;
+      if(S_OK != adios_adaptor_init_client(xmlfile, comm)){
+          TRACE();
+          MPI_Abort(comm, -1);
       }
-      else{
-          //if(rank ==0)
-            PINF("rank %d : adios init complete with %s\n", rank, trans_method);
-      }
+      
       MPI_Barrier(comm);
   } //use ADIOS_DISK or ADIOS_STAGING
 
   else  if(transport_major == NATIVE_STAGING){
-        char msg[STRING_LENGTH];
-        int ret = -1;
-        PINF("trying init dspaces for %d process\n", nprocs);
-        ret = dspaces_init(nprocs, 1, &comm, NULL);
-
-        PINF("dspaces init successfuly \n");
-
-        if(ret == 0){
-            PINF( "dataspaces init successfully");
-        }else{
-            PERR( "dataspaces init error");
+      if(S_OK != ds_adaptor_init_client(nprocs, 1, &comm, NULL)){
             TRACE();
             MPI_Abort(comm, -1);
         }
 
-        /*
-        * set bounds and dspaces variables
-        */
         sprintf(var_name, "atom");
 
-
-        // data layout
-//#ifdef FORCE_GDIM
-        //int n = dims_cube[0]*dims_cube[1]*dims_cube[2];
-        //uint64_t gdims[2] = {2, n*nprocs};
-        //dspaces_define_gdim(var_name, 2,gdims);
-//#endif
    }
 
 
