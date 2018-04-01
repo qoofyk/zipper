@@ -47,7 +47,7 @@ endif(use_itac)
 
 # mpi
 find_package(MPI REQUIRED)
-set(common_library ${common_library} ${MPI_LIBRARIES})
+set(common_library ${common_library} ${MPI_C_LIBRARIES})
 
 
 

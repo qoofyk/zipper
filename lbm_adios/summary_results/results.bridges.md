@@ -1,3 +1,25 @@
+## Mar 31
+[JOBS]:
+1. 2674632
+    native dspaces 256v128(1 lock) with itac **WAITING**
+1. 2674759
+    mpiio 64v32(1 lock) with itac **WAITING**
+
+1. 2674769
+    native dimes 64v32(1 lock) with itac **WAITING**
+
+1. 2674770
+    flexpath 64v32 with itac **WAITING**
+
+
+1. 2673834
+    native dspaces 64v32(1 lock) with itac
+        put function is delayed in processes other than proc 0, see bridges_64_dspaces_1lock_prod.png
+        there is a long "MPIBarrier" time, **TODO**I need to wrap DSPACE_function with itac
+1. 2671247
+    native dspaces 64v32(1 lock) with itac **server path incorrect**
+above use refactorized lbm
+--------------------------------------------------
 ## Mar 30
 [JOBS]:
 -----------------------------------------------

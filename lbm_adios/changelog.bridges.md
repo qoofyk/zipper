@@ -14,8 +14,8 @@ versions
 ----------------------------------------------------------------------------------
 ## Mar 31
 [TODO]:
-1. reorganize code for  lbm adios/dspaces/mpiio
-2. trace
+1. reorganize code for  lbm adios/dspaces/mpiio (done)
+2. trace (done,)
 [CHANGES]:
 1. remove FILE2PRODUCE in scripts
 
