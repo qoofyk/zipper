@@ -32,6 +32,14 @@
 #include "transports.h"
 static transport_method_t transport;
 
+#ifdef V_T
+#include <VT.h>
+int class_id;
+int analysis_id;
+#endif
+
+
+
 //#define DEBUG_Feng
 
 
@@ -61,6 +69,7 @@ int main (int argc, char ** argv)
     t_analy = 0;
 #endif
 
+
     int         rank, nprocs;
     MPI_Comm    comm = MPI_COMM_WORLD;
 
@@ -81,8 +90,13 @@ int main (int argc, char ** argv)
     MPI_Get_processor_name(nodename, &nodename_length );
 
     /*
-     * init the clog
+     * define the trace
      */
+
+#ifdef V_T
+     VT_classdef( "Analysis", &class_id );
+     VT_funcdef("ANL", class_id, &analysis_id);
+#endif
     
     int r;
 
@@ -275,7 +289,13 @@ int main (int argc, char ** argv)
         }
 
         // analysis
+#ifdef V_T
+      VT_begin(analysis_id);
+#endif
         run_analysis(data, slice_size, lp, sum_vx,sum_vy);
+#ifdef V_T
+      VT_end(analysis_id);
+#endif
         t4 = MPI_Wtime();
         t_analy += t4-t3;
 

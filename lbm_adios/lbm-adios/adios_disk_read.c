@@ -29,6 +29,14 @@
 #include "adios_error.h"
 //#include "adios_read_global.h"
 #include "run_analysis.h"
+
+#ifdef V_T
+#include <VT.h>
+int class_id;
+int analysis_id;
+#endif
+
+
         
 
 #define DEBUG_Feng
@@ -60,6 +68,7 @@ int main (int argc, char ** argv)
 
 
 
+
     int         rank, nprocs;
     MPI_Comm    comm = MPI_COMM_WORLD;
     //enum ADIOS_READ_METHOD method = ADIOS_READ_METHOD_DATASPACES;
@@ -74,8 +83,13 @@ int main (int argc, char ** argv)
     MPI_Comm_size (comm, &nprocs);
 
     /*
-     * init the clog
+     * define the trace
      */
+
+#ifdef V_T
+     VT_classdef( "Analysis", &class_id );
+     VT_funcdef("ANL", class_id, &analysis_id);
+#endif
     
     int r;
 
@@ -208,7 +222,13 @@ int main (int argc, char ** argv)
             if(rank ==0)
                 PINF("Step %d read\n", timestep);
             // analysis
+#ifdef V_T
+      VT_begin(analysis_id);
+#endif
             run_analysis(data, slice_size, lp, sum_vx,sum_vy);
+#ifdef V_T
+      VT_end(analysis_id);
+#endif
 
             t4 = MPI_Wtime();
             t_analy += t4-t3;
