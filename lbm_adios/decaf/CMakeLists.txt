@@ -3,7 +3,7 @@ message("Building vector example")
 set(transport_mpi on CACHE BOOL "enable mpi transport for decaf")
 set(transport_cci on CACHE BOOL "enable cci transport for decaf")
 #set(transport_file off CACHE BOOL "enable hdf5 file transport for decaf")
-set(CCI_PREFIX "$ENV{WORK}/software/install" CACHE PATH "cci path")
+set(CCI_PREFIX "${FWORK}/software/install" CACHE PATH "cci path")
 include(${CMAKE_SOURCE_DIR}/cmake/decaf.cmake)
 #include_directories(${CMAKE_SOURCE_DIR}/lbm)
 

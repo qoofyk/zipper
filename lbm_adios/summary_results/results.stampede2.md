@@ -1,3 +1,13 @@
+## Jan 28
+[Verify Results]:
+
+#### 136v48 for lbm
+1. 1011311 mpiio(TODO)
+
+#### 136v48 for lammps:
+1. 1080813 decaf-lammps: 136v68: 236s, ok
+2. 1010792 flexpath-lammps: 136: 28min 50steps. I think for lammps I used another source tree
+3.
 # jan 23
  637680[results]
     flexpath 68v34 1 process per node

@@ -7,7 +7,8 @@ written by Feng Li at Fall 2017
 
 ## What is new
 [Mar 27]: 
-    this version is the code in both machine(Stampede/Bridges) when we submit HPDC first version
+* this version is the code in both machine(Stampede/Bridges) when we submit HPDC first version. (doesn't include the changes in zipper, which is not wrapped yet)
+* See [version contrl](docs/version_control.md) for how different branches works
 [Jan 16]: trace inteval: lbm use center 2, width 2, lammps use 10,10
 [Jan 12]: now stampede tau build should be buit with
     
