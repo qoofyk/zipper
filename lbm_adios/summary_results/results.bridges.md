@@ -1,5 +1,18 @@
 ## Mar 31
+[Result]:
+1. bridges\_64\_dspaces\_3lock\_marked.png:
+    3 lock produce combined with consumer: seems like consumer is slower than expected. produce only throw data into  buffer. consumer need time to consumer it.(consumer is the bound of overall end to end time)
+    [to check]: what is lock_on_read do: check data is ready?
 [JOBS]:
+2679306
+    native dspaces 64v32(3 lock) **WAITING**
+    n
+2678785:
+    native dspaces 64v32 with 16 server procs in each node **WAITING**
+    
+* above are mpiio:
+-------------------------------------------------------------
+* below are native dspaces/dimes:
 1. 2674632
     native dspaces 256v128(1 lock) with itac **WAITING**
 1. 2674759
@@ -9,8 +22,37 @@
 
 1. 2675280
     native dimes 64v32(1 lock) with itac
+1. 2676682
+    native dimes 64v32(3 lock) with itac // same pattern, receive is slower **ERR**
+    cmd: 
+        ```
+        less /pylon5/ac561jp/fli5/data_broker_adios/2676682/results/consumer.log |grep  '\[31\]'|less
+        ```
+    error:
+        ```
+        [31] DEBUG get_common_buffer:get the read lock atom_lock_t_2 for step 8
+        [31] dart_rdma_process_ibv_cq(): wc.status (5).
+        [31] 'dart_rdma_process_ibv_cq()': failed with -5.
+        [31] dart_rdma_process_ibv_cq(): wc.status (5).
+        [31] 'dart_rdma_process_ibv_cq()': failed with -5.
+        [31] 'all_fetch_done()': failed with -1.
+        [31] 'dimes_fetch_data()': failed with -1.
+        [31] dart_rdma_delete_read_tran(): read tran with id= 17 not complete!
+        [31] dart_rdma_delete_read_tran(): read tran with id= 16 not complete!
+        [31] 'dimes_obj_get()': failed with -1.
+        [31] 'dimes_client_get()': failed with -1.
+        [31] DEBUG get_common_buffer:try to unlock the read lock atom_lock_t_2 for step 8
+        [31] DEBUG get_common_buffer:release the read lock atom_lock_t_2 for step 8 
+        [31] DEBUG get_common_buffer:get varaible atom err in step 8 ,  error number -1 
+        ```
+
+
 1. 2675334
     native dspacs 64v32(1 lock) with itac 
+1. 2675679
+    native dspacs 64v32(3 lock) with itac // bounded by consumer!
+1. 2675779
+    native dspacs 64v32(10 lock) with itac // still bounded by consumer
 1. 2675373
     native dspacs 64v32(1 lock) with itac, [results, clear]
 

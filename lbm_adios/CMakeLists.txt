@@ -17,7 +17,7 @@ option(build_zipper "build zipper runtim" OFF)
 
 option(USE_SAME_LOCK "Use same lock in dspaces" ON)
 if(NOT USE_SAME_LOCK)
-    set(DS_MAX_VERSION "2")
+    set(DS_MAX_VERSION "3")
 endif()
 
 configure_file(

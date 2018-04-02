@@ -12,16 +12,33 @@ versions
 		~/Downloads/flexpath/flexpath_adios_1_12_gnu_mvapich_tauperl chaos_bootstrap.pl adios-1.12 $HOME/envs/Flexpath_gcc_mvapich_tau &> config.lifen.log
 	raw_dspacesraw_gcc_mvapich
 ----------------------------------------------------------------------------------
+## April 2
+[Doubt]:
+1. in DataSpaces README, 16G each process, why need 5 server instead of 10 instead of 20
+2. what does ds\_unlock\_on\_read do, does it wait until data is ready?
+    answer: dcg_lock_on_read will check whether data is ready to fetch or not,
+            both dcg_lock_on_read and dcg_lock_on_write has a barrier in the end
+3. increase the server process help?
+4. DIMES; sync\_all:(I sent a email to Rutgers)
+    *. how the buffers are freed?
+    *. there is a dimes_put_sync_all
+[Target]:
+0. need to add analysis trace
+1. dspaces multilock: more server>?
+2. dspaces : why consumer 0 is slower
+
+
 ## April 1
 [new]:
 1. for native dspaces, there is a barrier, could be ds_lock_on_write
 1. trace is now also added in ds_adaptor
+1. the reason of multi-steps don't help is the slow consumer(dimes is the same)
 ## Mar 31
 [TODO]:
 1. reorganize code for  lbm adios/dspaces/mpiio (done)
 2. trace (done)
 [CHANGES]:
-1. remove FILE2PRODUCE in scripts
+1. remove FILE2PRODUCE in scripts(I still need them, since consumer need to now the dimension in some of the transports)
 
 [TODO]:
 1. reorganize code for lammps mpiio
@@ -30,8 +47,8 @@ versions
 [Conclusion]:
 1. native dimes,end2end time not stable
 [TODO]:
-1. lbm-adios need to use the lib-lbm
-2. get the itac trace
+1. lbm-adios need to use the lib-lbm(done)
+2. get the itac trace(done)
 [results]:
 1. two locks doen't help with 8v4 an 64v32; 256v32 crashes sometimes
 [dspaces]:
