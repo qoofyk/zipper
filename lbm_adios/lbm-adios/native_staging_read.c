@@ -45,6 +45,8 @@ int analysis_id;
 static char var_name[STRING_LENGTH];
 static size_t elem_size=sizeof(double);
 //#endif
+//
+static char * module_name="native_staging_reader";
         
 
 #define DEBUG_Feng
@@ -206,6 +208,7 @@ int main (int argc, char ** argv)
       VT_begin(analysis_id);
 #endif
         run_analysis(data, slice_size, lp, sum_vx,sum_vy);
+      PINF("[%s]: %d points analyzed in step %d\n", module_name,slice_size,timestep);
 #ifdef V_T
       VT_end(analysis_id);
 #endif

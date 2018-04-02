@@ -4,15 +4,28 @@
     3 lock produce combined with consumer: seems like consumer is slower than expected. produce only throw data into  buffer. consumer need time to consumer it.(consumer is the bound of overall end to end time)
     [to check]: what is lock_on_read do: check data is ready?
 [JOBS]:
-2679306
-    native dspaces 64v32(3 lock) **WAITING**
-    n
+
+1. 2679149
+    mpiio 64v32: no trace(137s intel mpi)
+
+1. 2679209
+    mpiio 64v32: with trace **WAITING** (adios operation not marked)
+        there is a "MPI_Broadcast"
+* above are mpiio:
+
+
+-------------------------------------------------------------
+2679467:
+    native dspaces 64v32(3 lock)  , slice size printed(ans: they are the same!)
+2679078:
+    native dimes 64v32(3 lock) 
+2679064:
+    native dspaces 64v32(3 lock) 
 2678785:
     native dspaces 64v32 with 16 server procs in each node **WAITING**
     
-* above are mpiio:
--------------------------------------------------------------
 * below are native dspaces/dimes:
+    
 1. 2674632
     native dspaces 256v128(1 lock) with itac **WAITING**
 1. 2674759
@@ -45,6 +58,7 @@
         [31] DEBUG get_common_buffer:release the read lock atom_lock_t_2 for step 8 
         [31] DEBUG get_common_buffer:get varaible atom err in step 8 ,  error number -1 
         ```
+    reason: put_sync_all?
 
 
 1. 2675334

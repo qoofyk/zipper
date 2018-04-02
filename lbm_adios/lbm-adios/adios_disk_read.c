@@ -154,6 +154,7 @@ int main (int argc, char ** argv)
                 PINF("set stamp as %d at %lf\n", time_stamp, MPI_Wtime());
         }
 
+        // sleep only happens in the beginning
         if(time_stamp ==-1){
                 sleep(1);
                 continue;
