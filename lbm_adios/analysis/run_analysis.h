@@ -7,7 +7,6 @@ extern "C"{
 #include <stdio.h>
 #include <string.h>
 #include <mpi.h>
-#include "adios.h"
 #include "time.h"
 #include <math.h>
 #include <unistd.h>

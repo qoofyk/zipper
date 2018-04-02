@@ -10,8 +10,6 @@
 extern "C" {
 #endif
 
-#include "clog.h"
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
@@ -28,8 +26,15 @@ extern "C" {
 #include <fcntl.h>
 #include <errno.h>
 
+#include "logging.h"
+
 //#define SIZE_ONE (2)
 
+
+// status
+typedef int status_t;
+#define S_OK (0)
+#define S_FAIL (-1)
 
 
 #ifndef STRING_LENGTH
@@ -39,39 +44,25 @@ extern "C" {
 
 #define RANK_SEQUENTIAL (-1)
 
+static double get_cur_time() {
+  struct timeval   tv;
+  struct timezone  tz;
+  double cur_time;
 
-// current log filter
-#define LOG_FILTER (5)
+  gettimeofday(&tv, &tz);
+  cur_time = tv.tv_sec + tv.tv_usec / 1000000.0;
+  //printf("%f\n",cur_time);
 
-// different log level
-#define LOG_CRITICAL (1)
-#define LOG_WARNING (5)
-#define LOG_INFO (10)
-#define LOG_VERB (15)
+  return cur_time;
+}
 
-
-
-
-
-// get current time
-double get_cur_time();
-
-// check malloc NULL
-void check_malloc(void * pointer);
-
-/*******************************
- * parallel use
- * input:
- *  msg: msg to output
- *  rank, current rank, -1 for sequential
- *  level, log level:
- *      1: CRITICAL
- *      5: WARNING
- *      10:INFO
- *      15:VER_INFO
- *******************************/
-
-static const int MY_LOGGER = 0;
+static void check_malloc(void * pointer){
+  if (pointer == NULL) {
+    perror("Malloc error!\n");
+    fprintf (stderr, "at %s, line %d.\n", __FILE__, __LINE__);
+    exit(1);
+  }
+}
 
 #ifdef __cplusplus
 }

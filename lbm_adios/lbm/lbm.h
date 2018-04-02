@@ -26,17 +26,10 @@ extern "C" {
 #include <sys/types.h>
 #include <errno.h>
 
-
-#define SIZE_ONE (2) // two doubles in each line
-
-#ifndef S_OK
-typedef int status_t;
-#define S_OK (0)
-#define S_FAIL (-1)
-#endif
+#include "utility.h"
 
 
-#ifndef filesize2produce
+#ifndef filesize2produce //TODO: there is another filesize2produce in job script, which is also feeded to consumer
 #define filesize2produce (256)
 #endif
 

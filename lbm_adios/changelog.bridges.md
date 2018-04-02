@@ -2,15 +2,6 @@
 All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/) 
 and this project adheres to [Semantic Versioning](http://semver.org/).
-TODO
-	see github log
-	* redesigned flexpath
-	* new version of adios
-
-	0. use environment variable instead of preprocessor
-	1. nnti in flexpath, not usable.
-	2. dspaces hanging
-	3. ENABLE_TESTING in flexpath conf, enabled
 
 -------------------------------------------------------------------------------
 versions
@@ -21,7 +12,71 @@ versions
 		~/Downloads/flexpath/flexpath_adios_1_12_gnu_mvapich_tauperl chaos_bootstrap.pl adios-1.12 $HOME/envs/Flexpath_gcc_mvapich_tau &> config.lifen.log
 	raw_dspacesraw_gcc_mvapich
 ----------------------------------------------------------------------------------
-----------------------------------------------------------------------------------
+## April 2
+[Doubt]:
+1. in DataSpaces README, 16G each process, why need 5 server instead of 10 instead of 20
+2. what does ds\_unlock\_on\_read do, does it wait until data is ready?
+    answer: dcg_lock_on_read will check whether data is ready to fetch or not,
+            both dcg_lock_on_read and dcg_lock_on_write has a barrier in the end
+3. increase the server process help?
+4. DIMES; sync\_all:(I sent a email to Rutgers)
+    *. how the buffers are freed?
+    *. there is a dimes_put_sync_all
+[Target]:
+0. need to add analysis trace
+1. dspaces multilock: more server>?
+2. dspaces : why consumer 0 is slower
+
+
+## April 1
+[new]:
+1. for native dspaces, there is a barrier, could be ds_lock_on_write
+1. trace is now also added in ds_adaptor
+1. the reason of multi-steps don't help is the slow consumer(dimes is the same)
+## Mar 31
+[TODO]:
+1. reorganize code for  lbm adios/dspaces/mpiio (done)
+2. trace (done)
+[CHANGES]:
+1. remove FILE2PRODUCE in scripts(I still need them, since consumer need to now the dimension in some of the transports)
+
+[TODO]:
+1. reorganize code for lammps mpiio
+
+## Mar 30
+[Conclusion]:
+1. native dimes,end2end time not stable
+[TODO]:
+1. lbm-adios need to use the lib-lbm(done)
+2. get the itac trace(done)
+[results]:
+1. two locks doen't help with 8v4 an 64v32; 256v32 crashes sometimes
+[dspaces]:
+1. how buffer is managed, version? how dsspaces allocate sufficient buffer(max version only for data indexing or buffer allocation)
+2. how unblocking io works(each time alloc allocate a buffer and call rpc\_send), how the bufer is freed(a callback function is added in the message)
+3. in the conf it didn't specify variable size(how to allocate sizse)
+4. in the README file, dimes doesn't support max_version in configuration(how about now?)
+5. multiversion/failure with hash version2?
+## Mar 29
+[changed]:
+1. reorganized
+2. clog is removed
+[multi-locks]:
+1. I should also set the max-version in dspaces.conf
+[dspaces]:
+1. where is the installation dir?
+[Notes]:
+1. Use toolchain file instead of BuildType. This will make sure flags are
+	also updated in Cache
+2. where did we use the standard-alone lbm?
+    * only in the decaf-lbm and lbm-sim-only
+    * TODO: i need to wrap the all the adios one in a sepearte directory(transport/adios),
+3. where adios is used?
+    * seems only in LBM in bridges
+4. lammps-flexpath result in scaling?
+    * it's in adios/prod.cpp and adios_con.cpp 
+5. seems like we are using the MPIIO data (lammps scaling) from IPDPS
+6. TODO: i need give a table of trasports/apps/machine/
 ## Jan 22
 	flexpath with lammps, using 1 proc in each node, 218s v 219(zipper)s
 ## Jan 18

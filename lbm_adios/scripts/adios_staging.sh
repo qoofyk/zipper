@@ -28,6 +28,7 @@ elif [ x"$HAS_TRACE" = "xitac" ]; then
     NSTOP=10
     echo "itac ENABLED, use 10 steps"
     export BUILD_DIR=${PBS_O_WORKDIR}/build_itac
+    DS_SERVER=${WORK}/envs/gcc_mvapich/Dataspacesroot/bin/dataspaces_server
     echo "use itac"
     export VT_LOGFILE_PREFIX=${SCRATCH_DIR}/trace 
     export VT_VERBOSE=3
@@ -108,7 +109,7 @@ if [ x"$HAS_TRACE" == "x" ];then
 else
     #export LD_PRELOAD=libVT.so 
     #LAUNCHER="mpiexec.hydra -trace"
-    LAUNCHER="mpiexec.hydra"
+    LAUNCHER="mpirun -l"
 fi
 
 if [[ `hostname` == *"bridges"* ]];then
@@ -123,6 +124,8 @@ if [[ `hostname` == *"bridges"* ]];then
     fi
 fi
 
+env|grep '^I_MPI' # trace enabled?
+env|grep '^I_MV2' # trace enabled?
 
 
 echo "use transport method $CMTransport with CMTransportVerbose=$CMTransportVerbose"
@@ -142,7 +145,7 @@ if [ $MyTransport != ADIOS_STAGING_FLEXPATH ]; then
 
 fi
 
-CMD_PRODUCER="$LAUNCHER -np ${procs_this_app[$appid]} -machinefile $HOST_DIR/machinefile-app${appid} -env TRACEDIR=${ALL_TRACES}/app${appid}  ${BIN_PRODUCER} ${NSTOP} ${FILESIZE2PRODUCE}"
+CMD_PRODUCER="$LAUNCHER -np ${procs_this_app[$appid]} -machinefile $HOST_DIR/machinefile-app${appid} -env TRACEDIR=${ALL_TRACES}/app${appid}  ${BIN_PRODUCER} ${NSTOP}"
 $CMD_PRODUCER  &> ${PBS_RESULTDIR}/producer.log &
 echo "producer applciation lauched: $CMD_PRODUCER"
 

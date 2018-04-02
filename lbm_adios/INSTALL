@@ -1,36 +1,51 @@
 
 see [this wiki](https://github.iu.edu/IUPUI-CS-HPC/data_broker_lammps/wiki) for more details
 
-## Environment settings in Stampede:
-NOTE: if you don't have lammps/adios/dspaces/decaf installed, you should add the following argument in you cmake command
+## Toolchains
+Different compiler settings are used using the cmake toochain
 ```
+cmake -DCMAKE_TOOLCHAIN_FILE=../cmake/Bridges.toolchain.cmake  ..
+```
+
+additionally, build in Stampede2
+```
+cmake -DCMAKE_TOOLCHAIN_FILE=../cmake/Stampede2.toolchain.cmake  ..
+```
+
+
+## control supported transports:
+1. if you don't have lammps/adios/dspaces/decaf installed, you should add the following argument in you cmake command
+```
+cmake .. \
+    -DCMAKE_TOOLCHAIN_FILE=../cmake/Stampede2.toolchain.cmake \
     -Dall_transports=off
 ```
 
-1. build for highest performance
-```
-mkdir build
-cmake -DCMAKE_BUILD_TYPE=Stampede ..
-make -j4
-```
 
-To build with itac trace
+2. build with itac trace
 ```
 module load itac
 cd build_build_itac
-cmake -DCMAKE_BUILD_TYPE=Stampede -Duse_itac=on ..
+
+cmake .. \
+    -DCMAKE_TOOLCHAIN_FILE=../cmake/Stampede2.toolchain.cmake  \
+    -Duse_itac=on 
+```
+
+3. build with zipper
+```
+# add -Dbuild_zipper
 ```
 
 
-
-2. build with tau trace(depreciated, will use option instead in future)
+4. build with tau trace(depreciated, will use option instead in future)
 ```
 mkdir build
 cmake -DCMAKE_BUILD_TYPE=Stampede_TAU ..
 make -j4 
 ```
 
-2.1 build with self build tau
+4.1 build with self build tau
 ```
 mkdir buid
 cmake -DCMAKE_TOOLCHAIN_FILE=../cmake/stampede_tau.toolchain.cmake ..

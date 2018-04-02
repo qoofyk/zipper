@@ -32,6 +32,14 @@
 #include "transports.h"
 static transport_method_t transport;
 
+#ifdef V_T
+#include <VT.h>
+int class_id;
+int analysis_id;
+#endif
+
+
+
 //#define DEBUG_Feng
 
 
@@ -61,6 +69,7 @@ int main (int argc, char ** argv)
     t_analy = 0;
 #endif
 
+
     int         rank, nprocs;
     MPI_Comm    comm = MPI_COMM_WORLD;
 
@@ -81,26 +90,19 @@ int main (int argc, char ** argv)
     MPI_Get_processor_name(nodename, &nodename_length );
 
     /*
-     * init the clog
+     * define the trace
      */
+
+#ifdef V_T
+     VT_classdef( "Analysis", &class_id );
+     VT_funcdef("ANL", class_id, &analysis_id);
+#endif
     
     int r;
 
     char *filepath = getenv("SCRATCH_DIR");
     if(filepath == NULL){
         fprintf(stderr, "scratch dir is not set!\n");
-    }
-    if(rank == 0){
-        r = clog_init_fd(MY_LOGGER, 1);
-    }
-    else{
-        char log_path[256];
-        sprintf(log_path,"%s/results/consumer_%d.clog",filepath, rank);
-        r = clog_init_path(MY_LOGGER, log_path);
-    }
-    if (r != 0) {
-      fprintf(stderr, "Logger initialization failed.\n");
-      return 1;
     }
 
     /*
@@ -109,12 +111,12 @@ int main (int argc, char ** argv)
     transport = get_current_transport();
     uint8_t transport_major = get_major(transport);
     uint8_t transport_minor = get_minor(transport);
-    clog_info(CLOG(MY_LOGGER),"%s:I am rank %d of %d, tranport code %x-%x\n",
+    PINF("%s:I am rank %d of %d, tranport code %x-%x\n",
             nodename, rank, nprocs,
             get_major(transport), get_minor(transport) );
 
     if(rank == 0){
-      clog_info(CLOG(MY_LOGGER),"stat: Consumer start at %lf \n", MPI_Wtime());
+      PINF("stat: Consumer start at %lf \n", MPI_Wtime());
     }
     assert(transport_major == ADIOS_STAGING);
 
@@ -133,17 +135,17 @@ int main (int argc, char ** argv)
 
 
     if(adios_read_init_method (method, comm, "verbose=3") !=0){
-        clog_info(CLOG(MY_LOGGER),"ERROR: rank %d: adios init err with %d\n", rank, method);
+        PINF("ERROR: rank %d: adios init err with %d\n", rank, method);
         exit(-1);
     }
     else{
-        clog_info(CLOG(MY_LOGGER),"adios read method init complete with %d\n", method);
+        PINF("adios read method init complete with %d\n", method);
     }
 
     char * env_string; //input from user
     if((env_string = getenv("HAS_KEEP")) != NULL){
         if(strcmp(env_string, "1") == 0){
-            clog_info(CLOG(MY_LOGGER),"adios read method init complete with %d\n", method);
+            PINF("adios read method init complete with %d\n", method);
             has_keep=1;
         }
     }
@@ -163,7 +165,7 @@ int main (int argc, char ** argv)
             printf("rank %d: adios init complete restart file\n", rank);
             MPI_Abort(comm, -2);
         }
-        clog_info(CLOG(MY_LOGGER),"rank %d: adios init complete restart file\n", rank);
+        PINF("rank %d: adios init complete restart file\n", rank);
     }
 
 
@@ -173,13 +175,13 @@ int main (int argc, char ** argv)
 #if defined(USE_DATASPACES)
   adios_init ("adios_xmls/dbroker_dataspaces.xml", comm);
   if(rank ==0)
-    clog_info(CLOG(MY_LOGGER),"rank %d: adios init complete with dataspaces\n", rank);
+    PINF("rank %d: adios init complete with dataspaces\n", rank);
 #elif defined(USE_DIMES)
   adios_init ("adios_xmls/dbroker_dimes.xml", comm);
-    clog_info(CLOG(MY_LOGGER),"rank %d: adios init complete with dimes\n", rank);
+    PINF("rank %d: adios init complete with dimes\n", rank);
 #elif defined(USE_FLEXPATH)
   adios_init ("adios_xmls/dbroker_flexpath.xml", comm);
-    clog_info(CLOG(MY_LOGGER),"rank %d: adios init complete with flexpath\n", rank);
+    PINF("rank %d: adios init complete with flexpath\n", rank);
 
 #else 
 #error("define stating transport method");
@@ -205,7 +207,7 @@ int main (int argc, char ** argv)
     ADIOS_VARINFO * v = adios_inq_var (f, "atom");
     
     if(rank ==0)
-        clog_info(CLOG(MY_LOGGER),"reader opened the stream, dims = %ld, %ld\n", v->dims[0], v->dims[1]);
+        PINF("reader opened the stream, dims = %ld, %ld\n", v->dims[0], v->dims[1]);
 
 
     /* Using less readers to read the global array back, i.e., non-uniform */
@@ -217,7 +219,7 @@ int main (int argc, char ** argv)
 
     start[1] = 0;
     count[1] = v->dims[1];
-    clog_info(CLOG(MY_LOGGER),"rank %d: start: (%ld, %ld), count:( %ld, %ld)\n", rank, start[0], start[1], count[0], count[1]);
+    PINF("rank %d: start: (%ld, %ld), count:( %ld, %ld)\n", rank, start[0], start[1], count[0], count[1]);
        
 
     data = malloc (slice_size * v->dims[1]* sizeof (double));
@@ -229,13 +231,13 @@ int main (int argc, char ** argv)
 
     sel = adios_selection_boundingbox (v->ndim, start, count);
 
-    //clog_info(CLOG(MY_LOGGER),"rank %d: adios init complete\n", rank);
+    //PINF("rank %d: adios init complete\n", rank);
 
     // get read status, before perform mpiio!, so streaming steps are not affected
     int errno_streaming_read = adios_errno;
     //for(timestep = 0; timestep < 10;){
     while(errno_streaming_read != err_end_of_stream){
-        clog_info(CLOG(MY_LOGGER),"rank %d: Step %d start\n", rank, timestep);
+        PINF("rank %d: Step %d start\n", rank, timestep);
            /* Read a subset of the temperature array */
         // 0:not used for strea; 1: must be set in stream
         adios_schedule_read (f, sel, "atom", 0, 1, data);
@@ -244,7 +246,7 @@ int main (int argc, char ** argv)
         // block until read complete
         adios_perform_reads (f, 1);
 
-        clog_debug(CLOG(MY_LOGGER),"    [DEBUG]:read is performed");
+        PDBG("    [DEBUG]:read is performed");
         t2 = MPI_Wtime();
         t_read_1 += t2-t1;
 
@@ -283,23 +285,29 @@ int main (int argc, char ** argv)
                 insert_into_adios(filepath, "restart", -1, slice_size, v->dims[1], data,"a", &comm);
 
             if(rank ==0)
-                clog_info(CLOG(MY_LOGGER),"Step %d data kept\n", rank, timestep);
+                PINF("Step %d data kept\n", rank, timestep);
         }
 
         // analysis
+#ifdef V_T
+      VT_begin(analysis_id);
+#endif
         run_analysis(data, slice_size, lp, sum_vx,sum_vy);
+#ifdef V_T
+      VT_end(analysis_id);
+#endif
         t4 = MPI_Wtime();
         t_analy += t4-t3;
 
-        clog_debug(CLOG(MY_LOGGER),"previous step released");
+        PDBG("previous step released");
         // advance to (1)the next availibale step (2)blocked if not unavailble
         adios_advance_step(f, 0, -1);
         errno_streaming_read = adios_errno;
 
-        clog_debug(CLOG(MY_LOGGER),"successfully step into next available step");
+        PDBG("successfully step into next available step");
 
 
-        clog_info(CLOG(MY_LOGGER),"rank %d: Step %d moments calculated, t_read %lf, t_advance %lf, t_analy %lf\n", rank, timestep, t2-t1, t3-t2, t4-t3);
+        PINF("rank %d: Step %d moments calculated, t_read %lf, t_advance %lf, t_analy %lf\n", rank, timestep, t2-t1, t3-t2, t4-t3);
         timestep ++;
     }
 
@@ -313,8 +321,8 @@ int main (int argc, char ** argv)
 
   MPI_Reduce(&t_analy, &global_t_analy, 1, MPI_DOUBLE, MPI_MAX, 0, comm);
   if(rank == 0){
-      clog_info(CLOG(MY_LOGGER),"stat:Consumer end  at %lf \n", t_end);
-      clog_info(CLOG(MY_LOGGER),"stat:max time for analyst %f s\n",global_t_analy);
+      PINF("stat:Consumer end  at %lf \n", t_end);
+      PINF("stat:max time for analyst %f s\n",global_t_analy);
   }
 #endif 
     free (data);
@@ -324,7 +332,7 @@ int main (int argc, char ** argv)
 
     MPI_Barrier (comm);
     adios_read_finalize_method (method);
-    clog_info(CLOG(MY_LOGGER),"adios read finalized");
+    PINF("adios read finalized");
 
     /*
      * finalize restart writing
@@ -332,13 +340,12 @@ int main (int argc, char ** argv)
     /*if(has_keep == 1){*/
       /*adios_finalize (rank);*/
       /*if(rank == 0)*/
-      /*clog_info(CLOG(MY_LOGGER),"adiod finalized");*/
+      /*PINF("adiod finalized");*/
     /*}*/
 
     /*
     * close logger
     */
-    clog_free(MY_LOGGER);
 
     MPI_Finalize ();
     printf("rank %d: exit\n", rank);

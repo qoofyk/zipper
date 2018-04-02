@@ -44,7 +44,4 @@ void insert_into_Adios(char *filepath, int n, double * buf, MPI_Comm *pcomm);
 //      data is send once for each cube
 void run_lbm(char *filepath, int step_stop, int dims_cube[3], MPI_Comm * pcomm);
 
-double get_cur_time();
-
-void check_malloc(void * pointer);
 #endif
