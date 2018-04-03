@@ -54,6 +54,8 @@ mkdir -pv ${SCRATCH_DIR}
 cd ${SCRATCH_DIR}
 cp -R ${PBS_O_WORKDIR}/adios_xmls ${SCRATCH_DIR}
 
+cp ${BUILD_DIR}/config.h  ${SCRATCH_DIR}
+
 
 ## Create dataspaces configuration file
 # note that we now have 400 regions

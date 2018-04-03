@@ -1,9 +1,37 @@
-## Mar 32
+## April 2
+[three locks in performance comperison 1st]:
+```
+  JOBID CPUS MIN_MEMORY           DEPENDENCY
+ 2714966  896    123200M
+ 2714967  896    123200M     afterany:2714966
+ 2714968  896    123200M     afterany:2714967
+ 2714969  896    123200M     afterany:2714968
+ 2714977  672    123200M     afterany:2714969
+ 2714979  672    123200M     afterany:2714977
+ 2714980  448    123200M     afterany:2714979
+```
+
+
+[JOBS for trace 256v128 with 3locks whenever possible]: **RESULTS**
+1. 2698956: **WAIT** 27.5s
+    * mpiio 
+2. 2698960: **WAIT**
+    native dimes : 7.4+4 = 11.4s
+3. 2698962: **WAIT**
+    native dspaces 10.94+5s = 15.94s
+
+[JOBS for trace 256v128 with 3locks whenever possible]: **RESULTS**
+1. native dimes 
+2. native dspaces
+
+
 [results]:
+----------------------------------------------------
 * 2686038: **result**
      dimes end2ed time 100 steps using 3locks: 100s
 * 2685827: **result**
      dimes end2ed time 100 steps using 1locks: 102s
+
 ## Mar 31
 [Result]:
 1. bridges\_64\_dspaces\_3lock\_marked.png:

@@ -65,6 +65,8 @@ mkdir -pv ${SCRATCH_DIR}
 cd ${SCRATCH_DIR}
 #cp -R ${PBS_O_WORKDIR}/global_range_select/arrays.xml ${SCRATCH_DIR}
 
+cp ${BUILD_DIR}/config.h  ${SCRATCH_DIR}
+
 
 # this scrWorkspaces/General_Data_Broker/lbm_adios/scripts
 GENERATE_HOST_SCRIPT=${PBS_O_WORKDIR}/scripts/generate_hosts.sh
