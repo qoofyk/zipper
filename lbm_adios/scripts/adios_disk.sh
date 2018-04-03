@@ -1,5 +1,9 @@
 #export  I_MPI_JOB_RESPECT_PROCESS_PLACEMENT=0
 
+# tmp folder for io
+export BP_DIR="${SCRATCH_DIR}/bp-dir"
+mkdir ${BP_DIR} -pv
+
 env|grep '^HAS' # trace enabled?
 module list
 echo "case=$CASE_NAME datasize=$FILESIZE2PRODUCE nstops=$NSTOP"

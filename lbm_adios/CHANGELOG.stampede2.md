@@ -11,6 +11,9 @@ TODO
 	1. nnti in flexpath, not usable.
 	2. dspaces hanging
 	3. ENABLE_TESTING in flexpath conf, enabled
+## April 3
+[CHANGED]:
+1. use bp-dir for adios output
 ## April 2
 [TODO]:
 1. reorganize:

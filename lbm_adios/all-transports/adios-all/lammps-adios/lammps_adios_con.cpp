@@ -175,11 +175,21 @@ int main (int argc, char ** argv){
     int         NX, NY, NZ; 
     double      *t;
 
+    char *filepath = getenv("BP_DIR");
+    if(filepath == NULL){
+        PERR("IO  dir is not set!\n");
+    }
 
     char filename[256];
 
     // append file name
     sprintf(filename, "atom.bp");
+    if(transport_major == ADIOS_STAGING)
+            sprintf(filename, "%s/atom.bp", filepath);
+    else
+	        sprintf(filename, "%s/atom_%s.bp", filepath, step);
+
+
     ADIOS_FILE * afile = adios_read_open (filename, method, comm, ADIOS_LOCKMODE_CURRENT, -1);
     //ADIOS_FILE * f = adios_read_open (filename, method, comm, ADIOS_LOCKMODE_NONE, 0);
 

@@ -1,3 +1,7 @@
+# tmp folder for io
+export BP_DIR="${SCRATCH_DIR}/bp-dir"
+mkdir ${BP_DIR} -pv
+
 #################################################### 
 # common commands for all experiments 
 #export  I_MPI_JOB_RESPECT_PROCESS_PLACEMENT=0

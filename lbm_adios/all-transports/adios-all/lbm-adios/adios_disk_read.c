@@ -93,7 +93,7 @@ int main (int argc, char ** argv)
     
     int r;
 
-    char *filepath = getenv("SCRATCH_DIR");
+    char *filepath = getenv("BP_DIR");
     if(filepath == NULL){
         fprintf(stderr, "scratch dir is not set!\n");
     }

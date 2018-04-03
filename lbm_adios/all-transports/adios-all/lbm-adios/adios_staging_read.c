@@ -102,7 +102,7 @@ int main (int argc, char ** argv)
     
     int r;
 
-    char *filepath = getenv("SCRATCH_DIR");
+    char *filepath = getenv("BP_DIR");
     if(filepath == NULL){
         fprintf(stderr, "scratch dir is not set!\n");
     }
@@ -287,7 +287,7 @@ int main (int argc, char ** argv)
                 insert_into_adios(filepath, "restart", -1, slice_size, v->dims[1], data,"a", &comm);
 
             if(rank ==0)
-                PINF("Step %d data kept\n", rank, timestep);
+                PINF("Step %d data kept\n", timestep);
         }
 
         // analysis

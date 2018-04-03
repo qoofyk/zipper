@@ -32,6 +32,8 @@ extern "C"{
  */
 void insert_into_adios(char * file_path, char *var_name, int timestep, int n, int size_one, double * buf, const char * mode, MPI_Comm *pcomm);
 
+status_t adios_adaptor_init_client(char *xmlfile, MPI_Comm comm);
+
 #ifdef __cplusplus
 }
 #endif

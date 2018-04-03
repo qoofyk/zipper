@@ -190,6 +190,9 @@ int main(int argc, char * argv[]){
 
     buffer = (double *)malloc(size_one * 521000 *sizeof(double));
 
+    // output dir for adios
+    char *filepath = getenv("BP_DIR");
+
     for (step = 0; step < nsteps; step++)
     {
 
@@ -214,6 +217,7 @@ int main(int argc, char * argv[]){
         int natoms = static_cast<int>(lps->atom->natoms);
         int navg = natoms/nprocs; //avg atoms per proc
         
+        // TODO: precise!
 #ifdef PRECISE
         int line_buffer = nlocal; // how many lines for buffer
 #else
@@ -243,6 +247,7 @@ int main(int argc, char * argv[]){
          */
 
 
+
 #ifdef V_T
       VT_begin(put_buffer_id);
 #endif
@@ -256,7 +261,13 @@ int main(int argc, char * argv[]){
     offset = rank*NY;
     size_y = nprocs*NY;
 
-	sprintf(filename, "atom.bp");
+
+  if(transport_major == ADIOS_DISK || transport_major == ADIOS_STAGING){
+      if(transport_major == ADIOS_STAGING)
+            sprintf(filename, "%s/atom.bp", filepath);
+      else
+	        sprintf(filename, "%s/atom_%s.bp", filepath, step);
+
 
         adios_open (&adios_handle, "temperature", filename, "w", comm);
 
@@ -271,6 +282,12 @@ int main(int argc, char * argv[]){
         adios_write (adios_handle, "var_2d_array", buffer);
         
         adios_close (adios_handle);
+  }
+  else{
+      PERR("transport %u:%u is not not supported", transport_major, transport_minor);
+      TRACE();
+      MPI_Abort(-1);
+  }
 
 
 

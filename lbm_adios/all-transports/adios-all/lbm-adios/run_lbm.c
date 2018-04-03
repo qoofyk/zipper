@@ -248,7 +248,7 @@ int main(int argc, char * argv[]){
     MPI_Get_processor_name(nodename, &nodename_length );
 
 
-    char *filepath = getenv("SCRATCH_DIR");
+    char *filepath = getenv("BP_DIR");
     if(filepath == NULL){
         fprintf(stderr, "scratch dir is not set!\n");
     }
