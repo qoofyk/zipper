@@ -1,0 +1,3 @@
+// dspaces related
+#cmakedefine USE_SAME_LOCK 
+#cmakedefine DS_MAX_VERSION (@DS_MAX_VERSION@)

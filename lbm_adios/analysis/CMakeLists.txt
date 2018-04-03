@@ -8,7 +8,7 @@ add_library(nmoments_analysis run_analysis.c)
 
 foreach(item nmoments_analysis)
 
-    target_link_libraries(${item} ${MPI_LIBRARIES})
+    #target_link_libraries(${item} ${MPI_LIBRARIES})
 
     if(MPI_COMPILE_FLAGS)
         set_target_properties(${item} PROPERTIES COMPILE_FLAGS "${MPI_C_COMPILE_FLAGS}")

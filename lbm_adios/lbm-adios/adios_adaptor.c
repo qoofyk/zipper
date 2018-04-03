@@ -5,6 +5,37 @@
 
 #include "adios_adaptor.h"
 
+#ifdef V_T
+#include <VT.h>
+int class_id;
+int adios_open_id, adios_write_id, adios_read_id,adios_close_id;
+#endif
+
+
+status_t adios_adaptor_init_client(char *xmlfile, MPI_Comm comm){
+#ifdef V_T
+      //VT_initialize(NULL, NULL);
+      PINF("[adios_adaptor]: trace enabled and initialized\n");
+      VT_classdef( "ADIOS", &class_id );
+      VT_funcdef("AD-OP", class_id, &adios_open_id);
+      VT_funcdef("AD-WR", class_id, &adios_write_id);
+      VT_funcdef("AD-RD", class_id, &adios_read_id);
+      VT_funcdef("AD-CL", class_id, &adios_close_id);
+#endif
+
+
+    if(adios_init (xmlfile, comm) != 0){
+        PERR("adios init err\n");
+        PERR("%s\n", adios_get_last_errmsg());
+        TRACE();
+        return S_FAIL;
+    }
+    else{
+        return S_OK;
+    }
+}
+
+
 void insert_into_adios(char * file_path, char *var_name,int timestep, int n, int size_one, double * buf, const char* mode,  MPI_Comm *pcomm){
     char        filename [256];
     int         rank, size;
@@ -39,7 +70,14 @@ void insert_into_adios(char * file_path, char *var_name,int timestep, int n, int
 
     //printf("rank %d: start to write\n", rank);
     
+
+#ifdef V_T
+      VT_begin(adios_open_id);
+#endif
     adios_open (&adios_handle, var_name, filename, mode, comm);
+#ifdef V_T
+      VT_end(adios_open_id);
+#endif
 #ifdef debug
     printf("rank %d: file %s opened\n", rank, filename);
 #endif
@@ -53,12 +91,25 @@ void insert_into_adios(char * file_path, char *var_name,int timestep, int n, int
                     + 8 * (n) * (size_one);
     adios_group_size (adios_handle, adios_groupsize, &adios_totalsize);
     */
+#ifdef V_T
+      VT_begin(adios_write_id);
+#endif
     adios_write (adios_handle, "NX", &NX);
     adios_write (adios_handle, "lb", &lb);
     adios_write (adios_handle, "n", &n);
     adios_write (adios_handle, "size_one", &size_one);
     adios_write (adios_handle, var_name, buf);
+#ifdef V_T
+      VT_end(adios_write_id);
+#endif
+
+#ifdef V_T
+      VT_begin(adios_close_id);
+#endif
     adios_close (adios_handle);
+#ifdef V_T
+      VT_end(adios_close_id);
+#endif
 
     /*
     if(rank ==0){

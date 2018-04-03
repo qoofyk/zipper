@@ -1,3 +1,179 @@
+## Mar 32
+[results]:
+* 2686038: **result**
+     dimes end2ed time 100 steps using 3locks: 100s
+* 2685827: **result**
+     dimes end2ed time 100 steps using 1locks: 102s
+## Mar 31
+[Result]:
+1. bridges\_64\_dspaces\_3lock\_marked.png:
+    3 lock produce combined with consumer: seems like consumer is slower than expected. produce only throw data into  buffer. consumer need time to consumer it.(consumer is the bound of overall end to end time)
+    [to check]: what is lock_on_read do: check data is ready?
+[JOBS]:
+
+1. 2679149
+    mpiio 64v32: no trace(137s intel mpi)
+
+1. 2679209
+    mpiio 64v32: with trace **WAITING** (adios operation not marked)
+        there is a "MPI_Broadcast"
+* above are mpiio:
+
+
+-------------------------------------------------------------
+2683164
+    native dspaces 64v32(single lock)(130s with impi)
+
+2683434
+    native dspaces 64v32(single lock with 16 server procs in equal number of nodes)(135 s with impi)
+
+2679467:
+    native dspaces 64v32(3 lock)  , slice size printed(ans: they are the same!)
+
+2685481: **results**
+    native dimes 64v32(3 lock) using set group , 7s 
+2685636: **results**
+    native dimes 64v32(1 lock) using set group , 10s
+2679064:[results?]
+    native dspaces 64v32(3 lock) 
+2678785:
+    native dspaces 64v32 with 16 server procs in each node **WAITING**
+    
+* below are native dspaces/dimes:
+1. 2683065
+    dspaces 64v32, 1 lock with 16 server procs/node
+    
+1. 2674632
+    native dspaces 256v128(1 lock) with itac **WAITING**
+1. 2674759
+    mpiio 64v32(1 lock) with itac **ERROR**
+        what:undefined symbol: _ZTVN10__cxxabiv117__class_type_infoE**
+        why: link to faulse mpi library
+
+1. 2675280
+    native dimes 64v32(1 lock) with itac
+1. 2676682
+    native dimes 64v32(3 lock) with itac // same pattern, receive is slower **ERR**
+    cmd: 
+        ```
+        less /pylon5/ac561jp/fli5/data_broker_adios/2676682/results/consumer.log |grep  '\[31\]'|less
+        ```
+    error:
+        ```
+        [31] DEBUG get_common_buffer:get the read lock atom_lock_t_2 for step 8
+        [31] dart_rdma_process_ibv_cq(): wc.status (5).
+        [31] 'dart_rdma_process_ibv_cq()': failed with -5.
+        [31] dart_rdma_process_ibv_cq(): wc.status (5).
+        [31] 'dart_rdma_process_ibv_cq()': failed with -5.
+        [31] 'all_fetch_done()': failed with -1.
+        [31] 'dimes_fetch_data()': failed with -1.
+        [31] dart_rdma_delete_read_tran(): read tran with id= 17 not complete!
+        [31] dart_rdma_delete_read_tran(): read tran with id= 16 not complete!
+        [31] 'dimes_obj_get()': failed with -1.
+        [31] 'dimes_client_get()': failed with -1.
+        [31] DEBUG get_common_buffer:try to unlock the read lock atom_lock_t_2 for step 8
+        [31] DEBUG get_common_buffer:release the read lock atom_lock_t_2 for step 8 
+        [31] DEBUG get_common_buffer:get varaible atom err in step 8 ,  error number -1 
+        ```
+    reason: put_sync_all?
+
+
+1. 2675334
+    native dspacs 64v32(1 lock) with itac 
+1. 2675679
+    native dspacs 64v32(3 lock) with itac // bounded by consumer!
+1. 2675779
+    native dspacs 64v32(10 lock) with itac // still bounded by consumer
+1. 2675373
+    native dspacs 64v32(1 lock) with itac, [results, clear]
+
+1. 2674770
+    flexpath 64v32 with itac **WAITING** 
+    in this earlier version adios is not itac-traced
+
+
+1. 2673834
+    native dspaces 64v32(1 lock) with itac
+        put function is delayed in processes other than proc 0, see bridges_64_dspaces_1lock_prod.png
+        there is a long "MPIBarrier" time, **TODO**I need to wrap DSPACE_function with itac
+1. 2671247
+    native dspaces 64v32(1 lock) with itac **server path incorrect**
+above use refactorized lbm
+--------------------------------------------------
+## Mar 30
+[JOBS]:
+-----------------------------------------------
+* summary in Per\_comp\_xp\_data/ds-2lock tab
+1. 2668643
+    native dspaces 32v16(2 lock)  **ERROR** (crashes)
+1. 2668570
+    native dspaces 64v32(1 lock)
+1. 2668521
+    native dspaces 64v32(2 lock)
+1. 2668717
+    native dspaces 128v64(1 lock) 
+1. 2668725
+    native dspaces 128v64(1 lock) 
+1. 2668728
+    native dspaces 128v64(1 lock)
+1. 2668666
+    native dspaces 128v64(2 lock)
+1. 2668703
+    native dspaces 128v64(2 lock) 
+
+1. 2668515
+    native dspaces 256v128(1 lock) **175.8**
+1. 2668743
+    native dspaces 256v128(1 lock) **WAIT**
+1. 2668584
+    native dspaces 256v128(2 lock) **error**
+1. 2668600
+    native dspaces 256v128(2 lock) **ERROR** (rpc connection rejected)
+1. 2668609
+    native dspaces 256v128(2 lock) **FASTER!**
+1. 2668688
+    native dspaces 256v128(2 lock) **FASTER!**
+1. 2668512
+1. 2668512
+    native dpspaces 8v4(8v4 1 lock)
+1. 2668629
+    native dspaces 8v4(2 lock)
+------------------------------------------------
+1. 2667696
+    native dpsaces 3 consumers are not up
+1. 2667672
+    native dspaces: 32v16, one consumer is not up!
+1. 2667425:
+    dspaces with 2 locks
+    while dimes server is in the trace
+1. 2664216:
+    dspaces using samelock
+
+1. 2663284:
+    native dspaces using same lock
+## Mar 29
+[todo]: put ds_max_version/use_one_block in config.h 
+[JOBS]:
+1. 2662941:
+    dspaces using only 3 version
+1. 2661466:
+    dspaces using the config, err
+1. 2660781
+    setting: max_version =10, use %10 as lockname
+1. 2660718
+    found: also remove the put_sync_all for multi-locks:
+    how to fix: now no error, but dspaces servers take forever to initialize
+1. 2660303
+    multi-version also added in dspaces.conf
+1. 2659686
+   **failed**(also confirmed in 2659948) : 256v128 with  native_dimes with multi locks, failed with
+    reason: 
+            sync_ok = dimes_put_sync_all();
+1. 2658888:
+256v128 with  native_dimes, t2s= 140.6s
+1. 2657187:
+256v128 adios\_dimes, t2s= 173.8s
+
 ## Jan 18
 JOBS:
     2209189[results]
