@@ -314,11 +314,6 @@ int main(int argc, char * argv[]){
 
   run_lbm_adios(filepath, nstop, comm);
 
-  MPI_Barrier(comm);
-  double t_end = MPI_Wtime();
-  if(rank == 0){
-      PINF("stat:Simulation stop at %lf \n", t_end);
-  }
 
     if(transport_major == ADIOS_DISK || transport_major == ADIOS_STAGING){
       adios_finalize (rank);
@@ -328,8 +323,15 @@ int main(int argc, char * argv[]){
     else if(transport_major == NATIVE_STAGING){
         /* dimes needs to flush last step */
         if(transport_minor == DIMES){
-            ds_adaptor_flush_dimes(var_name, comm);
+            ds_adaptor_flush_dimes(var_name, comm, nstop);
         }
+
+        double t_end = MPI_Wtime();
+          if(rank == 0){
+              PINF("stat:Simulation stop at %lf \n", t_end);
+          }
+
+
         dspaces_finalize();
   }
 

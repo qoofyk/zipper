@@ -241,14 +241,24 @@ status_t put_common_buffer(uint8_t transport_minor, int timestep,int ndim, int b
     if(transport_minor == DIMES){
         //if(timestep%(DS_MAX_VERSION)==0 && timestep>0){
             // this will free  previous buffer
-#ifdef USE_SAME_LOCK
-            sync_ok = dimes_put_sync_all();
-            if(sync_ok != 0){
-                perror("put err:");
-                TRACE();
+            if(S_OK != dimes_put_sync_group(lock_name, 0)){
+                PERR("put_sync error");
+                TRACE(); 
                 return S_FAIL;
             }
-#endif
+            if(S_OK != dimes_put_set_group(lock_name, 0)){
+                PERR("put_set_group error");
+                TRACE(); 
+                return S_FAIL;
+            } 
+/*#ifdef USE_SAME_LOCK*/
+            /*sync_ok = dimes_put_sync_all();*/
+            /*if(sync_ok != 0){*/
+                /*perror("put err:");*/
+                /*TRACE();*/
+                /*return S_FAIL;*/
+            /*}*/
+/*#endif*/
 
             PDBG( "freed tmp buffer at step at step %d", timestep);
         //}
@@ -289,15 +299,28 @@ status_t put_common_buffer(uint8_t transport_minor, int timestep,int ndim, int b
 
 /* dimes needs to flush last step
          */
-status_t ds_adaptor_flush_dimes(char * var_name, MPI_Comm comm){
+status_t ds_adaptor_flush_dimes(char * var_name, MPI_Comm comm, int nsteps){
    
-#ifdef USE_SAME_LOCK
     char lock_name[STRING_LENGTH];
+#ifdef USE_SAME_LOCK
     snprintf(lock_name, STRING_LENGTH, "%s_lock", var_name);
     dspaces_lock_on_write(lock_name, &comm);
     dimes_put_sync_all();
     dspaces_unlock_on_write(lock_name, &comm);
     //PINF("rank %d: step %d last step flushed\n");
+#else
+    int i;
+    for(i = 0 ; i< DS_MAX_VERSION; i++){ // make sure bufferd values are flushed!
+        snprintf(lock_name, STRING_LENGTH, "%s_lock_t_%d",var_name, (i+nsteps)%(DS_MAX_VERSION));
+        dspaces_lock_on_write(lock_name, &comm);
+        if(S_OK != dimes_put_sync_group(lock_name, 0)){
+                PERR("put_sync error");
+                TRACE(); 
+                return S_FAIL;
+        }
+
+        dspaces_unlock_on_write(lock_name, &comm);
+    }
 #endif
     return S_OK;
 }
