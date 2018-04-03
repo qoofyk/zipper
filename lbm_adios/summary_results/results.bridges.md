@@ -1,3 +1,9 @@
+## Mar 32
+[results]:
+* 2686038: **result**
+     dimes end2ed time 100 steps using 3locks: 100s
+* 2685827: **result**
+     dimes end2ed time 100 steps using 1locks: 102s
 ## Mar 31
 [Result]:
 1. bridges\_64\_dspaces\_3lock\_marked.png:
@@ -23,12 +29,12 @@
 
 2679467:
     native dspaces 64v32(3 lock)  , slice size printed(ans: they are the same!)
-2679078:
-    native dimes 64v32(3 lock) 
 
-2685481:
-    native dimes 64v32(3 lock) using set group  **WAITING**
-2679064:
+2685481: **results**
+    native dimes 64v32(3 lock) using set group , 7s 
+2685636: **results**
+    native dimes 64v32(1 lock) using set group , 10s
+2679064:[results?]
     native dspaces 64v32(3 lock) 
 2678785:
     native dspaces 64v32 with 16 server procs in each node **WAITING**
