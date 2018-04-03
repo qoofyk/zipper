@@ -58,7 +58,7 @@ lfs setstripe --stripe-size 1m --stripe-count ${tune_stripe_count} ${PBS_RESULTD
 mkdir -pv ${SCRATCH_DIR}
 
 cd ${SCRATCH_DIR}
-cp -R ${PBS_O_WORKDIR}/adios_xmls ${SCRATCH_DIR}
+cp -R ${PBS_O_WORKDIR}/all-transports/adios-all/lbm-adios/adios_xmls ${SCRATCH_DIR}
 
 
 # this scripts is avaliable at

@@ -62,29 +62,29 @@ include_directories(${MPI_INCLUDE_PATH} ${CMAKE_SOURCE_DIR} ${CMAKE_SOURCE_DIR}/
 
 set(EXECUTABLE_OUTPUT_PATH "${CMAKE_BINARY_DIR}/bin")
 
+## lbm-nmoments
 add_subdirectory(lbm)
+add_subdirectory(nmoments-anal)
 
+
+## lammps-msd
+if(LAMMPS_INCLUDE_DIR)
+    add_subdirectory(msd-anal)
+endif()
+
+## bind different transports to applications
 if(all_transports)
-    # build lbm-moments
-    add_subdirectory(lbm-adios)
-    add_subdirectory(analysis)
-
-    # build lammps-msd
-    if(LAMMPS_INCLUDE_DIR)
-        add_subdirectory(lammps)
-        add_subdirectory(msd)
-        add_subdirectory(lammps-adios)
-    else()
-        message("-- lammps not build")
-    endif()
-
-    add_subdirectory(decaf)
-    #add_subdirectory(tests)
+    add_subdirectory(all-transports)
 
 endif(all_transports)
 
+## zipper
 if(build_zipper)
     add_subdirectory(zipper)
 endif(build_zipper)
+
+
+## tests
+add_subdirectory(tests)
 
 

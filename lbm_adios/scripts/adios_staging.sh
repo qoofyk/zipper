@@ -67,7 +67,7 @@ tune_stripe_count=-1
 lfs setstripe --stripe-size 1m --stripe-count ${tune_stripe_count} ${PBS_RESULTDIR}
 mkdir -pv ${SCRATCH_DIR}
 cd ${SCRATCH_DIR}
-cp -R ${PBS_O_WORKDIR}/adios_xmls ${SCRATCH_DIR}
+cp -R ${PBS_O_WORKDIR}/all-transports/adios-all/lbm-adios/adios_xmls ${SCRATCH_DIR}
 
 ## this is a clean working dir
 #rm -f conf *.log srv.lck

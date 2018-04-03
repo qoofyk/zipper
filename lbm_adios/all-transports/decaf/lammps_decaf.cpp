@@ -36,7 +36,7 @@
 #include "input.h"
 #include "atom.h"
 #include "library.h"
-#include "run_msd.h"
+#include "msd-anal/run_msd.h"
 #define SIZE_ONE (5)
 //#define NSTEPS (100)
 

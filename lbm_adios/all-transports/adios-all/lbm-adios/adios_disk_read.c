@@ -18,17 +18,17 @@
  * dimension of the global array here. 
 */
 
-#define CLOG_MAIN
-#include "utility.h"
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <mpi.h>
+
 #include "adios_read.h"
 #include "adios_error.h"
 //#include "adios_read_global.h"
-#include "run_analysis.h"
+#include "utility.h"
+#include "nmoments-anal/run_analysis.h"
 
 #ifdef V_T
 #include <VT.h>

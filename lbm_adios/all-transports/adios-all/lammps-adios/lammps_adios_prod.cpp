@@ -11,7 +11,6 @@
 #include "input.h"
 #include "atom.h"
 #include "library.h"
-#include "run_msd.h"
 #define SIZE_ONE (5)
 
 //#include "utility.h"
@@ -24,6 +23,7 @@
 
 #include "transports.h"
 #include "utility.h"
+#include "msd-anal/run_msd.h"
 static transport_method_t transport;
 
 #ifdef V_T

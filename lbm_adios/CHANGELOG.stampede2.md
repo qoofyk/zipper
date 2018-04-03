@@ -11,6 +11,9 @@ TODO
 	1. nnti in flexpath, not usable.
 	2. dspaces hanging
 	3. ENABLE_TESTING in flexpath conf, enabled
+## April 2
+[TODO]:
+1. reorganize:
 ## Jan 21
 	* flexpath dimension:
 			see flexpath_skel/global_range_select, for 3d dimension, there
@@ -18,12 +21,11 @@ TODO
 ## Jan 20
 	* flexpath slow:
 		all reduce and all gather
-	* flexpath crash 2074*1000000 > int_max
+	* flexpath crash 2074\*1000000 > int_max
 ## Jan 19
 	* flexpath, why it is slow
 	* decaf, why it crashes at large scale?
 	* regenerate trace in lbm-decaf in adios_perf
-	* 
 ## Jan 18
 	* better trace record organization
 

@@ -26,13 +26,13 @@
 #include <mpi.h>
 #include "adios_read.h"
 #include "adios_error.h"
-#include "run_msd.h"
 //#include "adios_adaptor.h"
 //#include "adios_helper.h"
 #include "adios.h"
 #include <assert.h>
 #include "transports.h"
 #include "utility.h"
+#include "msd-anal/run_msd.h"
 static transport_method_t transport;
 
 #define SIZE_ONE (5)

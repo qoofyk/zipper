@@ -36,7 +36,7 @@
 
 #include "lbm.h"
 #include "lbm_buffer.h"
-#include "run_analysis.h"
+#include "nmoments-anal/run_analysis.h"
 
 /*#ifndef NLINES*/
 //#define NLINES (256*256*16) // each proc write 10 lines

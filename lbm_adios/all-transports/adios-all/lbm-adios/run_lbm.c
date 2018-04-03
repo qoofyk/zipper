@@ -9,7 +9,7 @@
 
 #include "lbm.h"
 #include "lbm_buffer.h"
-#include "run_analysis.h"
+//#include "run_analysis.h"
 #include "utility.h"
 
 #ifndef SIZE_ONE

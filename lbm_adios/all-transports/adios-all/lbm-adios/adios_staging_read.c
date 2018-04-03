@@ -18,18 +18,20 @@
 */
 
 #define CLOG_MAIN
-#include "utility.h"
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <mpi.h>
+
 #include "adios_read.h"
 #include "adios_error.h"
-#include "run_analysis.h"
 #include "adios_adaptor.h"
 #include <assert.h>
 #include "transports.h"
+
+#include "utility.h"
+#include "nmoments-anal/run_analysis.h"
 static transport_method_t transport;
 
 #ifdef V_T
