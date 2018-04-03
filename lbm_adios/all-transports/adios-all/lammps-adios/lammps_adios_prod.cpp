@@ -19,6 +19,7 @@
 //#include "adios_helper.h"
 #include "adios.h"
 #include "adios_error.h"
+#include "adios_adaptor.h"
 #include "ds_adaptor.h"
 
 #include "transports.h"
@@ -282,6 +283,18 @@ int main(int argc, char * argv[]){
         adios_write (adios_handle, "var_2d_array", buffer);
         
         adios_close (adios_handle);
+
+      if(transport_major == ADIOS_DISK){
+         /**** use index file to keep track of current step *****/
+        char step_index_file[256];
+        sprintf(step_index_file, "%s/stamp.file", filepath);
+
+        if(S_OK != adios_adaptor_update_avail_version(comm, step_index_file, step, nsteps)){
+            PERR("index file not found");
+            TRACE();
+            MPI_Abort(comm, -1);
+        }
+      }
   }
   else{
       PERR("transport %u:%u is not not supported", transport_major, transport_minor);

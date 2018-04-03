@@ -12,10 +12,16 @@ extern "C"{
 #include <stdio.h>
 #include <string.h>
 #include <mpi.h>
-#include "adios.h"
 #include "time.h"
 #include <unistd.h>
 #include "utility.h"
+
+#include "adios_read.h"
+#include "adios_error.h"
+#include "adios.h"
+
+
+status_t query_select_lammps(ADIOS_FILE * afile, int rank, int nprocs, ADIOS_SELECTION *global_range_select, size_t *p_nelem);
 
 
 status_t adios_adaptor_update_avail_version(MPI_Comm comm, char * step_index_file, int timestep, int nsteps);
