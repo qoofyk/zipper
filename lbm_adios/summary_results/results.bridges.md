@@ -15,16 +15,27 @@
 
 
 -------------------------------------------------------------
+2683164
+    native dspaces 64v32(single lock)(130s with impi)
+
+2683434
+    native dspaces 64v32(single lock with 16 server procs in equal number of nodes)(135 s with impi)
+
 2679467:
     native dspaces 64v32(3 lock)  , slice size printed(ans: they are the same!)
 2679078:
     native dimes 64v32(3 lock) 
+
+2685481:
+    native dimes 64v32(3 lock) using set group  **WAITING**
 2679064:
     native dspaces 64v32(3 lock) 
 2678785:
     native dspaces 64v32 with 16 server procs in each node **WAITING**
     
 * below are native dspaces/dimes:
+1. 2683065
+    dspaces 64v32, 1 lock with 16 server procs/node
     
 1. 2674632
     native dspaces 256v128(1 lock) with itac **WAITING**

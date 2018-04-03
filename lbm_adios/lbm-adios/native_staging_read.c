@@ -194,7 +194,10 @@ int main (int argc, char ** argv)
 
 //#ifdef RAW_DSPACES
         t1 =MPI_Wtime(); 
-        get_common_buffer(transport_minor, timestep,2, bounds,rank, var_name, (void **)&data, elem_size, &time_comm);
+        if(S_OK != get_common_buffer(transport_minor, timestep,2, bounds,rank, var_name, (void **)&data, elem_size, &time_comm)){
+          TRACE();
+          MPI_Abort(comm, -1);
+        }
         t2 =MPI_Wtime(); 
         // all time spent by get_common_buffer
         t_read_1 += t2-t1;

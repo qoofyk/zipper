@@ -22,10 +22,13 @@ versions
 4. DIMES; sync\_all:(I sent a email to Rutgers)
     *. how the buffers are freed?
     *. there is a dimes_put_sync_all
+5. reason why it crashes at step 7: producer end in advance!
 [Target]:
 0. need to add analysis trace
 1. dspaces multilock: more server>?
 2. dspaces : why consumer 0 is slower
+[Fixed]:
+1. dimes fetch error: the last cached version is not protected, add on more loop to of ds\_lock\_on\_write to protect
 
 
 ## April 1

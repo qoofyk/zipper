@@ -60,7 +60,7 @@ status_t get_common_buffer(uint8_t transport_minor, int timestep,int ndim, int b
 status_t put_common_buffer(uint8_t transport_minor, int timestep, int ndim, int bounds[6], int rank, char * var_name, void **p_buffer,size_t elem_size, double *p_time_used);
 
 //void get_common_buffer_unblocking(int timestep,int ndim, int bounds[6], int rank, MPI_Comm * p_gcomm,char * var_name, void **p_buffer,size_t elem_size, double *p_time_used);
-status_t ds_adaptor_flush_dimes(char * var_name, MPI_Comm comm);
+status_t ds_adaptor_flush_dimes(char * var_name, MPI_Comm comm, int nsteps);
 
 #ifdef __cplusplus
 }

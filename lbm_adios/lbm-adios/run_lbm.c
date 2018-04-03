@@ -328,7 +328,7 @@ int main(int argc, char * argv[]){
     else if(transport_major == NATIVE_STAGING){
         /* dimes needs to flush last step */
         if(transport_minor == DIMES){
-            ds_adaptor_flush_dimes(var_name, comm);
+            ds_adaptor_flush_dimes(var_name, comm, nstop);
         }
         dspaces_finalize();
   }
