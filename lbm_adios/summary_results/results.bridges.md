@@ -4,35 +4,35 @@
   JOBID CPUS MIN_MEMORY           DEPENDENCY
  2719621  896    123200M     dspaces/           dspaces     2714966failed
  2714967  896    123200M     afterany:2714966   dimes ok
- 2714968  896    123200M     afterany:2714967   mpiio ok
- 2714969  896    123200M     afterany:2714968   adios_dspaces
- 2714977  672    123200M     afterany:2714969   adios_dimes
+ 2714968  896    123200M     afterany:2714967   adios_dspaces
+ 2714969  896    123200M     afterany:2714968   adios_dimes
+ 2714977  672    123200M     afterany:2714969   adios_mpiio
  2714979  672    123200M     afterany:2714977   adios_flexpath
  2714980  448    123200M     afterany:2714979   simonly
  2719656  decaf 
 ```
 [run 2st]
 ```
- 2719700  896    123200M     afterany:2719656
+ 2719700  896    123200M     afterany:2719656 dspaces
  2719830  896    123200M     afterany:2719700 dimes 2719701failed
- 2719702  896    123200M     afterany:2719701 ok
- 2719703  896    123200M     afterany:2719702 ok
- 2719704  672    123200M     afterany:2719703 ok
- 2719705  672    123200M     afterany:2719704 ok
- 2719706  896    123200M     afterany:2719705 ok
- 2719707  448    123200M     afterany:2719706
+ 2719702  896    123200M     afterany:2719701 adios_dspaces
+ 2719703  896    123200M     afterany:2719702 adios_dimes
+ 2719704  672    123200M     afterany:2719703 adios_mpiio
+ 2719705  672    123200M     afterany:2719704 adios_flexpath
+ 2719706  896    123200M     afterany:2719705 decaf [WAITING]
+ 2719707  448    123200M     afterany:2719706 simonly
 
 ```
 [run 3st]
 ```
-2719797  896    123200M     afterany:2719707
- 2719798  896    123200M     afterany:2719797
- 2719799  896    123200M     afterany:2719798
- 2719800  896    123200M     afterany:2719799
- 2719801  672    123200M     afterany:2719800
- 2719802  672    123200M     afterany:2719801
- 2719803  896    123200M     afterany:2719802
- 2719804  448    123200M     afterany:2719803
+2719797  896    123200M     afterany:2719707   dspaces 
+ 2719798  896    123200M     afterany:2719797  dimes
+ 2719799  896    123200M     afterany:2719798  adios_dspaces
+ 2719800  896    123200M     afterany:2719799  adios_dimes
+ 2719801  672    123200M     afterany:2719800  adios_mpiio
+ 2719802  672    123200M     afterany:2719801  adios_flexpath
+ 2719803  896    123200M     afterany:2719802 decaf
+ 2719804  448    123200M     afterany:2719803 sim-only
 ```
 
 
