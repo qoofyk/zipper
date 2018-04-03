@@ -18,6 +18,7 @@ TODO
 ## April 2
 [TODO]:
 1. reorganize:
+2. rerun flexpath?
 ## Jan 21
 	* flexpath dimension:
 			see flexpath_skel/global_range_select, for 3d dimension, there

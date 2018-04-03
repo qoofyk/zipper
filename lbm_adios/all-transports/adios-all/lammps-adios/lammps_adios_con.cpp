@@ -66,7 +66,7 @@ int main (int argc, char ** argv){
 
     //enum ADIOS_READ_METHOD method = ADIOS_READ_METHOD_DIMES;
     //enum ADIOS_READ_METHOD method = ADIOS_READ_METHOD_BP;
-    ADIOS_SELECTION * sel;
+    ADIOS_SELECTION * sel = NULL;
     double * data = NULL;
     uint64_t start[3], count[3];
 
@@ -137,7 +137,6 @@ int main (int argc, char ** argv){
 
     /* prepare adios
      */
-    ADIOS_SELECTION *global_range_select = NULL;
     double      *t = NULL;
 
     char *filepath = getenv("BP_DIR");
@@ -148,7 +147,7 @@ int main (int argc, char ** argv){
     char filename[256];
 
     // append file name
-    sprintf(filename, "atom.bp");
+    //sprintf(filename, "atom.bp");
     if(transport_major == ADIOS_STAGING)
             sprintf(filename, "%s/atom.bp", filepath);
     else
@@ -168,7 +167,7 @@ int main (int argc, char ** argv){
     while(adios_errno != err_end_of_stream){       
 
         size_t nelem;
-        if(S_OK != query_select_lammps( afile, rank, nprocs, global_range_select, &nelem ) || global_range_select == NULL){
+        if(S_OK != query_select_lammps( afile, rank, nprocs, &sel, &nelem ) && sel== NULL){
             PERR("query not succeed"); 
             TRACE();
             MPI_Abort(comm, -1);
@@ -184,7 +183,7 @@ int main (int argc, char ** argv){
       
         /* Read the arrays */        
         adios_schedule_read (afile, 
-                             global_range_select, 
+                             sel, 
                              "var_2d_array", 
                              0, 1, t);
    /* adios_schedule_read (afile,*/

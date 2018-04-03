@@ -4,6 +4,9 @@
     MPIIO 68v32 with Barrier 5min finishes  78 steps
 * 1051208
     MPIIO 68v32 without Barrier 5min finishes 78 steps
+[code];
+flexpath\_lbm is fine 1052341.
+flexpath\_lammps?
 ## April 2
 [JOBS]:
 after reorganize

@@ -51,7 +51,8 @@ slice(uint64_t length, uint64_t *s, uint64_t *e, int rank, int mpisize)
 
 
 
-status_t query_select_lammps(ADIOS_FILE * afile, int rank, int nprocs, ADIOS_SELECTION *global_range_select, size_t *p_nelem){
+status_t query_select_lammps(ADIOS_FILE * afile, int rank, int nprocs, ADIOS_SELECTION ** sel, size_t *p_nelem){
+    ADIOS_SELECTION *global_range_select = *sel;
 
     int         NX, NY, NZ; 
 
