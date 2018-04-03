@@ -16,6 +16,7 @@ option(use_itac "build with itac" OFF)
 option(build_zipper "build zipper runtim" OFF)
 
 option(USE_SAME_LOCK "Use same lock in dspaces" ON)
+option(BARRIER_STAMP "barrier after broadcast version in consumer" OFF)
 if(NOT USE_SAME_LOCK)
     set(DS_MAX_VERSION "3")
 endif()

@@ -266,7 +266,7 @@ int main(int argc, char * argv[]){
       if(transport_major == ADIOS_STAGING)
             sprintf(filename, "%s/atom.bp", filepath);
       else
-	        sprintf(filename, "%s/atom_%s.bp", filepath, step);
+	        sprintf(filename, "%s/atom_%d.bp", filepath, step);
 
 
         adios_open (&adios_handle, "temperature", filename, "w", comm);
@@ -286,7 +286,7 @@ int main(int argc, char * argv[]){
   else{
       PERR("transport %u:%u is not not supported", transport_major, transport_minor);
       TRACE();
-      MPI_Abort(-1);
+      MPI_Abort(comm, -1);
   }
 
 

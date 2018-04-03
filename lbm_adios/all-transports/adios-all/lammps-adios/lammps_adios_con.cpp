@@ -173,7 +173,7 @@ int main (int argc, char ** argv){
      */
     ADIOS_SELECTION *global_range_select;
     int         NX, NY, NZ; 
-    double      *t;
+    double      *t = NULL;
 
     char *filepath = getenv("BP_DIR");
     if(filepath == NULL){
@@ -187,7 +187,7 @@ int main (int argc, char ** argv){
     if(transport_major == ADIOS_STAGING)
             sprintf(filename, "%s/atom.bp", filepath);
     else
-	        sprintf(filename, "%s/atom_%s.bp", filepath, step);
+	        sprintf(filename, "%s/atom_%d.bp", filepath, step);
 
 
     ADIOS_FILE * afile = adios_read_open (filename, method, comm, ADIOS_LOCKMODE_CURRENT, -1);

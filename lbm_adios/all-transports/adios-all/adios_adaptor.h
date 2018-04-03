@@ -18,6 +18,10 @@ extern "C"{
 #include "utility.h"
 
 
+status_t adios_adaptor_update_avail_version(MPI_Comm comm, char * step_index_file, int timestep, int nsteps);
+
+
+status_t adios_adaptor_get_avail_version(MPI_Comm comm, char *step_index_file, int *p_max_version, int *p_has_more, int nstop);
 /* 
  * @brief adios writting wrapper
  *

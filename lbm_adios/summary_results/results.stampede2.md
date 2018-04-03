@@ -1,3 +1,9 @@
+## April 3
+[JOBS]:
+* 1050178
+    MPIIO 68v32 with Barrier 5min finishes  78 steps
+* 1051208
+    MPIIO 68v32 without Barrier 5min finishes 78 steps
 ## April 2
 [JOBS]:
 after reorganize

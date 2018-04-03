@@ -36,6 +36,97 @@ status_t adios_adaptor_init_client(char *xmlfile, MPI_Comm comm){
 }
 
 
+/*
+ * sender update the index file 
+ *
+ * this will be called after each mpiio insertion, only for mpiio
+ */
+status_t adios_adaptor_update_avail_version(MPI_Comm comm, char * step_index_file, int timestep, int nsteps){
+    int fd; 
+    int time_stamp;
+    int rank;
+
+    MPI_Comm_rank (comm, &rank);
+    if(rank == 0){
+        if(timestep == nsteps - 1){
+           time_stamp = -2;
+        }else{
+           time_stamp = timestep;
+        }// flag read from producer
+
+
+        printf("step index file in %s \n", step_index_file);
+
+        fd = open(step_index_file, O_WRONLY|O_CREAT|O_SYNC, S_IRWXU);
+        if(fd < 0){
+            perror("indexfile not opened");
+            TRACE();
+            return S_FAIL;
+        }
+        else{
+            flock(fd, LOCK_EX);
+            write(fd,  &time_stamp,  sizeof(int));
+            flock(fd, LOCK_UN);
+            printf("write stamp %d at %lf", time_stamp, MPI_Wtime());
+            close(fd);
+        }
+    }
+    // wait until all process finish writes and 
+#ifdef BARRIER_STAMP
+    MPI_Barrier(comm);
+#endif
+    return S_OK;
+}
+
+/*
+ * return true if producer is still outputing
+ * this will set the maxversion the reader can read
+ *
+ *
+ * this will be called only for mpiio
+ */
+
+status_t adios_adaptor_get_avail_version(MPI_Comm comm, char *step_index_file, int *p_max_version, int *p_has_more, int nstop){
+    int fd;
+    int rank;
+
+    MPI_Comm_rank (comm, &rank);
+    if(rank ==0){
+        fd = open(step_index_file, O_RDONLY);
+        if(fd == -1){
+            perror("indexfile not here wait for 1 s \n");
+   
+        }
+        else{
+            flock(fd, LOCK_SH);
+            read(fd,  p_max_version,  sizeof(int));
+            flock(fd, LOCK_UN);
+            close(fd);
+        }
+
+        // if produer is ready to terminate
+        if(*p_max_version  == -2){
+            PINF("producer  terminate\n");
+            *p_max_version= nstop-1;
+            *p_has_more = 0;
+            // run this gap then exit
+        }
+
+    }
+    // broadcast stamp
+    MPI_Bcast(p_max_version, 1, MPI_INT, 0, comm);
+#ifdef BARRIER_STAMP
+    MPI_Barrier(comm);
+#endif
+
+/*    if(rank ==0 && time_stamp!= time_stamp_old){*/
+            /*PINF("set stamp as %d at %lf\n", time_stamp, MPI_Wtime());*/
+    /*}*/
+
+    return S_OK;
+}
+
+
 void insert_into_adios(char * file_path, char *var_name,int timestep, int n, int size_one, double * buf, const char* mode,  MPI_Comm *pcomm){
     char        filename [256];
     int         rank, size;

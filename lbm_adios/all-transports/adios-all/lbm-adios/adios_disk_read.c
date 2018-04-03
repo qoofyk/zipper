@@ -100,9 +100,8 @@ int main (int argc, char ** argv)
     int timestep = -1;
     
     /**** use index file to keep track of current step *****/
-    int fd; 
     char step_index_file [256];
-    int time_stamp = -1;// flag read from producer
+    int time_stamp = -1;// flag read from producer , this tells which is the largest version we can read
     int time_stamp_old=-1;
     sprintf(step_index_file, "%s/stamp.file", filepath);
 
@@ -127,42 +126,15 @@ int main (int argc, char ** argv)
     int has_more = 1;
     while(has_more){
         time_stamp_old = time_stamp;
-        if(rank ==0){
-            fd = open(step_index_file, O_RDONLY);
-            if(fd == -1){
-                perror("indexfile not here wait for 1 s \n");
-       
-            }
-            else{
-                flock(fd, LOCK_SH);
-                read(fd,  &time_stamp,  sizeof(int));
-                flock(fd, LOCK_UN);
-                close(fd);
-            }
-            if(time_stamp  == -2){
-                PINF("producer  terminate\n");
-                time_stamp = nstop-1;
-                // run this gap then exit
-            }
 
-        }
-        // broadcast stamp
-        MPI_Bcast(&time_stamp, 1, MPI_INT, 0, comm);
-        MPI_Barrier(comm);
+        adios_adaptor_get_avail_version(comm, step_index_file, &time_stamp, &has_more, nstop);
 
-        if(rank ==0 && time_stamp!= time_stamp_old){
-                PINF("set stamp as %d at %lf\n", time_stamp, MPI_Wtime());
+        // has nothing yet
+        if(time_stamp==-1){
+            sleep(1);
+            continue;
         }
 
-        // sleep only happens in the beginning
-        if(time_stamp ==-1){
-                sleep(1);
-                continue;
-        }
-
-        if(time_stamp == nstop -1){
-            has_more = 0;
-        }
         // new step avaible from producer
         while(timestep < time_stamp){
             timestep++;

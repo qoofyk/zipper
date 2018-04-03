@@ -14,6 +14,7 @@ TODO
 ## April 3
 [CHANGED]:
 1. use bp-dir for adios output
+2. modulize the version control in mpiio
 ## April 2
 [TODO]:
 1. reorganize:
