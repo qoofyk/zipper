@@ -2,14 +2,38 @@
 [three locks in performance comperison 1st]:
 ```
   JOBID CPUS MIN_MEMORY           DEPENDENCY
- 2714966  896    123200M
- 2714967  896    123200M     afterany:2714966
- 2714968  896    123200M     afterany:2714967
- 2714969  896    123200M     afterany:2714968
- 2714977  672    123200M     afterany:2714969
- 2714979  672    123200M     afterany:2714977
- 2714980  448    123200M     afterany:2714979
+ 2719621  896    123200M     dspaces/           dspaces     2714966failed
+ 2714967  896    123200M     afterany:2714966   dimes ok
+ 2714968  896    123200M     afterany:2714967   mpiio ok
+ 2714969  896    123200M     afterany:2714968   adios_dspaces
+ 2714977  672    123200M     afterany:2714969   adios_dimes
+ 2714979  672    123200M     afterany:2714977   adios_flexpath
+ 2714980  448    123200M     afterany:2714979   simonly
+ 2719656  decaf 
 ```
+[run 2st]
+```
+ 2719700  896    123200M     afterany:2719656
+ 2719830  896    123200M     afterany:2719700 dimes 2719701failed
+ 2719702  896    123200M     afterany:2719701
+ 2719703  896    123200M     afterany:2719702
+ 2719704  672    123200M     afterany:2719703
+ 2719705  672    123200M     afterany:2719704
+ 2719706  896    123200M     afterany:2719705
+ 2719707  448    123200M     afterany:2719706
+
+```
+[run 3st]
+2719797  896    123200M     afterany:2719707
+ 2719798  896    123200M     afterany:2719797
+ 2719799  896    123200M     afterany:2719798
+ 2719800  896    123200M     afterany:2719799
+ 2719801  672    123200M     afterany:2719800
+ 2719802  672    123200M     afterany:2719801
+ 2719803  896    123200M     afterany:2719802
+ 2719804  448    123200M     afterany:2719803
+```
+
 
 
 [JOBS for trace 256v128 with 3locks whenever possible]: **RESULTS**
