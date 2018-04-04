@@ -1,6 +1,111 @@
 ## April 2
 performance experiments are launched by me, while collected by Yuankun.
 Use module load intel
+[trace with 1 locks]: (TODO)
+native dimes
+[trace with 3 locks]:
+```
+2721988: native dspaces
+2721994: native dspaces 
+2721995: native dspaces
+
+2722017: native dimes
+2722018: native dimes
+2722019: native dimes
+
+2722020: mpiio 
+2722022: mpiio 
+2722023: mpiio 
+```
+
+[three locks in performance comp 10th]:
+```
+ 2722200  896    123200M     afterany:2722197 dspaces
+ 2722201  896    123200M     afterany:2722200 dimes
+ 2722202  896    123200M     afterany:2722201 adios-dspces
+ 2722203  896    123200M     afterany:2722202 adios-dimes
+ 2722204  672    123200M     afterany:2722203 mpiio
+ 2722205  672    123200M     afterany:2722204 flexpath
+ 2722206  896    123200M     afterany:2722205 decaf
+ 2722207  448    123200M     afterany:2722206 sim-only
+
+
+```
+[three locks in performance comp 9th]:
+```
+ 2722190  896    123200M     afterany:2722189 dspaces
+ 2722191  896    123200M     afterany:2722190 dimes
+ 2722192  896    123200M     afterany:2722191 adios-dspaces
+ 2722193  896    123200M     afterany:2722192 adios-dimes
+ 2722194  672    123200M     afterany:2722193 mpiio
+ 2722195  672    123200M     afterany:2722194 flexpath
+ 2722196  896    123200M     afterany:2722195 decaf
+ 2722197  448    123200M     afterany:2722196 sim-only
+```
+[three locks in performance comp 8th]:
+```
+ 2722182  896    123200M     afterany:2722181 dspaces
+ 2722183  896    123200M     afterany:2722182 dimes
+ 2722184  896    123200M     afterany:2722183 adios-dspaces
+ 2722185  896    123200M     afterany:2722184 adios-dimes
+ 2722186  672    123200M     afterany:2722185 mpiio
+ 2722187  672    123200M     afterany:2722186 flexpath
+ 2722188  896    123200M     afterany:2722187 decaf
+ 2722189  448    123200M     afterany:2722188 sim-only
+
+```
+
+[three locks in performance comp 7th]:
+```
+ 2722174  896    123200M     afterany:2722169 dspaces
+ 2722175  896    123200M     afterany:2722174 dimes
+ 2722176  896    123200M     afterany:2722175 adios-dspaces
+ 2722177  896    123200M     afterany:2722176 adios-dimes
+ 2722178  672    123200M     afterany:2722177 mpiio
+ 2722179  672    123200M     afterany:2722178 flexpath
+ 2722180  896    123200M     afterany:2722179 decaf
+ 2722181  448    123200M     afterany:2722180 sim-only
+
+```
+[three locks in performance comp 6th]:
+```
+ 2722162  896    123200M     afterany:2722158 dspaces
+ 2722163  896    123200M     afterany:2722162 dimes
+ 2722164  896    123200M     afterany:2722163 adios-dspaces
+ 2722165  896    123200M     afterany:2722164 adios-dimes
+ 2722166  672    123200M     afterany:2722165 mpiio
+ 2722167  672    123200M     afterany:2722166 flexpath
+ 2722168  896    123200M     afterany:2722167 decaf
+ 2722169  448    123200M     afterany:2722168 sim-only
+
+```
+
+[three locks in performance comp 5th]:
+```
+ 2722151  896    123200M     afterany:2722149 dspaces
+ 2722152  896    123200M     afterany:2722151 dimes
+ 2722153  896    123200M     afterany:2722152 adios-dspaces
+ 2722154  896    123200M     afterany:2722153 adios-dimes
+ 2722155  672    123200M     afterany:2722154 mpiio
+ 2722156  672    123200M     afterany:2722155 flexpath
+ 2722157  896    123200M     afterany:2722156 decaf
+ 2722158  448    123200M     afterany:2722157 sim-only
+
+```
+
+[three locks in performance comperison 4st]:
+```
+ 2722142  896    123200M                      dspaces
+ 2722143  896    123200M     afterany:2722142 dimes
+ 2722144  896    123200M     afterany:2722143 adios_dspaces
+ 2722145  896    123200M     afterany:2722144 adios_dimes
+ 2722146  672    123200M     afterany:2722145 mpiio
+ 2722147  672    123200M     afterany:2722146 adios_flexpath
+ 2722148  896    123200M     afterany:2722147 decaf
+ 2722149  448    123200M     afterany:2722148 sim-only
+```
+
+
 [mpiio is not stable, not run multi times]:
 ```
 2720445        RM    mpiio     fli5 PD       0:00     24 (Dependency)
@@ -22,8 +127,8 @@ Use module load intel
  2714969  896    123200M     afterany:2714968   adios_dimes
  2714977  672    123200M     afterany:2714969   adios_mpiio
  2714979  672    123200M     afterany:2714977   adios_flexpath
- 2714980  448    123200M     afterany:2714979   simonly
  2719656  decaf 
+ 2714980  448    123200M     afterany:2714979   simonly
 ```
 [run 2st]
 ```
