@@ -1,7 +1,21 @@
 ## April 2
 performance experiments are launched by me, while collected by Yuankun.
 Use module load intel
+[repeat sim-only again removed buffer put]:
+```
+2737055
+2737057
+2737058
+2737059
+2737060
+2737061
+2737062
+2737063
+2737064
+2737065
+```
 [repeat sim-only]:
+```
 2732058
 2732059
 2732060
@@ -12,6 +26,7 @@ Use module load intel
 2732065
 2732067
 2732069
+```
 
 [trace with 1 locks, 256v128]: note:
 note: why the first three inserts happens so fast? 
@@ -51,9 +66,15 @@ note: why the first three inserts happens so fast?
 ```
 
 [three locks in performance comp 10th]:
+additional runs
 ```
- 2722200  896    123200M     afterany:2722197 dspaces
- 2722201  896    123200M     afterany:2722200 dimes
+2736906        RM native_d     fli5 PD       0:00     32 (Dependency) dspaces
+2736908        RM native_d     fli5 PD       0:00     32 (Dependency) dimes 
+
+```
+```
+ 2736899  896    123200M     afterany:2722197 dspaces [2722200 failed]
+ 2736902  896    123200M     afterany:2722200 dimes [2722201 failed]
  2722202  896    123200M     afterany:2722201 adios-dspces
  2722203  896    123200M     afterany:2722202 adios-dimes
  2722204  672    123200M     afterany:2722203 mpiio
