@@ -1,6 +1,18 @@
 ## April 2
 performance experiments are launched by me, while collected by Yuankun.
 Use module load intel
+[repeat sim-only]:
+2732058
+2732059
+2732060
+2732061
+2732062
+2732063
+2732064
+2732065
+2732067
+2732069
+
 [trace with 1 locks, 256v128]: note:
 note: why the first three inserts happens so fast? 
 ```
