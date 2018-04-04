@@ -1,11 +1,31 @@
 ## April 2
 performance experiments are launched by me, while collected by Yuankun.
 Use module load intel
-[trace with 1 locks]: (TODO)
-native dimes
-[trace with 3 locks]:
+[trace with 1 locks, 256v128]: note:
+note: why the first three inserts happens so fast? 
 ```
-2721988: native dspaces
+2722422: native dimes  9.2s  **results**
+2722427: native dimes  9.45s+
+2722428: native dimes  9.45s+
+```
+[trace with 3 locks, 128v64]: 
+```
+2722654: native dimes 8.5s! 
+2722656: native dimes 8.47
+2722657: native dimes 7.2
+2731865: 
+```
+
+
+[trace with 1 locks, 128v64]: 
+```
+2722256: native dimes  
+2722259: native dimes 
+2722289: native dimes
+```
+[trace with 3 locks 128v64]:
+```
+2721988: native dspaces  
 2721994: native dspaces 
 2721995: native dspaces
 
@@ -59,7 +79,7 @@ native dimes
 ```
  2722174  896    123200M     afterany:2722169 dspaces
  2722175  896    123200M     afterany:2722174 dimes
- 2722176  896    123200M     afterany:2722175 adios-dspaces
+ 2722592  896    123200M     afterany:2722175 adios-dspaces [2722176 failed]
  2722177  896    123200M     afterany:2722176 adios-dimes
  2722178  672    123200M     afterany:2722177 mpiio
  2722179  672    123200M     afterany:2722178 flexpath
