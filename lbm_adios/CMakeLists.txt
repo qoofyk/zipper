@@ -15,7 +15,7 @@ option(all_transports "build all transports" ON)
 option(use_itac "build with itac" OFF)
 option(build_zipper "build zipper runtim" OFF)
 
-option(USE_SAME_LOCK "Use same lock in dspaces" ON)
+option(USE_SAME_LOCK "Use same lock in dspaces" OFF)
 if(NOT USE_SAME_LOCK)
     set(DS_MAX_VERSION "3")
 endif()

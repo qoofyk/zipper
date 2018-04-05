@@ -1,7 +1,22 @@
+## April 5
+[rerun experiments with MVAPICH (do not load intel module) #1]:
+native dspaces 158, adios-dspaces 196s, adios-dimes;170: almost the same
+```
+2739421        RM native_d     fli5 PD       0:00     32 (Priority)
+2739634        RM native_d     fli5 PD       0:00     32 (Dependency) 2739422 failed
+2739423        RM adios_ds     fli5 PD       0:00     32 (Dependency)
+2739424        RM adios_di     fli5 PD       0:00     32 (Dependency)
+2739425        RM    mpiio     fli5 PD       0:00     24 (Dependency)
+2739426        RM adios_fl     fli5 PD       0:00     24 (Dependency)
+2739427        RM decaf_lb     fli5 PD       0:00     32 (Dependency)
+2739428        RM sim_only     fli5 PD       0:00     16 (Dependency)
+```
+
 ## April 2
 performance experiments are launched by me, while collected by Yuankun.
 Use module load intel
 [repeat sim-only again removed buffer put]:
+**now simulation runs faster**
 ```
 2737055
 2737057
@@ -15,6 +30,8 @@ Use module load intel
 2737065
 ```
 [repeat sim-only]:
+**simulation only has inconsistent end2end time**
+conclusion: 
 ```
 2732058
 2732059
@@ -29,17 +46,17 @@ Use module load intel
 ```
 
 [trace with 1 locks, 256v128]: note:
-note: why the first three inserts happens so fast? 
+note: **why the first three inserts happens so fast?**
 ```
 2722422: native dimes  9.2s  **results**
 2722427: native dimes  9.45s+
 2722428: native dimes  9.45s+
 ```
-[trace with 3 locks, 128v64]: 
+[trace with 3 locks, 256v128]: 
 ```
 2722654: native dimes 8.5s! 
 2722656: native dimes 8.47
-2722657: native dimes 7.2
+2722657: native dimes 7.2 **results**
 2731865: 
 ```
 

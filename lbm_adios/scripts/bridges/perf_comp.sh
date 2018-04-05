@@ -8,6 +8,7 @@ fi
 
 if [ ! -z "$1" ]; then
     PRE_RUN="--dependency=afterany:$1"
+    echo "will run after ${PRE_RUN}"
 fi
 #USE_RES="--reservation=fli5"
 unset USE_RES # do not use reservation
