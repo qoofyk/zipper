@@ -1,9 +1,251 @@
-## Mar 32
+## April 5
+[rerun experiments with MVAPICH (do not load intel module) #1]:
+native dspaces 158, adios-dspaces 196s, adios-dimes;170: almost the same
+```
+2739421        RM native_d     fli5 PD       0:00     32 (Priority)
+2739634        RM native_d     fli5 PD       0:00     32 (Dependency) 2739422 failed
+2739423        RM adios_ds     fli5 PD       0:00     32 (Dependency)
+2739424        RM adios_di     fli5 PD       0:00     32 (Dependency)
+2739425        RM    mpiio     fli5 PD       0:00     24 (Dependency)
+2739426        RM adios_fl     fli5 PD       0:00     24 (Dependency)
+2739427        RM decaf_lb     fli5 PD       0:00     32 (Dependency)
+2739428        RM sim_only     fli5 PD       0:00     16 (Dependency)
+```
+
+## April 2
+performance experiments are launched by me, while collected by Yuankun.
+Use module load intel
+[repeat sim-only again removed buffer put]:
+**now simulation runs faster**
+```
+2737055
+2737057
+2737058
+2737059
+2737060
+2737061
+2737062
+2737063
+2737064
+2737065
+```
+[repeat sim-only]:
+**simulation only has inconsistent end2end time**
+conclusion: 
+```
+2732058
+2732059
+2732060
+2732061
+2732062
+2732063
+2732064
+2732065
+2732067
+2732069
+```
+
+[trace with 1 locks, 256v128]: note:
+note: **why the first three inserts happens so fast?**
+```
+2722422: native dimes  9.2s  **results**
+2722427: native dimes  9.45s+
+2722428: native dimes  9.45s+
+```
+[trace with 3 locks, 256v128]: 
+```
+2722654: native dimes 8.5s! 
+2722656: native dimes 8.47
+2722657: native dimes 7.2 **results**
+2731865: 
+```
+
+
+[trace with 1 locks, 128v64]: 
+```
+2722256: native dimes  
+2722259: native dimes 
+2722289: native dimes
+```
+[trace with 3 locks 128v64]:
+```
+2721988: native dspaces  
+2721994: native dspaces 
+2721995: native dspaces
+
+2722017: native dimes
+2722018: native dimes
+2722019: native dimes
+
+2722020: mpiio 
+2722022: mpiio 
+2722023: mpiio 
+```
+
+[three locks in performance comp 10th]:
+additional runs
+```
+2736906        RM native_d     fli5 PD       0:00     32 (Dependency) dspaces
+2736908        RM native_d     fli5 PD       0:00     32 (Dependency) dimes 
+
+```
+```
+ 2736899  896    123200M     afterany:2722197 dspaces [2722200 failed]
+ 2736902  896    123200M     afterany:2722200 dimes [2722201 failed]
+ 2722202  896    123200M     afterany:2722201 adios-dspces
+ 2722203  896    123200M     afterany:2722202 adios-dimes
+ 2722204  672    123200M     afterany:2722203 mpiio
+ 2722205  672    123200M     afterany:2722204 flexpath
+ 2722206  896    123200M     afterany:2722205 decaf
+ 2722207  448    123200M     afterany:2722206 sim-only
+
+
+```
+[three locks in performance comp 9th]:
+```
+ 2722190  896    123200M     afterany:2722189 dspaces
+ 2722191  896    123200M     afterany:2722190 dimes
+ 2722192  896    123200M     afterany:2722191 adios-dspaces
+ 2722193  896    123200M     afterany:2722192 adios-dimes
+ 2722194  672    123200M     afterany:2722193 mpiio
+ 2722195  672    123200M     afterany:2722194 flexpath
+ 2722196  896    123200M     afterany:2722195 decaf
+ 2722197  448    123200M     afterany:2722196 sim-only
+```
+[three locks in performance comp 8th]:
+```
+ 2722182  896    123200M     afterany:2722181 dspaces
+ 2722183  896    123200M     afterany:2722182 dimes
+ 2722184  896    123200M     afterany:2722183 adios-dspaces
+ 2722185  896    123200M     afterany:2722184 adios-dimes
+ 2722186  672    123200M     afterany:2722185 mpiio
+ 2722187  672    123200M     afterany:2722186 flexpath
+ 2722188  896    123200M     afterany:2722187 decaf
+ 2722189  448    123200M     afterany:2722188 sim-only
+
+```
+
+[three locks in performance comp 7th]:
+```
+ 2722174  896    123200M     afterany:2722169 dspaces
+ 2722175  896    123200M     afterany:2722174 dimes
+ 2722592  896    123200M     afterany:2722175 adios-dspaces [2722176 failed]
+ 2722177  896    123200M     afterany:2722176 adios-dimes
+ 2722178  672    123200M     afterany:2722177 mpiio
+ 2722179  672    123200M     afterany:2722178 flexpath
+ 2722180  896    123200M     afterany:2722179 decaf
+ 2722181  448    123200M     afterany:2722180 sim-only
+
+```
+[three locks in performance comp 6th]:
+```
+ 2722162  896    123200M     afterany:2722158 dspaces
+ 2722163  896    123200M     afterany:2722162 dimes
+ 2722164  896    123200M     afterany:2722163 adios-dspaces
+ 2722165  896    123200M     afterany:2722164 adios-dimes
+ 2722166  672    123200M     afterany:2722165 mpiio
+ 2722167  672    123200M     afterany:2722166 flexpath
+ 2722168  896    123200M     afterany:2722167 decaf
+ 2722169  448    123200M     afterany:2722168 sim-only
+
+```
+
+[three locks in performance comp 5th]:
+```
+ 2722151  896    123200M     afterany:2722149 dspaces
+ 2722152  896    123200M     afterany:2722151 dimes
+ 2722153  896    123200M     afterany:2722152 adios-dspaces
+ 2722154  896    123200M     afterany:2722153 adios-dimes
+ 2722155  672    123200M     afterany:2722154 mpiio
+ 2722156  672    123200M     afterany:2722155 flexpath
+ 2722157  896    123200M     afterany:2722156 decaf
+ 2722158  448    123200M     afterany:2722157 sim-only
+
+```
+
+[three locks in performance comperison 4st]:
+```
+ 2722142  896    123200M                      dspaces
+ 2722143  896    123200M     afterany:2722142 dimes
+ 2722144  896    123200M     afterany:2722143 adios_dspaces
+ 2722145  896    123200M     afterany:2722144 adios_dimes
+ 2722146  672    123200M     afterany:2722145 mpiio
+ 2722147  672    123200M     afterany:2722146 adios_flexpath
+ 2722148  896    123200M     afterany:2722147 decaf
+ 2722149  448    123200M     afterany:2722148 sim-only
+```
+
+
+[mpiio is not stable, not run multi times]:
+```
+2720445        RM    mpiio     fli5 PD       0:00     24 (Dependency)
+2720446        RM    mpiio     fli5 PD       0:00     24 (Dependency)
+2720447        RM    mpiio     fli5 PD       0:00     24 (Dependency)
+2720449        RM    mpiio     fli5 PD       0:00     24 (Dependency)
+2720451        RM    mpiio     fli5 PD       0:00     24 (Dependency)
+2720452        RM    mpiio     fli5 PD       0:00     24 (Dependency)
+2720454        RM    mpiio     fli5 PD       0:00     24 (Dependency)
+2720456        RM    mpiio     fli5 PD       0:00     24 (Dependency)
+
+```
+[three locks in performance comperison 1st]:
+```
+  JOBID CPUS MIN_MEMORY           DEPENDENCY
+ 2719621  896    123200M     dspaces/           dspaces     2714966failed
+ 2714967  896    123200M     afterany:2714966   dimes ok
+ 2714968  896    123200M     afterany:2714967   adios_dspaces
+ 2714969  896    123200M     afterany:2714968   adios_dimes
+ 2714977  672    123200M     afterany:2714969   adios_mpiio
+ 2714979  672    123200M     afterany:2714977   adios_flexpath
+ 2719656  decaf 
+ 2714980  448    123200M     afterany:2714979   simonly
+```
+[run 2st]
+```
+ 2719700  896    123200M     afterany:2719656 dspaces
+ 2719830  896    123200M     afterany:2719700 dimes 2719701failed
+ 2719702  896    123200M     afterany:2719701 adios_dspaces
+ 2719703  896    123200M     afterany:2719702 adios_dimes
+ 2719704  672    123200M     afterany:2719703 adios_mpiio
+ 2719705  672    123200M     afterany:2719704 adios_flexpath
+ 2719706  896    123200M     afterany:2719705 decaf [WAITING]
+ 2719707  448    123200M     afterany:2719706 simonly
+
+```
+[run 3st]
+```
+2719797  896    123200M     afterany:2719707   dspaces 
+ 2719798  896    123200M     afterany:2719797  dimes
+ 2719799  896    123200M     afterany:2719798  adios_dspaces
+ 2719800  896    123200M     afterany:2719799  adios_dimes
+ 2719801  672    123200M     afterany:2719800  adios_mpiio
+ 2719802  672    123200M     afterany:2719801  adios_flexpath
+ 2719803  896    123200M     afterany:2719802 decaf
+ 2719804  448    123200M     afterany:2719803 sim-only
+```
+
+
+
+[JOBS for trace 256v128 with 3locks whenever possible]: **RESULTS**
+1. 2698956: **WAIT** 27.5s
+    * mpiio 
+2. 2698960: **WAIT**
+    native dimes : 7.4+4 = 11.4s
+3. 2698962: **WAIT**
+    native dspaces 10.94+5s = 15.94s
+
+[JOBS for trace 256v128 with 3locks whenever possible]: **RESULTS**
+1. native dimes 
+2. native dspaces
+
+
 [results]:
+----------------------------------------------------
 * 2686038: **result**
      dimes end2ed time 100 steps using 3locks: 100s
 * 2685827: **result**
      dimes end2ed time 100 steps using 1locks: 102s
+
 ## Mar 31
 [Result]:
 1. bridges\_64\_dspaces\_3lock\_marked.png:

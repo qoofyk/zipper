@@ -79,6 +79,8 @@ int main(int argc, char * argv[]){
 #ifdef V_T
       VT_end(advance_step_id);
 #endif
+
+#if 0
 	
 		// get the buffer
 #ifdef V_T
@@ -99,10 +101,13 @@ int main(int argc, char * argv[]){
 		if(S_OK != lbm_io_template(&comm, buffer, nlocal, size_one)){
 			fprintf(stderr,"[lbm]: error when writing step %d \n", i);
 		}
-	}
 #ifdef V_T
       VT_end(put_buffer_id);
 #endif
+
+#endif
+
+	}
 
 	if(S_OK != lbm_finalize(&comm)){
 		fprintf(stderr, "[lbm]: err when finalized\n");
