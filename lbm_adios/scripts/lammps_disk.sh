@@ -82,6 +82,7 @@ if [[ `hostname` == *"bridges"* ]];then
 
         # itac by default load impi
         export I_MPI_JOB_RESPECT_PROCESS_PLACEMENT=0
+        export I_MPI_SHM_LMT=shm
     else
         export MV2_ENABLE_AFFINITY=0
         export MV2_USE_BLOCKING=1

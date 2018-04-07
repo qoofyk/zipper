@@ -47,6 +47,7 @@ else
 
 fi
 
+
 BIN_PRODUCER=${BUILD_DIR}/bin/run_lbm;
 BIN_CONSUMER=${BUILD_DIR}/bin/adios_disk_read;
 
@@ -63,6 +64,8 @@ mkdir -pv ${SCRATCH_DIR}
 
 cd ${SCRATCH_DIR}
 cp -R ${PBS_O_WORKDIR}/all-transports/adios-all/lbm-adios/adios_xmls ${SCRATCH_DIR}
+
+cp ${BUILD_DIR}/config.h  ${SCRATCH_DIR}
 
 
 # this scripts is avaliable at

@@ -68,6 +68,7 @@ mkdir -pv ${CONSUMER_TRACE_DIR}
 
 cd ${SCRATCH_DIR}
 cp -R ${PBS_O_WORKDIR}/adios_xmls ${SCRATCH_DIR}
+cp ${BUILD_DIR}/config.h  ${SCRATCH_DIR}
 
 
 
