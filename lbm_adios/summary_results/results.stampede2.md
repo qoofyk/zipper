@@ -1,7 +1,13 @@
+## April 6
+[JOBS]:
+* 1072677
+lammps-sim-only: 220s, same as before
+* 1072672
+lammps with disk-io, seems very slow..
 ## April 3
 [JOBS]:
 * 1050178
-    MPIIO 68v32 with Barrier 5min finishes  78 steps
+    MPIIO 68v32 with Barrier 5min finishes  78 steps(slower than before)
 * 1051208
     MPIIO 68v32 without Barrier 5min finishes 78 steps
 [code];
