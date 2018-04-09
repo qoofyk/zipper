@@ -33,7 +33,7 @@
 #ifdef V_T
 #include <VT.h>
 int class_id;
-int analysis_id;
+int analysis_id, prepare_id, read_id, close_id;
 #endif
 
 
@@ -89,6 +89,9 @@ int main (int argc, char ** argv)
 #ifdef V_T
      VT_classdef( "Analysis", &class_id );
      VT_funcdef("ANL", class_id, &analysis_id);
+     VT_funcdef("PP", class_id, &prepare_id);
+     VT_funcdef("RD", class_id, &read_id);
+     VT_funcdef("CL", class_id, &close_id);
 #endif
     
     int r;
@@ -204,14 +207,26 @@ int main (int argc, char ** argv)
             }
 
             /* Read a subset of the temperature array */
+#ifdef V_T
+      VT_begin(prepare_id);
+#endif
             adios_schedule_read (f, sel, "atom", 0, 1, data);
+#ifdef V_T
+      VT_end(prepare_id);
+#endif
 
             // timer for open and schedule
             t1 = MPI_Wtime();
             t_prepare+= t1-t0;
             
             // timer for actual read
+#ifdef V_T
+      VT_begin(prepare_id);
+#endif
             adios_perform_reads (f, 1);
+#ifdef V_T
+      VT_end(prepare_id);
+#endif
             t2 = MPI_Wtime();
             t_get += t2-t1;
 

@@ -94,9 +94,11 @@ void insert_into_adios(char * file_path, char *var_name,int timestep, int n, int
 #ifdef V_T
       VT_begin(adios_write_id);
 #endif
+     
     adios_write (adios_handle, "NX", &NX);
     adios_write (adios_handle, "lb", &lb);
     adios_write (adios_handle, "n", &n);
+    adios_write (adios_handle, "nprocs_prod", &size);
     adios_write (adios_handle, "size_one", &size_one);
     adios_write (adios_handle, var_name, buf);
 #ifdef V_T
