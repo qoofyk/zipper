@@ -16,7 +16,7 @@
   </adios-group>
 
   <method group="atom" method="MPI_AGGREGATE">
-      num_aggregators=17;num_ost=66"
+      num_aggregators=nprocs_prod/2;num_ost=66"
   </method>
 
   <adios-group name="restart" stats="On">
