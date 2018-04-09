@@ -191,8 +191,10 @@ int main (int argc, char ** argv)
                 data = malloc (slice_size * v->dims[1]* sizeof (double));
                 if (data == NULL)
                 {
-                    fprintf (stderr, "malloc failed.\n");
-                    return -1;
+                    size_t allc_size=slice_size * v->dims[1]* sizeof (double);
+                    PERR("malloc failed with %ld bytes", allc_size);
+                    PERR("slice size %ld, dime1 %ld", slice_size, v->dims[1]);
+                    MPI_Abort(comm, -1);
                 }
 
                 start[0] = slice_size * rank;

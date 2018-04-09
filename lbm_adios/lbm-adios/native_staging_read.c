@@ -167,7 +167,8 @@ int main (int argc, char ** argv)
     data = malloc (slice_size * SIZE_ONE* sizeof (double));
     if (data == NULL)
     {
-        fprintf (stderr, "malloc failed.\n");
+        size_t allc_size=slice_size * SIZE_ONE* sizeof (double) ;
+        PERR("malloc failed with %ld bytes", allc_size);
         TRACE();
         MPI_Abort(comm, -1);
     }
