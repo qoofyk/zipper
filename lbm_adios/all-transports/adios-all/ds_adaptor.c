@@ -58,7 +58,7 @@ status_t ds_adaptor_init_client(int nprocs, int appid, MPI_Comm * pcomm, const c
 
 
 #define debug_1
-status_t get_common_buffer(uint8_t transport_minor,int timestep,int ndim, int bounds[6], int rank, char * var_name, void **p_buffer,size_t elem_size, double *p_time_used){
+status_t get_common_buffer(uint8_t transport_minor,int timestep,int ndim, uint64_t bounds[6], int rank, char * var_name, void **p_buffer,size_t elem_size, double *p_time_used){
 
     PDBG("\n ** prepare to get, ndim = %d\n", ndim);
     // how many number of elements are actually written
@@ -104,7 +104,7 @@ status_t get_common_buffer(uint8_t transport_minor,int timestep,int ndim, int bo
 #endif
 
 #ifdef debug_1
-    PDBG("lb: (%d, %d  %d), hb(%d, %d, %d), elem_size %zu bytes\n", bounds[0], bounds[1], bounds[2], bounds[3], bounds[4], bounds[5], elem_size);
+    PDBG("lb: (%lu, %lu  %lu), hb(%lu, %lu, %lu), elem_size %zu bytes\n", bounds[0], bounds[1], bounds[2], bounds[3], bounds[4], bounds[5], elem_size);
 #endif
 
     PDBG( "try to acquired the read lock %s for step %d", lock_name, timestep);
@@ -169,7 +169,7 @@ status_t get_common_buffer(uint8_t transport_minor,int timestep,int ndim, int bo
     
 }
 
-status_t put_common_buffer(uint8_t transport_minor, int timestep,int ndim, int bounds[6], int rank,char * var_name, void  **p_buffer,size_t elem_size, double *p_time_used){
+status_t put_common_buffer(uint8_t transport_minor, int timestep,int ndim, uint64_t bounds[6], int rank,char * var_name, void  **p_buffer,size_t elem_size, double *p_time_used){
 
     PDBG("\n ** prepare to put, ndim = %d\n", ndim);
     // how many number of elements are actually written
@@ -212,7 +212,7 @@ status_t put_common_buffer(uint8_t transport_minor, int timestep,int ndim, int b
 #endif
 
 #ifdef debug_1
-    PDBG("lb: (%d, %d  %d), hb(%d, %d, %d), elem_size %zu bytes\n", bounds[0], bounds[1], bounds[2], bounds[3], bounds[4], bounds[5], elem_size);
+    PDBG("lb: (%lu, %lu  %lu), hb(%lu, %lu, %lu), elem_size %zu bytes\n", bounds[0], bounds[1], bounds[2], bounds[3], bounds[4], bounds[5], elem_size);
 #endif
 
     PDBG( "try to acquired the write lock %s for step %d", lock_name, timestep);

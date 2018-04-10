@@ -146,18 +146,18 @@ status_t run_lbm_adios(char *filepath, int nsteps, MPI_Comm comm){
     }
 
     else if(transport_major == NATIVE_STAGING){
-        int bounds[6] = {0};
+        uint64_t bounds[6] = {0};
         double time_comm;
 
         // xmin
-        bounds[1]=nlocal*rank;
+        bounds[1]=EVAL(nlocal)*EVAL(rank);
         // ymin
         bounds[0]=0;
 
         // xmax
-        bounds[4]=nlocal*(rank+1)-1 ;
+        bounds[4]=EVAL(nlocal)*(EVAL(rank)+1)-1 ;
         // ymax
-        bounds[3]= size_one-1;
+        bounds[3]= EVAL(size_one)-1;
 
         put_common_buffer(transport_minor, timestep,2, bounds,rank , var_name, (void **)&buffer, elem_size, &time_comm);
         //t_put+=time_comm;

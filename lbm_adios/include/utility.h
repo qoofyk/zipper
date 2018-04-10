@@ -12,6 +12,7 @@ extern "C" {
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdint.h>
 #include <unistd.h>
 #include <sys/wait.h>
 #include <sys/time.h>
@@ -30,6 +31,8 @@ extern "C" {
 
 //#define SIZE_ONE (2)
 
+// signed to unsigned, could also be implemented with bit operations
+#define EVAL(a)  ((uint64_t)(a))
 
 // status
 typedef int status_t;

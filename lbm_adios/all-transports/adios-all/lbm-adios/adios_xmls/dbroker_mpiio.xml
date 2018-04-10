@@ -1,9 +1,10 @@
 <?xml version="1.0"?>
 <adios-config host-language="C">
   <adios-group name="atom" stats="On">
-    <var name="NX" type="integer"/>
+    <var name="NX" type="unsigned long"/>
     <var name="lb" type="integer"/>
     <var name="n" type="integer"/>
+    <var name="nprocs_prod" type="integer"/>
     <var name="size_one" type="integer"/>
     <global-bounds dimensions="NX, size_one" offsets="lb,0">
        <var name="atom" gwrite="t" type="double" dimensions="n,size_one" 
@@ -14,7 +15,9 @@
                type="string"/>
   </adios-group>
 
-  <method group="atom" method="MPI"/>
+  <method group="atom" method="MPI_AGGREGATE">
+      num_aggregators=nprocs_prod/2;num_ost=66"
+  </method>
 
   <adios-group name="restart" stats="On">
     <var name="NX" type="integer"/>

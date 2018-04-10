@@ -227,8 +227,10 @@ int main (int argc, char ** argv)
     data = malloc (slice_size * v->dims[1]* sizeof (double));
     if (data == NULL)
     {
-        fprintf (stderr, "malloc failed.\n");
-        return -1;
+
+        size_t allc_size=slice_size * v->dims[1]* sizeof (double);
+        PERR("malloc failed with %ld bytes", allc_size);
+        MPI_Abort(comm, -1);
     }
 
     sel = adios_selection_boundingbox (v->ndim, start, count);
@@ -309,7 +311,8 @@ int main (int argc, char ** argv)
         PDBG("successfully step into next available step");
 
 
-        PINF("rank %d: Step %d moments calculated, t_read %lf, t_advance %lf, t_analy %lf\n", rank, timestep, t2-t1, t3-t2, t4-t3);
+        if(rank == 0)
+            PINF("rank %d: Step %d moments calculated, t_read %lf, t_advance %lf, t_analy %lf\n", rank, timestep, t2-t1, t3-t2, t4-t3);
         timestep ++;
     }
 

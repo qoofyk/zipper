@@ -11,6 +11,13 @@ TODO
 	1. nnti in flexpath, not usable.
 	2. dspaces hanging
 	3. ENABLE_TESTING in flexpath conf, enabled
+
+## April 9
+[fixed]:
+1. now use uint64_t as the type for global dimension
+2. mpiio works with 2176, 43xx should be fine too
+3. flexpath might work, need to test later
+
 ## April 3
 [CHANGED]:
 1. use bp-dir for adios output
@@ -19,6 +26,7 @@ TODO
 [TODO]:
 1. reorganize:
 2. rerun flexpath?
+
 ## Jan 21
 	* flexpath dimension:
 			see flexpath_skel/global_range_select, for 3d dimension, there

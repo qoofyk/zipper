@@ -77,7 +77,6 @@ endif()
 ## bind different transports to applications
 if(all_transports)
     add_subdirectory(all-transports)
-
 endif(all_transports)
 
 ## zipper
