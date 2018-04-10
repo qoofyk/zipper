@@ -18,6 +18,8 @@ extern "C"{
 #include "utility.h"
 
 
+status_t adios_adaptor_init_client(char *xmlfile, MPI_Comm comm);
+
 /* 
  * @brief adios writting wrapper
  *

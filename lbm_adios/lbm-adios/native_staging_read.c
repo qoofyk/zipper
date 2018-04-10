@@ -167,7 +167,8 @@ int main (int argc, char ** argv)
     data = malloc (slice_size * SIZE_ONE* sizeof (double));
     if (data == NULL)
     {
-        fprintf (stderr, "malloc failed.\n");
+        size_t allc_size=slice_size * SIZE_ONE* sizeof (double) ;
+        PERR("malloc failed with %ld bytes", allc_size);
         TRACE();
         MPI_Abort(comm, -1);
     }
@@ -181,7 +182,7 @@ int main (int argc, char ** argv)
     count[1] = 2;
     PINF("start: (%ld, %ld), count:( %ld, %ld)\n", start[0], start[1], count[0], count[1]);
 
-    int bounds[6] = {0};
+    uint64_t bounds[6] = {0};
     double time_comm = 0;;
     bounds[0]=start[1]; //ymin
     bounds[1]=start[0]; //xmin
@@ -211,7 +212,7 @@ int main (int argc, char ** argv)
       VT_begin(analysis_id);
 #endif
         run_analysis(data, slice_size, lp, sum_vx,sum_vy);
-      PINF("[%s]: %d points analyzed in step %d\n", module_name,slice_size,timestep);
+      PINF("[%s]: %lu points analyzed in step %d\n", module_name,slice_size,timestep);
 #ifdef V_T
       VT_end(analysis_id);
 #endif

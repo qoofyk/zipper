@@ -70,7 +70,7 @@ if(all_transports)
     add_subdirectory(analysis)
 
     # build lammps-msd
-    if(LAMMPS_INCLUDE_DIR)
+    if(false)
         add_subdirectory(lammps)
         add_subdirectory(msd)
         add_subdirectory(lammps-adios)
@@ -78,7 +78,7 @@ if(all_transports)
         message("-- lammps not build")
     endif()
 
-    add_subdirectory(decaf)
+    #add_subdirectory(decaf)
     #add_subdirectory(tests)
 
 endif(all_transports)

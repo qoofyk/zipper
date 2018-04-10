@@ -33,7 +33,7 @@
 #ifdef V_T
 #include <VT.h>
 int class_id;
-int analysis_id;
+int analysis_id, prepare_id, read_id, close_id;
 #endif
 
 
@@ -89,6 +89,9 @@ int main (int argc, char ** argv)
 #ifdef V_T
      VT_classdef( "Analysis", &class_id );
      VT_funcdef("ANL", class_id, &analysis_id);
+     VT_funcdef("PP", class_id, &prepare_id);
+     VT_funcdef("RD", class_id, &read_id);
+     VT_funcdef("CL", class_id, &close_id);
 #endif
     
     int r;
@@ -188,8 +191,10 @@ int main (int argc, char ** argv)
                 data = malloc (slice_size * v->dims[1]* sizeof (double));
                 if (data == NULL)
                 {
-                    fprintf (stderr, "malloc failed.\n");
-                    return -1;
+                    size_t allc_size=slice_size * v->dims[1]* sizeof (double);
+                    PERR("malloc failed with %ld bytes", allc_size);
+                    PERR("slice size %ld, dime1 %ld", slice_size, v->dims[1]);
+                    MPI_Abort(comm, -1);
                 }
 
                 start[0] = slice_size * rank;
@@ -204,14 +209,26 @@ int main (int argc, char ** argv)
             }
 
             /* Read a subset of the temperature array */
+#ifdef V_T
+      VT_begin(prepare_id);
+#endif
             adios_schedule_read (f, sel, "atom", 0, 1, data);
+#ifdef V_T
+      VT_end(prepare_id);
+#endif
 
             // timer for open and schedule
             t1 = MPI_Wtime();
             t_prepare+= t1-t0;
             
             // timer for actual read
+#ifdef V_T
+      VT_begin(prepare_id);
+#endif
             adios_perform_reads (f, 1);
+#ifdef V_T
+      VT_end(prepare_id);
+#endif
             t2 = MPI_Wtime();
             t_get += t2-t1;
 
@@ -233,7 +250,9 @@ int main (int argc, char ** argv)
 
             t4 = MPI_Wtime();
             t_analy += t4-t3;
-            PINF("rank %d: Step %d moments calculated,t_prepare %lf, t_read %lf, t_close %lf, t_analy %lf, time%lf\n", rank, timestep, t1-t0, t2-t1, t3-t2, t4-t3, t4);
+            if(rank == 0){
+                PINF("rank %d: Step %d moments calculated,t_prepare %lf, t_read %lf, t_close %lf, t_analy %lf, time%lf\n", rank, timestep, t1-t0, t2-t1, t3-t2, t4-t3, t4);
+            }
         }
     }
 

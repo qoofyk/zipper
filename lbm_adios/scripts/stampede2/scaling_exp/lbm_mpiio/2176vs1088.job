@@ -4,7 +4,7 @@
 #SBATCH --partition=normal
 #SBATCH --nodes=96
 #SBATCH --ntasks-per-node=68
-#SBATCH -t 02:00:00
+#SBATCH -t 00:20:00
 #SBATCH --mail-type=BEGIN
 #SBATCH --mail-user=lifen@iupui.edu
 

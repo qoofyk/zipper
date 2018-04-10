@@ -55,11 +55,13 @@ void insert_into_adios(char * file_path, char *var_name,int timestep, int n, int
     MPI_Comm_size (comm, &size);
 
     // nlines of all processes
-    NX = size*n;
+    NX = EVAL(size)*EVAL(n);
+
+    PDBG("NX=%lu or %ld, size=%d, n=%d", NX, NX, size, n);
     
     // lower bound of my line index
     uint64_t lb;
-    lb = rank*n;
+    lb = EVAL(rank)*EVAL(n);
 
     if(timestep <0){
         sprintf(filename, "%s/%s.bp", file_path, var_name);
@@ -94,9 +96,11 @@ void insert_into_adios(char * file_path, char *var_name,int timestep, int n, int
 #ifdef V_T
       VT_begin(adios_write_id);
 #endif
+    //PDBG("NX=%lu, lb=%lu, n= %d,size_one=%d", NX, lb, n, size_one); 
     adios_write (adios_handle, "NX", &NX);
     adios_write (adios_handle, "lb", &lb);
     adios_write (adios_handle, "n", &n);
+    adios_write (adios_handle, "nprocs_prod", &size);
     adios_write (adios_handle, "size_one", &size_one);
     adios_write (adios_handle, var_name, buf);
 #ifdef V_T
