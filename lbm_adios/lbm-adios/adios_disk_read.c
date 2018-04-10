@@ -250,7 +250,9 @@ int main (int argc, char ** argv)
 
             t4 = MPI_Wtime();
             t_analy += t4-t3;
-            PINF("rank %d: Step %d moments calculated,t_prepare %lf, t_read %lf, t_close %lf, t_analy %lf, time%lf\n", rank, timestep, t1-t0, t2-t1, t3-t2, t4-t3, t4);
+            if(rank == 0){
+                PINF("rank %d: Step %d moments calculated,t_prepare %lf, t_read %lf, t_close %lf, t_analy %lf, time%lf\n", rank, timestep, t1-t0, t2-t1, t3-t2, t4-t3, t4);
+            }
         }
     }
 

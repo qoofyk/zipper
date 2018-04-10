@@ -2,7 +2,7 @@
  * Description:
  *
  * First created: 2018 Mar 30
- * Last modified: 2018 Mar 30
+ * Last modified: 2018 Apr 09
  *
  * Author: Feng Li
  * e-mail: fengggli@yahoo.com
@@ -52,7 +52,12 @@
 #define PINF(f, a...) fprintf(stderr, "%s" f "%s\n", ESC_INF, ##a, ESC_END)
 #define PWRN(f, a...) fprintf(stderr, "%s[WRN]: " f "%s\n", ESC_WRN, ##a, ESC_END)
 #define PERR(f, a...) fprintf(stderr, "%sERROR %s:" f "%s\n", ESC_ERR, __FUNCTION__, ##a, ESC_END);
+
+#ifdef DEBUG
 #define PDBG(f, a...) fprintf(stderr, "%sDEBUG %s:" f "%s\n", ESC_DBG, __FUNCTION__, ##a, ESC_END);
+#else 
+#define PDBG(f, a...) ;
+#endif
 
 #define TRACE() fprintf(stderr, "[TRACE]: %s\n", __FUNCTION__)
 

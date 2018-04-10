@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <adios-config host-language="C">
   <adios-group name="atom" stats="On">
-    <var name="NX" type="integer"/>
+    <var name="NX" type="unsigned long"/>
     <var name="lb" type="integer"/>
     <var name="n" type="integer"/>
     <var name="size_one" type="integer"/>
