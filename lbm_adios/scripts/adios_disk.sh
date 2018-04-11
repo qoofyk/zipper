@@ -78,7 +78,7 @@ else
     echo "https://github.iu.edu/lifen/LaucherTest/blob/master/generate_hosts.sh"
 fi
 
-LAUNCHER="mpiexec.hydra"
+LAUNCHER="mpirun -l"
 
 if [[ `hostname` == *"bridges"* ]];then
     if [ x`which mpicc|grep mvapich` = "x" ]; then

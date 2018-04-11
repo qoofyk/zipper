@@ -1,5 +1,9 @@
 # written by Feng Li
 ## setting  adios 
+option(DEBUG_adaptor "debug option for dsadator and adios adaptor" OFF)
+if(DEBUG_adaptor)
+add_definitions(-DDEBUG)
+endif(DEBUG_adaptor)
 
 set(DS_DIR "${TRANSPORT_LIB}/Dataspacesroot" CACHE PATH "The path to dataspaces.")
 set(ADIOS_DIR "${TRANSPORT_LIB}/ADIOSroot" CACHE PATH "The path to adios.")

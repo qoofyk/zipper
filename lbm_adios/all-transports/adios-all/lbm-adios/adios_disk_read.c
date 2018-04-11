@@ -18,6 +18,7 @@
  * dimension of the global array here. 
 */
 
+#include "adios_adaptor.h"
 
 #include <stdio.h>
 #include <stdlib.h>

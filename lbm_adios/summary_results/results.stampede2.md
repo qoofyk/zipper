@@ -61,7 +61,6 @@ stable:
 [results]:
 * 1073073:
     aggregator 17 for 136v768: 160s (instead of 500)
->>>>>>> origin/fork_feng:lbm_adios/summary_results/results.stampede.changelog
 
 ## April 6
 [JOBS]:

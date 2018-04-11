@@ -195,7 +195,7 @@ int main (int argc, char ** argv){
     
         //sleep(20);
     
-#ifdef DEBUG
+#if 0
         printf("Rank=%d: test_scalar: %d step: %d, t[0,5+x] = [", rank, test_scalar, ii);
         for(j=0; j<nelem; j++) {
             printf(", %6.2f", t[j]);

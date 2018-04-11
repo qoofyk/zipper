@@ -30,7 +30,6 @@ status_t adios_adaptor_update_avail_version(MPI_Comm comm, char * step_index_fil
 status_t adios_adaptor_get_avail_version(MPI_Comm comm, char *step_index_file, int *p_max_version, int *p_has_more, int nstop);
 status_t adios_adaptor_init_client(char *xmlfile, MPI_Comm comm);
 
->>>>>>> origin/fork_feng:lbm_adios/lbm-adios/adios_adaptor.h
 /* 
  * @brief adios writting wrapper
  *

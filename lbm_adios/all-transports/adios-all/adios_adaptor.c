@@ -67,7 +67,7 @@ status_t adios_adaptor_update_avail_version(MPI_Comm comm, char * step_index_fil
             flock(fd, LOCK_EX);
             write(fd,  &time_stamp,  sizeof(int));
             flock(fd, LOCK_UN);
-            printf("write stamp %d at %lf", time_stamp, MPI_Wtime());
+            PINF("write stamp %d at %lf", time_stamp, MPI_Wtime());
             close(fd);
         }
     }
@@ -118,6 +118,8 @@ status_t adios_adaptor_get_avail_version(MPI_Comm comm, char *step_index_file, i
 #ifdef BARRIER_STAMP
     MPI_Barrier(comm);
 #endif
+
+    PDBG("all get stamp %d at %lf", *p_max_version, MPI_Wtime());
 
 /*    if(rank ==0 && time_stamp!= time_stamp_old){*/
             /*PINF("set stamp as %d at %lf\n", time_stamp, MPI_Wtime());*/
