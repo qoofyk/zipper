@@ -11,7 +11,6 @@
 #include "input.h"
 #include "atom.h"
 #include "library.h"
-#include "run_msd.h"
 #define SIZE_ONE (5)
 
 //#include "utility.h"
@@ -20,10 +19,12 @@
 //#include "adios_helper.h"
 #include "adios.h"
 #include "adios_error.h"
+#include "adios_adaptor.h"
 #include "ds_adaptor.h"
 
 #include "transports.h"
 #include "utility.h"
+#include "msd-anal/run_msd.h"
 static transport_method_t transport;
 
 #ifdef V_T
@@ -124,7 +125,7 @@ int main(int argc, char * argv[]){
       }
 
       //sprintf(xmlfile,"xmls/dbroker_%s.xml", trans_method);
-      sprintf(xmlfile,"xmls/arrays.xml");
+      sprintf(xmlfile,"xmls/lammps_%s.xml", trans_method);
       if(rank == 0)
         printf("[r%d] try to init with %s\n", rank, xmlfile);
 
@@ -190,6 +191,9 @@ int main(int argc, char * argv[]){
 
     buffer = (double *)malloc(size_one * 521000 *sizeof(double));
 
+    // output dir for adios
+    char *filepath = getenv("BP_DIR");
+
     for (step = 0; step < nsteps; step++)
     {
 
@@ -214,6 +218,7 @@ int main(int argc, char * argv[]){
         int natoms = static_cast<int>(lps->atom->natoms);
         int navg = natoms/nprocs; //avg atoms per proc
         
+        // TODO: precise!
 #ifdef PRECISE
         int line_buffer = nlocal; // how many lines for buffer
 #else
@@ -243,6 +248,7 @@ int main(int argc, char * argv[]){
          */
 
 
+
 #ifdef V_T
       VT_begin(put_buffer_id);
 #endif
@@ -256,9 +262,20 @@ int main(int argc, char * argv[]){
     offset = rank*NY;
     size_y = nprocs*NY;
 
-	sprintf(filename, "atom.bp");
 
-        adios_open (&adios_handle, "temperature", filename, "w", comm);
+  if(transport_major == ADIOS_DISK || transport_major == ADIOS_STAGING){
+      if(transport_major == ADIOS_STAGING)
+            sprintf(filename, "%s/atom.bp", filepath);
+      else
+	        sprintf(filename, "%s/atom_%d.bp", filepath, step);
+
+
+        if(err_no_error != adios_open (&adios_handle, "temperature", filename, "w", comm)){
+            PERR("cannot open");
+            TRACE();
+            MPI_Abort(comm, -1);
+
+        }
 
         adios_write (adios_handle, "/scalar/dim/NX", &NX);
         adios_write (adios_handle, "/scalar/dim/NY", &NY);
@@ -270,7 +287,29 @@ int main(int argc, char * argv[]){
         adios_write (adios_handle, "size_y", &size_y);
         adios_write (adios_handle, "var_2d_array", buffer);
         
-        adios_close (adios_handle);
+       if(err_no_error != adios_close (adios_handle)){
+            PERR("cannot close");
+            TRACE();
+            MPI_Abort(comm, -1);
+       }
+
+      if(transport_major == ADIOS_DISK){
+         /**** use index file to keep track of current step *****/
+        char step_index_file[256];
+        sprintf(step_index_file, "%s/stamp.file", filepath);
+
+        if(S_OK != adios_adaptor_update_avail_version(comm, step_index_file, step, nsteps)){
+            PERR("index file not found");
+            TRACE();
+            MPI_Abort(comm, -1);
+        }
+      }
+  }
+  else{
+      PERR("transport %u:%u is not not supported", transport_major, transport_minor);
+      TRACE();
+      MPI_Abort(comm, -1);
+  }
 
 
 

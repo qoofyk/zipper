@@ -1,3 +1,14 @@
+## April 11
+* mpiio with lammps
+```
+1097021 68v34: 281s
+1097114 68v34 282s
+```
+* flexpath with lammps
+```
+1097141: long time
+```
+
 ## April 8
 * [mpiio with no dependency... running together]
 ```
@@ -57,11 +68,45 @@ stable:
     
 ```
 
-
 ## April 6
 [results]:
 * 1073073:
     aggregator 17 for 136v768: 160s (instead of 500)
+
+## April 6
+[JOBS]:
+* 1072677
+lammps-sim-only: 220s, same as before
+* 1072672
+lammps with disk-io, seems very slow..
+## April 3
+[JOBS]:
+* 1050178
+    MPIIO 68v32 with Barrier 5min finishes  78 steps(slower than before)
+* 1051208
+    MPIIO 68v32 without Barrier 5min finishes 78 steps
+[code];
+flexpath\_lbm is fine 1052341.
+flexpath\_lammps?
+## April 2
+[JOBS]:
+after reorganize
+* 1047966:
+    lbm-mpiio ok
+*  1047968
+    lammps-flexpath no
+    
+
+## Jan 28
+[Verify Results]:
+
+#### 136v48 for lbm
+1. 1011311 mpiio(TODO)
+
+#### 136v48 for lammps:
+1. 1080813 decaf-lammps: 136v68: 236s, ok
+2. 1010792 flexpath-lammps: 136: 28min 50steps. I think for lammps I used another source tree
+3.
 # jan 23
  637680[results]
     flexpath 68v34 1 process per node

@@ -100,7 +100,7 @@ procs_all=$((procs_prod + procs_con + procs_link))
 
 # generate graph
 #PYTHON_RUN="python $PBS_O_WORKDIR/vector/vector_2nodes.py --np ${procs_all} --hostfile ${HOST_DIR}/machinefile-all"
-PYTHON_RUN="python $PBS_O_WORKDIR/decaf/lbm_decaf.py --np ${procs_all} --hostfile ${HOST_DIR}/machinefile-all"
+PYTHON_RUN="python $PBS_O_WORKDIR/all-transports/decaf/lbm_decaf.py --np ${procs_all} --hostfile ${HOST_DIR}/machinefile-all"
 $PYTHON_RUN &> python.log
 echo "python run $PYTHON_RUN"
 

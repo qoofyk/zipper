@@ -9,7 +9,7 @@
 
 #include "lbm.h"
 #include "lbm_buffer.h"
-#include "run_analysis.h"
+//#include "run_analysis.h"
 #include "utility.h"
 
 #ifndef SIZE_ONE
@@ -135,37 +135,14 @@ status_t run_lbm_adios(char *filepath, int nsteps, MPI_Comm comm){
         // for mpiio, each time write different files
         insert_into_adios(filepath, "atom", timestep, nlocal, size_one , buffer,"w", &comm);
         /**** use index file to keep track of current step *****/
-        int fd; 
         char step_index_file[256];
-        int time_stamp;
-        
-        if(rank == 0){
-            if(timestep == nsteps - 1){
-               time_stamp = -2;
-            }else{
-               time_stamp = timestep;
-            }// flag read from producer
+        sprintf(step_index_file, "%s/stamp.file", filepath);
 
-            sprintf(step_index_file, "%s/stamp.file", filepath);
-
-            printf("step index file in %s \n", step_index_file);
-
-            fd = open(step_index_file, O_WRONLY|O_CREAT|O_SYNC, S_IRWXU);
-            if(fd < 0){
-                perror("indexfile not opened");
-                TRACE();
-                MPI_Abort(comm, -1);
-            }
-            else{
-                flock(fd, LOCK_EX);
-                write(fd,  &time_stamp,  sizeof(int));
-                flock(fd, LOCK_UN);
-                printf("write stamp %d at %lf", time_stamp, MPI_Wtime());
-                close(fd);
-            }
+        if(S_OK != adios_adaptor_update_avail_version(comm, step_index_file, timestep, nsteps)){
+            PERR("index file not found");
+            TRACE();
+            MPI_Abort(comm, -1);
         }
-        // wait until all process finish writes and 
-        MPI_Barrier(comm);
     }
 
     else if(transport_major == NATIVE_STAGING){
@@ -248,7 +225,7 @@ int main(int argc, char * argv[]){
     MPI_Get_processor_name(nodename, &nodename_length );
 
 
-    char *filepath = getenv("SCRATCH_DIR");
+    char *filepath = getenv("BP_DIR");
     if(filepath == NULL){
         fprintf(stderr, "scratch dir is not set!\n");
     }

@@ -24,15 +24,15 @@
 #include <stdlib.h>
 #include <string.h>
 #include <mpi.h>
-#include "adios_read.h"
-#include "adios_error.h"
-#include "run_msd.h"
 //#include "adios_adaptor.h"
 //#include "adios_helper.h"
 #include "adios.h"
 #include <assert.h>
 #include "transports.h"
 #include "utility.h"
+#include "msd-anal/run_msd.h"
+
+#include "adios_adaptor.h"
 static transport_method_t transport;
 
 #define SIZE_ONE (5)
@@ -42,40 +42,6 @@ static transport_method_t transport;
 int class_id;
 int analysis_id;
 #endif
-
-/*
- * slice in dimension y
- */
-void
-slice(uint64_t length, uint64_t *s, uint64_t *e, int rank, int mpisize)
-{
-    uint64_t start = 0;
-    uint64_t end = 0;
-    uint64_t rem = length % mpisize;
-
-    start = length/mpisize * rank;
-    end = length/mpisize * (rank+1);
-    *s = start;
-    *e = end;
-    
-    /* If our MPI size is greater
-       than the number of y dimensions,
-       then read the whole thing. */
-    if (mpisize > length) {
-	*e = length;
-	*s = 0;
-	return;\
-    }
-    if (end > length) {
-        end = length;
-        *e = end;
-        return;
-    }
-    if (rank == mpisize-1) {
-        end += rem;
-        *e = end;
-    }
-}
 
 //#define DEBUG_Feng
 int main (int argc, char ** argv){
@@ -100,7 +66,7 @@ int main (int argc, char ** argv){
 
     //enum ADIOS_READ_METHOD method = ADIOS_READ_METHOD_DIMES;
     //enum ADIOS_READ_METHOD method = ADIOS_READ_METHOD_BP;
-    ADIOS_SELECTION * sel;
+    ADIOS_SELECTION * sel = NULL;
     double * data = NULL;
     uint64_t start[3], count[3];
 
@@ -171,15 +137,23 @@ int main (int argc, char ** argv){
 
     /* prepare adios
      */
-    ADIOS_SELECTION *global_range_select;
-    int         NX, NY, NZ; 
-    double      *t;
+    double      *t = NULL;
 
+    char *filepath = getenv("BP_DIR");
+    if(filepath == NULL){
+        PERR("IO  dir is not set!\n");
+    }
 
     char filename[256];
 
     // append file name
-    sprintf(filename, "atom.bp");
+    //sprintf(filename, "atom.bp");
+    if(transport_major == ADIOS_STAGING)
+            sprintf(filename, "%s/atom.bp", filepath);
+    else
+	        sprintf(filename, "%s/atom_%d.bp", filepath, step);
+
+
     ADIOS_FILE * afile = adios_read_open (filename, method, comm, ADIOS_LOCKMODE_CURRENT, -1);
     //ADIOS_FILE * f = adios_read_open (filename, method, comm, ADIOS_LOCKMODE_NONE, 0);
 
@@ -191,55 +165,14 @@ int main (int argc, char ** argv){
 
     int ii = 0;
     while(adios_errno != err_end_of_stream){       
-        ADIOS_VARINFO *nx_info = adios_inq_var(afile, "/scalar/dim/NX");
-        ADIOS_VARINFO *ny_info = adios_inq_var(afile, "/scalar/dim/NY");
-	ADIOS_VARINFO *nz_info = adios_inq_var(afile, "/scalar/dim/NZ");
 
-	ADIOS_VARINFO *arry = adios_inq_var( afile, "var_2d_array");
-    //ADIOS_VARINFO * v = adios_inq_var (f, "array");
-    /* Using less readers to read the global array back, i.e., non-uniform */
-
-	uint64_t my_ystart, my_yend;
-	slice(arry->dims[1], &my_ystart, &my_yend, rank, nprocs);
-
-	/* printf("rank: %d my_ystart: %d, my_yend: %d\n", */
-	/*        rank, (int)my_ystart, (int)my_yend); */
-
-	uint64_t xcount = arry->dims[0];
-	uint64_t ycount = my_yend - my_ystart;
-	uint64_t zcount = arry->dims[2];
-
-	uint64_t starts[] = {0, my_ystart, 0};
-	uint64_t counts[] = {xcount, ycount, zcount};
-
-	/* printf("rank: %d starts: %d %d %d. counts: %d %d %d\n", */
-	/*        rank, */
-	/*        (int)starts[0], (int)starts[1], (int)starts[2], */
-	/*        (int)counts[0], (int)counts[1], (int)counts[2]); */
-
-	global_range_select = adios_selection_boundingbox(arry->ndim, starts, counts);
-
-	int nelem = xcount*ycount*zcount;
-
-        if(nx_info->value) {
-            NX = *((int *)nx_info->value);
+        size_t nelem;
+        if(S_OK != query_select_lammps( afile, rank, nprocs, &sel, &nelem ) && sel== NULL){
+            PERR("query not succeed"); 
+            TRACE();
+            MPI_Abort(comm, -1);
         }
-        if(ny_info->value){
-            NY= *((int*)ny_info->value);
-        }
-        if(nz_info->value){
-            NZ= *((int*)nz_info->value);
-        }
-    
-	if(rank == 0){
-	    int n;
-	    printf("[%.2f]:adios global dim(column based)step %d, dims: [ ",MPI_Wtime(), ii);
-	    for(n=0; n<arry->ndim; n++){
-		printf("%d ", (int)arry->dims[n]);
-	    }
-	    printf("]\n");
-	}
-    
+            
         /* Allocate space for the arrays */
         if(!t){
             int arr_size = sizeof(double) * nelem;
@@ -250,7 +183,7 @@ int main (int argc, char ** argv){
       
         /* Read the arrays */        
         adios_schedule_read (afile, 
-                             global_range_select, 
+                             sel, 
                              "var_2d_array", 
                              0, 1, t);
    /* adios_schedule_read (afile,*/
@@ -262,7 +195,7 @@ int main (int argc, char ** argv){
     
         //sleep(20);
     
-#ifdef DEBUG
+#if 0
         printf("Rank=%d: test_scalar: %d step: %d, t[0,5+x] = [", rank, test_scalar, ii);
         for(j=0; j<nelem; j++) {
             printf(", %6.2f", t[j]);

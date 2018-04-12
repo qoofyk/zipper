@@ -18,22 +18,24 @@
  * dimension of the global array here. 
 */
 
-#define CLOG_MAIN
-#include "utility.h"
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <mpi.h>
+
 #include "adios_read.h"
 #include "adios_error.h"
 //#include "adios_read_global.h"
-#include "run_analysis.h"
+#include "utility.h"
+#include "msd-anal/run_msd.h"
+
+#include "adios_adaptor.h"
 
 #ifdef V_T
 #include <VT.h>
 int class_id;
-int analysis_id, prepare_id, read_id, close_id;
+int analysis_id;
 #endif
 
 
@@ -53,8 +55,7 @@ int main (int argc, char ** argv)
     }
     int nstop = atoi(argv[1]);
 
-    int lp = N_LP;
-    double sum_vx[NMOMENT], sum_vy[NMOMENT];
+    double **msd;
 
     /******************** configuration stop ***********/
 #ifdef ENABLE_TIMING
@@ -74,7 +75,7 @@ int main (int argc, char ** argv)
     //enum ADIOS_READ_METHOD method = ADIOS_READ_METHOD_DATASPACES;
     //enum ADIOS_READ_METHOD method = ADIOS_READ_METHOD_DIMES;
     enum ADIOS_READ_METHOD method = ADIOS_READ_METHOD_BP;
-    ADIOS_SELECTION * sel;
+    ADIOS_SELECTION * sel = NULL;
     void * data = NULL;
     uint64_t start[2], count[2];
 
@@ -89,23 +90,19 @@ int main (int argc, char ** argv)
 #ifdef V_T
      VT_classdef( "Analysis", &class_id );
      VT_funcdef("ANL", class_id, &analysis_id);
-     VT_funcdef("PP", class_id, &prepare_id);
-     VT_funcdef("RD", class_id, &read_id);
-     VT_funcdef("CL", class_id, &close_id);
 #endif
     
     int r;
 
-    char *filepath = getenv("SCRATCH_DIR");
+    char *filepath = getenv("BP_DIR");
     if(filepath == NULL){
         fprintf(stderr, "scratch dir is not set!\n");
     }
     int timestep = -1;
     
     /**** use index file to keep track of current step *****/
-    int fd; 
     char step_index_file [256];
-    int time_stamp = -1;// flag read from producer
+    int time_stamp = -1;// flag read from producer , this tells which is the largest version we can read
     int time_stamp_old=-1;
     sprintf(step_index_file, "%s/stamp.file", filepath);
 
@@ -130,42 +127,19 @@ int main (int argc, char ** argv)
     int has_more = 1;
     while(has_more){
         time_stamp_old = time_stamp;
-        if(rank ==0){
-            fd = open(step_index_file, O_RDONLY);
-            if(fd == -1){
-                perror("indexfile not here wait for 1 s \n");
-       
-            }
-            else{
-                flock(fd, LOCK_SH);
-                read(fd,  &time_stamp,  sizeof(int));
-                flock(fd, LOCK_UN);
-                close(fd);
-            }
-            if(time_stamp  == -2){
-                PINF("producer  terminate\n");
-                time_stamp = nstop-1;
-                // run this gap then exit
-            }
 
-        }
-        // broadcast stamp
-        MPI_Bcast(&time_stamp, 1, MPI_INT, 0, comm);
-        MPI_Barrier(comm);
+        adios_adaptor_get_avail_version(comm, step_index_file, &time_stamp, nstop);
 
-        if(rank ==0 && time_stamp!= time_stamp_old){
-                PINF("set stamp as %d at %lf\n", time_stamp, MPI_Wtime());
-        }
-
-        // sleep only happens in the beginning
-        if(time_stamp ==-1){
-                sleep(1);
-                continue;
+        // has nothing yet
+        if(time_stamp==-1){
+            sleep(1);
+            continue;
         }
 
         if(time_stamp == nstop -1){
-            has_more = 0;
+           has_more = 0;
         }
+
         // new step avaible from producer
         while(timestep < time_stamp){
             timestep++;
@@ -184,51 +158,33 @@ int main (int argc, char ** argv)
                     printf ("%s\n", adios_errmsg());
                     return -1;
                 }
+                size_t nelem;
+                if(S_OK != query_select_lammps( f, rank, nprocs, &sel, &nelem ) || sel == NULL){
+                    PERR("query not succeed"); 
+                    TRACE();
+                    MPI_Abort(comm, -1);
+                }
                 
-                v = adios_inq_var (f, "atom");
-                slice_size = v->dims[0]/nprocs;
 
-                data = malloc (slice_size * v->dims[1]* sizeof (double));
+                data = malloc( nelem* sizeof (double));
                 if (data == NULL)
                 {
-                    size_t allc_size=slice_size * v->dims[1]* sizeof (double);
-                    PERR("malloc failed with %ld bytes", allc_size);
-                    PERR("slice size %ld, dime1 %ld", slice_size, v->dims[1]);
+                    PERR("malloc failed.\n");
+                    TRACE();
                     MPI_Abort(comm, -1);
                 }
 
-                start[0] = slice_size * rank;
-                if (rank == nprocs-1) /* last rank may read more lines */
-                    slice_size = slice_size + v->dims[0]%nprocs;
-                count[0] = slice_size;
-
-                start[1] = 0;
-                count[1] = v->dims[1];
-                //printf("rank %d: start: (%ld, %ld), count:( %ld, %ld)\n", rank, start[0], start[1], count[0], count[1]);
-                sel = adios_selection_boundingbox (v->ndim, start, count);
             }
 
             /* Read a subset of the temperature array */
-#ifdef V_T
-      VT_begin(prepare_id);
-#endif
-            adios_schedule_read (f, sel, "atom", 0, 1, data);
-#ifdef V_T
-      VT_end(prepare_id);
-#endif
+            adios_schedule_read (f, sel, "var_2d_array", 0, 1, data);
 
             // timer for open and schedule
             t1 = MPI_Wtime();
             t_prepare+= t1-t0;
             
             // timer for actual read
-#ifdef V_T
-      VT_begin(prepare_id);
-#endif
             adios_perform_reads (f, 1);
-#ifdef V_T
-      VT_end(prepare_id);
-#endif
             t2 = MPI_Wtime();
             t_get += t2-t1;
 
@@ -243,22 +199,20 @@ int main (int argc, char ** argv)
 #ifdef V_T
       VT_begin(analysis_id);
 #endif
-            run_analysis(data, slice_size, lp, sum_vx,sum_vy);
+            //run_analysis(data, slice_size, lp, sum_vx,sum_vy);
 #ifdef V_T
       VT_end(analysis_id);
 #endif
 
             t4 = MPI_Wtime();
             t_analy += t4-t3;
-            if(rank == 0){
-                PINF("rank %d: Step %d moments calculated,t_prepare %lf, t_read %lf, t_close %lf, t_analy %lf, time%lf\n", rank, timestep, t1-t0, t2-t1, t3-t2, t4-t3, t4);
-            }
+            PINF("rank %d: Step %d moments calculated,t_prepare %lf, t_read %lf, t_close %lf, t_analy %lf, time%lf\n", rank, timestep, t1-t0, t2-t1, t3-t2, t4-t3, t4);
         }
     }
 
     free (data);
     adios_selection_delete (sel);
-    adios_free_varinfo (v);
+    //adios_free_varinfo (v);
 
 #ifdef ENABLE_TIMING
 

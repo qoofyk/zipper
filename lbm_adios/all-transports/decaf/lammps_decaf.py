@@ -13,7 +13,7 @@ wf = imp.load_source('workflow', os.environ['DECAF_PREFIX'] + '/python/workflow.
 # --- set your options here ---
 
 # path to .so module for dataflow callback functions
-mod_path = os.environ['BUILD_DIR'] + '/decaf/mod_lbm_decaf.so'
+mod_path = os.environ['BUILD_DIR'] + '/lib/mod_lammps_decaf.so'
 
 # define workflow graph
 # 2-node workflow
@@ -39,10 +39,10 @@ topoCon = topo.subTopology("con", procs_con, procs_prod+procs_link)
 
 # Creating the graph
 w = nx.DiGraph()
-w.add_node("prod", topology=topoProd, func='prod', cmdline=os.environ['BUILD_DIR'] + '/bin/lbm_decaf')
-w.add_node("con", topology=topoCon, func='con', cmdline=os.environ['BUILD_DIR'] + '/bin/lbm_decaf')
+w.add_node("prod", topology=topoProd, func='prod', cmdline=os.environ['BUILD_DIR'] + '/bin/lammps_decaf')
+w.add_node("con", topology=topoCon, func='con', cmdline=os.environ['BUILD_DIR'] + '/bin/lammps_decaf')
 w.add_edge("prod", "con", topology=topoDflow, func='dflow', path=mod_path,
-           prod_dflow_redist='count', dflow_con_redist='count',cmdline=os.environ['BUILD_DIR'] +'/bin/lbm_decaf')
+           prod_dflow_redist='count', dflow_con_redist='count',cmdline=os.environ['BUILD_DIR'] +'/bin/lammps_decaf')
 
 # --- convert the nx graph into a workflow data structure and run the workflow ---
-wf.processGraph(w, "lbm_decaf")
+wf.processGraph(w, "lammps_decaf")

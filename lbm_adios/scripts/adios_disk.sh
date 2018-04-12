@@ -1,5 +1,9 @@
 #export  I_MPI_JOB_RESPECT_PROCESS_PLACEMENT=0
 
+# tmp folder for io
+export BP_DIR="${SCRATCH_DIR}/bp-dir"
+mkdir ${BP_DIR} -pv
+
 env|grep '^HAS' # trace enabled?
 module list
 echo "case=$CASE_NAME datasize=$FILESIZE2PRODUCE nstops=$NSTOP"
@@ -59,7 +63,7 @@ lfs setstripe --stripe-size 1m --stripe-count ${tune_stripe_count} ${PBS_RESULTD
 mkdir -pv ${SCRATCH_DIR}
 
 cd ${SCRATCH_DIR}
-cp -R ${PBS_O_WORKDIR}/adios_xmls ${SCRATCH_DIR}
+cp -R ${PBS_O_WORKDIR}/all-transports/adios-all/lbm-adios/adios_xmls ${SCRATCH_DIR}
 
 cp ${BUILD_DIR}/config.h  ${SCRATCH_DIR}
 
@@ -74,7 +78,7 @@ else
     echo "https://github.iu.edu/lifen/LaucherTest/blob/master/generate_hosts.sh"
 fi
 
-LAUNCHER="mpiexec.hydra"
+LAUNCHER="mpirun -l"
 
 if [[ `hostname` == *"bridges"* ]];then
     if [ x`which mpicc|grep mvapich` = "x" ]; then

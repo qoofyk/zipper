@@ -1,3 +1,16 @@
+## April 11
+[rerun all perf comp after reorganize from stampede]:
+```
+2781214  896    123200M                      native dspace failed
+ 2781215  896    123200M     afterany:2781214  native dimes 114
+ 2781216  896    123200M     afterany:2781215 adios_dspaces 173s
+ 2781217  896    123200M     afterany:2781216 adios_dimes 148s
+ 2781218  672    123200M     afterany:2781217  mpiio 107(aggregator)
+ 2781219  672    123200M     afterany:2781218a flexpath  95s
+ 2781220  896    123200M     afterany:2781219  fixed
+ 2781221  448    123200M     afterany:2781220 mpiio
+
+```
 ## April 5
 [rerun experiments with MVAPICH (do not load intel module) #1]:
 native dspaces 158, adios-dspaces 196s, adios-dimes;170: almost the same
