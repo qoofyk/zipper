@@ -52,7 +52,7 @@ slice(uint64_t length, uint64_t *s, uint64_t *e, int rank, int mpisize)
 
 
 status_t query_select_lammps(ADIOS_FILE * afile, int rank, int nprocs, ADIOS_SELECTION ** sel, size_t *p_nelem){
-    ADIOS_SELECTION *global_range_select = *sel;
+   // ADIOS_SELECTION *global_range_select = *sel;
 
     int         NX, NY, NZ; 
 
@@ -82,7 +82,7 @@ status_t query_select_lammps(ADIOS_FILE * afile, int rank, int nprocs, ADIOS_SEL
 	/*        (int)starts[0], (int)starts[1], (int)starts[2], */
 	/*        (int)counts[0], (int)counts[1], (int)counts[2]); */
 
-	global_range_select = adios_selection_boundingbox(arry->ndim, starts, counts);
+	*sel = adios_selection_boundingbox(arry->ndim, starts, counts);
 
 	*p_nelem = xcount*ycount*zcount;
 

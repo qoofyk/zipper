@@ -1,3 +1,14 @@
+## April 11
+* mpiio with lammps
+```
+1097021 68v34: 281s
+1097114 68v34 282s
+```
+* flexpath with lammps
+```
+1097141: long time
+```
+
 ## April 8
 * [mpiio with no dependency... running together]
 ```

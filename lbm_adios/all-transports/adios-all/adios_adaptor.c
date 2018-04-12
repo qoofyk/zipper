@@ -55,7 +55,7 @@ status_t adios_adaptor_update_avail_version(MPI_Comm comm, char * step_index_fil
         }// flag read from producer
 
 
-        printf("step index file in %s \n", step_index_file);
+        PINF("step index file in %s", step_index_file);
 
         fd = open(step_index_file, O_WRONLY|O_CREAT|O_SYNC, S_IRWXU);
         if(fd < 0){

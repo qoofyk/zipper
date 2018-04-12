@@ -12,6 +12,11 @@ TODO
 	2. dspaces hanging
 	3. ENABLE_TESTING in flexpath conf, enabled
 
+## April 11
+[added]:
+1. fix reoganized lbm-mpiio: every proc need update has_more 
+2. fix lammps-mpiio: inconsistent xml files
+3. DEBUG_adaptor is the debug info for both adios and dspaces adaptor
 ## April 9
 [fixed]:
 1. now use uint64_t as the type for global dimension

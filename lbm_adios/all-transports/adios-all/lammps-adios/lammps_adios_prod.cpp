@@ -125,7 +125,7 @@ int main(int argc, char * argv[]){
       }
 
       //sprintf(xmlfile,"xmls/dbroker_%s.xml", trans_method);
-      sprintf(xmlfile,"xmls/arrays.xml");
+      sprintf(xmlfile,"xmls/lammps_%s.xml", trans_method);
       if(rank == 0)
         printf("[r%d] try to init with %s\n", rank, xmlfile);
 
@@ -270,7 +270,12 @@ int main(int argc, char * argv[]){
 	        sprintf(filename, "%s/atom_%d.bp", filepath, step);
 
 
-        adios_open (&adios_handle, "temperature", filename, "w", comm);
+        if(err_no_error != adios_open (&adios_handle, "temperature", filename, "w", comm)){
+            PERR("cannot open");
+            TRACE();
+            MPI_Abort(comm, -1);
+
+        }
 
         adios_write (adios_handle, "/scalar/dim/NX", &NX);
         adios_write (adios_handle, "/scalar/dim/NY", &NY);
@@ -282,7 +287,11 @@ int main(int argc, char * argv[]){
         adios_write (adios_handle, "size_y", &size_y);
         adios_write (adios_handle, "var_2d_array", buffer);
         
-        adios_close (adios_handle);
+       if(err_no_error != adios_close (adios_handle)){
+            PERR("cannot close");
+            TRACE();
+            MPI_Abort(comm, -1);
+       }
 
       if(transport_major == ADIOS_DISK){
          /**** use index file to keep track of current step *****/
