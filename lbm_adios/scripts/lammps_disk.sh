@@ -66,7 +66,8 @@ cp -R ${PBS_O_WORKDIR}/all-transports/adios-all/lammps-adios/xmls ${SCRATCH_DIR}
 
 
 # this scripts is avaliable at
-GENERATE_HOST_SCRIPT=${HOME}/Workspaces/General_Data_Broker/lbm_adios/scripts/generate_hosts.sh
+#GENERATE_HOST_SCRIPT=${HOME}/Workspaces/General_Data_Broker/lbm_adios/scripts/generate_hosts.sh
+GENERATE_HOST_SCRIPT=${PBS_O_WORKDIR}/scripts/generate_hosts.sh
 #GENERATE_HOST_SCRIPT=${HOME}/Downloads/LaucherTest/generate_hosts.sh
 if [ -a $GENERATE_HOST_SCRIPT ]; then
     source $GENERATE_HOST_SCRIPT

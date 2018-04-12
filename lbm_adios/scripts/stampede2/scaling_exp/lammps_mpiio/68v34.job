@@ -8,7 +8,7 @@
 
 #SBATCH --mail-type=BEGIN
 # send mail to this address
-#SBATCH --mail-user=lifen@iupui.edu
+#SBATCH --mail-user=fuyuan@iupui.edu
 
 # procs placement
 num_apps=2
