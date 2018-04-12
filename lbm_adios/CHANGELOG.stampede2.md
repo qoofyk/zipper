@@ -12,6 +12,9 @@ TODO
 	2. dspaces hanging
 	3. ENABLE_TESTING in flexpath conf, enabled
 
+## April 12 
+[testst]:
+1. tested in Bridges the code modified in stampede
 ## April 11
 [added]:
 1. fix reoganized lbm-mpiio: every proc need update has_more 
