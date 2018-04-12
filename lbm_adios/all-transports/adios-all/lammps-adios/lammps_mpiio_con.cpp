@@ -128,12 +128,16 @@ int main (int argc, char ** argv)
     while(has_more){
         time_stamp_old = time_stamp;
 
-        adios_adaptor_get_avail_version(comm, step_index_file, &time_stamp, &has_more, nstop);
+        adios_adaptor_get_avail_version(comm, step_index_file, &time_stamp, nstop);
 
         // has nothing yet
         if(time_stamp==-1){
             sleep(1);
             continue;
+        }
+
+        if(time_stamp == nstop -1){
+           has_more = 0;
         }
 
         // new step avaible from producer

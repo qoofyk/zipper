@@ -86,7 +86,7 @@ status_t adios_adaptor_update_avail_version(MPI_Comm comm, char * step_index_fil
  * this will be called only for mpiio
  */
 
-status_t adios_adaptor_get_avail_version(MPI_Comm comm, char *step_index_file, int *p_max_version, int *p_has_more, int nstop){
+status_t adios_adaptor_get_avail_version(MPI_Comm comm, char *step_index_file, int *p_max_version,int nstop){
     int fd;
     int rank;
 
@@ -108,7 +108,6 @@ status_t adios_adaptor_get_avail_version(MPI_Comm comm, char *step_index_file, i
         if(*p_max_version  == -2){
             PINF("producer  terminate\n");
             *p_max_version= nstop-1;
-            *p_has_more = 0;
             // run this gap then exit
         }
 

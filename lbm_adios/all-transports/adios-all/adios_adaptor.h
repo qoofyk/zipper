@@ -27,7 +27,7 @@ status_t query_select_lammps(ADIOS_FILE * afile, int rank, int nprocs, ADIOS_SEL
 status_t adios_adaptor_update_avail_version(MPI_Comm comm, char * step_index_file, int timestep, int nsteps);
 
 
-status_t adios_adaptor_get_avail_version(MPI_Comm comm, char *step_index_file, int *p_max_version, int *p_has_more, int nstop);
+status_t adios_adaptor_get_avail_version(MPI_Comm comm, char *step_index_file, int *p_max_version, int nstop);
 status_t adios_adaptor_init_client(char *xmlfile, MPI_Comm comm);
 
 /* 
