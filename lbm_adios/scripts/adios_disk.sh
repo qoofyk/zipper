@@ -1,11 +1,52 @@
 #export  I_MPI_JOB_RESPECT_PROCESS_PLACEMENT=0
 
+# tmp folder for io
+export BP_DIR="${SCRATCH_DIR}/bp-dir"
+mkdir ${BP_DIR} -pv
+
 env|grep '^HAS' # trace enabled?
 module list
 echo "case=$CASE_NAME datasize=$FILESIZE2PRODUCE nstops=$NSTOP"
 echo "procs is \[ ${procs_this_app[*]}\], nodes is \[${nodes_this_app[*]}\]"
 
-BUILD_DIR=${PBS_O_WORKDIR}/build
+echo "procs is \[ ${procs_this_app[*]}\], nodes is \[${nodes_this_app[*]}\]"
+if [ x"$HAS_TRACE" == "x" ];then
+    BUILD_DIR=${PBS_O_WORKDIR}/build
+    DS_SERVER=${WORK}/envs/gcc_mvapich/Dataspacesroot/bin/dataspaces_server
+
+elif [ x"$HAS_TRACE" = "xitac" ]; then
+    export LD_PRELOAD=libVT.so
+    NSTOP=10
+    echo "itac ENABLED, use 10 steps"
+    export BUILD_DIR=${PBS_O_WORKDIR}/build_itac
+    DS_SERVER=${WORK}/envs/gcc_mvapich/Dataspacesroot/bin/dataspaces_server
+    echo "use itac"
+    export VT_LOGFILE_PREFIX=${SCRATCH_DIR}/trace 
+    export VT_VERBOSE=3
+    #export export VT_CONFIG=${PBS_O_WORKDIR}/configs/vt.lammps.conf
+    mkdir -pv $VT_LOGFILE_PREFIX
+    env|grep '^VT' # trace enabled?
+
+else
+    echo "TRACE ENABLED"
+    BUILD_DIR=${PBS_O_WORKDIR}/build_tau
+    DS_SERVER=${WORK}/envs/Dataspacesroot_tau/bin/dataspaces_server
+    #enable trace
+    export TAU_TRACE=1
+    # set trace dir
+    export ALL_TRACES=${SCRATCH_DIR}/trace
+
+    mkdir -pv $ALL_TRACES/app0
+    mkdir -pv $ALL_TRACES/app1
+    mkdir -pv $ALL_TRACES/app2
+
+    if [ -z $TAU_MAKEFILE ]; then
+        module load tau
+        echo "LOAD TAU!"
+    fi
+
+fi
+
 
 BIN_PRODUCER=${BUILD_DIR}/bin/run_lbm;
 BIN_CONSUMER=${BUILD_DIR}/bin/adios_disk_read;
@@ -22,7 +63,9 @@ lfs setstripe --stripe-size 1m --stripe-count ${tune_stripe_count} ${PBS_RESULTD
 mkdir -pv ${SCRATCH_DIR}
 
 cd ${SCRATCH_DIR}
-cp -R ${PBS_O_WORKDIR}/adios_xmls ${SCRATCH_DIR}
+cp -R ${PBS_O_WORKDIR}/all-transports/adios-all/lbm-adios/adios_xmls ${SCRATCH_DIR}
+
+cp ${BUILD_DIR}/config.h  ${SCRATCH_DIR}
 
 
 # this scripts is avaliable at
@@ -35,7 +78,7 @@ else
     echo "https://github.iu.edu/lifen/LaucherTest/blob/master/generate_hosts.sh"
 fi
 
-LAUNCHER="mpiexec.hydra"
+LAUNCHER="mpirun -l"
 
 if [[ `hostname` == *"bridges"* ]];then
     if [ x`which mpicc|grep mvapich` = "x" ]; then
@@ -52,7 +95,7 @@ fi
 #Use ibrun to run the MPI job. It will detect the MPI, generate the hostfile
 # and doing the right binding. With no options ibrun will use all cores.
 #export OMP_NUM_THREADS=1
-CMD_PRODUCER="$LAUNCHER -np ${procs_this_app[0]} -machinefile $HOST_DIR/machinefile-app0  ${BIN_PRODUCER} ${NSTOP} ${FILESIZE2PRODUCE}"
+CMD_PRODUCER="$LAUNCHER -np ${procs_this_app[0]} -machinefile $HOST_DIR/machinefile-app0  ${BIN_PRODUCER} ${NSTOP}"
 $CMD_PRODUCER  &> ${PBS_RESULTDIR}/producer.log &
 echo "producer applciation lauched: $CMD_PRODUCER"
 

@@ -1,3 +1,7 @@
+# tmp folder for io
+export BP_DIR="${SCRATCH_DIR}/bp-dir"
+mkdir ${BP_DIR} -pv
+
 #################################################### 
 # common commands for all experiments 
 #export  I_MPI_JOB_RESPECT_PROCESS_PLACEMENT=0
@@ -28,6 +32,7 @@ elif [ x"$HAS_TRACE" = "xitac" ]; then
     NSTOP=10
     echo "itac ENABLED, use 10 steps"
     export BUILD_DIR=${PBS_O_WORKDIR}/build_itac
+    DS_SERVER=${WORK}/envs/gcc_mvapich/Dataspacesroot/bin/dataspaces_server
     echo "use itac"
     export VT_LOGFILE_PREFIX=${SCRATCH_DIR}/trace 
     export VT_VERBOSE=3
@@ -66,7 +71,8 @@ tune_stripe_count=-1
 lfs setstripe --stripe-size 1m --stripe-count ${tune_stripe_count} ${PBS_RESULTDIR}
 mkdir -pv ${SCRATCH_DIR}
 cd ${SCRATCH_DIR}
-cp -R ${PBS_O_WORKDIR}/adios_xmls ${SCRATCH_DIR}
+cp -R ${PBS_O_WORKDIR}/all-transports/adios-all/lbm-adios/adios_xmls ${SCRATCH_DIR}
+cp ${BUILD_DIR}/config.h  ${SCRATCH_DIR}
 
 ## this is a clean working dir
 #rm -f conf *.log srv.lck
@@ -108,7 +114,7 @@ if [ x"$HAS_TRACE" == "x" ];then
 else
     #export LD_PRELOAD=libVT.so 
     #LAUNCHER="mpiexec.hydra -trace"
-    LAUNCHER="mpiexec.hydra"
+    LAUNCHER="mpirun -l"
 fi
 
 if [[ `hostname` == *"bridges"* ]];then
@@ -123,6 +129,8 @@ if [[ `hostname` == *"bridges"* ]];then
     fi
 fi
 
+env|grep '^I_MPI' # trace enabled?
+env|grep '^I_MV2' # trace enabled?
 
 
 echo "use transport method $CMTransport with CMTransportVerbose=$CMTransportVerbose"
@@ -142,7 +150,7 @@ if [ $MyTransport != ADIOS_STAGING_FLEXPATH ]; then
 
 fi
 
-CMD_PRODUCER="$LAUNCHER -np ${procs_this_app[$appid]} -machinefile $HOST_DIR/machinefile-app${appid} -env TRACEDIR=${ALL_TRACES}/app${appid}  ${BIN_PRODUCER} ${NSTOP} ${FILESIZE2PRODUCE}"
+CMD_PRODUCER="$LAUNCHER -np ${procs_this_app[$appid]} -machinefile $HOST_DIR/machinefile-app${appid} -env TRACEDIR=${ALL_TRACES}/app${appid}  ${BIN_PRODUCER} ${NSTOP}"
 $CMD_PRODUCER  &> ${PBS_RESULTDIR}/producer.log &
 echo "producer applciation lauched: $CMD_PRODUCER"
 

@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.7 FATAL_ERROR)
-include(${CMAKE_SOURCE_DIR}/cmake/common.cmake)
 
 project("lbm_adios")
+
 
 if(TRANSPORT_LIB)
     message("-- Including transport method in ${TRANSPORT_LIB} is loaded...")
@@ -9,9 +9,28 @@ else()
     message(FATAL_ERROR "-- should either specify build type or toolchain file")
 endif()
 
+message("----current cxx flags is ${CMAKE_CXX_FLAGS}")
 
 option(all_transports "build all transports" OFF)
 option(use_itac "build with itac" OFF)
+option(build_zipper "build zipper runtim" ON)
+
+option(USE_SAME_LOCK "Use same lock in dspaces" OFF)
+option(BARRIER_STAMP "barrier after broadcast version in consumer" ON)
+
+if(NOT USE_SAME_LOCK)
+    set(DS_MAX_VERSION "3")
+endif()
+
+configure_file(
+    "${PROJECT_SOURCE_DIR}/config.h.in"
+    "${PROJECT_BINARY_DIR}/config.h"
+     @ONLY
+    )
+
+include_directories("${PROJECT_BINARY_DIR}")
+include_directories(include)
+
 
 set(common_library "m")
 
@@ -30,7 +49,7 @@ endif(use_itac)
 
 # mpi
 find_package(MPI REQUIRED)
-set(common_library ${common_library} ${MPI_LIBRARIES})
+set(common_library ${common_library} ${MPI_C_LIBRARIES})
 
 
 
@@ -44,72 +63,31 @@ add_definitions ("-DENABLE_TIMING")
 include_directories(${MPI_INCLUDE_PATH} ${CMAKE_SOURCE_DIR} ${CMAKE_SOURCE_DIR}/analysis ${CMAKE_SOURCE_DIR}/msd ${CMAKE_SOURCE_DIR}/lbm)
 
 set(EXECUTABLE_OUTPUT_PATH "${CMAKE_BINARY_DIR}/bin")
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib")
 
+## lbm-nmoments
 add_subdirectory(lbm)
+add_subdirectory(nmoments-anal)
 
+
+## lammps-msd
+if(LAMMPS_INCLUDE_DIR)
+    add_subdirectory(msd-anal)
+endif()
+
+## bind different transports to applications
 if(all_transports)
-    set(DS_DIR "${TRANSPORT_LIB}/Dataspacesroot" CACHE PATH "The path to dataspaces.")
-    set(ADIOS_DIR "${TRANSPORT_LIB}/ADIOSroot" CACHE PATH "The path to adios.")
-    set(FLEXPATH_DIR "${TRANSPORT_LIB}/Flexpath" CACHE PATH "The path to flexpath.")
-
-    include_directories(${DS_DIR}/include ${ADIOS_DIR}/include ${FLEXPATH_DIR}/include)
-
-    find_library(DSPACES dspaces ${DS_DIR}/lib)
-    find_library(DSCOMMON dscommon ${DS_DIR}/lib)
-    find_library(DART dart ${DS_DIR}/lib)
-    find_library(ADIOS adios ${ADIOS_DIR}/lib)
-
-    find_library(EVPATH evpath ${FLEXPATH_DIR}/lib)
-    find_library(FFS ffs ${FLEXPATH_DIR}/lib)
-    find_library(ATL atl ${FLEXPATH_DIR}/lib)
-    find_library(DILL dill ${FLEXPATH_DIR}/lib)
-    find_library(CERCS_ENV cercs_env ${FLEXPATH_DIR}/lib)
-
-    set(ADIOS_LIB ${ADIOS} ${DSPACES} ${DSCOMMON} ${DART} ${EVPATH} ${FFS} ${ATL} ${DILL} ${CERCS_ENV})
-
-    add_library(adaptor adios_adaptor.c utility.c adios_adaptor.c ds_adaptor.c)
-    target_link_libraries(adaptor ${ADIOS_LIB})
-
-    # add libm if using gcc
-    target_link_libraries(adaptor  pthread rt rdmacm ibverbs)
-
-    add_executable(run_lbm run_lbm.c)
-    add_executable(adios_staging_read adios_staging_read.c)
-    add_executable(adios_disk_read adios_disk_read.c)
-
-    add_executable(native_staging_read native_staging_read.c)
-    #add_executable(adios_read_global adios_mpiio_read.c run_analysis.c adios_adaptor.c)
-    # add_executable(adios_write_global adios_write_global.c)
-
-    SET(myTARGET run_lbm adios_staging_read adios_disk_read native_staging_read)
-    foreach(item ${myTARGET})
-
-        target_link_libraries(${item} ${common_library} adaptor nmoments_analysis)
-
-        if(MPI_COMPILE_FLAGS)
-            set_target_properties(${item} PROPERTIES COMPILE_FLAGS "${MPI_C_COMPILE_FLAGS}")
-        endif()
-
-        if(MPI_LINK_FLAGS)
-            set_target_properties(${item} PROPERTIES LINK_FLAGS "${MPI_C_LINK_FLAGS}")
-        endif()
-    endforeach(item)
-
-    add_subdirectory(analysis)
-    if(LAMMPS_INCLUDE_DIR)
-        add_subdirectory(lammps)
-    else()
-        message("-- lammps not build")
-    endif()
-
-    add_subdirectory(msd)
-    add_subdirectory(decaf)
-    add_subdirectory(adios)
-    add_subdirectory(tests)
-
+    add_subdirectory(all-transports)
 endif(all_transports)
 
-add_subdirectory(zipper)
-add_subdirectory(zipper_lammps)
+## zipper
+if(build_zipper)
+    add_subdirectory(zipper)
+    if(LAMMPS_INCLUDE_DIR)
+        add_subdirectory(zipper_lammps)
+    endif()
+endif(build_zipper)
 
+## tests
+add_subdirectory(tests)
 

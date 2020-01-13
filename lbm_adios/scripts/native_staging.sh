@@ -11,6 +11,20 @@ echo "procs is \[ ${procs_this_app[*]}\], nodes is \[${nodes_this_app[*]}\]"
 if [ x"$HAS_TRACE" == "x" ];then
     BUILD_DIR=${PBS_O_WORKDIR}/build
     DS_SERVER=${WORK}/envs/gcc_mvapich/Dataspacesroot/bin/dataspaces_server
+
+elif [ x"$HAS_TRACE" = "xitac" ]; then
+    export LD_PRELOAD=libVT.so
+    NSTOP=10
+    echo "itac ENABLED, use 10 steps"
+    export BUILD_DIR=${PBS_O_WORKDIR}/build_itac
+    DS_SERVER=${WORK}/envs/gcc_mvapich/Dataspacesroot/bin/dataspaces_server
+    echo "use itac"
+    export VT_LOGFILE_PREFIX=${SCRATCH_DIR}/trace 
+    export VT_VERBOSE=3
+    #export export VT_CONFIG=${PBS_O_WORKDIR}/configs/vt.lammps.conf
+    mkdir -pv $VT_LOGFILE_PREFIX
+    env|grep '^VT' # trace enabled?
+
 else
     echo "TRACE ENABLED"
     BUILD_DIR=${PBS_O_WORKDIR}/build_tau
@@ -54,6 +68,7 @@ mkdir -pv ${CONSUMER_TRACE_DIR}
 
 cd ${SCRATCH_DIR}
 cp -R ${PBS_O_WORKDIR}/adios_xmls ${SCRATCH_DIR}
+cp ${BUILD_DIR}/config.h  ${SCRATCH_DIR}
 
 
 
@@ -77,7 +92,7 @@ echo "## Config file for DataSpaces
 ndim = 2
 dims = 2, $((DS_LIMIT))
 hash_version = 2
-max_versions = 1
+max_versions = 3
 max_readers = 1
 lock_type = 2
 " > dataspaces.conf
@@ -97,7 +112,7 @@ if [ x"$HAS_TRACE" == "x" ];then
 else
     #export LD_PRELOAD=libVT.so 
     #LAUNCHER="mpiexec.hydra -trace"
-    LAUNCHER="mpiexec.hydra"
+    LAUNCHER="mpirun -l"
 fi
 
 if [[ `hostname` == *"bridges"* ]];then
@@ -114,6 +129,9 @@ fi
 
 #-env I_MPI_FABRICS tcp
 
+env|grep '^I_MPI' # trace enabled?
+env|grep '^MV2' # trace enabled?
+
 
 ## Run DataSpaces servers
 CMD_SERVER="$LAUNCHER -np ${procs_this_app[0]} -machinefile $HOST_DIR/machinefile-app0 -env TRACEDIR=${ALL_TRACES}/app0 ${DS_SERVER} -s ${procs_this_app[0]} -c $((procs_this_app[1]+procs_this_app[2]))"
@@ -125,7 +143,7 @@ while [ ! -f conf ]; do
 done
 sleep 5s  # wait server to fill up the conf file
 
-CMD_PRODUCER="$LAUNCHER -np ${procs_this_app[1]} -machinefile $HOST_DIR/machinefile-app1 -env TRACEDIR=${ALL_TRACES}/app1 ${BIN_PRODUCER} ${NSTOP} ${FILESIZE2PRODUCE}"
+CMD_PRODUCER="$LAUNCHER -np ${procs_this_app[1]} -machinefile $HOST_DIR/machinefile-app1 -env TRACEDIR=${ALL_TRACES}/app1 ${BIN_PRODUCER} ${NSTOP}"
 $CMD_PRODUCER  &> ${PBS_RESULTDIR}/producer.log &
 echo "producer applciation lauched: $CMD_PRODUCER"
 

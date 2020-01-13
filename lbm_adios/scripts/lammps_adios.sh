@@ -1,3 +1,7 @@
+# tmp folder for io
+export BP_DIR="${SCRATCH_DIR}/bp-dir"
+mkdir ${BP_DIR} -pv
+
 #################################################### 
 # common commands for all experiments 
 #export  I_MPI_JOB_RESPECT_PROCESS_PLACEMENT=0
@@ -64,7 +68,10 @@ tune_stripe_count=-1
 lfs setstripe --stripe-size 1m --stripe-count ${tune_stripe_count} ${PBS_RESULTDIR}
 mkdir -pv ${SCRATCH_DIR}
 cd ${SCRATCH_DIR}
-cp -R ${PBS_O_WORKDIR}/adios/xmls ${SCRATCH_DIR}
+#cp -R ${PBS_O_WORKDIR}/adios/xmls ${SCRATCH_DIR}
+
+cp -R ${PBS_O_WORKDIR}/all-transports/adios-all/lammps-adios/xmls ${SCRATCH_DIR}
+cp ${BUILD_DIR}/config.h  ${SCRATCH_DIR}
 
 
 # this scrWorkspaces/General_Data_Broker/lbm_adios/scripts
@@ -109,7 +116,7 @@ MPI_CMD1="mpirun -l  --machinefile $HOST_DIR/machinefile-app0 -np ${procs_prod} 
 
 MPI_CMD2="mpirun -l  --machinefile $HOST_DIR/machinefile-app1 -np ${procs_con} $cmd_con"
 
-$MPI_CMD1  &
-$MPI_CMD2 &> con.log &
+$MPI_CMD1  & ${PBS_RESULTDIR}/producer.log &
+$MPI_CMD2 &>${PBS_RESULTDIR}/consumer.log &
 
 wait

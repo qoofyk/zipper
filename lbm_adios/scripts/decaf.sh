@@ -67,6 +67,7 @@ lfs setstripe --stripe-size 1m --stripe-count ${tune_stripe_count} ${PBS_RESULTD
 mkdir -pv ${SCRATCH_DIR}
 cd ${SCRATCH_DIR}
 #cp -R ${PBS_O_WORKDIR}/global_range_select/arrays.xml ${SCRATCH_DIR}
+cp ${BUILD_DIR}/config.h  ${SCRATCH_DIR}
 
 
 # this scrWorkspaces/General_Data_Broker/lbm_adios/scripts
@@ -99,7 +100,7 @@ procs_all=$((procs_prod + procs_con + procs_link))
 
 # generate graph
 #PYTHON_RUN="python $PBS_O_WORKDIR/vector/vector_2nodes.py --np ${procs_all} --hostfile ${HOST_DIR}/machinefile-all"
-PYTHON_RUN="python $PBS_O_WORKDIR/decaf/lbm_decaf.py --np ${procs_all} --hostfile ${HOST_DIR}/machinefile-all"
+PYTHON_RUN="python $PBS_O_WORKDIR/all-transports/decaf/lbm_decaf.py --np ${procs_all} --hostfile ${HOST_DIR}/machinefile-all"
 $PYTHON_RUN &> python.log
 echo "python run $PYTHON_RUN"
 

@@ -1,4 +1,6 @@
 USE Intel tracing tool
+#### module support in HPC
+* Bridges: module load intel/17.4
 #### status
 1. automatically instrumentation:
     -tcollect -trace
