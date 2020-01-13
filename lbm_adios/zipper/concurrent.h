@@ -100,7 +100,8 @@ typedef struct gv_t {
   int CI,CJ,CK,originx,originy,originz,gi,gj,gk,computeid;
   int n_moments;
 
-  int rank[2], size[2], namelen, color;
+  int rank[2], size[2]; // rank/size[0] for global communication, rank/size[1] for splited communicator
+  int namelen, color;
   char processor_name[128];
   int computer_group_size, analysis_process_num, compute_process_num, nproc_per_mac; //Num in each Compute Group, Num of Analysis Node
 

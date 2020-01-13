@@ -1,3 +1,4 @@
 lbm_adios/results
 !lbm_adios/results/summary
 *.swp
+*/build
