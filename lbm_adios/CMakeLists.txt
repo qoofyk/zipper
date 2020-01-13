@@ -11,9 +11,9 @@ endif()
 
 message("----current cxx flags is ${CMAKE_CXX_FLAGS}")
 
-option(all_transports "build all transports" ON)
+option(all_transports "build all transports" OFF)
 option(use_itac "build with itac" OFF)
-option(build_zipper "build zipper runtim" OFF)
+option(build_zipper "build zipper runtim" ON)
 
 option(USE_SAME_LOCK "Use same lock in dspaces" OFF)
 option(BARRIER_STAMP "barrier after broadcast version in consumer" ON)
@@ -57,7 +57,7 @@ add_definitions ("-DENABLE_TIMING")
 #add_definitions ("-DUSE_DATASPACES -DENABLE_TIMING -Wall -Wextra")
 #add_definitions ("-DUSE_DATASPACES -DHAS_KEEP -DENABLE_TIMING -Wall -Wextra")
 #add_definitions ("-DUSE_DIMES -DENABLE_TIMING -Wall -Wextra")
-#add_definitions ("-DUSE_DIMES -DHAS_KEEP -DENABLE_TIMING -Wall -Wextra") 
+#add_definitions ("-DUSE_DIMES -DHAS_KEEP -DENABLE_TIMING -Wall -Wextra")
 
 
 include_directories(${MPI_INCLUDE_PATH} ${CMAKE_SOURCE_DIR} ${CMAKE_SOURCE_DIR}/analysis ${CMAKE_SOURCE_DIR}/msd ${CMAKE_SOURCE_DIR}/lbm)
@@ -83,10 +83,11 @@ endif(all_transports)
 ## zipper
 if(build_zipper)
     add_subdirectory(zipper)
+    if(LAMMPS_INCLUDE_DIR)
+        add_subdirectory(zipper_lammps)
+    endif()
 endif(build_zipper)
-
 
 ## tests
 add_subdirectory(tests)
-
 

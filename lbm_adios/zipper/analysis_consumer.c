@@ -3,6 +3,13 @@ Copyright YUANKUN FU
 Brief desc of the file: LBM consumer thread
 ********************************************************/
 #include "concurrent.h"
+
+#ifdef V_T
+#include <VT.h>
+int class_id;
+int analysis_id;
+#endif
+
 void simple_verify(GV gv, LV lv, char* buffer, int nbytes, int* consumer_state_p){
   register int i,j,k;
   //register int computeid=0;
@@ -201,6 +208,12 @@ void analysis_consumer_thread(GV gv, LV lv){
   // printf("Analysis Process %d consumer thread %d is running!\n",gv->rank[0], lv->tid);
   // fflush(stdout);
 
+#ifdef V_T
+  VT_classdef( "Analysis", &class_id );
+  VT_funcdef("ANL", class_id, &analysis_id);
+  //VT_funcdef("GETBUF", class_id, &get_buffer_id);
+#endif
+
   t2 = MPI_Wtime();
   while(1) {
     flag=0;
@@ -241,11 +254,16 @@ step=%d, i=%d, j=%d, k=%d, gv->calc_counter=%d, consumer_state=%d\n",
 // #endif //DEBUG_PRINT
 
           t0 = MPI_Wtime();
+#ifdef V_T
+      VT_begin(analysis_id);
+#endif
           // simple_verify(gv, lv, pointer, gv->block_size, &consumer_state);
           // calc_n_moments(gv, lv, pointer+sizeof(int)*8, &consumer_state);
           calc_n_moments(gv, pointer+sizeof(int)*8, sum_vx, sum_vy);
           // calc_n_moments(gv, pointer+sizeof(int)*8);
-
+#ifdef V_T
+      VT_end(analysis_id);
+#endif
           t1 = MPI_Wtime();
           lv->calc_time += t1 - t0;
           gv->calc_counter++;
