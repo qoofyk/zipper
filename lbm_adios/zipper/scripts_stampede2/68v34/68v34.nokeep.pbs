@@ -5,7 +5,7 @@
 #SBATCH --nodes=3 									# Total nodes
 #SBATCH --ntasks-per-node=34						# MPI tasks per node
 #SBATCH --mail-type=all
-#SBATCH --mail-user=qoofyk@gmail.com 				# mail alert at start, end and abortion of execution
+#SBATCH --mail-user=lf921227@gmail.com 				# mail alert at start, end and abortion of execution
 #SBATCH -t 0:05:00 									# Run time (hh:mm:ss)
 
 ##################parameter setting#################################################

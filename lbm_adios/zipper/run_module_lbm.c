@@ -6,6 +6,7 @@ int class_id;
 int advance_step_id;// get_buffer_id;
 #endif
 
+#define SIZE_ONE (2)
 
 
 extern double u[nx][ny][nz],v[nx][ny][nz];

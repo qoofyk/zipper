@@ -30,9 +30,14 @@ library by up to 220\% using 13,056 processor cores.
 Build zipper
 ------------------------------
 Follow the instruction in :ref:`toolchain` to build the package
-Zipper can be built by adding the following line in the following line in the cmake command::
+Zipper can be built by adding the following line in the following line in the cmake command
 
-    -Dbuild_zipper 
+.. code-block::
+
+	cd lbm_adios
+	mkdir build
+	cd build
+	../compile_stampede2.sh
 
 
 Test zipper
