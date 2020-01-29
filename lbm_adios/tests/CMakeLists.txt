@@ -1,4 +1,4 @@
-
+add_subdirectory(test-socket)
 if(LAMMPS_INCLUDE_DIR)
     add_subdirectory(test-lammps)
 endif()

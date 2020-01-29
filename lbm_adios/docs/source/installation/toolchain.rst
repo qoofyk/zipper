@@ -3,6 +3,7 @@
 Toolchain settings
 ==============================
 
+
 how to build
 -----------------------
 
@@ -14,6 +15,10 @@ The build command will be like::
 For builds in Stampede 2::
 
     cmake -DCMAKE_TOOLCHAIN_FILE=../cmake/Stampede2.toolchain.cmake  ..
+
+Build on local machine (zipper-only, for debugging purpose, only depends on MPI)::
+
+    cmake ..
 
 
 control supported transports

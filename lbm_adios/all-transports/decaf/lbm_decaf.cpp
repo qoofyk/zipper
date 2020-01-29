@@ -203,9 +203,6 @@ cleanup:
     //VT_finalize();
     printf("[decaf]: trace finalized\n");
 #endif
-
-
-
 }
 
 // gets the atom positions and prints them

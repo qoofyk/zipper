@@ -110,9 +110,13 @@ computer_group_size, num_analysis_nodes, cubex, cubez, step_stop, n_moment\n", a
 	gv->n_moments = atoi(argv[11]); //Loop times in Analysis calc_n_moments
 
 	//init IObox
-	gv->block_size = sizeof(int)*4+sizeof(double)*(gv->cubex*gv->cubey*gv->cubez*EACH_FLUID_NUM_DOUBLE); //64K B+4B,step,ci,cj,ck,data
+        gv->block_size =
+            sizeof(int) * 4 +
+            sizeof(double) *
+                (gv->cubex * gv->cubey * gv->cubez *
+                 EACH_FLUID_NUM_DOUBLE); // 64K B+4B,step,ci,cj,ck,data
 
-	gv->compute_generator_num = atoi(argv[1]);
+        gv->compute_generator_num = atoi(argv[1]);
 	gv->compute_writer_num = atoi(argv[2]);
 	gv->analysis_reader_num = atoi(argv[3]);
 	gv->analysis_writer_num = atoi(argv[4]);

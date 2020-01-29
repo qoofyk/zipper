@@ -24,6 +24,7 @@ void ring_buffer_put(GV gv, LV lv, char* buffer){
   }
 }
 
+/** Deprecated: Read block when each file stores one block*/
 void read_blk_per_file(GV gv, LV lv, int last_gen_rank, int blk_id, char* buffer, int nbytes){
   char file_name[128];
   FILE *fp=NULL;
@@ -64,6 +65,7 @@ void read_blk_per_file(GV gv, LV lv, int last_gen_rank, int blk_id, char* buffer
   fclose(fp);
 }
 
+/** Read block when all blocks are stored in a single file.*/
 void ana_read_one_file(GV gv, LV lv, int last_gen_rank, int blk_id, char* buffer, FILE *fp, int nbytes){
   double t0=0, t1=0;
   int error=-1;
@@ -102,6 +104,7 @@ void ana_read_one_file(GV gv, LV lv, int last_gen_rank, int blk_id, char* buffer
   lv->only_fread_time += t1 - t0;
 }
 
+/** Reader fetch blocks*/
 char get_disk_blk(GV gv, LV lv, int *last_gen_rank, int *block_id){
 
   pthread_mutex_lock(&gv->lock_recv_disk_id_arr);

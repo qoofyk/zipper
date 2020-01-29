@@ -39,6 +39,9 @@ typedef int status_t;
 #define S_OK (0)
 #define S_FAIL (-1)
 
+#define KB(x) ((x) << 10)
+#define MB(x) ((x) << 20)
+#define GB(x) ((x) << 30)
 
 #ifndef STRING_LENGTH
 #define STRING_LENGTH (160)
@@ -47,6 +50,7 @@ typedef int status_t;
 
 #define RANK_SEQUENTIAL (-1)
 
+/** Return current time in second*/
 static double get_cur_time() {
   struct timeval   tv;
   struct timezone  tz;

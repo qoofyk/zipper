@@ -43,12 +43,13 @@
 
 #define ESC_LOG NORMAL_GREEN
 #define ESC_DBG NORMAL_YELLOW
+#define ESC_MAJOR BRIGHT_CYAN
 #define ESC_INF NORMAL_CYAN
 #define ESC_WRN NORMAL_RED
 #define ESC_ERR BRIGHT_RED
 #define ESC_END "\033[0m"
 
-
+#define PMAJOR(f, a...) fprintf(stderr, "%s" f "%s\n", ESC_MAJOR, ##a, ESC_END)
 #define PINF(f, a...) fprintf(stderr, "%s" f "%s\n", ESC_INF, ##a, ESC_END)
 #define PWRN(f, a...) fprintf(stderr, "%s[WRN]: " f "%s\n", ESC_WRN, ##a, ESC_END)
 #define PERR(f, a...) fprintf(stderr, "%sERROR %s:" f "%s\n", ESC_ERR, __FUNCTION__, ##a, ESC_END);

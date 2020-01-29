@@ -1,12 +1,13 @@
-cmake_minimum_required(VERSION 3.7 FATAL_ERROR)
+cmake_minimum_required(VERSION 2.8 FATAL_ERROR)
+set(CMAKE_EXPORT_COMPILE_COMMANDS on)
 
 project("lbm_adios")
-
+ 
 
 if(TRANSPORT_LIB)
     message("-- Including transport method in ${TRANSPORT_LIB} is loaded...")
 else()
-    message(FATAL_ERROR "-- should either specify build type or toolchain file")
+    message(WANRING "-- not building with adios/decaf backends")
 endif()
 
 message("----current cxx flags is ${CMAKE_CXX_FLAGS}")
@@ -28,7 +29,7 @@ configure_file(
      @ONLY
     )
 
-include_directories("${PROJECT_BINARY_DIR}")
+include_directories("${PROJECT_BINARY_DIR} ${PROJECT_SOURCE_DIR}")
 include_directories(include)
 
 
@@ -80,6 +81,7 @@ if(all_transports)
     add_subdirectory(all-transports)
 endif(all_transports)
 
+
 ## zipper
 if(build_zipper)
     add_subdirectory(zipper)
@@ -91,3 +93,4 @@ endif(build_zipper)
 ## tests
 add_subdirectory(tests)
 
+add_subdirectory(utils)

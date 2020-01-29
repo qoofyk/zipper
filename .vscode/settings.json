@@ -1,0 +1,9 @@
+{
+    "cmake.sourceDirectory": "${workspaceFolder}/lbm_adios",
+    "cmake.buildDirectory": "${workspaceFolder}/lbm_adios/build",
+    "C_Cpp.default.configurationProvider": "vector-of-bool.cmake-tools",
+    "cmake.configureOnOpen": true,
+    "files.associations": {
+        "*.tcc": "c"
+    }
+}

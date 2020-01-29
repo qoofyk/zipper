@@ -213,6 +213,8 @@ void analysis_receiver_thread(GV gv, LV lv){
 
       // statistic !!!!!!!!
       t4 = MPI_Wtime();
+
+      // tell reader block ids on disk
       pthread_mutex_lock(&gv->lock_recv_disk_id_arr);
       // gv->prefetch_counter++;
       make_prefetch_id(gv, status.MPI_SOURCE, recv_int, tmp_int_ptr+1);

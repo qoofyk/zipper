@@ -3,6 +3,8 @@ message("building standalone analsis")
 #add_executable(lbm lbm.c lbm_buffer.c lbm_test.c)
 add_library(nmoments_analysis run_analysis.c)
 
+target_link_libraries(nmoments_analysis m)
+
 #target_link_libraries(lbm ${LIBRARIES})
 #target_link_libraries(mod_lbm ${LIBRARIES})
 
