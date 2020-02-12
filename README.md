@@ -1,5 +1,15 @@
 See [this page](https://fengggli.github.io/zipper-runtime) for sphinx documentation.
 
+deps
+------
+in extern/hiredis/build
+
+```
+cmake .. -DCMAKE_INSTALL_PREFIX=$HOME/Workspace/zipper-runtime/deps_install
+make 
+make install
+```
+
 General Data Broker
 ----------------------------------------------------------------
 We introduce a fine-grained, fully asynchronous, pipelined parallel execution model to combine large scale simulations with data-intensive analyses to accelerate scientific discovery. In the project, we build a new general analytical model to estimate the expected time-to-solution for two different user scenarios where users may or may not need to preserve the computed results. The analytical model divides a scientific discovery into multiple stages such that the total time-to-solution is as small as the time of a single stage. We also develop a new data transfer method called concurrent message-passing and file-I/O method to speed up the data transfer between computation
