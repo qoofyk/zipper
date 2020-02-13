@@ -90,8 +90,8 @@ int main(int argc, char **argv) {
 
   /* writing some floatting number with binary-safe string */
 
-  int nr_steps = 100;
-  int nr_local_atoms = 1000;
+  int nr_steps = 10;
+  int nr_local_atoms = 10;
   float value_x, value_y, value_z;
   char *stream_name = "atoms";
   value_x = 0.0;

@@ -1,5 +1,5 @@
 
-set(Hiredis_PREFIX "zipper-runtime/extern/hiredis" CACHE PATH "The path to installed hiredis.")
+set(Hiredis_PREFIX "${PROJECT_SOURCE_DIR}/../deps_install" CACHE PATH "The path to installed hiredis.")
 set(Hiredis_INCLUDE_DIRS ${Hiredis_PREFIX}/include/hiredis)
 set(Hiredis_LIBRARIES ${Hiredis_PREFIX}/lib/libhiredis.so)
 include_directories(${Hiredis_INCLUDE_DIRS})
