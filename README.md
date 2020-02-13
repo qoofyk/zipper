@@ -2,7 +2,7 @@ See [this page](https://fengggli.github.io/zipper-runtime) for sphinx documentat
 
 checkout
 ```
-git checkout -b zipper-workflow --recurse-submodules git@github.com:fengggli/zipper-runtime.git
+git clone -b zipper-workflow --recurse-submodules git@github.com:fengggli/zipper-runtime.git
 ```
 
 deps

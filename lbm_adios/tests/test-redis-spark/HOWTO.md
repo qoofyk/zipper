@@ -1,26 +1,69 @@
 See https://www.infoq.com/articles/data-processing-redis-spark-streaming/
 
-#### prerequisite:
+## prerequisite:
 1. see  installation in root README.
 
-#### build
-1. download deps
+
+#### Steps for ubuntu 1804 vm instances
+0. prepare redis 
+
   ```
-  sudo apt-get install sbt
+  sudo apt-get update
+  sudo apt-get install redis
   ```
 
-  sbt not available in 16.04, try wget https://dl.bintray.com/sbt/debian/sbt-1.3.4.deb)
+  change /etc/redis/redis.conf.
+
+  1. comment out bind localhost
+  2. set protection mode = no
+  3. set supervised systemd
+
   ```
-  https://dl.bintray.com/sbt/debian/sbt-1.3.4.deb
+  sudo systemctl restart redis
   ```
 
-2. sbt package
+1. prepare sbt 
+  sbt not available in ubuntu official repo, try wget https://dl.bintray.com/sbt/debian/sbt-1.3.4.deb)
+  ```
+  wget https://dl.bintray.com/sbt/debian/sbt-1.3.4.deb
+  sudo dpkg -i sbt-1.3.4.deb
+  sudo apt-get update
+  sudo
+  ```
 
-#### Steps
-1. start redis_server
+2. build using sbt
+  ```
+  sbt package
+  ```
+
+3. install pysparks
+  ```
+  conda create --name pyspark pyspark
+  conda activate pyspark
+  ```
+
+4. start he deamon (this will keep checking update and do some "analysis"), write analysis results into 
+  ```
+  run_analysis.sh
+  ```
+
+5. in a terminal 
+```
+src/redis_client and then insert values(how data is ingested)
+```
+
+
+
+## other methods
+
+#### self-built redis
+
+1. start redis_server(https://cloud.google.com/community/tutorials/setting-up-redis)
 ```
 src/redis server ../redis.conf
 ```
+
+#### run with docker
 
 or  run a server in backgroud, map to 1993
 ```
@@ -38,22 +81,14 @@ start a redis cli too
 sudo docker run --name myredis-cli -it --rm redis:5 redis-cli -h 172.17.0.2
 ```
 
-2. start he deamon (this will keep checking update and do some "analysis"), write analysis results into 
-```
-run_analysis.sh
-```
 
-3. in a terminal 
-```
-src/redis_client and then insert values(how data is ingested)
-```
+#### check analysis results using spark-sql(not added yet)
 
-4. check analysis results using spark-sql
 ```
 run_query.sh
 ```
 
-5.then in the sql interface:
+then in the sql interface:
 ```
 CREATE TABLE IF NOT EXISTS atoms(step STRING, count INT) USING org.apache.spark.sql.redis OPTIONS (table 'atom');
 select * from atoms;
