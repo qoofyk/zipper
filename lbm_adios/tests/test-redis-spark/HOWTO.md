@@ -22,6 +22,9 @@ See https://www.infoq.com/articles/data-processing-redis-spark-streaming/
   sudo systemctl restart redis
   ```
 
+  need to enable tcp 6379 port for connections from outside.
+  for google cloud, follow https://cloud.google.com/community/tutorials/setting-up-redis and remember to select "all instances in the network" in the "target".
+
 1. prepare sbt 
   sbt not available in ubuntu official repo, try wget https://dl.bintray.com/sbt/debian/sbt-1.3.4.deb)
   ```
