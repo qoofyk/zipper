@@ -1,7 +1,6 @@
 
-set(Hiredis_PREFIX "${PROJECT_SOURCE_DIR}/../deps_install" CACHE PATH "The path to installed hiredis.")
-set(Hiredis_INCLUDE_DIRS ${Hiredis_PREFIX}/include/hiredis)
-set(Hiredis_LIBRARIES ${Hiredis_PREFIX}/lib/libhiredis.so)
+set(Hiredis_INCLUDE_DIRS ${Hiredis_PREFIX}/hiredis)
+set(Hiredis_LIBRARIES hiredis) # this is a cmake target
 include_directories(${Hiredis_INCLUDE_DIRS})
 add_executable(test-hiredis test-hiredis.c)
 target_link_libraries(test-hiredis ${Hiredis_LIBRARIES})

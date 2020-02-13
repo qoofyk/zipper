@@ -5,21 +5,12 @@ checkout
 git clone -b zipper-workflow --recurse-submodules git@github.com:fengggli/zipper-runtime.git
 ```
 
-deps
-------
-in extern/hiredis
-
-```
-cmake . -DCMAKE_INSTALL_PREFIX=../../deps_install
-make 
-make install
-```
-
-then build main
+How to build
 ----------------
 
 ```
-cd lbm_adios/build
+mkdir build
+cd build
 cmake ..
 ```
 
