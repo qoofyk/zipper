@@ -4,7 +4,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include "include/logging.h"
 
+#include <vector>
 #include <hiredis.h>
 
 int main(int argc, char **argv) {
@@ -48,7 +50,7 @@ int main(int argc, char **argv) {
   }
 
   /* PING server */
-  reply = redisCommand(c, "PING");
+  reply = (redisReply *)redisCommand(c, "PING");
   printf("PING: %s\n", reply->str);
   freeReplyObject(reply);
 
@@ -102,13 +104,17 @@ int main(int argc, char **argv) {
   int nr_steps = 100;
   int nr_local_atoms = 1000;
   float value_x, value_y, value_z;
-  char *stream_name = "atoms";
+  const char *stream_name = "atoms";
   value_x = 0.0;
   value_y = 0.0;
   value_z = 0.0;
+  double t1, t2;
+
+  std::vector<double> time_stats;
   for (int step = 0; step < nr_steps; step++) {
     // simulate all process advance one step
     MPI_Barrier(comm);
+    t1 = MPI_Wtime();
     for (int atom_id = 0; atom_id < nr_local_atoms; atom_id++) {
       // TODO: using binary-safe floating point numbers
 #if 0
@@ -123,22 +129,33 @@ int main(int argc, char **argv) {
             &value_z,
             sizeof(value_z));
 #else
-      reply = redisCommand(
+      reply = (redisReply *)redisCommand(
           c, "XADD %s MAXLEN ~ 1000000 * step %ld atomid %ld x %f y %f z %f",
           stream_name, step, atom_id, value_x, value_y, value_z);
 
 #endif
       if (reply->type == REDIS_REPLY_STRING) {
-        printf(
+        PDBG(
             "XADD(client%d, step %d, atom %d) to stream(%s) (binary API): %s\n",
             taskid, step, atom_id, stream_name, reply->str);
       }
       freeReplyObject(reply);
     }
-
+    t2 = MPI_Wtime();
+    printf("step = %d, proc= %d, time =%.3f for %d atoms\n", step, taskid, t2 - t1, nr_local_atoms);
+    time_stats.push_back(t2-t1);
     value_x += 1.0;
     value_y += 1.0;
     value_z += 1.0;
+  }
+
+  MPI_Barrier(comm);
+  if(taskid == 0){
+    printf("[proc %d:]");
+    for(auto iter = time_stats.begin(); iter != time_stats.end(); iter ++){
+      printf(" %.3f", *iter);
+    }
+    printf("\n");
   }
 
   /* Disconnects and frees the context */

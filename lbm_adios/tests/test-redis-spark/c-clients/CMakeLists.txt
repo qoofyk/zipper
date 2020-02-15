@@ -5,7 +5,7 @@ include_directories(${Hiredis_INCLUDE_DIRS})
 add_executable(test-hiredis test-hiredis.c)
 target_link_libraries(test-hiredis ${Hiredis_LIBRARIES})
 
-add_executable(test-put-mpi test_put_mpi.c)
+add_executable(test-put-mpi test_put_mpi.cpp)
 
 target_link_libraries(test-put-mpi ${Hiredis_LIBRARIES})
 
