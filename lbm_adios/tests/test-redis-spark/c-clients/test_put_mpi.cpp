@@ -9,6 +9,7 @@
 
 #include <vector>
 #include <hiredis.h>
+#define USE_PIPELINE
 
 static char *help_str =
     "Usage: %s [-n nr_local_atoms] [-i iterations] hostname\n";
@@ -149,6 +150,9 @@ int main(int argc, char **argv) {
   value_z = 0.0;
   double t1, t2;
 
+  int queue_len = 128;
+  int ii = 0;
+
   std::vector<double> time_stats;
   for (int step = 0; step < nr_steps; step++) {
     // simulate all process advance one step
@@ -156,29 +160,29 @@ int main(int argc, char **argv) {
     t1 = MPI_Wtime();
     for (int atom_id = 0; atom_id < nr_local_atoms; atom_id++) {
       // TODO: using binary-safe floating point numbers
-#if 0
-        reply = redisCommand(c,"XADD %s MAXLEN ~ 1000000 * stepid %ld atomid %ld x %b y %b z %b",
-            stream_name,
-            step,
-            atom_id,
-            &value_x,
-            sizeof(value_x),
-            &value_y,
-            sizeof(value_y),
-            &value_z,
-            sizeof(value_z));
+#ifdef USE_PIPELINE
+      redisAppendCommand(
+          c, "XADD %s MAXLEN ~ 1000000 * step %ld atomid %ld x %f y %f z %f",
+          stream_name, step, atom_id, value_x, value_y, value_z);
+      if(atom_id > 0 && atom_id % queue_len == 0){
+        for(ii = 0; ii < queue_len; ii ++){
+          redisGetReply(c, (void **)(&reply));
+          freeReplyObject(reply);
+        }
+      }
 #else
       reply = (redisReply *)redisCommand(
           c, "XADD %s MAXLEN ~ 1000000 * step %ld atomid %ld x %f y %f z %f",
           stream_name, step, atom_id, value_x, value_y, value_z);
 
-#endif
       if (reply->type == REDIS_REPLY_STRING) {
         PDBG(
             "XADD(client%d, step %d, atom %d) to stream(%s) (binary API): %s\n",
             taskid, step, atom_id, stream_name, reply->str);
       }
       freeReplyObject(reply);
+
+#endif
     }
     t2 = MPI_Wtime();
     printf("step = %d, proc= %d, time =%.3f for %d atoms\n", step, taskid, t2 - t1, nr_local_atoms);
