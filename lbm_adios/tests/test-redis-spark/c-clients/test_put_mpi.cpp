@@ -5,16 +5,28 @@
 #include <stdlib.h>
 #include <string.h>
 #include "include/logging.h"
+#include <getopt.h>
 
 #include <vector>
 #include <hiredis.h>
 
+static char *help_str =
+    "Usage: %s [-n nr_local_atoms] [-i iterations] hostname\n";
+
+
 int main(int argc, char **argv) {
   unsigned int j, isunix = 0;
+  int opt;
   redisContext *c;
   redisReply *reply;
-  const char *hostname = (argc > 1) ? argv[1] : "127.0.0.1";
 
+  /* default options*/
+  const char * hostname = "127.0.0.1";
+  int port = 6379;;
+  int nr_steps = 30;
+  int nr_local_atoms = 1000;
+
+  // Init MPI
   MPI_Status status;
   int taskid, numtasks;
   MPI_Comm comm = MPI_COMM_WORLD;
@@ -23,15 +35,44 @@ int main(int argc, char **argv) {
   MPI_Comm_rank(comm, &taskid);
   MPI_Comm_size(comm, &numtasks);
 
-  if (argc > 2) {
-    if (*argv[2] == 'u' || *argv[2] == 'U') {
+  // User option
+  while ((opt = getopt(argc, argv, "h:p:i:n:")) != -1) {
+    fprintf(stderr, "passing option %c\n", opt);
+    switch (opt) {
+    case 'p':
+      port = atoi(optarg);
+      break;
+    case 'i':
+      nr_steps = atoi(optarg);
+      break;
+
+    case 'n':
+      nr_local_atoms = atoi(optarg);
+      break;
+
+    case 'u':
       isunix = 1;
       /* in this case, host is the path to the unix socket */
       printf("Will connect to unix socket @%s\n", hostname);
+      break;
+
+
+    default: /* '?' */
+      fprintf(stderr, help_str, argv[0]);
+      exit(EXIT_FAILURE);
     }
   }
+  if (optind >= argc) {
+    fprintf(stderr, "Expected argument after options\n");
+    fprintf(stderr,help_str);
+    exit(EXIT_FAILURE);
+  }
 
-  int port = (argc > 2) ? atoi(argv[2]) : 6379;
+  printf("optind=%d\n", optind);
+  hostname = argv[optind];
+  PINF("running exp with server(%s:%d), with nr_local_atoms(%d), iterations(%d)",
+       hostname, port, nr_local_atoms, nr_steps);
+
 
   struct timeval timeout = {1, 500000}; // 1.5 seconds
   if (isunix) {
@@ -101,8 +142,6 @@ int main(int argc, char **argv) {
 
   /* writing some floatting number with binary-safe string */
 
-  int nr_steps = 100;
-  int nr_local_atoms = 1000;
   float value_x, value_y, value_z;
   const char *stream_name = "atoms";
   value_x = 0.0;
@@ -151,12 +190,16 @@ int main(int argc, char **argv) {
 
   MPI_Barrier(comm);
   if(taskid == 0){
+    double all_time_used = 0;
     printf("[proc %d:]");
     for(auto iter = time_stats.begin(); iter != time_stats.end(); iter ++){
       printf(" %.3f", *iter);
+      all_time_used += *iter;
     }
     printf("\n");
+    printf("average time %.3f s\n", all_time_used/time_stats.size());
   }
+
 
   /* Disconnects and frees the context */
   redisFree(c);
