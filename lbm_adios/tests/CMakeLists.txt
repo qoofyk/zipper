@@ -1,6 +1,0 @@
-add_subdirectory(test-socket)
-if(LAMMPS_INCLUDE_DIR)
-    add_subdirectory(test-lammps)
-endif()
-add_subdirectory(test-redis-spark/c-clients)
-#add_subdirectory(clog_test)

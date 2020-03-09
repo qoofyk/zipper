@@ -12,14 +12,14 @@ target_link_libraries(test-put-mpi ${Hiredis_LIBRARIES})
 foreach(item test-put-mpi)
     #target_link_libraries(${item} ${MPI_C_LIBRARIES})
 
-    if(MPI_COMPILE_FLAGS)
-        set_target_properties(${item} PROPERTIES COMPILE_FLAGS "${MPI_C_COMPILE_FLAGS}")
+    if(MPI_CXX_COMPILE_FLAGS)
+        set_target_properties(${item} PROPERTIES COMPILE_FLAGS "${MPI_CXX_COMPILE_FLAGS}")
     endif()
 
-    if(MPI_LINK_FLAGS)
-        set_target_properties(${item} PROPERTIES LINK_FLAGS "${MPI_C_LINK_FLAGS}")
+    if(MPI_CXX_LINK_FLAGS)
+        set_target_properties(${item} PROPERTIES LINK_FLAGS "${MPI_CXX_LINK_FLAGS}")
     endif()
 
-    target_link_libraries(${item} ${MPI_C_LIBRARIES})
+    target_link_libraries(${item} ${MPI_CXX_LIBRARIES})
 endforeach(item)
 

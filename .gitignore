@@ -4,3 +4,4 @@ lbm_adios/build*
 *.swp
 */build
 deps_install
+.venv

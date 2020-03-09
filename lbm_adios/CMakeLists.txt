@@ -50,19 +50,15 @@ if(use_itac)
    #set(common_library ${common_library} "-L/opt/intel/itac/2017.3.030/intel64/lib -lVT -ldwarf -lelf -lvtunwind" )
 endif(use_itac)
 
-# mpi
-find_package(MPI REQUIRED)
-set(common_library ${common_library} ${MPI_C_LIBRARIES})
-
-
-
 add_definitions ("-DENABLE_TIMING")
 #add_definitions ("-DUSE_DATASPACES -DENABLE_TIMING -Wall -Wextra")
 #add_definitions ("-DUSE_DATASPACES -DHAS_KEEP -DENABLE_TIMING -Wall -Wextra")
 #add_definitions ("-DUSE_DIMES -DENABLE_TIMING -Wall -Wextra")
 #add_definitions ("-DUSE_DIMES -DHAS_KEEP -DENABLE_TIMING -Wall -Wextra")
 
-
+# mpi
+find_package(MPI REQUIRED)
+set(common_library ${common_library} ${MPI_C_LIBRARIES})
 include_directories(${MPI_INCLUDE_PATH} ${PROJECT_SOURCE_DIR} ${PROJECT_SOURCE_DIR}/analysis ${PROJECT_SOURCE_DIR}/msd ${PROJECT_SOURCE_DIR}/lbm)
 
 set(EXECUTABLE_OUTPUT_PATH "${CMAKE_BINARY_DIR}/bin")
@@ -92,7 +88,5 @@ if(build_zipper)
     endif()
 endif(build_zipper)
 
-## tests
-add_subdirectory(tests)
 
 add_subdirectory(utils)
