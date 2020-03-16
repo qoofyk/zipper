@@ -4,14 +4,19 @@
     "C_Cpp.default.configurationProvider": "vector-of-bool.cmake-tools",
     "cmake.configureOnOpen": true,
     "files.associations": {
-        "*.tcc": "c"
+        "*.tcc": "c",
+        "mySimpleFoam.C": "cpp",
+        "Field.C": "cpp"
     },
     "files.watcherExclude": {
+        ".venv/**": true,
         "**/.git/objects/**": true,
         "**/.git/subtree-cache/**": true,
+        "**/data/**": true,
+        "**/metastore_db/**": true,
         "**/node_modules/*/**": true,
-        "**/extern/**": true,
-        ".venv/**": true
+        "build/**": true,
+        "extern/**": true
     },
     "python.pythonPath": ".venv/bin/python3"
 }

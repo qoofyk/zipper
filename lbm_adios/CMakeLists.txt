@@ -68,6 +68,8 @@ set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib")
 add_subdirectory(lbm)
 add_subdirectory(nmoments-anal)
 
+## simpleFoam (Run the build script inside instead)
+#add_subdirectory(simpleFoam)
 
 ## lammps-msd
 if(LAMMPS_INCLUDE_DIR)

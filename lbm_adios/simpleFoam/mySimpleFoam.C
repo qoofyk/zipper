@@ -40,6 +40,8 @@ Description
 #include "simpleControl.H"
 #include "fvOptions.H"
 
+#define USE_MYDUMP
+
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
 int main(int argc, char *argv[])
@@ -55,6 +57,25 @@ int main(int argc, char *argv[])
 
     turbulence->validate();
 
+    #ifdef USE_MYDUMP
+    // #include "MyDump.H"
+    // basic file operations
+    #include <iostream>
+    #include <fstream>
+    /*
+    #include <unistd.h>
+    char buff[FILENAME_MAX]; //create string buffer to hold path
+    getcwd( buff, FILENAME_MAX );
+    cout << "will dump to" << buff << endl;
+    */
+    ofstream v_file, p_file;
+    std::string out_dir =  "/home/lifen/OpenFOAM/lifen-6/run/windAroundBuildings_zipper/";
+    cout << "will dump to" << out_dir.c_str() << endl;
+    v_file.open(out_dir +"/velocity.txt");
+    p_file.open(out_dir + "/pressure.txt");
+    #endif
+
+
     // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
     Info<< "\nStarting time loop\n" << endl;
@@ -63,7 +84,7 @@ int main(int argc, char *argv[])
     {
         Info<< "Time = " << runTime.timeName() << nl << endl;
 
-        // --- Pressure-velocity SIMPLE corrector
+        // --- Pessure-velocity SIMPLE corrector
         {
             #include "UEqn.H"
             #include "pEqn.H"
@@ -74,12 +95,31 @@ int main(int argc, char *argv[])
 
         runTime.write();
 
+    #ifdef USE_MYDUMP
+         forAll(p , i)
+         {
+             p_file << p[i] << std::endl;
+         }
+         forAll(U , i)
+         {
+            v_file << U[i].x() << U[i].y() << U[i].z() << std::endl;
+         }
+
+    #endif
+
         Info<< "ExecutionTime = " << runTime.elapsedCpuTime() << " s"
             << "  ClockTime = " << runTime.elapsedClockTime() << " s"
             << nl << endl;
     }
 
     Info<< "End\n" << endl;
+
+    #ifdef USE_MYDUMP
+
+    v_file.close();
+    p_file.close();
+    #endif
+
 
     return 0;
 }

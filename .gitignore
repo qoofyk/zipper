@@ -5,3 +5,9 @@ lbm_adios/build*
 */build
 deps_install
 .venv
+build
+**/metastore_db/
+data
+**/linux64GccDPInt32Opt
+**/.ipynb_checkpoints/
+*.deb
