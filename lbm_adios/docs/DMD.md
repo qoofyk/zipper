@@ -13,4 +13,29 @@
 #### Steps
 1. Generate data from openfoam (try to use the same code from https://github.com/OpenFOAM/OpenFOAM-5.x/tree/master/tutorials/incompressible/simpleFoam/windAroundBuildings)
 2. Data will be inserted to Redis.
-2. redis-spark will pip time-series data to pydmd using spark pipe.
+3. redis-spark will pip time-series data to pydmd using spark pipe.
+4. Baseline: data will be write into files(copied via network if necessary)
+
+#### Data format
+
+DMD works on windows of snapshots. Each stream insert can contain:
+1. stepid + partid(geometric-based or just linear-based) + array of velocities
+2. Batch processing will get a window for each 20 steps
+
+#### Openfoam
+1. build  (will generated binaries in $FOAM_USER_APPBIN, as specified in Make/files, and referred in the $FOAM_RUN/windAroundBuildings_zipper/Allrun script)
+```
+cd lbm_adios/simpleFoam
+wmake
+```
+
+2. run
+```
+cd $FOAM_RUN/windAroundBuilding_zipper
+./Allrun
+```
+
+## Roles
+
+#### consumer side
+* see the [pydmd example](https://github.com/fengggli/zipper-runtime/blob/zipper-workflow/tests/test-pydmd/tutorial-5-fbdmd.ipynb)

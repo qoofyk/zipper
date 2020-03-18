@@ -5,8 +5,7 @@
     "cmake.configureOnOpen": true,
     "files.associations": {
         "*.tcc": "c",
-        "mySimpleFoam.C": "cpp",
-        "Field.C": "cpp"
+        "*.C": "cpp"
     },
     "files.watcherExclude": {
         ".venv/**": true,

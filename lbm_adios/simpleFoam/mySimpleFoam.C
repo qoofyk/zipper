@@ -68,21 +68,20 @@ int main(int argc, char *argv[])
     getcwd( buff, FILENAME_MAX );
     cout << "will dump to" << buff << endl;
     */
-    ofstream v_file, p_file;
-    std::string out_dir =  "/home/lifen/OpenFOAM/lifen-6/run/windAroundBuildings_zipper/";
-    cout << "will dump to" << out_dir.c_str() << endl;
-    v_file.open(out_dir +"/velocity.txt");
-    p_file.open(out_dir + "/pressure.txt");
+    string out_dir = std::getenv("PWD");
     #endif
 
 
     // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
+    Info << "Running my Simple Foam, results saved to " << out_dir << endl;
+
     Info<< "\nStarting time loop\n" << endl;
 
     while (simple.loop(runTime))
     {
-        Info<< "Time = " << runTime.timeName() << nl << endl;
+        string str_time = runTime.timeName();
+        Info<< "Time = " << str_time << nl << endl;
 
         // --- Pessure-velocity SIMPLE corrector
         {
@@ -96,15 +95,15 @@ int main(int argc, char *argv[])
         runTime.write();
 
     #ifdef USE_MYDUMP
-         forAll(p , i)
-         {
-             p_file << p[i] << std::endl;
-         }
-         forAll(U , i)
-         {
-            v_file << U[i].x() << U[i].y() << U[i].z() << std::endl;
-         }
 
+        if(runTime.writeTime()){
+            ofstream out_file(out_dir +"/snapshot_t" + str_time +".txt");
+            forAll(p , i)
+            {
+                out_file  << p[i] << " " << U[i].x() << " " << U[i].y() << " "<< U[i].z() << std::endl;
+            }
+            out_file.close();
+        }
     #endif
 
         Info<< "ExecutionTime = " << runTime.elapsedCpuTime() << " s"
@@ -113,13 +112,6 @@ int main(int argc, char *argv[])
     }
 
     Info<< "End\n" << endl;
-
-    #ifdef USE_MYDUMP
-
-    v_file.close();
-    p_file.close();
-    #endif
-
 
     return 0;
 }
