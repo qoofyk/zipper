@@ -2,7 +2,7 @@ lbm_adios/results
 lbm_adios/build*
 !lbm_adios/results/summary
 *.swp
-*/build
+*/build*
 deps_install
 .venv
 build

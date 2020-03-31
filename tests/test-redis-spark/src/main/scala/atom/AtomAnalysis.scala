@@ -1,50 +1,51 @@
-// Program: ClickAnalysis.scala
+// Program: AtomAnalysis.scala
 //
-package click
 import org.apache.spark.sql.SparkSession
 import org.apache.spark.sql.functions._
 import org.apache.spark.sql.types._
 import com.redislabs.provider.redis._
 
-object ClickAnalysis {
-   // def runthis{
-    def main_click(args: Array[String]): Unit = {
+object AtomAnalysis {
+    def atom_main(args: Array[String]): Unit = {
          val spark = SparkSession
                      .builder()
-                     .appName("redis-example")
+                     .appName("atom-analysis")
                      .master("local[*]")
                      .config("spark.redis.host", "localhost")
                      .config("spark.redis.port", "6379")
                      .getOrCreate()
 
-         val clicks = spark
+         val atoms = spark
                      .readStream
                      .format("redis")
-                     .option("stream.keys","clicks")
+                     .option("stream.keys","atoms")
                      .schema(StructType(Array(
-                           StructField("asset", StringType),
-                           StructField("cost", LongType)
+                           StructField("step", LongType),
+                           StructField("atomid", LongType),
+                           StructField("x", FloatType),
+                           StructField("y", FloatType),
+                           StructField("z", FloatType)
                       )))
                       .load()
-          val byasset = clicks.groupBy("asset").count
+//          val bystep = atoms.groupBy("step").count
+          val bystep = atoms.groupBy("step").agg(mean("x"), mean("y"), mean("z"), count("atomid"))
           
-          //TODO: write back to redis
           /*
-          val clickWriter : ClickForeachWriter =
-new ClickForeachWriter("localhost","6379")
+          val atomWriter : AtomForeachWriter =
+new AtomForeachWriter("localhost","6379")
           
-          val query = byasset
+          val query = bystep
                       .writeStream
                       .outputMode("update")
-                      .foreach(clickWriter)
+                      .foreach(atomWriter)
                       .start()
-          */
-          val query = byasset
+                      */
+          
+	     val query = bystep
             .writeStream
             .outputMode("update")
             .format("console")
             .start()
-
 
           query.awaitTermination()
 

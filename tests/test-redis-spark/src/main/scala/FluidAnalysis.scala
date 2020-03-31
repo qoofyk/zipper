@@ -1,47 +1,45 @@
-// Program: AtomAnalysis.scala
+// Program: fluidAnalysis.scala
 //
 import org.apache.spark.sql.SparkSession
 import org.apache.spark.sql.functions._
 import org.apache.spark.sql.types._
 import com.redislabs.provider.redis._
 
-object AtomAnalysis {
+object FluidAnalysis {
     def main(args: Array[String]): Unit = {
          val spark = SparkSession
                      .builder()
-                     .appName("atom-analysis")
+                     .appName("fluid-analysis")
                      .master("local[*]")
                      .config("spark.redis.host", "localhost")
                      .config("spark.redis.port", "6379")
                      .getOrCreate()
 
-         val atoms = spark
+         val fluids = spark
                      .readStream
                      .format("redis")
-                     .option("stream.keys","atoms")
+                     .option("stream.keys","fluids")
                      .schema(StructType(Array(
                            StructField("step", LongType),
-                           StructField("atomid", LongType),
-                           StructField("x", FloatType),
-                           StructField("y", FloatType),
-                           StructField("z", FloatType)
+                           StructField("region_id", LongType),
+                           StructField("valuelist", StringType),
                       )))
                       .load()
-//          val bystep = atoms.groupBy("step").count
-          val bystep = atoms.groupBy("step").agg(mean("x"), mean("y"), mean("z"), count("atomid"))
+//          val bystep = fluids.groupBy("step").count
+          val region0 = fluids.select("step", "valuelist").where("region_id = 1")
           
           /*
-          val atomWriter : AtomForeachWriter =
-new AtomForeachWriter("localhost","6379")
+          val fluidWriter : fluidForeachWriter =
+new fluidForeachWriter("localhost","6379")
           
           val query = bystep
                       .writeStream
                       .outputMode("update")
-                      .foreach(atomWriter)
+                      .foreach(fluidWriter)
                       .start()
                       */
           
-					val query = bystep
+	     val query = region0
             .writeStream
             .outputMode("update")
             .format("console")
