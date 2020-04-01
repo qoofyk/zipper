@@ -5,6 +5,8 @@ import org.apache.spark.sql.functions._
 import org.apache.spark.sql.types._
 import com.redislabs.provider.redis._
 
+import org.apache.spark.sql.streaming.Trigger
+
 object FluidAnalysis {
     def main(args: Array[String]): Unit = {
          val spark = SparkSession
@@ -43,6 +45,7 @@ new fluidForeachWriter("localhost","6379")
             .writeStream
             .outputMode("update")
             .format("console")
+            .trigger(Trigger.ProcessingTime("10 seconds"))
             .start()
 
           query.awaitTermination()

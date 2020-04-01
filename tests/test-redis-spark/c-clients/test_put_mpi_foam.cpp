@@ -3,6 +3,7 @@
 #include "mpi.h"
 #include <stdio.h>
 #include <stdlib.h>
+#include <unistd.h>
 #include <string.h>
 #include "include/logging.h"
 #include <getopt.h>
@@ -133,16 +134,19 @@ int main(int argc, char **argv) {
       commandString.append(",");
     }
     std::cout << "command:" << commandString << std::endl;
-    #if 0
+    #if 1
+      std::cout << "Writing!" << std::endl;
       redisAppendCommand(
-          c, commandString.c_string());
-      if(step_id > 0 && step_id % queue_len == 0){
+          c, commandString.c_str());
+      if(step > 0 && step % queue_len == 0){
         for(ii = 0; ii < queue_len; ii ++){
           redisGetReply(c, (void **)(&reply));
           freeReplyObject(reply);
         }
       }
     #endif
+    redisGetReply(c, (void **)(&reply));
+    freeReplyObject(reply);
 
     t2 = MPI_Wtime();
     printf("step = %d, proc= %d, time =%.3f for %d fluids\n", step, taskid, t2 - t1, nr_local_fluids);
@@ -150,6 +154,7 @@ int main(int argc, char **argv) {
     for(int i = 0; i < nr_local_fluids; i++){
       v0_values[i] += 1;
     }
+    usleep(500000);
   }
 
   MPI_Barrier(comm);
