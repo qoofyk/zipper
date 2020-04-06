@@ -34,7 +34,7 @@ See https://www.infoq.com/articles/data-processing-redis-spark-streaming/
   sudo
   ```
 
-2. build using sbt
+2. build using sbt (in vs code, using the scala-meta extension)
   ```
   sbt package
   ```

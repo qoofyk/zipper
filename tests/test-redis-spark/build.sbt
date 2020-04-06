@@ -1,10 +1,8 @@
-
-//scalaVersion := "2.12.10"
-
+scalaVersion := "2.11.12"
+// val sparkRedisVersion ="2.4.2"
 val sparkVersion = "2.4.5"
-version := "1.0"
 
-mainClass in (Compile, run) := Some("fluidAnalysis")
+// mainClass in (Compile, run) := Some("fluidAnalysis")
 
 // I don't know how to create two jars in one sbt project..
 /*
@@ -37,5 +35,7 @@ lazy val fluidapp = (project in file("."))
         "org.apache.spark" %% "spark-core" % sparkVersion,
         "org.apache.spark" %% "spark-sql" % sparkVersion,
         "org.apache.spark" %% "spark-catalyst" % sparkVersion,
-		)
+        // "com.redislabs" %% "spark-redis" % sparkRedisVersion
+    ),
+    assemblyJarName in assembly := "fluid-withdeps.jar"
   )

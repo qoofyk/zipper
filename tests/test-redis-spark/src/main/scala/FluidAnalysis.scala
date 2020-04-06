@@ -6,6 +6,11 @@ import org.apache.spark.sql.types._
 import com.redislabs.provider.redis._
 
 import org.apache.spark.sql.streaming.Trigger
+import org.apache.spark.sql.Row
+import org.apache.spark.sql.Dataset
+
+import org.apache.spark.rdd.RDD
+import org.apache.spark.SparkFiles
 
 object FluidAnalysis {
     def main(args: Array[String]): Unit = {
@@ -24,7 +29,7 @@ object FluidAnalysis {
                      .schema(StructType(Array(
                            StructField("step", LongType),
                            StructField("region_id", LongType),
-                           StructField("valuelist", StringType),
+                           StructField("valuelist", StringType)
                       )))
                       .load()
 //          val bystep = fluids.groupBy("step").count
@@ -41,14 +46,32 @@ new fluidForeachWriter("localhost","6379")
                       .start()
                       */
           
-	     val query = region0
+          /*
+	     val query_fake = region0
             .writeStream
             .outputMode("update")
             .format("console")
             .trigger(Trigger.ProcessingTime("10 seconds"))
             .start()
 
-          query.awaitTermination()
+          query_fake.awaitTermination()
+          */
+
+          // val scriptPath = SparkFiles.get("compute_dmd.py")
+          val query_py = region0
+            .writeStream
+            .outputMode("update")
+            .format("console")
+            .trigger(Trigger.ProcessingTime("10 seconds"))
+            .foreachBatch { (batchDF: Dataset[Row], batchId: Long) =>
+               // Transform and write batchDF 
+               val rows: RDD[Row] = batchDF.rdd
+               val pipeRDD = rows.pipe("env python compute_dmd.py")
+               pipeRDD.collect().foreach(println)
+            }.start()
+
+          query_py.awaitTermination()
+
 
      } // End main
 } //End object
