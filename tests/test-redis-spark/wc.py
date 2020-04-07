@@ -10,3 +10,4 @@ if __name__ == '__main__':
     lines = len(data.split('\n'))
 
     print ("{0}   {1}   {2}".format(lines, words, chars))
+    print(data)
