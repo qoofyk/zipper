@@ -50,6 +50,12 @@ See https://www.infoq.com/articles/data-processing-redis-spark-streaming/
   run_analysis.sh
   ```
 
+  I can also check the files using this in spark-shell:
+```
+import org.apache.spark.SparkFiles
+val pypath=SparkFiles.get("run_fluiddmd.py")
+```
+
 5. in a terminal 
 ```
 src/redis_client and then insert values(how data is ingested)

@@ -1,5 +1,6 @@
 // Program: fluidAnalysis.scala
 //
+import java.io.File
 import org.apache.spark.sql.SparkSession
 import org.apache.spark.sql.functions._
 import org.apache.spark.sql.types._
@@ -13,6 +14,14 @@ import org.apache.spark.rdd.RDD
 import org.apache.spark.SparkFiles
 
 object FluidAnalysis {
+		def getListOfFiles(dir: String):List[File] = {
+					val d = new File(dir)
+					if (d.exists && d.isDirectory) {
+							d.listFiles.filter(_.isFile).toList
+					} else {
+							List[File]()
+					}
+}
     def main(args: Array[String]): Unit = {
          val spark = SparkSession
                      .builder()
@@ -56,8 +65,12 @@ new fluidForeachWriter("localhost","6379")
 
           query_fake.awaitTermination()
           */
+          val filelist = getListOfFiles("./")
+          println("The empty list is: " + filelist) 
 
           // val scriptPath = SparkFiles.get("compute_dmd.py")
+          //val py_command="env python " + SparkFiles.get("run_fluiddmd.py")
+          val py_command="env python3 ./run_fluiddmd.py" // + SparkFiles.get("run_fluiddmd.py")
           val query_py = region0
             .writeStream
             .outputMode("update")
@@ -66,7 +79,8 @@ new fluidForeachWriter("localhost","6379")
             .foreachBatch { (batchDF: Dataset[Row], batchId: Long) =>
                // Transform and write batchDF 
                val rows: RDD[Row] = batchDF.rdd
-               val pipeRDD = rows.pipe("env python compute_dmd.py")
+               //val pipeRDD = rows.pipe("env python compute_dmd.py")
+               val pipeRDD = rows.pipe(py_command)
                pipeRDD.collect().foreach(println)
             }.start()
 
