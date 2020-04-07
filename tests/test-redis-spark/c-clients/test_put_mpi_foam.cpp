@@ -5,12 +5,14 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <string.h>
+#include <cmath>
 #include "include/logging.h"
 #include <getopt.h>
 
 #include <vector>
 #include <hiredis.h>
 #define USE_PIPELINE
+#define USE_PATTENED_DATA // make sure fields doesn't go to high to explode pydmd
 
 static char *help_str =
     "Usage: %s [-n nr_local_fluids] [-i iterations] hostname\n";
@@ -151,8 +153,20 @@ int main(int argc, char **argv) {
     t2 = MPI_Wtime();
     printf("step = %d, proc= %d, time =%.3f for %d fluids\n", step, taskid, t2 - t1, nr_local_fluids);
     time_stats.push_back(t2-t1);
+    double x_bounds[2] = {-5,5};
+    double t_bounds[2] = {0, 4*3.14};
+    double x_span=x_bounds[1] - x_bounds[0];
+    double t_span=t_bounds[1] - t_bounds[0];
     for(int i = 0; i < nr_local_fluids; i++){
-      v0_values[i] += 1;
+#ifndef USE_PATTENED_DATA
+      v0_values[i] =  1;
+#else
+      double x = x_bounds[0] + i*(x_span/(nr_local_fluids-1));
+      double t = t_bounds[0] + step*(t_span/(nr_steps-1));
+      double out = sin(x+3*t);
+      printf("-----fluid %d:out %.3f= sin(%.3f + 3*%.3f)\n", i, out, x, t);
+      v0_values[i] =  out;
+#endif
     }
     usleep(500000);
   }
