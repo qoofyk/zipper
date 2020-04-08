@@ -1,5 +1,6 @@
 // Program: fluidAnalysis.scala
 //
+import org.apache.spark.SparkContext
 import java.io.File
 import org.apache.spark.sql.SparkSession
 import org.apache.spark.sql.functions._
@@ -12,6 +13,7 @@ import org.apache.spark.sql.Dataset
 
 import org.apache.spark.rdd.RDD
 import org.apache.spark.SparkFiles
+
 
 object FluidAnalysis {
 		def getListOfFiles(dir: String):List[File] = {
@@ -30,6 +32,8 @@ object FluidAnalysis {
                      .config("spark.redis.host", "localhost")
                      .config("spark.redis.port", "6379")
                      .getOrCreate()
+         import spark.implicits._ // dollar accessing col
+         val sc = spark.sparkContext
 
          val fluids = spark
                      .readStream
@@ -42,7 +46,9 @@ object FluidAnalysis {
                       )))
                       .load()
 //          val bystep = fluids.groupBy("step").count
-          val region0 = fluids.select("step", "valuelist").where("region_id = 1")
+          val regions = fluids.select("region_id").distinct.collect.flatMap(_.toSeq)
+          val byRegionArray = regions.map(region=> fluids.where($"region_id" == region))
+          // val region0 = fluids.select("step", "valuelist").where("region_id = 1")
           
           /*
           val fluidWriter : fluidForeachWriter =
@@ -71,21 +77,20 @@ new fluidForeachWriter("localhost","6379")
           // val scriptPath = SparkFiles.get("compute_dmd.py")
           //val py_command="env python " + SparkFiles.get("run_fluiddmd.py")
           val py_command="env python3 ./run_fluiddmd.py" // + SparkFiles.get("run_fluiddmd.py")
-          val query_py = region0
-            .writeStream
-            .outputMode("update")
-            .format("console")
-            .trigger(Trigger.ProcessingTime("10 seconds"))
-            .foreachBatch { (batchDF: Dataset[Row], batchId: Long) =>
-               // Transform and write batchDF 
-               val rows: RDD[Row] = batchDF.rdd
-               //val pipeRDD = rows.pipe("env python compute_dmd.py")
-               val pipeRDD = rows.pipe(py_command)
-               pipeRDD.collect().foreach(println)
-            }.start()
-
-          query_py.awaitTermination()
-
-
+          sc.parallelize(byRegionArray).foreach(single_region => {
+            val query_py = single_region
+              .writeStream
+              .outputMode("update")
+              .format("console")
+              .trigger(Trigger.ProcessingTime("10 seconds"))
+              .foreachBatch { (batchDF: Dataset[Row], batchId: Long) =>
+                 // Transform and write batchDF 
+                 val rows: RDD[Row] = batchDF.rdd
+                 //val pipeRDD = rows.pipe("env python compute_dmd.py")
+                 val pipeRDD = rows.pipe(py_command)
+                 pipeRDD.collect().foreach(println)
+              }.start()
+            query_py.awaitTermination()
+          })
      } // End main
 } //End object
