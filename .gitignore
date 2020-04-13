@@ -2,5 +2,12 @@ lbm_adios/results
 lbm_adios/build*
 !lbm_adios/results/summary
 *.swp
-*/build
+build*/
 deps_install
+.venv
+build
+**/metastore_db/
+data
+**/linux64GccDPInt32Opt
+**/.ipynb_checkpoints/
+*.deb

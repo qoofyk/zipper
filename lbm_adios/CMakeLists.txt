@@ -1,5 +1,7 @@
 cmake_minimum_required(VERSION 2.8 FATAL_ERROR)
 set(CMAKE_EXPORT_COMPILE_COMMANDS on)
+set(CMAKE_C_STANDARD 99)
+set(CMAKE_CXX_STANDARD 11)
 
 project("lbm_adios")
  
@@ -48,20 +50,16 @@ if(use_itac)
    #set(common_library ${common_library} "-L/opt/intel/itac/2017.3.030/intel64/lib -lVT -ldwarf -lelf -lvtunwind" )
 endif(use_itac)
 
-# mpi
-find_package(MPI REQUIRED)
-set(common_library ${common_library} ${MPI_C_LIBRARIES})
-
-
-
 add_definitions ("-DENABLE_TIMING")
 #add_definitions ("-DUSE_DATASPACES -DENABLE_TIMING -Wall -Wextra")
 #add_definitions ("-DUSE_DATASPACES -DHAS_KEEP -DENABLE_TIMING -Wall -Wextra")
 #add_definitions ("-DUSE_DIMES -DENABLE_TIMING -Wall -Wextra")
 #add_definitions ("-DUSE_DIMES -DHAS_KEEP -DENABLE_TIMING -Wall -Wextra")
 
-
-include_directories(${MPI_INCLUDE_PATH} ${CMAKE_SOURCE_DIR} ${CMAKE_SOURCE_DIR}/analysis ${CMAKE_SOURCE_DIR}/msd ${CMAKE_SOURCE_DIR}/lbm)
+# mpi
+find_package(MPI REQUIRED)
+set(common_library ${common_library} ${MPI_C_LIBRARIES})
+include_directories(${MPI_INCLUDE_PATH} ${PROJECT_SOURCE_DIR} ${PROJECT_SOURCE_DIR}/analysis ${PROJECT_SOURCE_DIR}/msd ${PROJECT_SOURCE_DIR}/lbm)
 
 set(EXECUTABLE_OUTPUT_PATH "${CMAKE_BINARY_DIR}/bin")
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib")
@@ -70,6 +68,8 @@ set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib")
 add_subdirectory(lbm)
 add_subdirectory(nmoments-anal)
 
+## simpleFoam (Run the build script inside instead)
+#add_subdirectory(simpleFoam)
 
 ## lammps-msd
 if(LAMMPS_INCLUDE_DIR)
@@ -90,7 +90,5 @@ if(build_zipper)
     endif()
 endif(build_zipper)
 
-## tests
-add_subdirectory(tests)
 
 add_subdirectory(utils)

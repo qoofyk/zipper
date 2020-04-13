@@ -1,14 +1,19 @@
 See [this page](https://fengggli.github.io/zipper-runtime) for sphinx documentation.
 
-deps
-------
-in extern/hiredis/build
+checkout
+```
+git clone -b zipper-workflow --recurse-submodules git@github.com:fengggli/zipper-runtime.git
+```
+
+How to build
+----------------
 
 ```
-cmake .. -DCMAKE_INSTALL_PREFIX=$HOME/Workspace/zipper-runtime/deps_install
-make 
-make install
+mkdir build
+cd build
+cmake ..
 ```
+
 
 General Data Broker
 ----------------------------------------------------------------

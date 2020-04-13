@@ -6,4 +6,4 @@
 	url = https://github.com/RedisLabs/spark-redis
 [submodule "extern/hiredis"]
 	path = extern/hiredis
-	url = https://github.com/redis/hiredis.git
+	url = https://github.com/fengggli/hiredis.git

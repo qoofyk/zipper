@@ -1,5 +1,16 @@
 # Changelog
 
+## [0.2.2] - 2020-04-13
+[added]:
+1. Openfoam-redis-spark-pydmd pipeline:
+  - Openfoam windAroundBuilding with simple Foam
+  - spark pipe, which will direct output from spark stream to pydmd analysis.
+  - pydmd analysis(in python dir), it will be packaged to python egg, to be used by spark pipe
+
+[todo]:
+1. Experiments with advanced cluster/mpi settings.
+2. Explain more on the impact of doing dmd analysis on cloud.
+
 ## [0.2.2] - 2020-02-12
 [added]:
 1. add streaming processing example using spark-redis(https://www.infoq.com/articles/data-processing-redis-spark-streaming/)
