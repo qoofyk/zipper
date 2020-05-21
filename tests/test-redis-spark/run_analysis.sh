@@ -15,7 +15,8 @@ spark-submit  \
     --driver-java-options "-Dlog4j.configuration=file://$PWD/conf/log4j.properties" \
     --class FluidAnalysis --jars ./lib/spark-redis_${SCALA_VERSION}-2.4.3-SNAPSHOT-jar-with-dependencies.jar \
     --master local[*] \
-    ./target/scala-${SCALA_VERSION}/fluidanalysis_$SCALA_VERSION-0.1.0-SNAPSHOT.jar
-
+    ./target/scala-${SCALA_VERSION}/fluidanalysis_$SCALA_VERSION-0.1.0-SNAPSHOT.jar \
+    $1 
+    
 # fli5@149.165.156.187
 #--class FluidAnalysis --jars ./lib/spark-redis-2.4.1-SNAPSHOT-jar-with-dependencies.jar

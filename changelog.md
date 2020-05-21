@@ -1,6 +1,29 @@
 # Changelog
+## [0.2.5] - 2020-05-21
+[added]:
+1. build 1906 in karst. and adjust build so that can use mySimpleFoamCloud
+[changed]:
+1. remove argopt,becase it's interfere with openfoam -parallel.
+2. move working directory to scratch at SLATE
+3. changed to z axis cutting.
+4. use region id as stream name
+5. use redis.batch size to limit each microbatch = 50\*numregions
+[todo]:
+``processor0/100.4/uniform/functionObjects/functionObjectProperties creates so many folders!``
+1. scalaing experiments
+## [0.2.4] - 2020-04-29
+[added]:
+1. Add support for spark cluster in kubenete cluster deployed in Jetstream, it works like this:
+  - setup k8s environment in jetstream, using openstack Magnum.
+  - some yaml file to setup service account, and deploy and expose redis service.
+  - a docker image is build, using the Dockerfile in cloud-components(shipped with python/jar dependencies)
+2. Dependencies
+  - jar dependencies(spark-redis-.jar) and python dependencies(requirement.txt) are copied to the docker image
+  - During runtime, user will need to provide url to some runfiles, which can be published using the copy_deps.sh file.
 
-## [0.2.2] - 2020-04-13
+2. HPC side: mysimpleFoam now can run with ./mysimpleFoam -p redis port redishostaddress.
+
+## [0.2.3] - 2020-04-13
 [added]:
 1. Openfoam-redis-spark-pydmd pipeline:
   - Openfoam windAroundBuilding with simple Foam

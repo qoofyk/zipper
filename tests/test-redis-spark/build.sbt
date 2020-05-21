@@ -37,5 +37,5 @@ lazy val fluidapp = (project in file("."))
         "org.apache.spark" %% "spark-catalyst" % sparkVersion,
         // "com.redislabs" %% "spark-redis" % sparkRedisVersion
     ),
-    assemblyJarName in assembly := "fluid-withdeps.jar"
+    //assemblyJarName in assembly := "fluid-withdeps.jar"
   )

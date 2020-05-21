@@ -31,6 +31,7 @@ if __name__ == '__main__':
     if(len(input_lines) < 1):
         print("No input this time!")
         sys.exit(0)
+    print("----- nline:", len(input_lines))
 
     field_len = len(input_lines[0].split(',')) - 2
 
@@ -40,8 +41,15 @@ if __name__ == '__main__':
     logging.info(snapshots)
 
     fbdmd = FbDMD(exact=True, svd_rank = 4)
-    fbdmd.fit(snapshots)
+    try:
+        fbdmd.fit(snapshots)
+    except ValueError:
+        logging.warning("fit error:")
+        logging.warning('input shape:' + str(snapshots.shape) + 'field_len=' + str(field_len))
+        logging.warning("snapshots:" + str(snapshots))
+        pass
+
     logging.info("reconstructed shape:" + str(fbdmd.reconstructed_data.shape) +"eigen_dist value: ")
 
     eigen_dist = np.sum(np.abs(fbdmd.eigs.real**2 + fbdmd.eigs.imag**2 - 1))
-    print(eigen_dist)
+    print("------ ", eigen_dist)

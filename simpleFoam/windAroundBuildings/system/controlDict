@@ -24,7 +24,7 @@ stopAt          endTime;
 
 endTime         400;
 
-deltaT          1;
+deltaT          0.2;
 
 writeControl    timeStep;
 
@@ -48,8 +48,5 @@ runTimeModifiable true;
 
 // maxCo           1;
 
-functions
-{
-}
 
 // ************************************************************************* //

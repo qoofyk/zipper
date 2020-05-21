@@ -1,4 +1,8 @@
 ## SimpleFoam with windAroundBuild case
+#### windaroundbuilding case
+1. deltaT changed from 1 to 0.1
+2. endtime changed to 400 (or1000 )
+3. write interval 10 => (1, 5, 10)
 
 #### References
 openfoam can be downloaded from ``http://dl.openfoam.org/ubuntu/dists/bionic/main/binary-amd64/openfoam6_20190620_amd64.deb``
@@ -8,6 +12,15 @@ openfoam can be downloaded from ``http://dl.openfoam.org/ubuntu/dists/bionic/mai
     - ``source /opt/openfoam6/etc/bashrc`` before use it
     - visualization guide: https://www.openfoam.com/documentation/user-guide/paraview.php
     - simplefoam (https://www.openfoam.com/documentation/guides/latest/doc/guide-applications-solvers-incompressible-simpleFoam.html)
+
+To build openfoam in HPC(1906)
+1. Downloads 1906(https://www.openfoam.com/download/release-history.php)
+2. Follow the download instructions
+3. In karst:
+  module load openmpi/gnu/2.1 qt/5.x cmake/3.10 gcc/5.4
+  module load qt/gnu/5.8.0  openmpi/gnu/2.1.0 cmake/gnu/3.10.3
+
+##### In karst, i am using old openfoam 1606: that requires gc 4.9.4 and cmake 3.4
 
 #### Steps
 1. Generate data from openfoam (try to use the same code from https://github.com/OpenFOAM/OpenFOAM-5.x/tree/master/tutorials/incompressible/simpleFoam/windAroundBuildings)

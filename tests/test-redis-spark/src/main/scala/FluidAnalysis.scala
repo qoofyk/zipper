@@ -1,6 +1,8 @@
 // Program: fluidAnalysis.scala
 //
 import java.io.File
+import java.time.Instant
+import java.time.Duration
 import org.apache.spark.sql.SparkSession
 import org.apache.spark.sql.functions._
 import org.apache.spark.sql.types._
@@ -21,28 +23,30 @@ object FluidAnalysis {
 					} else {
 							List[File]()
 					}
-}
+    }
     def main(args: Array[String]): Unit = {
          val spark = SparkSession
                      .builder()
-                     .appName("fluid-analysis")
-                     .master("local[*]")
-                     .config("spark.redis.host", "localhost")
-                     .config("spark.redis.port", "6379")
                      .getOrCreate()
+
+        val num_regions = args(0).toInt
+      
+        val region_ids = (0 to (num_regions -1))
+
+        // "region0,region1, region2"
+        // https://github.com/RedisLabs/spark-redis/blob/master/doc/structured-streaming.md
+        val stream_keys = region_ids.mkString("region",",region","")
+         
 
          val fluids = spark
                      .readStream
                      .format("redis")
-                     .option("stream.keys","fluids")
+                     .option("stream.keys", stream_keys)
                      .schema(StructType(Array(
                            StructField("step", LongType),
-                           StructField("region_id", LongType),
                            StructField("valuelist", StringType)
                       )))
                       .load()
-//          val bystep = fluids.groupBy("step").count
-          val region0 = fluids.select("step", "valuelist").where("region_id = 1")
           
           /*
           val fluidWriter : fluidForeachWriter =
@@ -66,25 +70,41 @@ new fluidForeachWriter("localhost","6379")
           query_fake.awaitTermination()
           */
           val filelist = getListOfFiles("./")
-          println("The empty list is: " + filelist) 
+          println("The empty list is: " + filelist)
 
           // val scriptPath = SparkFiles.get("compute_dmd.py")
-          //val py_command="env python " + SparkFiles.get("run_fluiddmd.py")
-          val py_command="env python3 ./run_fluiddmd.py" // + SparkFiles.get("run_fluiddmd.py")
-          val query_py = region0
-            .writeStream
-            .outputMode("update")
-            .format("console")
-            .trigger(Trigger.ProcessingTime("10 seconds"))
-            .foreachBatch { (batchDF: Dataset[Row], batchId: Long) =>
-               // Transform and write batchDF 
-               val rows: RDD[Row] = batchDF.rdd
-               //val pipeRDD = rows.pipe("env python compute_dmd.py")
-               val pipeRDD = rows.pipe(py_command)
-               pipeRDD.collect().foreach(println)
-            }.start()
+          //val scriptPath = SparkFiles.get("run_fluiddmd.py")
+          // val scriptPath = SparkFiles.get("wc.py")
+          val scriptPath = "./run_fluiddmd.py"
+          println("-- Streaming processing started: using script in:" + scriptPath)
+          val py_command="env python3 " + scriptPath
+          // val py_command="cat"
+          // val py_command="env python3 ./run_fluiddmd.py" // + SparkFiles.get("run_fluiddmd.py")
+          val query_py = fluids.select("step","valuelist")
+              .writeStream
+              .outputMode("update")
+              .format("console")
+              .trigger(Trigger.ProcessingTime("3 seconds"))
+              .foreachBatch { (batchDF: Dataset[Row], batchId: Long) =>
+                 // batchDF.persist() // otherwise each each batchDF will only update one region
+                 // println("--- batchid," + batchId+ ", nr_rows:" + batchDF.count())
+                 println("--- batchid," + batchId)
+                 // Transform and write batchDF 
 
-          query_py.awaitTermination()
+                 //regions.zipWithIndex.par.foreach{ case (region, id) =>
+                 val t_start = Instant.now()
+                 println(" |- batch" + batchId + ",start-time=" + Instant.now())
+                   // batchDF.show()
+                 val pipeRDD = batchDF.rdd.pipe(py_command)
+                 pipeRDD.collect().foreach(line => println("---one region:" + line))
 
+                 val t_finish = Instant.now()
+                 println(" |- batch" + batchId + ",finish-time=" + t_finish)
+                 println(" |- batch" + batchId + ",elapsed-time(ms)=" +  Duration.between(t_start, t_finish).toMillis() )
+                 println("")
+                 // batchDF.unpersist()
+              }.start()
+
+              query_py.awaitTermination()
      } // End main
 } //End object

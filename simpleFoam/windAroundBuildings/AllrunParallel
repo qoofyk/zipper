@@ -1,0 +1,33 @@
+#!/bin/sh
+cd ${0%/*} || exit 1    # run from this directory
+
+appname=mySimpleFoamCloud
+#appname=mySimpleFoam
+#appname=mySimpleFoamNoWrite
+
+writeinterval=$(foamDictionary -entry writeInterval -value ./system/controlDict)
+#nprocs=$(foamDictionary -entry numberOfSubdomains -value ./system/decomposeParDict)
+nprocs=8
+pardictfile=system/decomposeParDict.${nprocs}
+
+echo "will run $appname with writeInterval $writeinterval and nprocs=$nprocs"
+
+# Source tutorial run functions
+. $WM_PROJECT_DIR/bin/tools/RunFunctions
+
+runApplication surfaceFeatures
+
+runApplication blockMesh
+runApplication snappyHexMesh -overwrite
+
+runApplication decomposePar -decomposeParDict ${pardictfile}
+
+runParallel -s "itv-${writeinterval}.proc-${nprocs}" \
+  -decomposeParDict ${pardictfile} \
+  ${appname}
+
+cp log.$appname* saved_logs/
+
+#runParallel mySimpleFoamFoam
+
+#------------------------------------------------------------------------------

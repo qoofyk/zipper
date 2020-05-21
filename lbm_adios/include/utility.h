@@ -27,6 +27,7 @@ extern "C" {
 #include <fcntl.h>
 #include <errno.h>
 
+#include <time.h>
 #include "logging.h"
 
 //#define SIZE_ONE (2)
@@ -61,6 +62,14 @@ static double get_cur_time() {
   //printf("%f\n",cur_time);
 
   return cur_time;
+}
+
+static void get_utc_time(char * str_time){
+   time_t now = time(0);
+   // convert now to tm struct for UTC
+   struct tm *gmtm = gmtime(&now);
+   char *dt = asctime(gmtm);
+   strcpy(str_time, dt);
 }
 
 static void check_malloc(void * pointer){

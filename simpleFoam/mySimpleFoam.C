@@ -30,108 +30,125 @@ Description
 
 \*---------------------------------------------------------------------------*/
 
-#include "Hash.H"
-#include "Field.H"
-#include "FieldField.H"
-#include <getopt.h>
+// /applications/solvers/incompressible/simpleFoam/
+
+#define DEBUG
+#include "common/logging.h"
+#include "common/utility.h"
+
 
 #include "fvCFD.H"
 #include "singlePhaseTransportModel.H"
 #include "turbulentTransportModel.H"
 #include "simpleControl.H"
 #include "fvOptions.H"
+
+#define FOAM1906
+
 extern "C"
 {
   #include "hiredis.h"
 }
 
-#define USE_MYDUMP
-
-enum METHOD{
-  METHOD_LAMMPS = 0,
-  METHOD_FILE = 1,
-  METHOD_REDIS = 2
-};
-
+struct{
+  const char * hostname = "149.165.171.123";
+  int port = 30379;
+  bool isunix = 0; // use unix socket or tcp
+} cloud_config;
 
 int main(int argc, char *argv[])
 {
-    #include "postProcess.H"
+    argList::addNote
+    (
+        "Steady-state solver for incompressible, turbulent flows."
+    );
 
+    #include "postProcess.H"
+#ifdef FOAM16
+    #include "setRootCase.H"
+#else
     #include "setRootCaseLists.H"
+#endif
     #include "createTime.H"
     #include "createMesh.H"
     #include "createControl.H"
     #include "createFields.H"
+#ifdef FOAM16
+    //#include "createFvOptions.H"
+#endif
     #include "initContinuityErrs.H"
 
     turbulence->validate();
 
-    // #include "MyDump.H"
-    // basic file operations
     #include <iostream>
     #include <fstream>
-    #include <getopt.h>
-    /*
-    #include <unistd.h>
-    char buff[FILENAME_MAX]; //create string buffer to hold path
-    getcwd( buff, FILENAME_MAX );
-    cout << "will dump to" << buff << endl;
-    */
+
+    int taskid, numtasks;
+    taskid = Pstream::myProcNo();
+
+    double t1, t2;
+    std::vector<double> time_stats;
+
+#ifdef METHOD_CLOUD
     redisContext *c;
     redisReply *reply;
-    const char *stream_name = "fluids";
 
-    const char * hostname = "127.0.0.1";
-    int port = 6379;;
-    int nr_steps = 30;
-    int taskid, numtasks;
-    unsigned int isunix = 0;
+    char stream_name[80];
+    sprintf(stream_name, "region%d", taskid);
+
+    unsigned int isunix = cloud_config.isunix;
+
 
     int queue_len = 128;
     int ii = 0;
+      // taskid =1;
+    const char * hostname = cloud_config.hostname;
+    int port = cloud_config.port;
 
-    int method = METHOD_REDIS;
-    string out_dir = std::getenv("PWD");
+    PINF("running exp with server(%s:%d), taskid = %d",
+       hostname, port, taskid);
 
-    taskid =1;
-
-    if(method == METHOD_REDIS){
-      
-      struct timeval timeout = {1, 500000}; // 1.5 seconds
-      if (isunix) {
-        c = redisConnectUnixWithTimeout(hostname, timeout);
+    
+    struct timeval timeout = {1, 500000}; // 1.5 seconds
+    if (isunix) {
+      c = redisConnectUnixWithTimeout(hostname, timeout);
+    } else {
+      c = redisConnectWithTimeout(hostname, port, timeout);
+    }
+    if (c == NULL || c->err) {
+      if (c) {
+        Info << "Connection error:" << c->errstr << endl;
+        redisFree(c);
       } else {
-        c = redisConnectWithTimeout(hostname, port, timeout);
+        Info <<"Connection error: can't allocate redis context" << endl;
       }
-      if (c == NULL || c->err) {
-        if (c) {
-          Info << "Connection error:" << c->errstr << endl;
-          redisFree(c);
-        } else {
-          Info <<"Connection error: can't allocate redis context" << endl;
-        }
-        exit(1);
-      }
-
-      /* PING server */
-      reply = (redisReply *)redisCommand(c, "PING");
-      Info <<"PING: " <<reply->str << endl;
-      freeReplyObject(reply);
-
-      /* writing some floatting number with binary-safe string */
+      exit(1);
     }
 
+    /* PING server */
+    reply = (redisReply *)redisCommand(c, "PING");
+    Info <<"PING: " <<reply->str << endl;
+    freeReplyObject(reply);
 
+      /* writing some floatting number with binary-safe string */
+#endif
 
     // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
-
-    Info << "Running my Simple Foam, results saved to " << out_dir << endl;
-
     Info<< "\nStarting time loop\n" << endl;
 
+    char str_time[80];
+    get_utc_time(str_time);
+    if(taskid == 0)
+      PINF("-- Simulation started, %s", str_time);
+
+
+#ifdef FOAM1906
+    while (simple.loop())
+#else
     while (simple.loop(runTime))
+#endif
     {
+        string out_dir = std::getenv("PWD");
         string str_time = runTime.timeName();
         Info<< "Time = " << str_time << nl << endl;
         int step =  atoi(str_time.c_str());
@@ -145,9 +162,7 @@ int main(int argc, char *argv[])
         laminarTransport.correct();
         turbulence->correct();
 
-
-        if(method == METHOD_FILE){
-
+#ifdef METHOD_FILE
           if(runTime.writeTime()){
               ofstream out_file(out_dir +"/snapshot_t" + str_time +".txt");
               forAll(p , i)
@@ -164,17 +179,17 @@ int main(int argc, char *argv[])
 
               out_file.close();
           }
-        }
-        else if(method ==METHOD_REDIS){
+#elif defined(METHOD_CLOUD)
 
           if(runTime.writeTime()){
+
+              t1 = MPI_Wtime();
               std::string commandString = "XADD ";
               commandString.append(stream_name);
-              commandString.append(" MAXLEN ~ 1000000 * ");
+              commandString.append(" MAXLEN ~ 1000 * ");
               commandString.append(" step ");
               commandString.append(str_time);
-              commandString.append(" region_id ");
-              commandString.append(std::to_string(taskid));
+
               // commandString.append(" field ")
               // commandString.append(fieldname)
               commandString.append(" valuelist ");
@@ -184,31 +199,50 @@ int main(int argc, char *argv[])
                   commandString.append(std::to_string(U[i].x()));
                   commandString.append(",");
               }
-              std::cout << "----Writing!" << std::endl;
               // Info<< "----command is" << commandString << endl;
-              redisAppendCommand(
-                  c, commandString.c_str());
-              if(step > 0 && step % queue_len == 0){
-                for(ii = 0; ii < queue_len; ii ++){
-                  redisGetReply(c, (void **)(&reply));
-                  freeReplyObject(reply);
-                }
-              }
-              redisGetReply(c, (void **)(&reply));
-              freeReplyObject(reply);
-              }
-        }
-        else{
-          runTime.write();
-        }
 
-        Info<< "ExecutionTime = " << runTime.elapsedCpuTime() << " s"
-            << "  ClockTime = " << runTime.elapsedClockTime() << " s"
-            << nl << endl;
+              reply = (redisReply *)redisCommand(c, commandString.c_str());
+              if(reply == NULL || reply->type == REDIS_REPLY_ERROR){
+                PERR("Error on hiredis command ");
+                if(reply)
+                  PERR("error info: %s", reply->str);
+                break;
+              }
+              freeReplyObject(reply);
+
+              t2 = MPI_Wtime();
+              time_stats.push_back(t2-t1);
+           }
+
+#elif defined(METHOD_NOWRITE)
+          // do nothing
+#else
+          t1 = MPI_Wtime();
+          runTime.write();
+
+          t2 = MPI_Wtime();
+          time_stats.push_back(t2-t1);
+#endif
+
+        runTime.printExecutionTime(Info);
     }
-    if(method ==METHOD_REDIS){
+
+    get_utc_time(str_time);
+    if(taskid == 0){
+      PINF("-- Simulation Ended:, %s", str_time);
+      double io_time_used = 0;
+      for(auto iter = time_stats.begin(); iter != time_stats.end(); iter ++){
+        PDBG("one end uses: %.3f", *iter);
+        io_time_used += *iter;
+      }
+
+      PINF("total send time %.6f s", io_time_used);
+      PINF("avg send time %.6f s, for %d iterations", io_time_used/time_stats.size(), time_stats.size() );
+    }
+
+#ifdef METHOD_CLOUD
           redisFree(c);
-        }
+#endif
 
     Info<< "End\n" << endl;
 

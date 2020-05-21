@@ -9,6 +9,8 @@ runApplication surfaceFeatures
 runApplication blockMesh
 runApplication snappyHexMesh -overwrite
 
-runApplication mySimpleFoam
+#runApplication mySimpleFoam -p port hostname
+#runApplication mySimpleFoam localhost
+runApplication mySimpleFoamCloud
 
 #------------------------------------------------------------------------------

@@ -11,3 +11,7 @@ data
 **/linux64GccDPInt32Opt
 **/.ipynb_checkpoints/
 *.deb
+cloud-components/conf/*.conf
+**/log.*
+**/processor*
+
