@@ -14,20 +14,20 @@ SCALA_VERSION=2.11
 #kubectl get nodes -l  magnum.openstack.org/role=worker -o jsonpath={.items[*].status.addresses[?\(@.type==\"InternalIP\"\)].address}
 
 # they will be labeled at minion-idx=0,1,2
-REDIS_IP_INTERNAL=(192.168.11.12 192.168.11.18 192.168.11.5 192.168.11.13 192.168.11.4 192.168.11.10 192.168.11.30 192.168.11.24)
-K8SMASTER_IP=149.165.169.12
+NODE_IP_INTERNAL=(149.165.169.12 10.0.0.24 10.0.0.11 10.0.0.6 10.0.0.10)
+K8SMASTER_IP=${NODE_IP_INTERNAL[0]}
 REDIS_PASS=`cat redis.pass`
 #REDIS_IP=$(kubectl get pods --selector=app=redis,role=master -o jsonpath={.items[*].status.podIP})
 
 for ((i=0;i<$NR_NODES;i++))
 do
-	REDIS_IP=${REDIS_IP_INTERNAL[i]}
+	REDIS_IP=${NODE_IP_INTERNAL[i+1]}
 
 	echo "Use k8s cluster at ${K8SMASTER_IP}, redis server at $REDIS_IP, run spark-submit with $NR_SPARK_INSTANCES instances, with $NR_REGIONS regions"
 
 	${SPARK_ROOT}/bin/spark-submit \
 			--deploy-mode cluster \
-			--master k8s://https://${K8SMASTER_IP}:6443 \
+			--master k8s://https://localhost:6443 \
 			--name fluid-analysis-copy-${i} \
 			--class FluidAnalysis \
 			--driver-java-options "-Dlog4j.configuration=${RUNFILES_DIR}/log4j.properties" \
@@ -49,8 +49,8 @@ do
 			$NR_REGIONS &>tmp/log.node${i} &
 done
 
-echo "all complete"
 wait
+echo "all complete"
 
 # if deployed in docker: 
 #    --jars ${REMOTE_SPARK_HOME}/work-dir/deps/spark-redis_${SCALA_VERSION}-2.4.3-SNAPSHOT-jar-with-dependencies.jar \

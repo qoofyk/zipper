@@ -28,6 +28,7 @@ wget https://releases.hashicorp.com/terraform/0.11.13/terraform_0.11.13_linux_am
 4. To access the cluster, from another node
 ```
 export KUBECONFIG=/home/ubuntu/Workspace/zipper-runtime/extern/kubespray/inventory/fengggli/artifacts/admin.conf
- kubectl --insecure-skip-tls-verify get pods
-
+ln -s path/to/artifacts/kubectl $HOME/bin/kubectl
+ln -s path/to/artifacts/admin.conf .kube/config
+ssh -L 6443:localhost:6443 ubuntu@masternodeip
 ```
