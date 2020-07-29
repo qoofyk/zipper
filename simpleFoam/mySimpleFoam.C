@@ -32,9 +32,15 @@ Description
 
 // /applications/solvers/incompressible/simpleFoam/
 
-#define DEBUG
+// #define DEBUG
 #include "common/logging.h"
 #include "common/utility.h"
+
+#ifdef METHOD_CLOUD
+#include "c-clients/elastic_broker.h"
+#endif
+#include <vector>
+#include "mpi.h"
 
 
 #include "fvCFD.H"
@@ -45,14 +51,11 @@ Description
 
 #define FOAM1906
 
-extern "C"
-{
-  #include "hiredis.h"
-}
+//149.165.169.12 149.165.170.58 149.165.168.217 149.165.168.115 149.165.168.245
 
 struct{
-  const char * hostname = "149.165.171.123";
-  int port = 30379;
+  const char * hostname = "149.165.170.58";
+  int port = 6379;
   bool isunix = 0; // use unix socket or tcp
 } cloud_config;
 
@@ -89,57 +92,25 @@ int main(int argc, char *argv[])
     double t1, t2;
     std::vector<double> time_stats;
 
+		const char * field_name= "region";
 #ifdef METHOD_CLOUD
-    redisContext *c;
-    redisReply *reply;
-
-    char stream_name[80];
-    sprintf(stream_name, "region%d", taskid);
-
-    unsigned int isunix = cloud_config.isunix;
-
-
-    int queue_len = 128;
-    int ii = 0;
-      // taskid =1;
-    const char * hostname = cloud_config.hostname;
-    int port = cloud_config.port;
-
-    PINF("running exp with server(%s:%d), taskid = %d",
-       hostname, port, taskid);
-
-    
-    struct timeval timeout = {1, 500000}; // 1.5 seconds
-    if (isunix) {
-      c = redisConnectUnixWithTimeout(hostname, timeout);
-    } else {
-      c = redisConnectWithTimeout(hostname, port, timeout);
-    }
-    if (c == NULL || c->err) {
-      if (c) {
-        Info << "Connection error:" << c->errstr << endl;
-        redisFree(c);
-      } else {
-        Info <<"Connection error: can't allocate redis context" << endl;
-      }
-      exit(1);
-    }
-
-    /* PING server */
-    reply = (redisReply *)redisCommand(c, "PING");
-    Info <<"PING: " <<reply->str << endl;
-    freeReplyObject(reply);
-
-      /* writing some floatting number with binary-safe string */
+    broker_ctx * context = broker_init(field_name, cloud_config.hostname, cloud_config.port, taskid, 0);
 #endif
 
     // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
-    Info<< "\nStarting time loop\n" << endl;
-
-    char str_time[80];
-    get_utc_time(str_time);
-    if(taskid == 0)
-      PINF("-- Simulation started, %s", str_time);
+		char utc_time[80];
+		{ // a barrier
+				label tmp = Pstream::myProcNo();
+				reduce(tmp,sumOp<label>());
+		}
+		// MPI_Barrier((MPI_Comm)Pstream::worldComm)
+		if (Pstream::master())
+		{
+			get_utc_time(utc_time);
+			if(taskid == 0)
+      PINF("-- Simulation started, %s", utc_time);
+    	Info<< "\nStarting time loop\n" << endl;
+		}
 
 
 #ifdef FOAM1906
@@ -162,8 +133,8 @@ int main(int argc, char *argv[])
         laminarTransport.correct();
         turbulence->correct();
 
+        if(runTime.writeTime()){
 #ifdef METHOD_FILE
-          if(runTime.writeTime()){
               ofstream out_file(out_dir +"/snapshot_t" + str_time +".txt");
               forAll(p , i)
               {
@@ -178,45 +149,27 @@ int main(int argc, char *argv[])
              */
 
               out_file.close();
-          }
 #elif defined(METHOD_CLOUD)
 
-          if(runTime.writeTime()){
+            std::string values;
 
-              t1 = MPI_Wtime();
-              std::string commandString = "XADD ";
-              commandString.append(stream_name);
-              commandString.append(" MAXLEN ~ 1000 * ");
-              commandString.append(" step ");
-              commandString.append(str_time);
-
-              // commandString.append(" field ")
-              // commandString.append(fieldname)
-              commandString.append(" valuelist ");
-
-              forAll(U , i)
+            t1 = MPI_Wtime();
+            forAll(U , i)
               {
-                  commandString.append(std::to_string(U[i].x()));
-                  commandString.append(",");
+                  values.append(std::to_string(U[i].x()));
+                  values.append(",");
               }
-              // Info<< "----command is" << commandString << endl;
 
-              reply = (redisReply *)redisCommand(c, commandString.c_str());
-              if(reply == NULL || reply->type == REDIS_REPLY_ERROR){
-                PERR("Error on hiredis command ");
-                if(reply)
-                  PERR("error info: %s", reply->str);
-                break;
-              }
-              freeReplyObject(reply);
+						if(0 != broker_put(context, step, values)) break;
 
-              t2 = MPI_Wtime();
-              time_stats.push_back(t2-t1);
-           }
+						t2 = MPI_Wtime();
+						time_stats.push_back(t2-t1);
 
 #elif defined(METHOD_NOWRITE)
           // do nothing
+          //Info<< "Write disabled at step" << str_time << nl << endl;
 #else
+					// collated or unclloated write
           t1 = MPI_Wtime();
           runTime.write();
 
@@ -224,12 +177,21 @@ int main(int argc, char *argv[])
           time_stats.push_back(t2-t1);
 #endif
 
-        runTime.printExecutionTime(Info);
+        // runTime.printExecutionTime(Info);
+        //
+        }
     }
 
-    get_utc_time(str_time);
-    if(taskid == 0){
-      PINF("-- Simulation Ended:, %s", str_time);
+		{ // a barrier
+				label tmp = Pstream::myProcNo();
+				reduce(tmp,sumOp<label>());
+		}
+		// MPI_Barrier((MPI_Comm)Pstream::worldComm)
+		if (Pstream::master())
+		{
+			get_utc_time(utc_time);
+
+      PINF("-- Simulation Ended:, %s", utc_time);
       double io_time_used = 0;
       for(auto iter = time_stats.begin(); iter != time_stats.end(); iter ++){
         PDBG("one end uses: %.3f", *iter);
@@ -241,7 +203,7 @@ int main(int argc, char *argv[])
     }
 
 #ifdef METHOD_CLOUD
-          redisFree(c);
+      broker_finalize(context);
 #endif
 
     Info<< "End\n" << endl;

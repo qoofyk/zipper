@@ -15,9 +15,14 @@ pip install python-openstackclient python-magnumclient
 ```
 source TG*.sh
 (.venv) lifen@in-csci-20wk300(:):~/Workspace/zipper-runtime/openstack$openstack coe cluster config k8s-cluster
-export KUBECONFIG=/home/lifen/Workspace/zipper-runtime/openstack/config
+export KUBECONFIG=/home/ubuntu/Workspace/zipper-runtime/cloud-components/config
 ```
 I can then: kubectl proxy
+
+Increase num of nodes?
+```
+openstack coe cluster update mycluster replace node_count=2
+```
 #### docker: can be good to add user to docker group, as described in (https://docs.docker.com/engine/install/linux-postinstall/)
 
 ## Notes
@@ -121,7 +126,8 @@ root@redis-client:/data# redis-cli -h 10.100.17.4 keys region\* | xargs redis-cl
 ```
 
 port:
-In the example all clusterip:6379 from containers are mapped to nodeip:32385, nodeip:32385 can be accessed from outside
+redis port is using hostNetwork, so, edit the security group in horizon, to allow 6379 for minor nodes
+
 ```
 ubuntu@spark-master:~/Workspace/cloud-component$ kubectl get services 
 NAME                                TYPE        CLUSTER-IP       EXTERNAL-IP   PORT(S)             AGE
@@ -130,6 +136,13 @@ spark-pi-1587560414973-driver-svc   ClusterIP   None             <none>        7
 spark-pi-1587565931783-driver-svc   ClusterIP   None             <none>        7078/TCP,7079/TCP   7h
 
 ```
+
+redis-cluster:
+1. https://redis.io/topics/cluster-tutorial
+2. https://github.com/spotahome/redis-operator
+3. need to create the operator in default context 
+
+#### sparkshell
 
 Run spark shell:
 ```

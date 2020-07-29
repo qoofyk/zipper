@@ -1,32 +1,47 @@
 #!/bin/sh
 cd ${0%/*} || exit 1    # run from this directory
 
-appname=mySimpleFoamCloud
-#appname=mySimpleFoam
-#appname=mySimpleFoamNoWrite
-
 writeinterval=$(foamDictionary -entry writeInterval -value ./system/controlDict)
-#nprocs=$(foamDictionary -entry numberOfSubdomains -value ./system/decomposeParDict)
-nprocs=8
+nprocs=16
 pardictfile=system/decomposeParDict.${nprocs}
 
-echo "will run $appname with writeInterval $writeinterval and nprocs=$nprocs"
+#appname=mySimpleFoamCloud #elasticbroker
+#appname=mySimpleFoamNoWrite # disable I/O
+for appname in mySimpleFoam mySimpleFoamCloud mySimpleFoamNoWrite; do
+  for i in {1..3}; do
+    unset FOAM_FILEHANDLER
+    ./Allclean
 
-# Source tutorial run functions
-. $WM_PROJECT_DIR/bin/tools/RunFunctions
+    #nprocs=$(foamDictionary -entry numberOfSubdomains -value ./system/decomposeParDict)
 
-runApplication surfaceFeatures
 
-runApplication blockMesh
-runApplication snappyHexMesh -overwrite
+    echo "will run $appname with writeInterval $writeinterval and nprocs=$nprocs"
 
-runApplication decomposePar -decomposeParDict ${pardictfile}
+    # Source tutorial run functions
+    . $WM_PROJECT_DIR/bin/tools/RunFunctions
 
-runParallel -s "itv-${writeinterval}.proc-${nprocs}" \
-  -decomposeParDict ${pardictfile} \
-  ${appname}
+    runApplication surfaceFeatures
 
-cp log.$appname* saved_logs/
+    runApplication blockMesh
+    runApplication snappyHexMesh -overwrite
+
+    export FOAM_FILEHANDLER=collated
+
+    runApplication decomposePar -decomposeParDict ${pardictfile}
+
+    #export FOAM_FILEHANDLER=uncollated
+
+    runParallel -s ${FOAM_FILEHANDLER}.itv-${writeinterval}.proc-${nprocs}.$(date +"%Y%m%d-%H%M") \
+      -decomposeParDict ${pardictfile} \
+      ${appname}
+
+    resultlog=`ls log.$appname*`
+    grep Simu -A1 $resultlog
+    cp $resultlog saved_logs/
+
+    echo "result also saved at saved_logs/$resultlog"
+  done
+done
 
 #runParallel mySimpleFoamFoam
 

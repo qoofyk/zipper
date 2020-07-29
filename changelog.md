@@ -1,4 +1,28 @@
 # Changelog
+
+[Added]:
+1. launch mpi to different nodes with correct redis bindings
+- use hostNetwork to bind redis to each k8s node.
+- Let spark-submit launch multiple clusters using different redis
+- Can use opentack cmd to increase k8s nodes
+- specify node selector for spark-submit
+	for each: hostidx:
+		redis_ip
+		label-idx
+- post-processing results to get min-start-time and max-end-time  in hpc
+2. hpc 
+- barrier before timing
+- experiments with collated and uncollated write
+- Now all methods export collated so that there are not many folder created
+- script to run three methods all together.
+
+[todo]:
+1. shutdown cluster when
+2. kubespray
+- use zonca's kubespray instructions 
+3. Post processing
+- post-processing results in cloud 
+
 ## [0.2.5] - 2020-05-21
 [added]:
 1. build 1906 in karst. and adjust build so that can use mySimpleFoamCloud

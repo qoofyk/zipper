@@ -123,6 +123,11 @@ int main(int argc, char **argv) {
     exit(1);
   }
 
+  /* auth */
+  reply = (redisReply *)redisCommand(c, "auth 5ba4239a1a2b7cd8131da1e557f4264df7ef2083f8895eab1d30384f870a9d87");
+  printf("auth: %s\n", reply->str);
+  freeReplyObject(reply);
+
   /* PING server */
   reply = (redisReply *)redisCommand(c, "PING");
   printf("PING: %s\n", reply->str);
@@ -132,7 +137,7 @@ int main(int argc, char **argv) {
   /* writing some floatting number with binary-safe string */
 
   char stream_name[80];
-  sprintf(stream_name, "region%d", taskid);
+  sprintf(stream_name, "region%d", numtasks * (config.id_in_group) + taskid);
 
   float *v0_values = new float[nr_local_fluids];
   
@@ -243,6 +248,7 @@ int main(int argc, char **argv) {
 
   MPI_Barrier(comm);
   if(taskid == 0){
+    get_utc_time(str_time);
     PINF("-- Simulation ended, %s", str_time);
     double all_time_used = 0;
     printf("[proc %d:]", taskid);

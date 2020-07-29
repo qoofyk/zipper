@@ -18,7 +18,6 @@ extern "C" {
 #include <sys/time.h>
 #include <pthread.h>
 #include <math.h>
-#include <mpi.h>
 #include <string.h>
 #include <unistd.h>
 #include <sys/types.h>
@@ -69,7 +68,15 @@ static void get_utc_time(char * str_time){
    // convert now to tm struct for UTC
    struct tm *gmtm = gmtime(&now);
    char *dt = asctime(gmtm);
-   strcpy(str_time, dt);
+
+  struct timeval   tv;
+  struct timezone  tz;
+  double cur_time;
+
+  gettimeofday(&tv, &tz);
+  double usec_time = tv.tv_usec / 1000000.0;
+
+  sprintf(str_time, "%s.%3f", dt, usec_time);
 }
 
 static void check_malloc(void * pointer){

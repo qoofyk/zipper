@@ -3,9 +3,11 @@
 cmake_minimum_required(VERSION 2.8 FATAL_ERROR)
 project(simpleFoam)
 
-if(DEFINED $ENV{FOAM_APP_APPBIN})
+if(DEFINED ENV{FOAM_USER_APPBIN})
+  message("---USING USER APPBIN")
 set(EXECUTABLE_OUTPUT_PATH $ENV{FOAM_USER_APPBIN})
 else()
+  message("---USING SYS APPBIN")
 set(EXECUTABLE_OUTPUT_PATH $ENV{FOAM_APPBIN})
 endif()
 
@@ -17,6 +19,7 @@ add_definitions(-Dlinux64 -DWM_ARCH_OPTION=64 -DWM_DP -DWM_LABEL_SIZE=32 -DNoRep
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 
+include_directories(${MPI_CXX_HEADER_DIR})
 include_directories("$ENV{FOAM_SRC}/OpenFOAM/lnInclude")
 include_directories("$ENV{FOAM_SRC}/OSspecific/POSIX/lnInclude")
 
@@ -46,5 +49,5 @@ add_executable(mySimpleFoamFile mySimpleFoam.C)
 target_compile_definitions(mySimpleFoamFile PUBLIC METHOD_FILE)
 
 foreach(target mySimpleFoam mySimpleFoamCloud mySimpleFoamFile mySimpleFoamNoWrite)
-target_link_libraries(${target} turbulenceModels incompressibleTurbulenceModels incompressibleTransportModels finiteVolume meshTools fvOptions sampling OpenFOAM dl  m)
+target_link_libraries(${target} turbulenceModels incompressibleTurbulenceModels incompressibleTransportModels finiteVolume meshTools fvOptions sampling OpenFOAM dl  m ${MPI_CXX_LIBRARIES})
 endforeach()

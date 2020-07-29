@@ -24,6 +24,7 @@ typedef struct{
   int nr_local_fluids = 30;
   int nr_steps = 30;
   int isunix = 0; // use domain socket
+  int id_in_group =0; // idx of nodes which share the same redis
 
 }runtime_config_t;
 
@@ -49,7 +50,11 @@ int read_config(runtime_config_t *ptr_config, int argc, char * argv[]){
       /* in this case, host is the path to the unix socket */
       // printf("Will connect to unix socket @%s\n", hostname);
       break;
-
+    case 'h':
+      ptr_config->hostname = optarg;
+      /* in this case, host is the path to the unix socket */
+      // printf("Will connect to unix socket @%s\n", hostname);
+      break;
 
     default: /* '?' */
       fprintf(stderr, help_str, argv[0]);
@@ -63,7 +68,7 @@ int read_config(runtime_config_t *ptr_config, int argc, char * argv[]){
   }
 
   printf("optind=%d\n", optind);
-  ptr_config->hostname = argv[optind];
+  ptr_config->id_in_group = atoi(argv[optind]);
   return 0;
 }
 extern "C" {
