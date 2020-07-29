@@ -14,5 +14,4 @@ echo "Using all nodes at $allnodes, ($NUM_NODES intotal)"
 # num of process in each side
 
 # kubectl get nodes --selector=beta.kubernetes.io/instance-type=3 -o jsonpath={.items[*].status.addresses[?\(@.type==\"ExternalIP\"\)].address}
-REDIS_LIST=(sievert.cs.iupui.edu)
-#REDIS_LIST=(149.165.168.179 149.165.168.151 149.165.168.36 149.165.156.99 149.165.170.173 149.165.169.96 149.165.168.247 149.165.157.130)
+REDIS_LIST=(149.165.170.58 149.165.168.217 149.165.168.115 149.165.168.245)
