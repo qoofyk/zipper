@@ -50,6 +50,10 @@ typedef int status_t;
 
 #define RANK_SEQUENTIAL (-1)
 
+#define SEC_PER_DAY   (86400)
+#define SEC_PER_HOUR  (3600)
+#define SEC_PER_MIN   (60)
+
 /** Return current time in second*/
 static double get_cur_time() {
   struct timeval   tv;
@@ -74,9 +78,13 @@ static void get_utc_time(char * str_time){
   double cur_time;
 
   gettimeofday(&tv, &tz);
-  double usec_time = tv.tv_usec / 1000000.0;
+  int msec = tv.tv_usec / 1000;
+  int hms = (tv.tv_sec) % SEC_PER_DAY;
+  int hour = hms/SEC_PER_HOUR;
+  int min = (hms%SEC_PER_HOUR)/SEC_PER_MIN;
+  int sec = (hms%SEC_PER_MIN);
 
-  sprintf(str_time, "%s.%3f", dt, usec_time);
+  sprintf(str_time, "%02d:%02d:%02d.%03d", hour, min, sec, msec);
 }
 
 static void check_malloc(void * pointer){

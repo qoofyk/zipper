@@ -9,7 +9,7 @@ spec:
       app: redis
       role: master
       tier: backend
-  replicas: 8
+  replicas: 2
   template:
     metadata:
       labels:
@@ -32,8 +32,8 @@ spec:
         volumeMounts:
           - mountPath: /redis-master
             name: config
-            #nodeSelector:
-            #magnum.openstack.org/role: "worker"
+      nodeSelector:
+        magnum.openstack.org/role: "worker"
         #is-minion: "true" 
       hostNetwork: true
       dnsPolicy: ClusterFirstWithHostNet

@@ -7,3 +7,6 @@
 [submodule "extern/hiredis"]
 	path = extern/hiredis
 	url = https://github.com/fengggli/hiredis.git
+[submodule "extern/hpc"]
+	path = extern/hpc
+	url = https://develop.openfoam.com/committees/hpc.git

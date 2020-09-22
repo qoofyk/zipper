@@ -1,4 +1,4 @@
-#### magnum (deprecated)
+#### magnum
 1. create cluster template
 ```
 openstack coe cluster template create --coe kubernetes --image Fedora-Atomic-29 --keypair mypi --external-network public --fixed-network fengggli-net --fixed-subnet fengggli-subnet --network-driver flannel --flavor m1.large --master-flavor m1.large  --docker-volume-size 10 --docker-storage-driver devicemapper --floating-ip-enabled template-k8s-fedora29-volume
@@ -14,6 +14,8 @@ openstack coe cluster create --cluster-template template-k8s-20200526 --master-c
 ```
 
 ### using kubesspray
+I tried this when the magnum went down in Jetstream, but later it came back...
+Zonca is really helpful in providing suggestions and helping trouble shooting.
 1. Terraform
 ```
 wget https://releases.hashicorp.com/terraform/0.11.13/terraform_0.11.13_linux_amd64.zip

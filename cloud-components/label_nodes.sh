@@ -6,14 +6,13 @@
 # Author: Feng Li
 # email: fengggli@yahoo.com
 
-
-NR_NODES=${1:=8}
-
 worker_nodes=($(kubectl get nodes -l  magnum.openstack.org/role=worker -o jsonpath={.items[*].metadata.name}))
 
-for ((i=0;i<$NR_NODES;i++))
+i=0
+for node in ${worker_nodes[*]}
 do
 echo setting for node ${i}}
 #kubectl label nodes ${worker_nodes[i]}  minion-idx=${i}
-kubectl label --overwrite nodes k8s-vm-$((i+1))  minion-idx=${i}
+kubectl label --overwrite nodes $node  minion-idx=${i}
+i=$((i+1))
 done

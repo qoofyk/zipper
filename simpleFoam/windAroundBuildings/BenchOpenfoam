@@ -1,0 +1,45 @@
+#!/bin/sh
+cd ${0%/*} || exit 1    # run from this directory
+
+writeinterval=$(foamDictionary -entry writeInterval -value ./system/controlDict)
+nprocs=4
+pardictfile=system/decomposeParDict.${nprocs}
+
+#appname=mySimpleFoamCloud #elasticbroker
+#appname=mySimpleFoamNoWrite # disable I/O
+for appname in simpleFoam; do
+  for i in 1; do
+    unset FOAM_FILEHANDLER
+    ./Allclean
+
+    #nprocs=$(foamDictionary -entry numberOfSubdomains -value ./system/decomposeParDict)
+
+
+    echo "will run $appname with writeInterval $writeinterval and nprocs=$nprocs, using pardictfile=$pardictfile"
+
+    # Source tutorial run functions
+    . $WM_PROJECT_DIR/bin/tools/RunFunctions
+
+    runApplication surfaceFeatures
+
+    runApplication blockMesh
+    runApplication snappyHexMesh -overwrite
+
+    export FOAM_FILEHANDLER=collated
+
+    runApplication decomposePar -decomposeParDict ${pardictfile}
+
+    #export FOAM_FILEHANDLER=uncollated
+
+    runParallel -s ${FOAM_FILEHANDLER}.itv-${writeinterval}.proc-${nprocs}.$(date +"%Y%m%d-%H%M") \
+      -decomposeParDict ${pardictfile} \
+      ${appname}
+
+    resultlog=`ls log.$appname*`
+    grep Simu -A1 $resultlog
+    cp $resultlog saved_logs/
+
+    echo "result also saved at saved_logs/$resultlog"
+  done
+done
+

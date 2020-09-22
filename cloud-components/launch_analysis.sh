@@ -2,7 +2,7 @@
 
 # run with ./launchAnalysis.sh nr_regions
 NR_NODES=${1:=1}
-NR_REGIONS=16
+NR_REGIONS=16  # this number of region, each will initiate a stream and process as different partitions in spark
 #let NR_SPARK_INSTANCES="($NR_REGIONS + 4 -1)/4" # run with launch_analysis.sh nr_instances
 let NR_SPARK_INSTANCES="16" # run with launch_analysis.sh nr_instances
 IMAGE_VERSION=v0.1.5 # use hostpath, and use py image
@@ -11,17 +11,16 @@ SPARK_ROOT=/home/ubuntu/Workspace/spark-standalone/spark-2.4.5-bin-hadoop2.7
 REMOTE_SPARK_HOME=/opt/spark/
 SCALA_VERSION=2.11
 
-#kubectl get nodes -l  magnum.openstack.org/role=worker -o jsonpath={.items[*].status.addresses[?\(@.type==\"InternalIP\"\)].address}
-
 # they will be labeled at minion-idx=0,1,2
-REDIS_IP_INTERNAL=(192.168.11.12 192.168.11.18 192.168.11.5 192.168.11.13 192.168.11.4 192.168.11.10 192.168.11.30 192.168.11.24)
-K8SMASTER_IP=149.165.169.12
+
+#kubectl get nodes -l  magnum.openstack.org/role=worker -o jsonpath={.items[*].status.addresses[?\(@.type==\"InternalIP\"\)].address}
+REDIS_IPS_INTERNAL=($(kubectl get pods --selector=app=redis,role=master -o jsonpath={.items[*].status.podIP}))
+K8SMASTER_IP=$(kubectl get nodes --selector=node-role.kubernetes.io/master -o jsonpath={.items[*].status.addresses[?\(@.type==\"ExternalIP\"\)].address})
 REDIS_PASS=`cat redis.pass`
-#REDIS_IP=$(kubectl get pods --selector=app=redis,role=master -o jsonpath={.items[*].status.podIP})
 
 for ((i=0;i<$NR_NODES;i++))
 do
-	REDIS_IP=${REDIS_IP_INTERNAL[i]}
+	REDIS_IP=${REDIS_IPS_INTERNAL[i]}
 
 	echo "Use k8s cluster at ${K8SMASTER_IP}, redis server at $REDIS_IP, run spark-submit with $NR_SPARK_INSTANCES instances, with $NR_REGIONS regions"
 

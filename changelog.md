@@ -1,5 +1,19 @@
 # Changelog
+## [0.2.7] - 2020-09-21
+[added-cloud]:
+- add jestream-tacc source file, but container orchestration is not there yet.
+- connection between iu-jetstream and stampede2 is slow.
+- switched back to magnum, need to allow secgroup to bypass 6379.
+- prepared scripts to run in xsede, but very slow...
 
+[added-hpc]:
+- add windaroundbuildings M, L, see https://github.com/fengggli/zipper-runtime/issues/19#issuecomment-692958304
+- python/mapper.py to generate endpoint mapping with mapper
+
+[todo]:
+- remap hpc procs to cloud endpoints.
+
+## [0.2.6] - 2020-07-29
 [Added]:
 1. launch mpi to different nodes with correct redis bindings
 - use hostNetwork to bind redis to each k8s node.

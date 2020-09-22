@@ -49,7 +49,7 @@ Description
 #include "simpleControl.H"
 #include "fvOptions.H"
 
-#define FOAM1906
+// #define FOAM1906
 
 //149.165.169.12 149.165.170.58 149.165.168.217 149.165.168.115 149.165.168.245
 

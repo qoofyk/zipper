@@ -14,6 +14,11 @@ pip install python-openstackclient python-magnumclient
 1. I can use openstack api to access remote cluster: https://docs.openstack.org/magnum/latest/user/#native-clients (I tried to configuration authentification but it's to difficult!)
 ```
 source TG*.sh
+```
+Then you shall be able to list server by using ``openstack server list``
+
+Then
+```
 (.venv) lifen@in-csci-20wk300(:):~/Workspace/zipper-runtime/openstack$openstack coe cluster config k8s-cluster
 export KUBECONFIG=/home/ubuntu/Workspace/zipper-runtime/cloud-components/config
 ```
@@ -58,6 +63,22 @@ switch the default namespaces of kubectl:
 kubectl config set-context --current --namespace=spark-operator
 ```
 
+### Redis service
+
+Start a redis instance in each worker node 
+```
+cd cloud-components
+kubectl apply -k .
+```
+
+- Then you need to change security group settings of minor nodes in jetstream portal to allow 6379
+- Also i am using a password
+
+
+Launch spark instances
+
+
+
 ### spark
 1. deploy-mode: Whether to deploy your driver on the worker nodes (cluster) or locally as an external client (client) (default: client) †
 2. delete pods by label name
@@ -88,8 +109,8 @@ launch spark gui port
 kubectl port-forward fluid-analysis-1589987658645-driver 4040:4040
 ```
 
-#### redis
 
+### more with redis
 just do kubectl apply -f those two yaml file (to delete run kubectl delete -f)
 (https://github.com/kubernetes/examples/tree/master/guestbook)
 ```
@@ -168,4 +189,10 @@ mpirun -n 4 ./tests/test-redis-spark/c-clients/test-put-mpi-foam -n 4 -i 100 -p 
 watch cloud logs: elapsed time
 ```
 watch -n 1 "kubectl logs -l spark-role=driver |tail -10"
+```
+
+#### Shutdown
+```
+kubectl delete pods -l spark-role=driver
+kubectl destory -k .
 ```

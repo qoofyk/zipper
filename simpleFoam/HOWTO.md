@@ -5,6 +5,11 @@
 3. write interval 10 => (1, 5, 10)
 
 #### References
+update on Sep 2020: just use openfoam 7, which is supported in both bridges and stampede2, it's equivalent to pior-1906
+stampede2: Currently Loaded Modules:
+  1) intel/18.0.2   2) libfabric/1.7.0   3) impi/18.0.2   4) git/2.24.1   5) autotools/1.1   6) xalt/2.8   7) TACC   8) python3/3.7.0   9) hdf5/1.10.4  10) boost/1.68  11) openfoam/6.0  12) cmake/3.16.1
+- cmake must be loaded after openfoam, otherwise camke 3.2 shipped with openfoam (v3.2)  will be used.
+
 openfoam can be downloaded from ``http://dl.openfoam.org/ubuntu/dists/bionic/main/binary-amd64/openfoam6_20190620_amd64.deb``
 
     - example used is in https://github.com/OpenFOAM/OpenFOAM-6/tree/master/tutorials/incompressible/simpleFoam/windAroundBuildings
@@ -12,6 +17,7 @@ openfoam can be downloaded from ``http://dl.openfoam.org/ubuntu/dists/bionic/mai
     - ``source /opt/openfoam6/etc/bashrc`` before use it
     - visualization guide: https://www.openfoam.com/documentation/user-guide/paraview.php
     - simplefoam (https://www.openfoam.com/documentation/guides/latest/doc/guide-applications-solvers-incompressible-simpleFoam.html)
+
 
 To build openfoam in HPC(1906)
 1. Downloads 1906(https://www.openfoam.com/download/release-history.php)

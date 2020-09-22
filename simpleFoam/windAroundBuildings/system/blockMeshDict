@@ -46,9 +46,13 @@ blocks
 (
     hex (0 1 2 3 4 5 6 7)
     (
-        $:backgroundMesh.xCells
-        $:backgroundMesh.yCells
-        $:backgroundMesh.zCells
+        // feng: https://cfd.direct/openfoam/user-guide/v7-basic-file-format#x17-1320004.2.9
+        #calc "1*($:backgroundMesh.xCells)"
+        #calc "1*($:backgroundMesh.yCells)"
+        #calc "1*($:backgroundMesh.zCells)"
+         // $:backgroundMesh.xCells
+        // $:backgroundMesh.yCells
+        //$:backgroundMesh.zCells
     )
     simpleGrading (1 1 1)
 );

@@ -1,0 +1,65 @@
+#!/bin/sh
+# this caused parent slurm job script enter /tmp/slurmd/job6465336
+#cd ${0%/*} || exit 1    # run from this directory
+
+echo "in  the sourced $PWD, $WORKDIR"
+ls system/*
+
+writeinterval=`foamDictionary -entry writeInterval -value system/controlDict`
+nprocs=`foamDictionary -entry numberOfSubdomains -value system/decomposeParDict`
+
+EXE_DIR=$WORK/zipper-runtime/build/bin
+
+#appname=mySimpleFoamCloud #elasticbroker
+#appname=mySimpleFoamNoWrite # disable I/O
+#for appname in mySimpleFoam mySimpleFoamCloud mySimpleFoamNoWrite; do
+#  for i in 1; do
+for appname in mySimpleFoam; do
+  for i in 1; do
+    unset FOAM_FILEHANDLER
+
+    rm log.decomposePar processors*/ -rf
+    for file in `ls |grep ^[1-9]`; do 
+      rm -rf $file; 
+    done
+
+
+    #nprocs=$(foamDictionary -entry numberOfSubdomains -value ./system/decomposeParDict)
+
+    echo "will run $appname with writeInterval $writeinterval and nprocs=$nprocs"
+
+    # Source tutorial run functions
+    . $WM_PROJECT_DIR/bin/tools/RunFunctions
+
+    runApplication surfaceFeatures
+
+    runApplication blockMesh
+    runApplication snappyHexMesh -overwrite
+
+    export FOAM_FILEHANDLER=collated
+
+
+    #export FOAM_FILEHANDLER=uncollated
+
+    if [ $nprocs -gt 1 ]; then
+      runApplication decomposePar
+      runParallel -s ${FOAM_FILEHANDLER}.itv-${writeinterval}.proc-${nprocs}.$(date +"%Y%m%d-%H%M") \
+      $EXE_DIR/${appname}
+    else
+      runApplication -s ${FOAM_FILEHANDLER}.itv-${writeinterval}.proc-${nprocs}.$(date +"%Y%m%d-%H%M") \
+      $EXE_DIR/${appname}
+    fi
+
+    resultlog=`ls log.$appname* 2>/dev/null`
+    if [ "$resultlog" != "" ]; then
+      grep Simu -A1 $resultlog
+      cp $resultlog saved_logs/
+      echo "result also saved at saved_logs/$resultlog"
+    fi
+
+  done
+done
+
+#runParallel mySimpleFoamFoam
+
+#------------------------------------------------------------------------------
