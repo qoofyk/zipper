@@ -46,11 +46,12 @@ target_compile_definitions(mySimpleFoamNoWrite PUBLIC METHOD_NOWRITE)
 
 add_executable(mySimpleFoamCloud mySimpleFoam.C)
 target_compile_definitions(mySimpleFoamCloud PUBLIC METHOD_CLOUD)
-target_link_libraries(mySimpleFoamCloud hiredis)
+target_link_libraries(mySimpleFoamCloud hiredis elastic_broker)
 
-add_executable(mySimpleFoamFile mySimpleFoam.C)
-target_compile_definitions(mySimpleFoamFile PUBLIC METHOD_FILE)
+# this is not evaluated, just for testing
+#add_executable(mySimpleFoamFile mySimpleFoam.C)
+#target_compile_definitions(mySimpleFoamFile PUBLIC METHOD_FILE)
 
-foreach(target mySimpleFoam mySimpleFoamCloud mySimpleFoamFile mySimpleFoamNoWrite)
+foreach(target mySimpleFoam mySimpleFoamCloud mySimpleFoamNoWrite)
 target_link_libraries(${target} turbulenceModels incompressibleTurbulenceModels incompressibleTransportModels finiteVolume meshTools fvOptions sampling OpenFOAM dl  m ${MPI_CXX_LIBRARIES})
 endforeach()

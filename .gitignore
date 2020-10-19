@@ -1,4 +1,5 @@
 lbm_adios/results
+cloud-components/logs/*.d
 lbm_adios/build*
 !lbm_adios/results/summary
 *.swp

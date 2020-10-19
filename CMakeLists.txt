@@ -27,6 +27,7 @@ include_directories(src)
 find_package(MPI REQUIRED)
 
 set(Hiredis_PREFIX "${PROJECT_SOURCE_DIR}/extern/hiredis" CACHE PATH "The path to hiredis repo")
+#set(ENABLE_EXAMPLES ON CACHE BOOL "hiredis examples")
 add_subdirectory(${Hiredis_PREFIX})
 add_subdirectory(lbm_adios)
 ## tests

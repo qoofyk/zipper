@@ -4,6 +4,12 @@
 2. endtime changed to 400 (or1000 )
 3. write interval 10 => (1, 5, 10)
 
+### mapping
+1.in cloud: run ./gen_endpointfile.sh 512 to get the external ips of the minon nodes.
+2. in hpc run python3 ../../python/mapper.py 512 ip1 ip2. ... > case_folder/endpointfile.ini
+3. in slurm file export BROKER_ENDPOINT_FILE to the filepath
+
+
 #### References
 update on Sep 2020: just use openfoam 7, which is supported in both bridges and stampede2, it's equivalent to pior-1906
 stampede2: Currently Loaded Modules:

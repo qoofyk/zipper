@@ -14,9 +14,9 @@ def generate_endpoint_file(endpoint_list, mpi_size, mapper_func):
 
 # run like python 3 mapper.py 3 ip1 ip2 ip3 ip4...
 if __name__ == "__main__":
-    print("Running: ", sys.argv)
-    print("Number of arguments: ", len(sys.argv))
+    #print("Running: ", sys.argv)
+    #print("Number of arguments: ", len(sys.argv))
     mpi_size = int(sys.argv[1])
     endpoint_list = sys.argv[2:]
-    print("The endpoints are: " , endpoint_list)
+    #print("The endpoints are: " , endpoint_list)
     generate_endpoint_file(endpoint_list, mpi_size, continuous_mapper)

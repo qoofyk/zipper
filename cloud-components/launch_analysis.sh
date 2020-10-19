@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
-# run with ./launchAnalysis.sh nr_regions
-NR_NODES=${1:=1}
+# run with ./launchAnalysis.sh
+NR_NODES=8
 NR_REGIONS=16  # this number of region, each will initiate a stream and process as different partitions in spark
 #let NR_SPARK_INSTANCES="($NR_REGIONS + 4 -1)/4" # run with launch_analysis.sh nr_instances
 let NR_SPARK_INSTANCES="16" # run with launch_analysis.sh nr_instances
@@ -15,13 +15,15 @@ SCALA_VERSION=2.11
 
 #kubectl get nodes -l  magnum.openstack.org/role=worker -o jsonpath={.items[*].status.addresses[?\(@.type==\"InternalIP\"\)].address}
 REDIS_IPS_INTERNAL=($(kubectl get pods --selector=app=redis,role=master -o jsonpath={.items[*].status.podIP}))
-K8SMASTER_IP=$(kubectl get nodes --selector=node-role.kubernetes.io/master -o jsonpath={.items[*].status.addresses[?\(@.type==\"ExternalIP\"\)].address})
+#K8SMASTER_IP=$(kubectl get nodes --selector=node-role.kubernetes.io/master -o jsonpath={.items[*].status.addresses[?\(@.type==\"ExternalIP\"\)].address})
+K8SMASTER_IP=localhost
 REDIS_PASS=`cat redis.pass`
 
 for ((i=0;i<$NR_NODES;i++))
 do
-	REDIS_IP=${REDIS_IPS_INTERNAL[i]}
-
+	#REDIS_IP=${REDIS_IPS_INTERNAL[i]}
+	# redis using this cluster's IP
+	REDIS_IP=$(kubectl get nodes -l minion-idx=${i} -o jsonpath={.items[*].status.addresses[?\(@.type==\"InternalIP\"\)].address})
 	echo "Use k8s cluster at ${K8SMASTER_IP}, redis server at $REDIS_IP, run spark-submit with $NR_SPARK_INSTANCES instances, with $NR_REGIONS regions"
 
 	${SPARK_ROOT}/bin/spark-submit \
@@ -33,10 +35,10 @@ do
 			--conf spark.kubernetes.driver.pod.name=analysis-${i} \
 			--conf spark.executor.instances=$NR_SPARK_INSTANCES \
 			--conf spark.kubernetes.container.image=fengggli/spark:${IMAGE_VERSION} \
+			--conf "spark.redis.host=${REDIS_IP}" \
+			--conf "spark.redis.port=30379" \
 			--conf spark.kubernetes.namespace=spark-operator \
 			--conf spark.kubernetes.authenticate.driver.serviceAccountName=sparkoperator \
-			--conf "spark.redis.host=${REDIS_IP}" \
-			--conf "spark.redis.port=6379" \
 			--conf "spark.redis.auth=${REDIS_PASS}" \
 			--conf "spark.kubernetes.node.selector.minion-idx=${i}" \
 			--conf "spark.kubernetes.executor.request.cores=0.5" \
@@ -48,7 +50,9 @@ do
 			$NR_REGIONS &>tmp/log.node${i} &
 done
 
-echo "all complete"
+
+
+echo "all spark tasks launched"
 wait
 
 # if deployed in docker: 

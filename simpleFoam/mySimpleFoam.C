@@ -87,6 +87,8 @@ int main(int argc, char *argv[])
     #include <fstream>
 
     int taskid, numtasks;
+
+    MPI_Comm comm= MPI_COMM_WORLD; 
     taskid = Pstream::myProcNo();
 
     double t1, t2;
@@ -94,7 +96,7 @@ int main(int argc, char *argv[])
 
 		const char * field_name= "region";
 #ifdef METHOD_CLOUD
-    broker_ctx * context = broker_init(field_name, cloud_config.hostname, cloud_config.port, taskid, 0);
+    broker_ctx * context = broker_init(field_name, comm );
 #endif
 
     // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
@@ -198,8 +200,8 @@ int main(int argc, char *argv[])
         io_time_used += *iter;
       }
 
-      PINF("total send time %.6f s", io_time_used);
-      PINF("avg send time %.6f s, for %d iterations", io_time_used/time_stats.size(), time_stats.size() );
+      PINF("Simu: total send time(s) %.6f", io_time_used);
+      PINF("avg send time %.6f s, for %lu iterations", io_time_used/time_stats.size(), time_stats.size() );
     }
 
 #ifdef METHOD_CLOUD

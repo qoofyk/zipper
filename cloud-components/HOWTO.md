@@ -80,7 +80,10 @@ Launch spark instances
 
 
 ### spark
-1. deploy-mode: Whether to deploy your driver on the worker nodes (cluster) or locally as an external client (client) (default: client) †
+0. deploy-mode: Whether to deploy your driver on the worker nodes (cluster) or locally as an external client (client) (default: client) 
+1. Run analysis:
+  - label the nodes using label_nodes.sh
+  - run analayis with n spark job: ./launch_analysis.sh n; by default , each node will have 16 instances of spark executors, and accepts 64 stream simutenuously.
 2. delete pods by label name
 ```
  kubectl delete pods -l spark-role=driver
@@ -188,11 +191,43 @@ mpirun -n 4 ./tests/test-redis-spark/c-clients/test-put-mpi-foam -n 4 -i 100 -p 
 
 watch cloud logs: elapsed time
 ```
-watch -n 1 "kubectl logs -l spark-role=driver |tail -10"
+watch -n 1 "kubectl logs -l spark-role=driver |tail -9"
+```
+
+#### shelve
+```
+for server in `openstack server list -c Name --name fengggli-k8s-* -f value`; do openstack server shelve $server; done
 ```
 
 #### Shutdown
 ```
 kubectl delete pods -l spark-role=driver
-kubectl destory -k .
+kubectl delete -k .
+openstack coe cluster update elasticbroker-cluster replace node_count=1
+shutoff the only minion and master node (or shelve if not using for long period)
+```
+
+### restart
+```
+start instance or unshelve (wait until kubectl get nodes)
+openstack coe cluster update elasticbroker-cluster replace node_count=8
+./label_nodes.sh
+.gen_endpointfile.sh
+(change the endpoint file in HPC correspondingly.)
+start redis
+```
+cd yaml
+kubectl apply -f ./spark-operator-rbac.yaml 
+kubectl config set-context --current --namespace=spark-operator
+kubectl apply -k .
+```
+start spark (run analysis)
+
+```
+
+
+note:
+```
+#(or unshelve)
+for server in `openstack server list -c Name --name fengggli-k8s-* -f value`; do openstack server unshelve $server; done
 ```

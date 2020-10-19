@@ -1,4 +1,24 @@
 # Changelog
+## [0.2.8] - 2020-10-19
+[orchestration]:
+- switch back to kubespray (2.8)
+- changed port to 30379
+- cloud instances have 16 regions per VM, not 64
+
+[hpc]:
+- synthetic nr_fluid changed to 5000/2000 for 512 proc run.
+- nr_regios varies form 64 to 16.
+- tic toc bandwidth test:
+  - code:  tests/test-iperf3
+  - results: https://github.com/fengggli/zipper-runtime/issues/22
+- collect stats from all proces and show std and avg.
+- now uses communicator instead of rank/size in elasticbroker_init
+
+[todo]:
+- for synthetic calculation, can just choose some other methods than DMD
+- add pipeline support for elasticbroker put.
+- simpler wc spark.
+
 ## [0.2.7] - 2020-09-21
 [added-cloud]:
 - add jestream-tacc source file, but container orchestration is not there yet.
@@ -7,11 +27,13 @@
 - prepared scripts to run in xsede, but very slow...
 
 [added-hpc]:
+- copy case to scratch and fetch result log back
+- case M changed to 1000 iterations
 - add windaroundbuildings M, L, see https://github.com/fengggli/zipper-runtime/issues/19#issuecomment-692958304
-- python/mapper.py to generate endpoint mapping with mapper
+- python/mapper.py to generate endpoint mapping with mapper, works like the nodefile in mpirun
 
 [todo]:
-- remap hpc procs to cloud endpoints.
+- why streams are only sent to one spark job?
 
 ## [0.2.6] - 2020-07-29
 [Added]:

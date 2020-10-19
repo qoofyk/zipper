@@ -9,7 +9,7 @@ spec:
       app: redis
       role: master
       tier: backend
-  replicas: 2
+  replicas: 8
   template:
     metadata:
       labels:
@@ -25,7 +25,7 @@ spec:
             cpu: 100m
             memory: 100Mi
         ports:
-        - containerPort: 6379
+        - containerPort: 30379
         command:
           - redis-server
           - "/redis-master/redis.conf"
@@ -33,8 +33,9 @@ spec:
           - mountPath: /redis-master
             name: config
       nodeSelector:
-        magnum.openstack.org/role: "worker"
-        #is-minion: "true" 
+        # kubectl get node --selector='!node-role.kubernetes.io/master'
+        # magnum.openstack.org/role: "worker"
+        is-minion: "true"
       hostNetwork: true
       dnsPolicy: ClusterFirstWithHostNet
       volumes:

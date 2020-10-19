@@ -2,20 +2,31 @@
 # this caused parent slurm job script enter /tmp/slurmd/job6465336
 #cd ${0%/*} || exit 1    # run from this directory
 
-echo "in  the sourced $PWD, $WORKDIR"
+
+
+cd $RUNDIR
+ls
+
+# note: copy the contents of soft links to
+rsync -a --no-l -L $SUBMITDIR/ . --exclude log.decomposePar --exclude processors* --exclude saved_logs
+
+echo "entering scratch folder: $PWD, submitdir=$SUBMITDIR"
 ls system/*
 
 writeinterval=`foamDictionary -entry writeInterval -value system/controlDict`
 nprocs=`foamDictionary -entry numberOfSubdomains -value system/decomposeParDict`
 
-EXE_DIR=$WORK/zipper-runtime/build/bin
+EXE_DIR=$SUBMITDIR/../../build/bin
 
 #appname=mySimpleFoamCloud #elasticbroker
 #appname=mySimpleFoamNoWrite # disable I/O
 #for appname in mySimpleFoam mySimpleFoamCloud mySimpleFoamNoWrite; do
 #  for i in 1; do
-for appname in mySimpleFoam; do
-  for i in 1; do
+#for appname in mySimpleFoam; do
+for appname in mySimpleFoamCloud; do
+#for appname in mySimpleFoamNoWrite; do
+  for i in {1..3}; do
+  #for i in 3; do
     unset FOAM_FILEHANDLER
 
     rm log.decomposePar processors*/ -rf
@@ -40,22 +51,19 @@ for appname in mySimpleFoam; do
 
 
     #export FOAM_FILEHANDLER=uncollated
+    outfile_postfix=${FOAM_FILEHANDLER}.itv-${writeinterval}.proc-${nprocs}.${i}
 
     if [ $nprocs -gt 1 ]; then
       runApplication decomposePar
-      runParallel -s ${FOAM_FILEHANDLER}.itv-${writeinterval}.proc-${nprocs}.$(date +"%Y%m%d-%H%M") \
-      $EXE_DIR/${appname}
+      runParallel -s $outfile_postfix $EXE_DIR/${appname}
     else
-      runApplication -s ${FOAM_FILEHANDLER}.itv-${writeinterval}.proc-${nprocs}.$(date +"%Y%m%d-%H%M") \
-      $EXE_DIR/${appname}
+      runApplication -s $outfile_postfix $EXE_DIR/${appname}
     fi
 
-    resultlog=`ls log.$appname* 2>/dev/null`
-    if [ "$resultlog" != "" ]; then
-      grep Simu -A1 $resultlog
-      cp $resultlog saved_logs/
-      echo "result also saved at saved_logs/$resultlog"
-    fi
+    resultlog="log.$appname.${outfile_postfix}"
+    grep Simu -A1 $resultlog
+    cp $resultlog $RESULTDIR
+    echo "result also saved at $RESULTDIR"
 
   done
 done
