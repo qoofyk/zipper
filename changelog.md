@@ -3,6 +3,8 @@
 [cloud]:
 1. add support for dryrun for scala code, which only collects count for items received from each localid
 2. change the synthetic code correspondingly.
+[hpc]:
+1. add pipelining, and redo experiments
 
 ## [0.2.8] - 2020-10-19
 [orchestration]:

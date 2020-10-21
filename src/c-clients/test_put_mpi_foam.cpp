@@ -73,7 +73,6 @@ int main(int argc, char **argv) {
     }
     else{
       int queue_len = atoi(str_queue_len);
-      PINF("Initializing pipelining, queue_len = %d.. ", queue_len);
       context = broker_init_async(field_name, comm, queue_len);
     }
 
