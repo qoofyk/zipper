@@ -31,7 +31,7 @@ object FluidAnalysis {
 
         val num_regions = args(0).toInt
         var dry_run = 0
-        if(args.size == 2 && args(1) == 1){
+        if(args.size == 2 && args(1).toInt == 1){
           dry_run = 1
         }
       
@@ -75,18 +75,11 @@ new fluidForeachWriter("localhost","6379")
           query_fake.awaitTermination()
           */
           val filelist = getListOfFiles("./")
-          println("The empty list is: " + filelist)
+          println("[DEBUG]: The empty list is: " + filelist)
 
-          // val scriptPath = SparkFiles.get("compute_dmd.py")
-          //val scriptPath = SparkFiles.get("run_fluiddmd.py")
-          // val scriptPath = SparkFiles.get("wc.py")
-          val scriptPath = "./run_fluiddmd.py"
-          println("-- Streaming processing started: using script in:" + scriptPath)
-          val py_command="env python3 " + scriptPath
-          // val py_command="cat"
-          // val py_command="env python3 ./run_fluiddmd.py" // + SparkFiles.get("run_fluiddmd.py")
           if(dry_run == 1){
-            val query_py = fluids.select("step","valuelist").groupBy("localid").count()
+            println("-- Streaming processing started, DRYRUN with no dmd")
+            val query_py = fluids.groupBy("localid").count()
                 .writeStream
                 .outputMode("update")
                 .format("console")
@@ -105,6 +98,15 @@ new fluidForeachWriter("localhost","6379")
               query_py.awaitTermination()
           }
           else{
+            // val scriptPath = SparkFiles.get("compute_dmd.py")
+            //val scriptPath = SparkFiles.get("run_fluiddmd.py")
+            // val scriptPath = SparkFiles.get("wc.py")
+            val scriptPath = "./run_fluiddmd.py"
+            println("-- Streaming processing started: using script in:" + scriptPath)
+            val py_command="env python3 " + scriptPath
+            // val py_command="cat"
+            // val py_command="env python3 ./run_fluiddmd.py" // + SparkFiles.get("run_fluiddmd.py")
+
             val query_py = fluids.select("step","valuelist")
                 .writeStream
                 .outputMode("update")
