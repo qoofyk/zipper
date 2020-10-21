@@ -65,7 +65,18 @@ int main(int argc, char **argv) {
 
   if(!is_dry_run){
 		field_name= "region";
-    context = broker_init(field_name, comm);
+    const char* str_queue_len = std::getenv("BROKER_QUEUE_LEN");
+    if(str_queue_len == nullptr){
+      PINF("Initializing without pipelining.. ");
+
+      context = broker_init(field_name, comm);
+    }
+    else{
+      int queue_len = atoi(str_queue_len);
+      PINF("Initializing pipelining, queue_len = %d.. ", queue_len);
+      context = broker_init_async(field_name, comm, queue_len);
+    }
+
   }
 
   /* writing some floatting number with binary-safe string */

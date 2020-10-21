@@ -145,7 +145,8 @@ int broker_put(broker_ctx *context, int stepid, std::string values){
 
   std::string commandString = "XADD ";
   commandString.append(stream_name);
-  commandString.append(" MAXLEN ~ 1000 * ");
+  // commandString.append(" MAXLEN ~ 1000 * ");
+  commandString.append(" * ");
   commandString.append(" step ");
   commandString.append(std::to_string(stepid));
   commandString.append(" localid ");

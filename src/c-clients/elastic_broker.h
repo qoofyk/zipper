@@ -57,6 +57,8 @@ typedef struct{
 
 broker_ctx* broker_init(const char *field_name, MPI_Comm comm);
 
+broker_ctx* broker_init_async(const char *field_name, MPI_Comm comm, int queue_len);
+
 int broker_put(broker_ctx *context, int stepid, std::string values);
 
 int broker_finalize(broker_ctx * context);

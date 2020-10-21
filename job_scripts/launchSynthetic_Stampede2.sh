@@ -2,8 +2,8 @@
 #SBATCH -J ElasticbrokerSynthetic 
 #SBATCH -o results/log.slurm.%j.output      # Name of stdout output file
 #SBATCH -p normal         # Queue (partition) name
-#SBATCH -N 8        # Total # of nodes 
-#SBATCH --ntasks-per-node=16
+#SBATCH -N 1        # Total # of nodes 
+#SBATCH --ntasks-per-node=64
 #SBATCH -t 00:15:00        # Run time (hh:mm:ss)
 #SBATCH --mail-type=BEGIN
 
@@ -11,8 +11,8 @@
 export SUBMITDIR=$SLURM_SUBMIT_DIR
 export NUM_PROCS=$SLURM_NTASKS
 export SUBMITDIR=$SLURM_SUBMIT_DIR
-export BROKER_ENDPOINT_FILE="$SUBMITDIR/cloud-components/endpoints_128.ini"
-
+export BROKER_ENDPOINT_FILE="$SUBMITDIR/cloud-components/endpoints_512.ini"
+export BROKER_QUEUE_LEN=16
 # module load remora
 module list
 
