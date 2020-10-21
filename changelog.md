@@ -1,4 +1,9 @@
 # Changelog
+## new
+[cloud]:
+1. add support for dryrun for scala code, which only collects count for items received from each localid
+2. change the synthetic code correspondingly.
+
 ## [0.2.8] - 2020-10-19
 [orchestration]:
 - switch back to kubespray (2.8)

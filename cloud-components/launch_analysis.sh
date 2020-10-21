@@ -2,7 +2,8 @@
 
 # run with ./launchAnalysis.sh
 NR_NODES=8
-NR_REGIONS=16  # this number of region, each will initiate a stream and process as different partitions in spark
+NR_REGIONS=64  # this number of region, each will initiate a stream and process as different partitions in spark
+export DRY_RUN=1 # uncomment this to ignore dmd.
 #let NR_SPARK_INSTANCES="($NR_REGIONS + 4 -1)/4" # run with launch_analysis.sh nr_instances
 let NR_SPARK_INSTANCES="16" # run with launch_analysis.sh nr_instances
 IMAGE_VERSION=v0.1.5 # use hostpath, and use py image
@@ -47,7 +48,7 @@ do
 			--jars ${REMOTE_SPARK_HOME}/work-dir/deps/spark-redis_${SCALA_VERSION}-2.4.3-SNAPSHOT-jar-with-dependencies.jar \
 			--files  ${RUNFILES_DIR}/run_fluiddmd.py,${RUNFILES_DIR}/wc.py \
 			${RUNFILES_DIR}/fluidanalysis_$SCALA_VERSION-0.1.0-SNAPSHOT.jar  \
-			$NR_REGIONS &>tmp/log.node${i} &
+			$NR_REGIONS $DRY_RUN &>tmp/log.node${i} &
 done
 
 

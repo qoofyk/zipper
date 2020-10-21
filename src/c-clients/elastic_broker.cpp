@@ -148,6 +148,8 @@ int broker_put(broker_ctx *context, int stepid, std::string values){
   commandString.append(" MAXLEN ~ 1000 * ");
   commandString.append(" step ");
   commandString.append(std::to_string(stepid));
+  commandString.append(" localid ");
+  commandString.append(std::to_string(context->conn.local_id));
 
   // commandString.append(" field ")
   // commandString.append(fieldname)
