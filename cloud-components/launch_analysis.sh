@@ -43,13 +43,13 @@ do
 			--conf "spark.redis.auth=${REDIS_PASS}" \
 			--conf "spark.kubernetes.node.selector.minion-idx=${i}" \
 			--conf "spark.kubernetes.executor.request.cores=0.5" \
-			--conf "stream.read.batch.size=$((200))" \
-			--conf "stream.read.block=250" \
 			--jars ${REMOTE_SPARK_HOME}/work-dir/deps/spark-redis_${SCALA_VERSION}-2.4.3-SNAPSHOT-jar-with-dependencies.jar \
 			--files  ${RUNFILES_DIR}/run_fluiddmd.py,${RUNFILES_DIR}/wc.py \
 			${RUNFILES_DIR}/fluidanalysis_$SCALA_VERSION-0.1.0-SNAPSHOT.jar  \
 			$NR_REGIONS $DRY_RUN &>tmp/log.node${i} &
 done
+#			--conf "stream.read.batch.size=$((200))" \
+#			--conf "stream.read.block=250" \
 
 
 

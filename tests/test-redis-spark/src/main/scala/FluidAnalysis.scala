@@ -81,7 +81,7 @@ new fluidForeachWriter("localhost","6379")
             println("-- Streaming processing started, DRYRUN with no dmd")
             val query_py = fluids.groupBy("localid").count()
                 .writeStream
-                .outputMode("update")
+                .outputMode("complete")
                 .format("console")
                 .foreachBatch { (batchDF: Dataset[Row], batchId: Long) =>
                    println("--- batchid," + batchId)
