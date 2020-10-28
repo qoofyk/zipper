@@ -25,6 +25,15 @@
 #include <mutex>
 #include <condition_variable>
 
+#ifdef V_T
+#include <VT.h>
+int vt_class_id;
+int vt_generate_id,
+    vt_transform_id,
+    vt_put_id;
+#endif
+
+
 redisContext *c;
 
 int main(int argc, char **argv) {
@@ -55,6 +64,15 @@ int main(int argc, char **argv) {
   nr_steps = config.nr_steps;
   nr_local_fluids = config.nr_local_fluids;
   is_dry_run = config.is_dry_run;
+
+#ifdef V_T
+      //VT_initialize(NULL, NULL);
+      VT_classdef( "EBroker", &vt_class_id );
+      VT_funcdef("GE", vt_class_id, &vt_generate_id); //collsion
+      VT_funcdef("TR", vt_class_id, &vt_transform_id);// streaming
+      VT_funcdef("PU", vt_class_id, &vt_put_id);// boundry
+#endif
+
 
   if(taskid == 0){
     PINF("running exp with nr_local_fluids(%d), iterations(%d)",
@@ -96,6 +114,10 @@ int main(int argc, char **argv) {
     // simulate all process advance one step
     MPI_Barrier(comm);
     t1 = MPI_Wtime();
+#ifdef V_T
+      VT_begin(vt_generate_id);
+#endif
+
 
     double x_bounds[2] = {-5,5};
     double t_bounds[2] = {0, 4*3.14};
@@ -115,6 +137,10 @@ int main(int argc, char **argv) {
     std::string values;
 
     t3 = MPI_Wtime();
+#ifdef V_T
+      VT_end(vt_generate_id);
+      VT_begin(vt_transform_id);
+#endif
 
     // usleep(100000);
     // This is expensive!
@@ -126,6 +152,11 @@ int main(int argc, char **argv) {
 
     t4= MPI_Wtime();
 
+#ifdef V_T
+      VT_end(vt_transform_id);
+      VT_begin(vt_put_id);
+#endif
+
     PDBG("Append values, time spent %.6f s ", t4 - t3);
     // std::cout << "command:" << commandString << std::endl;
   if(!is_dry_run){
@@ -133,6 +164,9 @@ int main(int argc, char **argv) {
   }
 
     t2 = MPI_Wtime();
+#ifdef V_T
+      VT_end(vt_put_id);
+#endif
     if(taskid == 0 && (step %(nr_steps/20) == 0)){
       PINF("Executing... (%d/%d):", step, nr_steps);
       PINF("   step = %d: generate %.6f, prepare: %.6f, write=%.6f, seconds for %d fluids", step, t3 - t1, t4-t3, t2-t4, nr_local_fluids);
@@ -154,7 +188,11 @@ int main(int argc, char **argv) {
     broker_finalize(context);
   }
   delete []v0_values;
-
+  
+#ifdef V_T
+  VT_finalize();
+#endif
   MPI_Finalize();
+
   return 0;
 }
