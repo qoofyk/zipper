@@ -5,7 +5,7 @@
 2. change the synthetic code correspondingly.
 [hpc]:
 1. add pipelining, and redo experiments
-2. stampede2 toolchain, vtune.
+2. stampede2 toolchain, vtune (see old doc/itac.md).
 
 ## [0.2.8] - 2020-10-19
 [orchestration]:

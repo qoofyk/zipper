@@ -33,6 +33,8 @@ int vt_generate_id,
     vt_put_id;
 #endif
 
+#define APP_HAS_BARRIER
+
 
 redisContext *c;
 
@@ -112,7 +114,9 @@ int main(int argc, char **argv) {
   for (int step = 0; step < nr_steps; step++) {
     
     // simulate all process advance one step
+#ifdef APP_HAS_BARRIER
     MPI_Barrier(comm);
+#endif
     t1 = MPI_Wtime();
 #ifdef V_T
       VT_begin(vt_generate_id);
