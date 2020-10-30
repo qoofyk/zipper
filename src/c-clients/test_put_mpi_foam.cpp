@@ -33,7 +33,7 @@ int vt_generate_id,
     vt_put_id;
 #endif
 
-#define APP_HAS_BARRIER
+//#define APP_HAS_BARRIER
 
 
 redisContext *c;
@@ -183,8 +183,8 @@ int main(int argc, char **argv) {
   if(taskid == 0){
     get_utc_time(str_time);
 
-    PINF("\nSTATS:SimuStart\tSimuEnd");
-    PINF("STATS:%s\t%s\n", str_time_start, str_time);
+    PINF("\nSTATS:SimuStart\tSimuEnd, elapsed");
+    PINF("STATS:%s\t%s\t%.3f\n", str_time_start, str_time, MPI_Wtime() - context->t_start);
   }
 
   /* Disconnects and frees the context */

@@ -45,6 +45,7 @@ typedef struct{
 
   size_t max_write_size=0; // set in the first run, in bytes
   std::vector<double> time_stats;
+  double t_start, t_end;  // between broker_init and broker_finalize
 }broker_ctx;
 
 

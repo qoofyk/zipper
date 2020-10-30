@@ -37,15 +37,14 @@ pwd
 date
 
 # Launch MPI code...
-all_ips=(129.114.17.231 129.114.104.188 129.114.104.167 129.114.17.50 129.114.104.201 129.114.104.158 129.114.104.131 129.114.104.35)
+all_ips=(129.114.104.67 129.114.16.85 129.114.16.50 129.114.16.79 129.114.16.97 129.114.16.77 129.114.16.60 129.114.16.45)
 
 echo "test cloud endpoints: ${all_ips[*]}"
 
 export RESULT_FOLDER=results/$SLURM_JOB_ID
 mkdir $RESULT_FOLDER
-mkdir 
 
-for nr_conn in 64
+for nr_conn in 2
 do
   echo "================================================="
   echo "==========Test $nr_conn connections: ============"
@@ -55,7 +54,7 @@ do
     # ibrun -n 1 -o ${nodeid} hostname &> $RESULT_FOLDER/node${nodeid} &
     outfile=$RESULT_FOLDER/log.node${nodeid}
     date> $outfile
-    ibrun -n 1 -o ${nodeid} iperf3 -c ${all_ips[nodeid]} -t 30 -l 32K -p 1993 -P $nr_conn &>> $outfile &     # Use ibrun instead of mpirun or mpiexec
+    ibrun -n 1 -o ${nodeid} iperf3 -c ${all_ips[nodeid]} -t 30 -l 32K -p 31993 -P $nr_conn &>> $outfile &     # Use ibrun instead of mpirun or mpiexec
   done
   #mpirun -n 1 iperf3 -c ${all_ips[1]} -p 1993 -P $nr_conn &     # Use ibrun instead of mpirun or mpiexec
   #mpirun -n 1 iperf3 -c ${all_ips[2]} -p 1993 -P $nr_conn &     # Use ibrun instead of mpirun or mpiexec

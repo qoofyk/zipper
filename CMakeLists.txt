@@ -3,6 +3,7 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS on)
 
 option(use_itac OFF)
 option(ITAC_CCLIENT ON)
+option(BUILD_FOAM_TEST OFF)
 
 
 project("zipper-workflow")
@@ -21,7 +22,6 @@ set(EBROKER_LIBRARIES elastic_broker ${Hiredis_LIBRARIES})
 
 #itac
 if(use_itac)
-    add_definitions(-DV_T)
     set(VT_ROOT $ENV{VT_ROOT} CACHE PATH "The path vt")
     message("itac enabled! with ${VT_ROOT}")
     include_directories(${VT_ROOT}/include)
@@ -44,7 +44,7 @@ add_subdirectory(src/c-clients/)
 add_subdirectory(tests)
 
 #if(FALSE)
-if(DEFINED ENV{FOAM_APPBIN})
+if(BUILD_FOAM_TEST AND DEFINED ENV{FOAM_APPBIN})
   add_subdirectory(simpleFoam)
 else()
   message(WARNING "openfoam not installed, not building simpleFoam")

@@ -40,6 +40,7 @@ broker_ctx* broker_init_async(const char *field_name, MPI_Comm comm, int queue_l
   broker_ctx * context= broker_init(field_name, comm);
   context->is_async=true;
   context->queue_len=queue_len;
+  context->t_start = MPI_Wtime();
   return context;
 }
 
@@ -226,14 +227,17 @@ void broker_print_stats(broker_ctx *context){
     write_time_std = sqrt(write_time_std);
     PINF("BROKER: write time avg/std: %.6f %.6f", write_time_avg, write_time_std);
     double write_size_in_MB=(context->max_write_size*mpi_size)/1000000.0;
-    double throughput_in_MB=write_size_in_MB/write_time_avg;
-    PINF("BROKER: write_avg\twrite_std\ttp_all(MB/s)\twrite_size_all(MB)");
-    PINF("BROKER: %.6f\t%.6f\t%.6f\t%.6f\n", write_time_avg, write_time_std, throughput_in_MB, write_size_in_MB);
+    double throughput_MB_calculated=write_size_in_MB/write_time_avg;
+    double throughput_MB_measured=
+      write_size_in_MB*time_stats.size()/(context->t_end - context->t_start);
+    PINF("BROKER: write_avg\twrite_std\ttp_calculated(MB/s)\ttp_measured\twrite_size_per_step(MB)");
+    PINF("BROKER: %.6f\t%.6f\t%.6f\t%.6f\t%.6f\n", write_time_avg, write_time_std, throughput_MB_calculated, throughput_MB_measured ,write_size_in_MB);
   }
 }
 
 int broker_finalize(broker_ctx * context){
   int status = 0;
+  context->t_end = MPI_Wtime();
 
   if(context->is_async){
     redisReply * reply;
