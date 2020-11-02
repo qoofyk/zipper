@@ -233,3 +233,9 @@ for server in `openstack server list -c Name --name fengggli-k8s-* -f value`; do
 # shelve some worknodes
 for server in `openstack server list -c Name --name fengggli-k8s-node-[2-8] -f value`; do openstack server shelve $server; done
 ```
+
+More on spark3
+-----------------
+will do scala 2.12.9
+./dev/change-scala-version.sh 2.12
+k

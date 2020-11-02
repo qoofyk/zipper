@@ -6,11 +6,12 @@ NR_REGIONS=64  # this number of region, each will initiate a stream and process 
 export DRY_RUN=1 # uncomment this to ignore dmd.
 #let NR_SPARK_INSTANCES="($NR_REGIONS + 4 -1)/4" # run with launch_analysis.sh nr_instances
 let NR_SPARK_INSTANCES="16" # run with launch_analysis.sh nr_instances
-IMAGE_VERSION=v0.1.5 # use hostpath, and use py image
+IMAGE_VERSION=v0.1.6 # use hostpath, and use py image
 RUNFILES_DIR="http://149.165.169.185:8080/"
 SPARK_ROOT=/home/ubuntu/Workspace/spark-standalone/spark-2.4.5-bin-hadoop2.7
 REMOTE_SPARK_HOME=/opt/spark/
-SCALA_VERSION=2.11
+SCALA_VERSION=2.12
+SPARK_REDIS_VERSION=2.5.0
 
 # they will be labeled at minion-idx=0,1,2
 
@@ -40,14 +41,15 @@ do
 			--conf "spark.redis.port=30379" \
 			--conf spark.kubernetes.namespace=spark-operator \
 			--conf spark.kubernetes.authenticate.driver.serviceAccountName=sparkoperator \
+      --jars ${RUNFILES_DIR}/spark-redis_${SCALA_VERSION}-${SPARK_REDIS_VERSION}-SNAPSHOT-jar-with-dependencies.jar \
 			--conf "spark.redis.auth=${REDIS_PASS}" \
 			--conf "spark.kubernetes.node.selector.minion-idx=${i}" \
 			--conf "spark.kubernetes.executor.request.cores=0.5" \
-			--jars ${REMOTE_SPARK_HOME}/work-dir/deps/spark-redis_${SCALA_VERSION}-2.4.3-SNAPSHOT-jar-with-dependencies.jar \
 			--files  ${RUNFILES_DIR}/run_fluiddmd.py,${RUNFILES_DIR}/wc.py \
 			${RUNFILES_DIR}/fluidanalysis_$SCALA_VERSION-0.1.0-SNAPSHOT.jar  \
 			$NR_REGIONS $DRY_RUN &>tmp/log.node${i} &
 done
+
 #			--conf "stream.read.batch.size=$((200))" \
 #			--conf "stream.read.block=250" \
 
@@ -61,3 +63,4 @@ wait
 #    --jars ${RUNFILES_DIR}/spark-redis_${SCALA_VERSION}-2.4.3-SNAPSHOT-jar-with-dependencies.jar \
 #    --py-files ${RUNFILES_DIR}/fluiddmd-0.1-py3.6.egg \
 
+#      --jars ${REMOTE_SPARK_HOME}/work-dir/deps/spark-redis_${SCALA_VERSION}-${SPARK_REDIS_VERSION}-SNAPSHOT-jar-with-dependencies.jar \

@@ -19,6 +19,10 @@
 ARG base_img
 FROM $base_img
 WORKDIR /
+
+# Reset to root to run installation tasks
+USER 0
+
 RUN mkdir ${SPARK_HOME}/python
 # TODO: Investigate running both pip and pip3 via virtualenvs
 RUN apt install -y python python-pip && \
@@ -51,3 +55,7 @@ RUN pip3 install -r ${workdir}/deps/requirements.txt && \
 # provide egg. pyfile, and jar file through http 
 
 ENTRYPOINT [ "/opt/entrypoint.sh" ]
+
+# Specify the User that the actual main process will run as
+ARG spark_uid=185
+USER ${spark_uid}

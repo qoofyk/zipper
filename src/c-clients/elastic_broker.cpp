@@ -212,8 +212,6 @@ void broker_print_stats(broker_ctx *context){
     write_time_std/= mpi_size;
     write_time_std = sqrt(write_time_std);
     PINF("BROKER: write time avg/std: %.6f %.6f", write_time_avg, write_time_std);
-    double write_size_in_MB=(context->max_write_size*mpi_size)/1000000.0;
-    double throughput_in_MB=write_size_in_MB/write_time_avg;
     PINF("BROKER: write_avg\twrite_std\ttp_all(MB/s)\twrite_size_all(MB)");
     PINF("BROKER: %.6f\t%.6f\t%.6f\t%.6f\n", write_time_avg, write_time_std, throughput_in_MB, write_size_in_MB);
   }
