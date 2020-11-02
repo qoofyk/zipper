@@ -5,6 +5,9 @@
 2. change the synthetic code correspondingly.
 3. switch to kubespray 2.13.1, because the old 2.8 sometimes hangs.
 4. change spark to 3.0.1, scala to 2.12 (since kubespray 2.13.1 cannot generate kubenetes 1.15.3)
+[hpc]:
+1. add pipelining, and redo experiments
+2. stampede2 toolchain, vtune (see old doc/itac.md).
 
 ## [0.2.8] - 2020-10-19
 [orchestration]:

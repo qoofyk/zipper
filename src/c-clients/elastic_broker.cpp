@@ -29,9 +29,18 @@ broker_connection_t get_connection(int rank, std::string endpoint_filepath){
 }
 
 broker_ctx* broker_init_async(const char *field_name, MPI_Comm comm, int queue_len){
+  int mpi_rank, mpi_size;
+
+  MPI_Comm_rank(comm, &mpi_rank);
+  MPI_Comm_size(comm, &mpi_size);
+
+  if(mpi_rank == 0){
+    PINF("Broker: Initializing pipelining, queue_len = %d.. ", queue_len);
+  }
   broker_ctx * context= broker_init(field_name, comm);
   context->is_async=true;
   context->queue_len=queue_len;
+  context->t_start = MPI_Wtime();
   return context;
 }
 
@@ -40,6 +49,10 @@ broker_ctx* broker_init(const char *field_name, MPI_Comm comm){
 
     MPI_Comm_rank(comm, &mpi_rank);
     MPI_Comm_size(comm, &mpi_size);
+
+    if(mpi_rank == 0){
+      PINF("Broker: nr_procs = %d", mpi_size);
+    }
 
     broker_ctx * context =  new broker_ctx();
 
@@ -55,7 +68,7 @@ broker_ctx* broker_init(const char *field_name, MPI_Comm comm){
 
     sprintf(context->stream_name, "%s%d",field_name, conn.local_id);
 
-    PINF("mpirank: %d, writing stream (%s) to endpoint host: %s", mpi_rank, context->stream_name, conn.hostname.c_str());
+    PDBG("mpirank: %d, writing stream (%s) to endpoint host: %s", mpi_rank, context->stream_name, conn.hostname.c_str());
 
     redisContext *c;
     redisReply *reply;
@@ -66,7 +79,7 @@ broker_ctx* broker_init(const char *field_name, MPI_Comm comm){
       // mpi_rank =1;
 
     const char *hostname = conn.hostname.c_str();
-    PINF("running exp with endpoint (%s:%d), my mpi_rank = %d",
+    PDBG("running exp with endpoint (%s:%d), my mpi_rank = %d",
        hostname, conn.port, mpi_rank);
 
     struct timeval timeout = {1, 500000}; // 1.5 seconds
@@ -120,13 +133,13 @@ int do_put_async(broker_ctx* context, const char* buffer){
     if(reply == NULL || reply->type == REDIS_REPLY_ERROR){
       if(reply){
         PERR("HIREDIS xadd: error info in reply: %s", reply->str);
+        freeReplyObject(reply);
       }
       else{
         PERR("HIREDIS xadd: error info in Context, %s", c->errstr);
       }
       ret = -1;
     }
-    freeReplyObject(reply);
   }
   return ret;
 }
@@ -145,7 +158,8 @@ int broker_put(broker_ctx *context, int stepid, std::string values){
 
   std::string commandString = "XADD ";
   commandString.append(stream_name);
-  commandString.append(" MAXLEN ~ 1000 * ");
+  // commandString.append(" MAXLEN ~ 1000 * ");
+  commandString.append(" * ");
   commandString.append(" step ");
   commandString.append(std::to_string(stepid));
   commandString.append(" localid ");
@@ -166,13 +180,13 @@ int broker_put(broker_ctx *context, int stepid, std::string values){
     if(reply == NULL || reply->type == REDIS_REPLY_ERROR){
       if(reply){
         PERR("HIREDIS xadd: error info in reply: %s", reply->str);
+        freeReplyObject(reply);
       }
       else{
         PERR("HIREDIS xadd: error info in Context, %s", c->errstr);
       }
       ret = -1;
     }
-    freeReplyObject(reply);
   }
   else{
     ret = do_put_async(context, commandString.c_str());
@@ -212,13 +226,18 @@ void broker_print_stats(broker_ctx *context){
     write_time_std/= mpi_size;
     write_time_std = sqrt(write_time_std);
     PINF("BROKER: write time avg/std: %.6f %.6f", write_time_avg, write_time_std);
-    PINF("BROKER: write_avg\twrite_std\ttp_all(MB/s)\twrite_size_all(MB)");
-    PINF("BROKER: %.6f\t%.6f\t%.6f\t%.6f\n", write_time_avg, write_time_std, throughput_in_MB, write_size_in_MB);
+    double write_size_in_MB=(context->max_write_size*mpi_size)/1000000.0;
+    double throughput_MB_calculated=write_size_in_MB/write_time_avg;
+    double throughput_MB_measured=
+      write_size_in_MB*time_stats.size()/(context->t_end - context->t_start);
+    PINF("BROKER: write_avg\twrite_std\ttp_calculated(MB/s)\ttp_measured\twrite_size_per_step(MB)");
+    PINF("BROKER: %.6f\t%.6f\t%.6f\t%.6f\t%.6f\n", write_time_avg, write_time_std, throughput_MB_calculated, throughput_MB_measured ,write_size_in_MB);
   }
 }
 
 int broker_finalize(broker_ctx * context){
   int status = 0;
+  context->t_end = MPI_Wtime();
 
   if(context->is_async){
     redisReply * reply;
@@ -228,13 +247,14 @@ int broker_finalize(broker_ctx * context){
       if(reply == NULL || reply->type == REDIS_REPLY_ERROR){
         if(reply){
           PERR("HIREDIS xadd: error info in reply: %s", reply->str);
+          freeReplyObject(reply);
         }
         else{
           PERR("HIREDIS xadd: error info in Context, %s", c->errstr);
         }
         status = -1;
+        break;
       }
-      freeReplyObject(reply);
     }
     // sync all context in the pipeline
   }

@@ -11,7 +11,8 @@ How to build
 ```
 mkdir build
 cd build
-cmake ..
+cmake .. -DCMAKE_TOOLCHAIN_FILE=../cmake/toolchain.stampede2-knl.cmake
+cmake .. -Duse_itac=on -DCMAKE_TOOLCHAIN_FILE=../cmake/toolchain.stampede2-knl.cmake
 ```
 
 

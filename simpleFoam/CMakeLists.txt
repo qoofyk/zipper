@@ -37,7 +37,7 @@ include_directories("$ENV{FOAM_SRC}/transportModels/incompressible/singlePhaseTr
 include_directories("$ENV{FOAM_SRC}/finiteVolume/lnInclude")
 include_directories("$ENV{FOAM_SRC}/meshTools/lnInclude")
 include_directories("$ENV{FOAM_SRC}/sampling/lnInclude")
-include_directories(${CMAKE_SOURCE_DIR}/extern/hiredis)
+include_directories(${EBROKER_INCLUDE_DIRS})
 
 add_executable(mySimpleFoam mySimpleFoam.C)
 
@@ -46,7 +46,7 @@ target_compile_definitions(mySimpleFoamNoWrite PUBLIC METHOD_NOWRITE)
 
 add_executable(mySimpleFoamCloud mySimpleFoam.C)
 target_compile_definitions(mySimpleFoamCloud PUBLIC METHOD_CLOUD)
-target_link_libraries(mySimpleFoamCloud hiredis elastic_broker)
+target_link_libraries(mySimpleFoamCloud ${EBROKER_LIBRARIES})
 
 # this is not evaluated, just for testing
 #add_executable(mySimpleFoamFile mySimpleFoam.C)

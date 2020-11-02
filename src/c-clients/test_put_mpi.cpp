@@ -195,7 +195,6 @@ int main(int argc, char **argv) {
   MPI_Barrier(comm);
   if(taskid == 0){
     double all_time_used = 0;
-    printf("[proc %d:]");
     for(auto iter = time_stats.begin(); iter != time_stats.end(); iter ++){
       printf(" %.3f", *iter);
       all_time_used += *iter;

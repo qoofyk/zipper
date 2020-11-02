@@ -45,6 +45,7 @@ typedef struct{
 
   size_t max_write_size=0; // set in the first run, in bytes
   std::vector<double> time_stats;
+  double t_start, t_end;  // between broker_init and broker_finalize
 }broker_ctx;
 
 
@@ -56,6 +57,8 @@ typedef struct{
  */
 
 broker_ctx* broker_init(const char *field_name, MPI_Comm comm);
+
+broker_ctx* broker_init_async(const char *field_name, MPI_Comm comm, int queue_len);
 
 int broker_put(broker_ctx *context, int stepid, std::string values);
 
