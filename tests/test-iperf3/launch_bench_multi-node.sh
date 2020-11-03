@@ -26,7 +26,7 @@
 #SBATCH -J bench-4x1          # Job name
 #SBATCH -o results/bench-4x1.o%j       # Name of stdout output file
 #SBATCH -p normal          # Queue (partition) name
-#SBATCH -N 8               # Total # of nodes 
+#SBATCH -N 2               # Total # of nodes 
 #SBATCH --tasks-per-node=1
 #SBATCH -t 00:05:00        # Run time (hh:mm:ss)
 
@@ -44,17 +44,22 @@ echo "test cloud endpoints: ${all_ips[*]}"
 export RESULT_FOLDER=results/$SLURM_JOB_ID
 mkdir $RESULT_FOLDER
 
-for nr_conn in 2
+nodes=(`scontrol show hostname $SLURM_NODELIST`)
+echo "all nodes: $nodes"
+
+for nr_conn in 1
 do
   echo "================================================="
   echo "==========Test $nr_conn connections: ============"
   echo "================================================="
   for nodeid in $(seq 0 $((SLURM_NNODES-1))); do
+    nodename=${nodes[${nodeid}]}
+    echo "placing on node ${nodename}"
     # check process host binding
     # ibrun -n 1 -o ${nodeid} hostname &> $RESULT_FOLDER/node${nodeid} &
     outfile=$RESULT_FOLDER/log.node${nodeid}
     date> $outfile
-    ibrun -n 1 -o ${nodeid} iperf3 -c ${all_ips[nodeid]} -t 30 -l 32K -p 31993 -P $nr_conn &>> $outfile &     # Use ibrun instead of mpirun or mpiexec
+    mpirun -n 1 -hosts ${nodename} iperf3 -c ${all_ips[nodeid]} -t 30 -l 32K -p 31993 -P $nr_conn &>> $outfile &     # Use ibrun instead of mpirun or mpiexec
   done
   #mpirun -n 1 iperf3 -c ${all_ips[1]} -p 1993 -P $nr_conn &     # Use ibrun instead of mpirun or mpiexec
   #mpirun -n 1 iperf3 -c ${all_ips[2]} -p 1993 -P $nr_conn &     # Use ibrun instead of mpirun or mpiexec

@@ -33,8 +33,8 @@ int vt_generate_id,
     vt_put_id;
 #endif
 
-//#define APP_HAS_BARRIER
-
+#define APP_HAS_BARRIER
+#define SLEEP_USECS (80000)
 
 redisContext *c;
 
@@ -77,8 +77,8 @@ int main(int argc, char **argv) {
 
 
   if(taskid == 0){
-    PINF("running exp with nr_local_fluids(%d), iterations(%d)",
-       nr_local_fluids, nr_steps);
+    PINF("running exp with nr_local_fluids(%d), iterations(%d), sleep (%d)us",
+       nr_local_fluids, nr_steps, SLEEP_USECS);
   }
 
   struct timeval timeout = {1, 500000}; // 1.5 seconds
@@ -140,13 +140,13 @@ int main(int argc, char **argv) {
     }
     std::string values;
 
+    usleep(SLEEP_USECS);
     t3 = MPI_Wtime();
 #ifdef V_T
       VT_end(vt_generate_id);
       VT_begin(vt_transform_id);
 #endif
 
-    // usleep(100000);
     // This is expensive!
     for (int atom_id = 0; atom_id < nr_local_fluids; atom_id++) {
       // TODO: using binary-safe floating point numbers, 6 precision: 9 chars
