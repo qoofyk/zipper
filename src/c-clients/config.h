@@ -19,6 +19,7 @@ static const char *help_str =
 typedef struct{
   int nr_local_fluids = 30;
   int nr_steps = 30;
+  double time_in_sec = 100.0;
   bool is_dry_run=false;
 
   // only for sythetic put_mpi_foam
@@ -32,7 +33,7 @@ typedef struct{
 int read_config(runtime_config_t *ptr_config, int argc, char * argv[]){
   int opt;
   // User option
-  while ((opt = getopt(argc, argv, "h:p:i:n:d")) != -1) {
+  while ((opt = getopt(argc, argv, "h:p:i:t:n:d")) != -1) {
     // fprintf(stderr, "passing option %c\n", opt);
     switch (opt) {
     case 'n':
@@ -42,6 +43,11 @@ int read_config(runtime_config_t *ptr_config, int argc, char * argv[]){
     case 'i':
       ptr_config->nr_steps = atoi(optarg);
       break;
+
+    case 't':
+      ptr_config->time_in_sec = (double)(atoi(optarg));
+      break;
+
 
     case 'd':
       ptr_config->is_dry_run = true;

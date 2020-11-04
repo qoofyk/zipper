@@ -33,7 +33,7 @@ int vt_generate_id,
     vt_put_id;
 #endif
 
-#define APP_HAS_BARRIER
+// #define APP_HAS_BARRIER
 #define SLEEP_USECS (80000)
 
 redisContext *c;
@@ -63,7 +63,7 @@ int main(int argc, char **argv) {
   int ret = read_config(&config, argc, argv);
   if(ret < 0) return ret;
 
-  nr_steps = config.nr_steps;
+  // nr_steps = config.nr_steps;
   nr_local_fluids = config.nr_local_fluids;
   is_dry_run = config.is_dry_run;
 
@@ -77,8 +77,8 @@ int main(int argc, char **argv) {
 
 
   if(taskid == 0){
-    PINF("running exp with nr_local_fluids(%d), iterations(%d), sleep (%d)us",
-       nr_local_fluids, nr_steps, SLEEP_USECS);
+    PINF("running exp with nr_local_fluids(%d), time(%.1f), sleep (%d)us",
+       nr_local_fluids, config.time_in_sec, SLEEP_USECS);
   }
 
   struct timeval timeout = {1, 500000}; // 1.5 seconds
@@ -111,7 +111,9 @@ int main(int argc, char **argv) {
     PINF("-- Simulation started, %s", str_time_start);
   }
 
-  for (int step = 0; step < nr_steps; step++) {
+  double cur_time = context->t_start;
+  int step = 0;
+  while(cur_time - context->t_start < config.time_in_sec) {
     
     // simulate all process advance one step
 #ifdef APP_HAS_BARRIER
@@ -122,21 +124,10 @@ int main(int argc, char **argv) {
       VT_begin(vt_generate_id);
 #endif
 
-
-    double x_bounds[2] = {-5,5};
-    double t_bounds[2] = {0, 4*3.14};
-    double x_span=x_bounds[1] - x_bounds[0];
-    double t_span=t_bounds[1] - t_bounds[0];
+    // initialize
+    srand(time(NULL));
     for(int i = 0; i < nr_local_fluids; i++){
-#ifndef USE_PATTENED_DATA
-      v0_values[i] =  1;
-#else
-      double x = x_bounds[0] + i*(x_span/(nr_local_fluids-1));
-      double t = t_bounds[0] + step*(t_span/(nr_steps-1));
-      double out = 1.1 + sin(x+3*t);
-      PDBG("-----fluid %d:out %.6f= 1.1 + sin(%.6f + 3*%.6f)", i, out, x, t);
-      v0_values[i] =  out;
-#endif
+      v0_values[i] =  (float)rand()/(float)RAND_MAX;;
     }
     std::string values;
 
@@ -168,15 +159,16 @@ int main(int argc, char **argv) {
   }
 
     t2 = MPI_Wtime();
+    cur_time = t2;
 #ifdef V_T
       VT_end(vt_put_id);
 #endif
-    if(taskid == 0 && (step %(nr_steps/20) == 0)){
-      PINF("Executing... (%d/%d):", step, nr_steps);
+    if(taskid == 0 && (step %(200) == 0)){
+      PINF("Executing... (%.2f percent):", 100*(cur_time - context->t_start)/(config.time_in_sec));
       PINF("   step = %d: generate %.6f, prepare: %.6f, write=%.6f, seconds for %d fluids", step, t3 - t1, t4-t3, t2-t4, nr_local_fluids);
     }
-    // usleep(500000);
-  }
+    step += 1;
+  } // this loop end when time-out
 	// wait for the worker
 
   MPI_Barrier(comm);

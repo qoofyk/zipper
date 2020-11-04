@@ -2,7 +2,7 @@
 #SBATCH -J ElasticbrokerSynthetic 
 #SBATCH -o results/log.slurm.%j.output      # Name of stdout output file
 #SBATCH -p normal         # Queue (partition) name
-#SBATCH -N 8     # Total # of nodes 
+#SBATCH -N 8    # Total # of nodes 
 #SBATCH --ntasks-per-node=64
 #SBATCH -t 00:15:00        # Run time (hh:mm:ss)
 #SBATCH --mail-type=BEGIN
@@ -31,7 +31,7 @@ if [ x"$ENABLE_TRACE" = "xtrue" ] ; then
 else
   export EXE_FILE=$SUBMITDIR/build/bin/test-synthetic
 fi
-export CMD="$EXE_FILE -n 10000 -i 1000"
+export CMD="$EXE_FILE -n 10000 -t 60"
 
 module list
 

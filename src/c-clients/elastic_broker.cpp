@@ -221,15 +221,18 @@ void broker_print_stats(broker_ctx *context){
   double diff_square = (write_time_this_proc - write_time_avg)*(write_time_this_proc - write_time_avg);
 
   MPI_Reduce(&diff_square, &write_time_std, 1, MPI_DOUBLE, MPI_SUM, 0, context->comm);
+  unsigned long items_local, items_global;
+  items_local = time_stats.size();
+  MPI_Reduce(&items_local, &items_global, 1, MPI_UNSIGNED_LONG, MPI_SUM, 0, context->comm);
 
   if(mpi_rank == 0){
     write_time_std/= mpi_size;
     write_time_std = sqrt(write_time_std);
     PINF("BROKER: write time avg/std: %.6f %.6f", write_time_avg, write_time_std);
-    double write_size_in_MB=(context->max_write_size*mpi_size)/1000000.0;
+    double write_size_in_MB=(context->max_write_size)/1000000.0;
     double throughput_MB_calculated=write_size_in_MB/write_time_avg;
     double throughput_MB_measured=
-      write_size_in_MB*time_stats.size()/(context->t_end - context->t_start);
+      write_size_in_MB*items_global/(context->t_end - context->t_start);
     PINF("BROKER: write_avg\twrite_std\ttp_calculated(MB/s)\ttp_measured\twrite_size_per_step(MB)");
     PINF("BROKER: %.6f\t%.6f\t%.6f\t%.6f\t%.6f\n", write_time_avg, write_time_std, throughput_MB_calculated, throughput_MB_measured ,write_size_in_MB);
   }
