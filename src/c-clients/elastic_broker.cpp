@@ -87,6 +87,7 @@ broker_ctx* broker_init(const char *field_name, MPI_Comm comm){
       c = redisConnectUnixWithTimeout(hostname, timeout);
     } else {
       c = redisConnectWithTimeout(hostname, conn.port, timeout);
+      // c = redisConnectNonBlock(hostname, conn.port);
     }
     if (c == NULL || c->err) {
       if (c) {
@@ -97,6 +98,8 @@ broker_ctx* broker_init(const char *field_name, MPI_Comm comm){
       }
       exit(1);
     }
+    /* Suppress hiredis cleanup of unused buffers for max speed. */
+    // c->reader->maxbuf = 0;
 
     /* PING server */
     reply = (redisReply *)redisCommand(c, "auth 5ba4239a1a2b7cd8131da1e557f4264df7ef2083f8895eab1d30384f870a9d87");
@@ -128,17 +131,21 @@ int do_put_async(broker_ctx* context, const char* buffer){
   redisAppendCommand(c, buffer);
   context->nr_queued ++;
 
-  if(context-> nr_queued >= context->queue_len){
-    redisGetReply(c,(void **)&reply); // reply for SET
-    if(reply == NULL || reply->type == REDIS_REPLY_ERROR){
-      if(reply){
-        PERR("HIREDIS xadd: error info in reply: %s", reply->str);
-        freeReplyObject(reply);
+  if(context-> nr_queued == context->queue_len){
+    while(context->nr_queued){
+      redisGetReply(c,(void **)&reply); // reply for SET
+      if(reply == NULL || reply->type == REDIS_REPLY_ERROR){
+        if(reply){
+          PERR("HIREDIS xadd: error info in reply: %s", reply->str);
+          freeReplyObject(reply);
+        }
+        else{
+          PERR("HIREDIS xadd: error info in Context, %s", c->errstr);
+        }
+        ret = -1;
+        break;
       }
-      else{
-        PERR("HIREDIS xadd: error info in Context, %s", c->errstr);
-      }
-      ret = -1;
+      context->nr_queued --;
     }
   }
   return ret;
@@ -245,7 +252,7 @@ int broker_finalize(broker_ctx * context){
   if(context->is_async){
     redisReply * reply;
     redisContext *c = context->redis_context;
-    for(auto i = 0; i< context->queue_len-1; i++){
+    for(auto i = 0; i< context->nr_queued; i++){
       redisGetReply(c,(void **)&reply); // reply for SET
       if(reply == NULL || reply->type == REDIS_REPLY_ERROR){
         if(reply){
