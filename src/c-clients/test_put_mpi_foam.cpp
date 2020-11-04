@@ -159,16 +159,17 @@ int main(int argc, char **argv) {
   }
 
     t2 = MPI_Wtime();
-    cur_time = t2;
 #ifdef V_T
       VT_end(vt_put_id);
 #endif
-    if(taskid == 0 && (step %(200) == 0)){
-      PINF("Executing... (%.2f percent):", 100*(cur_time - context->t_start)/(config.time_in_sec));
+    if(taskid == 0 && (step %(100) == 0)){
+      PINF("Executing... step %d, (%.2f percent), %.3f second", step, 100*(cur_time - context->t_start)/(config.time_in_sec), cur_time - context->t_start);
       PINF("   step = %d: generate %.6f, prepare: %.6f, write=%.6f, seconds for %d fluids", step, t3 - t1, t4-t3, t2-t4, nr_local_fluids);
     }
     step += 1;
+    cur_time = t2;
   } // this loop end when time-out
+  // PINF(" process %d: finished  at %.3f second", taskid, cur_time- context->t_start);
 	// wait for the worker
 
   MPI_Barrier(comm);

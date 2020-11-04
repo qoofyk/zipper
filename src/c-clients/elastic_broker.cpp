@@ -233,6 +233,7 @@ void broker_print_stats(broker_ctx *context){
     double throughput_MB_calculated=write_size_in_MB/write_time_avg;
     double throughput_MB_measured=
       write_size_in_MB*items_global/(context->t_end - context->t_start);
+    PINF("%lu total items, each %.6f MB", items_global, write_size_in_MB);
     PINF("BROKER: write_avg\twrite_std\ttp_calculated(MB/s)\ttp_measured\twrite_size_per_step(MB)");
     PINF("BROKER: %.6f\t%.6f\t%.6f\t%.6f\t%.6f\n", write_time_avg, write_time_std, throughput_MB_calculated, throughput_MB_measured ,write_size_in_MB);
   }
@@ -240,7 +241,6 @@ void broker_print_stats(broker_ctx *context){
 
 int broker_finalize(broker_ctx * context){
   int status = 0;
-  context->t_end = MPI_Wtime();
 
   if(context->is_async){
     redisReply * reply;
@@ -261,6 +261,8 @@ int broker_finalize(broker_ctx * context){
     }
     // sync all context in the pipeline
   }
+  context->t_end = MPI_Wtime();
+
   redisFree(context->redis_context);
   broker_print_stats(context);
   return status;
