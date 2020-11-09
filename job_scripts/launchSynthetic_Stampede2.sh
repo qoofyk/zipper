@@ -1,10 +1,10 @@
 #!/bin/bash
 #SBATCH -J ElasticbrokerSynthetic 
 #SBATCH -o results/log.slurm.%j.output      # Name of stdout output file
-#SBATCH -p normal         # Queue (partition) name
+#SBATCH -p development         # Queue (partition) name
 #SBATCH -N 8    # Total # of nodes 
 #SBATCH --ntasks-per-node=64
-#SBATCH -t 00:15:00        # Run time (hh:mm:ss)
+#SBATCH -t 00:10:00        # Run time (hh:mm:ss)
 #SBATCH --mail-type=BEGIN
 
 #submit from source dir
@@ -31,7 +31,7 @@ if [ x"$ENABLE_TRACE" = "xtrue" ] ; then
 else
   export EXE_FILE=$SUBMITDIR/build/bin/test-synthetic
 fi
-export CMD="$EXE_FILE -n 10000 -t 60"
+export CMD="$EXE_FILE -n 8000 -t 60"
 
 module list
 
@@ -58,7 +58,11 @@ echo "launching a mpirun ${CMD} with $NUM_PROCS procs, $SLURM_NTASKS_PER_NODE pe
 
 # realrun
 echo "realrun"
-$RUN -n  ${NUM_PROCS}  $CMD
+for iter in 1 2 ; do
+  echo "No.$iter run..."
+  $RUN -n  ${NUM_PROCS}  $CMD
+  sleep 5
+done
 
 # generate trace in a sigle file
 if [ x"$ENABLE_TRACE" = "xtrue" ] ; then
