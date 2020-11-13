@@ -5,15 +5,18 @@
 
 # Author: Feng Li
 # email: fengggli@yahoo.com
+SPARK_VERSION=3.0.1 
+SCALA_VERSION=2.12
+SPARK_REDIS_VERSION=2.5.0
 
-DEPS_DIR=/home/ubuntu/Workspace/spark-standalone/spark-2.4.5-bin-hadoop2.7/dmd-deps
+DEPS_DIR=/home/ubuntu/Workspace/spark-standalone/spark-${SPARK_VERSION}-bin-hadoop2.7/dmd-deps
 RUNFILES_DIR=build/runfiles
 
 mkdir -pv $DEPS_DIR $RUNFILES_DIR
 rm -rf $DEPS_DIR/* $RUNFILES_DIR/*
 
 
-dep_list="tests/test-redis-spark/lib/spark-redis_2.11-2.4.3-SNAPSHOT-jar-with-dependencies.jar \
+dep_list="tests/test-redis-spark/lib/spark-redis_${SCALA_VERSION}-${SPARK_REDIS_VERSION}-SNAPSHOT-jar-with-dependencies.jar \
  python/requirements.txt "
 
 for filename in $dep_list
@@ -23,7 +26,8 @@ do
 done
 
 runfile_list="
- tests/test-redis-spark/target/scala-2.11/fluidanalysis_2.11-0.1.0-SNAPSHOT.jar \
+ tests/test-redis-spark/target/scala-$SCALA_VERSION/fluidanalysis_$SCALA_VERSION-0.1.0-SNAPSHOT.jar \
+tests/test-redis-spark/lib/spark-redis_${SCALA_VERSION}-${SPARK_REDIS_VERSION}-SNAPSHOT-jar-with-dependencies.jar 
  python/run_fluiddmd.py \
  python/wc.py \
  tests/test-redis-spark/conf/log4j.properties"

@@ -1,0 +1,5 @@
+set(CMAKE_C_COMPILER  mpicc)
+set(CMAKE_CXX_COMPILER  mpicxx)
+set(CMAKE_C_FLAGS "-O3 -Wall -Wextra -xCORE-AVX2 -axMIC-AVX512" CACHE STRING "cflags")
+set(CMAKE_CXX_FLAGS "-O3 -Wall -Wextra -xCORE-AVX2 -axMIC-AVX512" CACHE STRING "cxxflags")
+set(CMAKE_CXX_STANDARD 11)

@@ -28,11 +28,31 @@ broker_connection_t get_connection(int rank, std::string endpoint_filepath){
   return conn;
 }
 
+broker_ctx* broker_init_async(const char *field_name, MPI_Comm comm, int queue_len){
+  int mpi_rank, mpi_size;
+
+  MPI_Comm_rank(comm, &mpi_rank);
+  MPI_Comm_size(comm, &mpi_size);
+
+  if(mpi_rank == 0){
+    PINF("Broker: Initializing pipelining, queue_len = %d.. ", queue_len);
+  }
+  broker_ctx * context= broker_init(field_name, comm);
+  context->is_async=true;
+  context->queue_len=queue_len;
+  context->t_start = MPI_Wtime();
+  return context;
+}
+
 broker_ctx* broker_init(const char *field_name, MPI_Comm comm){
     int mpi_rank, mpi_size;
 
     MPI_Comm_rank(comm, &mpi_rank);
     MPI_Comm_size(comm, &mpi_size);
+
+    if(mpi_rank == 0){
+      PINF("Broker: nr_procs = %d", mpi_size);
+    }
 
     broker_ctx * context =  new broker_ctx();
 
@@ -48,19 +68,18 @@ broker_ctx* broker_init(const char *field_name, MPI_Comm comm){
 
     sprintf(context->stream_name, "%s%d",field_name, conn.local_id);
 
-    PINF("mpirank: %d, writing stream (%s) to endpoint host: %s", mpi_rank, context->stream_name, conn.hostname.c_str());
+    PDBG("mpirank: %d, writing stream (%s) to endpoint host: %s", mpi_rank, context->stream_name, conn.hostname.c_str());
 
     redisContext *c;
     redisReply *reply;
 
     unsigned int isunix = 0;
 
-    int queue_len = 128;
     int ii = 0;
       // mpi_rank =1;
 
     const char *hostname = conn.hostname.c_str();
-    PINF("running exp with endpoint (%s:%d), my mpi_rank = %d",
+    PDBG("running exp with endpoint (%s:%d), my mpi_rank = %d",
        hostname, conn.port, mpi_rank);
 
     struct timeval timeout = {1, 500000}; // 1.5 seconds
@@ -68,6 +87,7 @@ broker_ctx* broker_init(const char *field_name, MPI_Comm comm){
       c = redisConnectUnixWithTimeout(hostname, timeout);
     } else {
       c = redisConnectWithTimeout(hostname, conn.port, timeout);
+      // c = redisConnectNonBlock(hostname, conn.port);
     }
     if (c == NULL || c->err) {
       if (c) {
@@ -78,6 +98,8 @@ broker_ctx* broker_init(const char *field_name, MPI_Comm comm){
       }
       exit(1);
     }
+    /* Suppress hiredis cleanup of unused buffers for max speed. */
+    // c->reader->maxbuf = 0;
 
     /* PING server */
     reply = (redisReply *)redisCommand(c, "auth 5ba4239a1a2b7cd8131da1e557f4264df7ef2083f8895eab1d30384f870a9d87");
@@ -100,6 +122,35 @@ broker_ctx* broker_init(const char *field_name, MPI_Comm comm){
     return context;
 }
 
+/** Asynchonous write using pipeline*/
+int do_put_async(broker_ctx* context, const char* buffer){
+  int ret = 0;
+  redisContext *c = context->redis_context;
+  redisReply *reply;
+
+  redisAppendCommand(c, buffer);
+  context->nr_queued ++;
+
+  if(context-> nr_queued == context->queue_len){
+    while(context->nr_queued){
+      redisGetReply(c,(void **)&reply); // reply for SET
+      if(reply == NULL || reply->type == REDIS_REPLY_ERROR){
+        if(reply){
+          PERR("HIREDIS xadd: error info in reply: %s", reply->str);
+          freeReplyObject(reply);
+        }
+        else{
+          PERR("HIREDIS xadd: error info in Context, %s", c->errstr);
+        }
+        ret = -1;
+        break;
+      }
+      context->nr_queued --;
+    }
+  }
+  return ret;
+}
+
 int broker_put(broker_ctx *context, int stepid, std::string values){
   double t_start, t_end;
 
@@ -114,9 +165,12 @@ int broker_put(broker_ctx *context, int stepid, std::string values){
 
   std::string commandString = "XADD ";
   commandString.append(stream_name);
-  commandString.append(" MAXLEN ~ 1000 * ");
+  // commandString.append(" MAXLEN ~ 1000 * ");
+  commandString.append(" * ");
   commandString.append(" step ");
   commandString.append(std::to_string(stepid));
+  commandString.append(" localid ");
+  commandString.append(std::to_string(context->conn.local_id));
 
   // commandString.append(" field ")
   // commandString.append(fieldname)
@@ -126,18 +180,24 @@ int broker_put(broker_ctx *context, int stepid, std::string values){
 
   // PINF("---- rank (%d), command: %s",context->global_id, commandString.substr(0, 30).c_str());
 
-  reply = (redisReply *)redisCommand(c, commandString.c_str());
   int ret = 0;
-  if(reply == NULL || reply->type == REDIS_REPLY_ERROR){
-    if(reply){
-      PERR("HIREDIS xadd: error info in reply: %s", reply->str);
+
+  if(context->is_async == false){
+    reply = (redisReply *)redisCommand(c, commandString.c_str());
+    if(reply == NULL || reply->type == REDIS_REPLY_ERROR){
+      if(reply){
+        PERR("HIREDIS xadd: error info in reply: %s", reply->str);
+        freeReplyObject(reply);
+      }
+      else{
+        PERR("HIREDIS xadd: error info in Context, %s", c->errstr);
+      }
+      ret = -1;
     }
-    else{
-      PERR("HIREDIS xadd: error info in Context, %s", c->errstr);
-    }
-    ret = -1;
   }
-  freeReplyObject(reply);
+  else{
+    ret = do_put_async(context, commandString.c_str());
+  }
 
   t_end= MPI_Wtime();
   context->time_stats.push_back(t_end - t_start);
@@ -168,20 +228,50 @@ void broker_print_stats(broker_ctx *context){
   double diff_square = (write_time_this_proc - write_time_avg)*(write_time_this_proc - write_time_avg);
 
   MPI_Reduce(&diff_square, &write_time_std, 1, MPI_DOUBLE, MPI_SUM, 0, context->comm);
+  unsigned long items_local, items_global;
+  items_local = time_stats.size();
+  MPI_Reduce(&items_local, &items_global, 1, MPI_UNSIGNED_LONG, MPI_SUM, 0, context->comm);
 
   if(mpi_rank == 0){
     write_time_std/= mpi_size;
     write_time_std = sqrt(write_time_std);
     PINF("BROKER: write time avg/std: %.6f %.6f", write_time_avg, write_time_std);
-    double write_size_in_MB=(context->max_write_size*mpi_size)/1000000.0;
-    double throughput_in_MB=write_size_in_MB/write_time_avg;
-    PINF("BROKER: write_avg\twrite_std\ttp_all(MB/s)\twrite_size_all(MB)");
-    PINF("BROKER: %.6f\t%.6f\t%.6f\t%.6f\n", write_time_avg, write_time_std, throughput_in_MB, write_size_in_MB);
+    double write_size_in_MB=(context->max_write_size)/1000000.0;
+    double throughput_MB_calculated=write_size_in_MB/write_time_avg;
+    double throughput_MB_measured=
+      write_size_in_MB*items_global/(context->t_end - context->t_start);
+    PINF("%lu total items, each %.6f MB", items_global, write_size_in_MB);
+    PINF("BROKER: write_avg\twrite_std\ttp_calculated(MB/s)\ttp_measured\twrite_size_per_step(MB)");
+    PINF("BROKER STATS: %.6f\t%.6f\t%.6f\t%.6f\t%.6f\n", write_time_avg, write_time_std, throughput_MB_calculated, throughput_MB_measured ,write_size_in_MB);
   }
 }
 
-void broker_finalize(broker_ctx * context){
+int broker_finalize(broker_ctx * context){
+  int status = 0;
+
+  if(context->is_async){
+    redisReply * reply;
+    redisContext *c = context->redis_context;
+    for(auto i = 0; i< context->nr_queued; i++){
+      redisGetReply(c,(void **)&reply); // reply for SET
+      if(reply == NULL || reply->type == REDIS_REPLY_ERROR){
+        if(reply){
+          PERR("HIREDIS xadd: error info in reply: %s", reply->str);
+          freeReplyObject(reply);
+        }
+        else{
+          PERR("HIREDIS xadd: error info in Context, %s", c->errstr);
+        }
+        status = -1;
+        break;
+      }
+    }
+    // sync all context in the pipeline
+  }
+  context->t_end = MPI_Wtime();
+
   redisFree(context->redis_context);
   broker_print_stats(context);
+  return status;
 }
 

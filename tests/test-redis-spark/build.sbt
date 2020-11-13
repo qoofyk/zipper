@@ -1,6 +1,7 @@
-scalaVersion := "2.11.12"
+scalaVersion := "2.12.9"
 // val sparkRedisVersion ="2.4.2"
-val sparkVersion = "2.4.5"
+// val sparkVersion = "2.4.5"
+val sparkVersion = "3.0.1"
 
 // mainClass in (Compile, run) := Some("fluidAnalysis")
 

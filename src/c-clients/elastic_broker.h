@@ -35,11 +35,17 @@ typedef struct{
   redisContext *redis_context;
   broker_connection_t conn;
 
+  // pipelining length
+  bool is_async = false;
+  size_t queue_len;
+  size_t nr_queued = 0; // items has been put into the queue
+
   // for debugging use
   MPI_Comm comm;
 
   size_t max_write_size=0; // set in the first run, in bytes
   std::vector<double> time_stats;
+  double t_start, t_end;  // between broker_init and broker_finalize
 }broker_ctx;
 
 
@@ -52,8 +58,10 @@ typedef struct{
 
 broker_ctx* broker_init(const char *field_name, MPI_Comm comm);
 
+broker_ctx* broker_init_async(const char *field_name, MPI_Comm comm, int queue_len);
+
 int broker_put(broker_ctx *context, int stepid, std::string values);
 
-void broker_finalize(broker_ctx * context);
+int broker_finalize(broker_ctx * context);
 #endif
 #endif

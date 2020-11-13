@@ -9,7 +9,8 @@ JOBID=$1
 
 for logfile in results/$JOBID/log.*; do
   echo `basename $logfile`:
-  cat $logfile| grep sender|tail -1 ;
+  #cat $logfile| grep sender|tail -1 ;
+  cat $logfile| grep requests|tail -1 ;
 done
 
 

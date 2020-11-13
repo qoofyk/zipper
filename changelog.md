@@ -1,4 +1,19 @@
 # Changelog
+## new
+[todo]:
+1.Use HPC login as gateway! 
+
+## [0.2.9] - 2020-11-13
+[cloud]:
+1. add support for dryrun for scala code, which only collects count for items received from each localid
+2. change the synthetic code correspondingly.
+3. switch to kubespray 2.13.1, because the old 2.8 sometimes hangs.
+4. change spark to 3.0.1, scala to 2.12 (since kubespray 2.13.1 cannot generate kubenetes 1.15.3)
+[hpc]:
+1. add pipelining, and redo experiments
+2. stampede2 toolchain, vtune (see old doc/itac.md).
+3. now synthetic experiments measures througput in fixed time intervals.
+
 ## [0.2.8] - 2020-10-19
 [orchestration]:
 - switch back to kubespray (2.8)

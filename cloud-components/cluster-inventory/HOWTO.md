@@ -10,6 +10,20 @@ wget https://releases.hashicorp.com/terraform/0.11.13/terraform_0.11.13_linux_am
 https://zonca.dev/2019/02/kubernetes-jupyterhub-jetstream-kubespray.html
 use ssh -L so that the gateway node has access to the kubectl
 
+Steps:
+```
+pip install -r requirement.sh # (or source corresponding venv)
+export CLUSTER=fengggli # this env_var is important@!
+cd  cluster/$CLUSTER
+bash ./terraform_init.sh
+bash ./terraform_apply.sh
+cd ../../
+ansible -i inventory/$CLUSTER/hosts -m ping all
+ansible-playbook --become -i inventory/$CLUSTER/hosts cluster.yml #(might need multiple times in case of apt-get lock)
+```
+
+to connect: make soft links of the admin.conf, change ip from 10.0.0.x to 127.0.0.1
+
 Note different version of jetstream kubespray uses different terraform and ansible.
 1. Use too new ansible(>2.8) for kubespray 2.8 causes : https://github.com/kubernetes-sigs/image-builder/issues/92
 2. Use too new terraform(>1.11)
