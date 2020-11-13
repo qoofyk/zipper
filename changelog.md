@@ -1,5 +1,9 @@
 # Changelog
 ## new
+[todo]:
+1.Use HPC login as gateway! 
+
+## [0.2.9] - 2020-11-13
 [cloud]:
 1. add support for dryrun for scala code, which only collects count for items received from each localid
 2. change the synthetic code correspondingly.

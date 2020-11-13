@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 # run with ./launchAnalysis.sh
-NR_NODES=1
+NR_NODES=8
 NR_REGIONS=64  # this number of region, each will initiate a stream and process as different partitions in spark
 export DRY_RUN=1 # uncomment this to ignore dmd.
 #let NR_SPARK_INSTANCES="($NR_REGIONS + 4 -1)/4" # run with launch_analysis.sh nr_instances
