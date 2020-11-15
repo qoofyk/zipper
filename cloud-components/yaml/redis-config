@@ -1,0 +1,4 @@
+# maxmemory 2mb
+# maxmemory-policy allkeys-lru
+port 30379
+requirepass 5ba4239a1a2b7cd8131da1e557f4264df7ef2083f8895eab1d30384f870a9d87
