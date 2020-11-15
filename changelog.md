@@ -1,7 +1,7 @@
 # Changelog
 ## new
-[todo]:
-1.Use HPC login as gateway! 
+[new]:
+1.Use HPC login as gateway!
 
 ## [0.2.9] - 2020-11-13
 [cloud]:

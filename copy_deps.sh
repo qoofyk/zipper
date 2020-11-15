@@ -42,6 +42,6 @@ done
 (
   cd $RUNFILES_DIR
   echo "trying to serving runfiles at $RUNFILES_DIR"
-  python -m http.server 8080
+  python3 -m http.server 8080
 )
 

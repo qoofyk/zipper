@@ -77,8 +77,6 @@ kubectl apply -k .
 
 Launch spark instances
 
-
-
 ### spark
 0. deploy-mode: Whether to deploy your driver on the worker nodes (cluster) or locally as an external client (client) (default: client) 
 1. Run analysis:
