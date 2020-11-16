@@ -2,6 +2,7 @@
 ## new
 [new]:
 1.Use HPC login as gateway!
+  - login node has ulimit, use a interactive node instead!
 
 ## [0.2.9] - 2020-11-13
 [cloud]:

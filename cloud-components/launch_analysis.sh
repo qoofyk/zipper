@@ -1,17 +1,20 @@
 #!/usr/bin/env bash
 
 # run with ./launchAnalysis.sh
-NR_NODES=8
+NR_NODES=1
 NR_REGIONS=64  # this number of region, each will initiate a stream and process as different partitions in spark
 export DRY_RUN=1 # uncomment this to ignore dmd.
 #let NR_SPARK_INSTANCES="($NR_REGIONS + 4 -1)/4" # run with launch_analysis.sh nr_instances
 let NR_SPARK_INSTANCES="16" # run with launch_analysis.sh nr_instances
 IMAGE_VERSION=v0.1.6 # use hostpath, and use py image
 RUNFILES_DIR="http://149.165.169.185:8080/"
-SPARK_ROOT=/home/ubuntu/Workspace/spark-standalone/spark-2.4.5-bin-hadoop2.7
+
 REMOTE_SPARK_HOME=/opt/spark/
 SCALA_VERSION=2.12
 SPARK_REDIS_VERSION=2.5.0
+
+LOG_DIR=tmp
+mkdir -p $LOG_DIR
 
 # they will be labeled at minion-idx=0,1,2
 
@@ -19,7 +22,7 @@ SPARK_REDIS_VERSION=2.5.0
 REDIS_IPS_INTERNAL=($(kubectl get pods --selector=app=redis,role=master -o jsonpath={.items[*].status.podIP}))
 #K8SMASTER_IP=$(kubectl get nodes --selector=node-role.kubernetes.io/master -o jsonpath={.items[*].status.addresses[?\(@.type==\"ExternalIP\"\)].address})
 K8SMASTER_IP=localhost
-REDIS_PASS=`cat redis.pass`
+REDIS_PASS=5ba4239a1a2b7cd8131da1e557f4264df7ef2083f8895eab1d30384f870a9d87
 
 for ((i=0;i<$NR_NODES;i++))
 do
@@ -28,12 +31,12 @@ do
 	REDIS_IP=$(kubectl get nodes -l minion-idx=${i} -o jsonpath={.items[*].status.addresses[?\(@.type==\"InternalIP\"\)].address})
 	echo "Use k8s cluster at ${K8SMASTER_IP}, redis server at $REDIS_IP, run spark-submit with $NR_SPARK_INSTANCES instances, with $NR_REGIONS regions"
 
-	${SPARK_ROOT}/bin/spark-submit \
+	spark-submit \
 			--deploy-mode cluster \
 			--master k8s://https://${K8SMASTER_IP}:6443 \
+      --driver-java-options "-Dlog4j.configuration=${RUNFILES_DIR}/log4j.properties" \
 			--name fluid-analysis-copy-${i} \
 			--class FluidAnalysis \
-			--driver-java-options "-Dlog4j.configuration=${RUNFILES_DIR}/log4j.properties" \
 			--conf spark.kubernetes.driver.pod.name=analysis-${i} \
 			--conf spark.executor.instances=$NR_SPARK_INSTANCES \
 			--conf spark.kubernetes.container.image=fengggli/spark:${IMAGE_VERSION} \
@@ -47,8 +50,13 @@ do
 			--conf "spark.kubernetes.executor.request.cores=0.5" \
 			--files  ${RUNFILES_DIR}/run_fluiddmd.py,${RUNFILES_DIR}/wc.py \
 			${RUNFILES_DIR}/fluidanalysis_$SCALA_VERSION-0.1.0-SNAPSHOT.jar  \
-			$NR_REGIONS $DRY_RUN &>tmp/log.node${i} &
+			$NR_REGIONS $DRY_RUN &> $LOG_DIR/log.node${i} &
 done
+# --conf spark.driver.memory=1g \
+      #--conf spark.driver.extraJavaOptions="-Dcom.sun.xml.bind.v2.bytecode.ClassTailor.noOptimize=true" \
+      #--conf spark.executor.memory=512m \
+
+# --driver-java-options "-Dlog4j.configuration=${RUNFILES_DIR}/log4j.properties" \
 
 #			--conf "stream.read.batch.size=$((200))" \
 #			--conf "stream.read.block=250" \

@@ -17,9 +17,14 @@ cmake .. -Duse_itac=on -DCMAKE_TOOLCHAIN_FILE=../cmake/toolchain.stampede2-knl.c
 
 Prepare Cloud components
 ---------------------------
-1. copy all artifacts into cloud-components/artifacts/
+
+0. copy all artifacts into cloud-components/artifacts/
   - this include admin.conf, the k8s authentication info (is using 127.0.0.1, do ssh port forwarding ``ssh ubuntu@129.114.16.33 -L6443:localhost:6443``)
   - kubectl binary
+
+1. login to a compute node via interactive session.
+  - ``idev -p normal``
+  - login node have process/memory limits which doesn't allow me to launch spark-submit.
 
 2. prepare local environments (e.g. spark-submit):
 ```
